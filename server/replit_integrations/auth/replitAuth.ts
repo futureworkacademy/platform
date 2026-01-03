@@ -105,21 +105,7 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/login", (req, res, next) => {
     const hostname = req.hostname;
-    const callbackURL = `https://${hostname}/api/callback`;
-    console.log("[Auth] Login initiated - hostname:", hostname, "callbackURL:", callbackURL);
-    console.log("[Auth] REPL_ID:", process.env.REPL_ID);
-    console.log("[Auth] ISSUER_URL:", process.env.ISSUER_URL ?? "https://replit.com/oidc");
     ensureStrategy(hostname);
-    
-    // Override setHeader to catch Location header
-    const originalSetHeader = res.setHeader.bind(res);
-    res.setHeader = function(name: string, value: string | number | readonly string[]) {
-      if (name.toLowerCase() === 'location') {
-        console.log("[Auth] Redirect Location:", value);
-      }
-      return originalSetHeader(name, value);
-    } as any;
-    
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
@@ -128,30 +114,10 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
-    console.log("[Auth] Callback received - hostname:", hostname);
-    console.log("[Auth] Callback query:", JSON.stringify(req.query));
-    console.log("[Auth] Callback session:", req.session ? "exists" : "missing");
-    console.log("[Auth] Callback sessionID:", req.sessionID);
-    console.log("[Auth] Callback cookies:", req.headers.cookie);
     ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, (err: any, user: any, info: any) => {
-      console.log("[Auth] Callback auth result - err:", err, "user:", !!user, "info:", info);
-      if (err) {
-        console.error("[Auth] Callback error:", err);
-        return res.redirect("/api/login");
-      }
-      if (!user) {
-        console.log("[Auth] No user returned");
-        return res.redirect("/api/login");
-      }
-      req.logIn(user, (loginErr) => {
-        if (loginErr) {
-          console.error("[Auth] Login error:", loginErr);
-          return res.redirect("/api/login");
-        }
-        console.log("[Auth] Login successful, redirecting to /");
-        return res.redirect("/");
-      });
+    passport.authenticate(`replitauth:${hostname}`, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/api/login",
     })(req, res, next);
   });
 

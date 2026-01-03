@@ -99,6 +99,14 @@ The application runs via the "Start application" workflow which executes `npm ru
 
 This applies to any Replit app using OIDC authentication or session cookies. Once published/deployed, the app works normally in all browsers.
 
+## Authentication Flow
+The app uses Replit Auth (OIDC). When users click "Sign In":
+1. They're redirected to Replit's login consent page
+2. **Important**: Users must click "Continue with Google", "Continue with Apple", or "Continue with email" - NOT the "Log in secured by Replit" text at the bottom (that's just branding that links to replit.com)
+3. After authenticating, users are redirected back to the app
+4. New users without team assignments see a "Waiting for Team Assignment" page
+5. Admins can assign users to teams via the Admin panel
+
 ## Recent Changes
 - Initial MVP implementation (January 2026)
 - Bloomberg Terminal inspired design with Shadcn components
