@@ -89,6 +89,16 @@ shared/
 ## Running the Application
 The application runs via the "Start application" workflow which executes `npm run dev`, starting both the Express backend and Vite frontend on port 5000.
 
+## Development Preview Note
+**Important**: The Replit embedded webview (preview pane) does not work with session-based authentication. This is a known browser security limitation - the webview runs in an iframe, and modern browsers block third-party cookies in iframes by default.
+
+**To test the app during development:**
+- Click "Open in new tab" in the webview toolbar to open in an external browser
+- Or use a private/incognito browser window with the app URL
+- The webview will show a blank screen or fail to maintain login sessions
+
+This applies to any Replit app using OIDC authentication or session cookies. Once published/deployed, the app works normally in all browsers.
+
 ## Recent Changes
 - Initial MVP implementation (January 2026)
 - Bloomberg Terminal inspired design with Shadcn components
