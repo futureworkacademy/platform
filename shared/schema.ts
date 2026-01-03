@@ -95,17 +95,79 @@ export const teamSchema = z.object({
     financialScore: z.number(),
     culturalScore: z.number(),
   })),
+  setupComplete: z.boolean().default(false),
+  researchComplete: z.boolean().default(false),
+  viewedReportIds: z.array(z.string()).default([]),
+  createdAt: z.string().optional(),
 });
 
 export type Team = z.infer<typeof teamSchema>;
 
 export const insertTeamSchema = z.object({
-  name: z.string().min(1, "Team name is required"),
-  members: z.array(z.string()).min(1, "At least one member is required"),
+  name: z.string().min(1, "Team name is required").max(50, "Team name too long"),
+  members: z.array(z.string().min(1)).min(1, "At least one member is required").max(6, "Maximum 6 team members"),
   totalWeeks: z.number().min(4).max(12).default(8),
 });
 
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
+
+// Historical company data for pre-game research
+export const historicalDataSchema = z.object({
+  year: z.number(),
+  quarter: z.string(),
+  revenue: z.number(),
+  employees: z.number(),
+  aiInvestment: z.number(),
+  marketShare: z.number(),
+  customerSatisfaction: z.number(),
+  employeeSatisfaction: z.number(),
+  rndSpending: z.number(),
+  operatingMargin: z.number(),
+});
+
+export type HistoricalData = z.infer<typeof historicalDataSchema>;
+
+// Research report for pre-game analysis
+export const researchReportSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: z.enum(["industry", "company", "workforce", "technology", "competition", "case_study"]),
+  summary: z.string(),
+  content: z.string(),
+  keyFindings: z.array(z.string()),
+  dataPoints: z.array(z.object({
+    label: z.string(),
+    value: z.string(),
+    trend: z.enum(["up", "down", "stable"]).optional(),
+  })).optional(),
+  publishedDate: z.string(),
+  readingTime: z.number(),
+});
+
+export type ResearchReport = z.infer<typeof researchReportSchema>;
+
+// Workforce demographics for pre-game research
+export const workforceDemographicsSchema = z.object({
+  departments: z.array(z.object({
+    name: z.string(),
+    headcount: z.number(),
+    avgTenure: z.number(),
+    avgAge: z.number(),
+    aiExposureRisk: z.number(),
+    reskillingPotential: z.number(),
+  })),
+  skillDistribution: z.array(z.object({
+    skill: z.string(),
+    percentage: z.number(),
+    demandTrend: z.enum(["growing", "stable", "declining"]),
+  })),
+  tenureDistribution: z.array(z.object({
+    range: z.string(),
+    count: z.number(),
+  })),
+});
+
+export type WorkforceDemographics = z.infer<typeof workforceDemographicsSchema>;
 
 // Leaderboard entry
 export const leaderboardEntrySchema = z.object({
