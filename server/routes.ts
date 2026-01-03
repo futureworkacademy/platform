@@ -118,7 +118,7 @@ export async function registerRoutes(
         eventType: "user_assigned",
         userId: adminUserId,
         userEmail: adminUser?.email || undefined,
-        userName: adminUser?.username || undefined,
+        userName: adminUser ? `${adminUser.firstName || ''} ${adminUser.lastName || ''}`.trim() || undefined : undefined,
         teamId: teamId || undefined,
         teamName: team?.name,
         details: { 
@@ -633,6 +633,113 @@ export async function registerRoutes(
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  app.patch("/api/auth/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { firstName, lastName, institution } = req.body;
+      
+      const user = await authStorage.updateProfile(userId, { firstName, lastName, institution });
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  app.post("/api/auth/request-verification", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { schoolEmail } = req.body;
+      
+      if (!schoolEmail || !schoolEmail.endsWith('.edu')) {
+        return res.status(400).json({ error: "A valid .edu email address is required" });
+      }
+      
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const expires = new Date(Date.now() + 30 * 60 * 1000);
+      
+      await authStorage.updateProfile(userId, {
+        schoolEmail,
+        verificationCode: code,
+        verificationCodeExpires: expires,
+      });
+      
+      console.log(`[Verification] Code for ${schoolEmail}: ${code} (expires: ${expires.toISOString()})`);
+      
+      res.json({ 
+        success: true, 
+        message: "Verification code generated. Check with your instructor if you don't receive an email." 
+      });
+    } catch (error) {
+      console.error("[Verification] Error:", error);
+      res.status(500).json({ error: "Failed to generate verification code" });
+    }
+  });
+
+  app.post("/api/auth/verify-email", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { code } = req.body;
+      
+      const user = await authStorage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      if (!user.verificationCode) {
+        return res.status(400).json({ error: "No verification pending" });
+      }
+      
+      if (user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
+        return res.status(400).json({ error: "Verification code expired. Please request a new one." });
+      }
+      
+      if (user.verificationCode !== code.toUpperCase()) {
+        return res.status(400).json({ error: "Invalid verification code" });
+      }
+      
+      await authStorage.updateProfile(userId, {
+        schoolEmailVerified: "true",
+        verificationCode: null,
+        verificationCodeExpires: null,
+      });
+      
+      const updatedUser = await authStorage.getUser(userId);
+      res.json({ success: true, user: updatedUser });
+    } catch (error) {
+      console.error("[Verification] Error:", error);
+      res.status(500).json({ error: "Failed to verify email" });
+    }
+  });
+
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !message) {
+        return res.status(400).json({ error: "Name, email, and message are required" });
+      }
+      
+      console.log("[Feedback] Received:", { name, email, subject, message: message.substring(0, 100) + "..." });
+      
+      await storage.logActivity({
+        eventType: "feedback_submitted",
+        userEmail: email,
+        userName: name,
+        details: { subject, message },
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Feedback] Error:", error);
+      res.status(500).json({ error: "Failed to submit feedback" });
     }
   });
 

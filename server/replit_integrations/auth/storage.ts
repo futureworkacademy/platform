@@ -10,6 +10,10 @@ export interface ProfileUpdate {
   institution?: string;
   department?: string;
   profileImageUrl?: string;
+  schoolEmail?: string;
+  schoolEmailVerified?: string;
+  verificationCode?: string | null;
+  verificationCodeExpires?: Date | null;
 }
 
 // Interface for auth storage operations

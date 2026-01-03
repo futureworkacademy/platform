@@ -18,6 +18,7 @@ import Analytics from "@/pages/analytics";
 import Leaderboard from "@/pages/leaderboard";
 import About from "@/pages/about";
 import Profile from "@/pages/profile";
+import Feedback from "@/pages/feedback";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -169,6 +170,11 @@ function AppRouter() {
   // Admin page accessible to any logged-in user (will check isAdmin internally)
   if (location === "/admin") {
     return <AdminPage />;
+  }
+
+  // Feedback page accessible to any logged-in user
+  if (location === "/feedback") {
+    return <Feedback />;
   }
 
   if (!user.teamId) {

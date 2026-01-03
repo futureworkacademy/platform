@@ -281,14 +281,28 @@ export default function AdminPage() {
               <div className="space-y-3">
                 {users.map((user) => (
                   <div key={user.id} className="flex items-center justify-between gap-4 p-3 rounded-md bg-muted/50">
-                    <div>
+                    <div className="space-y-1">
                       <p className="font-medium">
                         {user.firstName} {user.lastName}
                         {user.isAdmin === "true" && (
                           <Badge variant="secondary" className="ml-2">Admin</Badge>
                         )}
+                        {user.schoolEmailVerified === "true" && (
+                          <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/20">Verified</Badge>
+                        )}
                       </p>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
+                      {user.schoolEmail && (
+                        <p className="text-xs text-muted-foreground">
+                          School: {user.schoolEmail}
+                          {user.schoolEmailVerified !== "true" && user.verificationCode && (
+                            <span className="ml-2 font-mono text-primary">Code: {user.verificationCode}</span>
+                          )}
+                        </p>
+                      )}
+                      {user.institution && (
+                        <p className="text-xs text-muted-foreground">Institution: {user.institution}</p>
+                      )}
                     </div>
                     <div>
                       {user.teamId ? (

@@ -556,6 +556,7 @@ export const activityLogSchema = z.object({
     "user_logout",
     "error",
     "admin_action",
+    "feedback_submitted",
   ]),
   userId: z.string().optional(),
   userEmail: z.string().optional(),
