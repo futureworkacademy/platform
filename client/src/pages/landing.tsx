@@ -104,7 +104,7 @@ export default function Landing() {
               <Card className="bg-card">
                 <CardHeader>
                   <div className="h-10 w-10 rounded-md bg-accent/10 flex items-center justify-center mb-2">
-                    <Target className="h-5 w-5 text-accent-foreground" />
+                    <Target className="h-5 w-5 text-accent" />
                   </div>
                   <CardTitle className="text-lg">Gen Z Management</CardTitle>
                   <CardDescription>
