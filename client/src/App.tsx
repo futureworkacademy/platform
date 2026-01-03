@@ -9,6 +9,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Landing from "@/pages/landing";
 import WaitingAssignment from "@/pages/waiting-assignment";
+import AdminPage from "@/pages/admin";
 import TeamSetup from "@/pages/team-setup";
 import Research from "@/pages/research";
 import Dashboard from "@/pages/dashboard";
@@ -147,6 +148,7 @@ function AuthenticatedApp() {
 }
 
 function AppRouter() {
+  const [location] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
 
   if (authLoading) {
@@ -167,6 +169,11 @@ function AppRouter() {
 
   if (!user) {
     return <Landing />;
+  }
+
+  // Admin page accessible to any logged-in user (will check isAdmin internally)
+  if (location === "/admin") {
+    return <AdminPage />;
   }
 
   if (!user.teamId) {
