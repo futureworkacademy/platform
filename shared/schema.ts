@@ -367,5 +367,176 @@ export const gameSessionSchema = z.object({
 
 export type GameSession = z.infer<typeof gameSessionSchema>;
 
+// Enhanced decision attribute - a single configurable dimension of a decision
+export const decisionAttributeSchema = z.object({
+  id: z.string(),
+  type: z.enum(["slider", "budget", "select", "toggle"]),
+  label: z.string(),
+  description: z.string(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  step: z.number().optional(),
+  defaultValue: z.number().optional(),
+  options: z.array(z.object({
+    id: z.string(),
+    label: z.string(),
+    description: z.string().optional(),
+  })).optional(),
+  impactFormula: z.object({
+    morale: z.number().optional(),
+    revenue: z.number().optional(),
+    unionSentiment: z.number().optional(),
+    automationLevel: z.number().optional(),
+    managementBench: z.number().optional(),
+    adaptability: z.number().optional(),
+    cost: z.number().optional(),
+  }).optional(),
+});
+
+export type DecisionAttribute = z.infer<typeof decisionAttributeSchema>;
+
+// Enhanced decision template with multiple attributes
+export const enhancedDecisionSchema = z.object({
+  id: z.string(),
+  weekNumber: z.number(),
+  category: z.enum([
+    "automation_financing",
+    "workforce_displacement",
+    "union_relations",
+    "reskilling",
+    "management_pipeline",
+    "organizational_change",
+    "strategic_investment",
+  ]),
+  title: z.string(),
+  context: z.string(),
+  stakeholderPerspectives: z.array(z.object({
+    role: z.string(),
+    stance: z.string(),
+    quote: z.string(),
+  })),
+  attributes: z.array(decisionAttributeSchema),
+  baseImpact: z.object({
+    financialImpact: z.object({
+      revenue: z.number().optional(),
+      cost: z.number().optional(),
+      debt: z.number().optional(),
+    }).optional(),
+    workforceImpact: z.object({
+      morale: z.number().optional(),
+      unionSentiment: z.number().optional(),
+      adaptability: z.number().optional(),
+    }).optional(),
+  }).optional(),
+  requiredRationaleWords: z.number().default(100),
+  deadline: z.string().optional(),
+});
+
+export type EnhancedDecision = z.infer<typeof enhancedDecisionSchema>;
+
+// Player's submitted decision with attribute values
+export const playerDecisionSubmissionSchema = z.object({
+  id: z.string(),
+  odecisionId: z.string(),
+  playerId: z.string(),
+  weekNumber: z.number(),
+  attributeValues: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
+  rationale: z.string(),
+  timestamp: z.string(),
+  computedImpact: z.object({
+    morale: z.number().optional(),
+    revenue: z.number().optional(),
+    unionSentiment: z.number().optional(),
+    automationLevel: z.number().optional(),
+    managementBench: z.number().optional(),
+    cost: z.number().optional(),
+  }).optional(),
+});
+
+export type PlayerDecisionSubmission = z.infer<typeof playerDecisionSubmissionSchema>;
+
+// Simulation configuration - admin settings
+export const simulationConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  competitionMode: z.enum(["individual", "team", "hybrid"]),
+  totalWeeks: z.number().min(4).max(12).default(8),
+  teamSize: z.number().min(1).max(6).optional(),
+  enableGroupDecisions: z.boolean().default(false),
+  groupDecisionAggregation: z.enum(["average", "median", "consensus"]).optional(),
+  scoringWeights: z.object({
+    financial: z.number().default(50),
+    cultural: z.number().default(50),
+  }),
+  easterEggBonusEnabled: z.boolean().default(true),
+  easterEggBonusPercentage: z.number().default(5),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type SimulationConfig = z.infer<typeof simulationConfigSchema>;
+
+// Easter egg keywords that should be detected in rationales
+export const easterEggSchema = z.object({
+  id: z.string(),
+  keyword: z.string(),
+  sourceReport: z.string(),
+  pointValue: z.number().default(1),
+  weekNumber: z.number().optional(),
+});
+
+export type EasterEgg = z.infer<typeof easterEggSchema>;
+
+// Player performance tracking
+export const playerPerformanceSchema = z.object({
+  playerId: z.string(),
+  playerEmail: z.string(),
+  playerName: z.string(),
+  teamId: z.string().optional(),
+  weeklyScores: z.array(z.object({
+    weekNumber: z.number(),
+    financialScore: z.number(),
+    culturalScore: z.number(),
+    combinedScore: z.number(),
+    decisionQuality: z.number(),
+    easterEggsFound: z.array(z.string()),
+    easterEggBonus: z.number(),
+    submittedAt: z.string().optional(),
+  })),
+  totalFinancialScore: z.number(),
+  totalCulturalScore: z.number(),
+  totalCombinedScore: z.number(),
+  totalEasterEggsFound: z.number(),
+  researchCompletionRate: z.number(),
+  avgDecisionQuality: z.number(),
+  rank: z.number().optional(),
+});
+
+export type PlayerPerformance = z.infer<typeof playerPerformanceSchema>;
+
+// Admin analytics summary
+export const adminAnalyticsSchema = z.object({
+  simulationId: z.string(),
+  totalPlayers: z.number(),
+  activePlayers: z.number(),
+  currentWeek: z.number(),
+  playerPerformances: z.array(playerPerformanceSchema),
+  topPerformers: z.array(z.object({
+    playerId: z.string(),
+    playerName: z.string(),
+    combinedScore: z.number(),
+    rank: z.number(),
+  })),
+  averageScores: z.object({
+    financial: z.number(),
+    cultural: z.number(),
+    combined: z.number(),
+  }),
+  easterEggDetectionRate: z.number(),
+  completionRate: z.number(),
+});
+
+export type AdminAnalytics = z.infer<typeof adminAnalyticsSchema>;
+
 // Export auth models from Replit Auth integration
 export * from "./models/auth";

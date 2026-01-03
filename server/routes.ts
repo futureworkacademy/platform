@@ -330,5 +330,130 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/enhanced-decisions/:weekNumber", isAuthenticated, async (req: any, res) => {
+    try {
+      const weekNumber = parseInt(req.params.weekNumber, 10);
+      const decisions = await storage.getEnhancedDecisions(weekNumber);
+      res.json(decisions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enhanced decisions" });
+    }
+  });
+
+  app.post("/api/submit-enhanced-decision", isAuthenticated, async (req: any, res) => {
+    try {
+      const { decisionId, attributeValues, rationale } = req.body;
+      if (!decisionId || !attributeValues || !rationale) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const wordCount = rationale.trim().split(/\s+/).length;
+      if (wordCount < 100) {
+        return res.status(400).json({ error: `Rationale must be at least 100 words. Current: ${wordCount}` });
+      }
+      
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const user = await authStorage.getUser(userId);
+      const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
+      const weekNumber = team?.currentWeek || 1;
+      
+      const easterEggsFound = await storage.detectEasterEggs(rationale, weekNumber);
+      
+      const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
+      
+      res.json({ 
+        submission,
+        easterEggsFound: easterEggsFound.length,
+        message: easterEggsFound.length > 0 
+          ? `Your research is showing! Detected ${easterEggsFound.length} relevant insights.`
+          : undefined
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit enhanced decision" });
+    }
+  });
+
+  app.get("/api/admin/simulation-config", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const config = await storage.getSimulationConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch simulation config" });
+    }
+  });
+
+  app.post("/api/admin/simulation-config", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const updatedConfig = await storage.updateSimulationConfig(req.body);
+      res.json(updatedConfig);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update simulation config" });
+    }
+  });
+
+  app.get("/api/admin/analytics", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const analytics = await storage.getAdminAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch admin analytics" });
+    }
+  });
+
+  app.get("/api/admin/player-performance/:playerId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const performance = await storage.getPlayerPerformance(req.params.playerId);
+      if (!performance) {
+        return res.status(404).json({ error: "Player not found" });
+      }
+      res.json(performance);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch player performance" });
+    }
+  });
+
+  app.get("/api/easter-eggs", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const eggs = await storage.getEasterEggs();
+      res.json(eggs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch easter eggs" });
+    }
+  });
+
   return httpServer;
 }

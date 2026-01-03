@@ -59,6 +59,12 @@ shared/
 - `GET /api/analytics` - People analytics data
 - `POST /api/decisions` - Submit strategic decisions
 - `POST /api/advance-week` - Complete current week and advance
+- `GET /api/enhanced-decisions/:weekNumber` - Multi-attribute decisions with sliders, budgets, toggles
+- `POST /api/submit-enhanced-decision` - Submit enhanced decision with attribute values and rationale
+- `GET /api/admin/simulation-config` - Get simulation configuration (admin only)
+- `POST /api/admin/simulation-config` - Update simulation configuration (admin only)
+- `GET /api/admin/analytics` - Get admin analytics dashboard data (admin only)
+- `GET /api/easter-eggs` - Get list of easter eggs (admin only)
 
 ## Design System
 - **Primary**: Corporate Navy (#1E3A8A)
@@ -94,3 +100,10 @@ The application runs via the "Start application" workflow which executes `npm ru
 - Created waiting assignment page for authenticated users without team assignment
 - Protected all game routes with isAuthenticated middleware
 - Each user sees only their assigned team's game data
+- **Enhanced Multi-Attribute Decision System** (January 2026):
+  - Week 1: Automation Strategy (intensity sliders, debt/reskilling budgets, timeline/communication selects)
+  - Week 2: Talent Development (hiring budgets, dual career track toggle, job guarantee sliders)
+  - Week 3: Union Relations (wage increase sliders, worker council toggle, communication budget)
+  - 15 Easter eggs detect specific research statistics (72%, AutoTech, TechnoForge, etc.) for bonus points
+  - Simulation config for admin to toggle individual/team/hybrid competition modes
+  - Admin analytics dashboard with player performance tracking and easter egg detection rates

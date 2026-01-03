@@ -17,6 +17,12 @@ import type {
   WeeklyScenario,
   WeeklyDecision,
   DecisionRecord,
+  EnhancedDecision,
+  SimulationConfig,
+  PlayerPerformance,
+  AdminAnalytics,
+  EasterEgg,
+  PlayerDecisionSubmission,
 } from "@shared/schema";
 import { defaultCompanyState } from "@shared/schema";
 
@@ -31,7 +37,9 @@ export interface IStorage {
   getWeeklyBriefing(weekNumber: number): Promise<WeeklyBriefing>;
   getWeeklyScenario(weekNumber: number): Promise<WeeklyScenario | undefined>;
   getWeeklyDecisions(weekNumber: number): Promise<WeeklyDecision[]>;
+  getEnhancedDecisions(weekNumber: number): Promise<EnhancedDecision[]>;
   submitDecision(teamId: string, decisionId: string, optionId: string, rationale?: string): Promise<Team | undefined>;
+  submitEnhancedDecision(playerId: string, decisionId: string, attributeValues: Record<string, number | string | boolean>, rationale: string): Promise<PlayerDecisionSubmission>;
   getLeaderboard(): Promise<LeaderboardEntry[]>;
   getPeopleAnalytics(teamId: string): Promise<PeopleAnalytics>;
   addDecision(teamId: string, decision: InsertDecision): Promise<Decision>;
@@ -43,6 +51,13 @@ export interface IStorage {
   getResearchProgress(teamId: string): Promise<{ viewed: number; total: number; percentage: number }>;
   completeResearch(teamId: string): Promise<{ success: boolean; team?: Team; error?: string }>;
   hasActiveTeam(): Promise<boolean>;
+  getSimulationConfig(): Promise<SimulationConfig>;
+  updateSimulationConfig(updates: Partial<SimulationConfig>): Promise<SimulationConfig>;
+  getPlayerPerformance(playerId: string): Promise<PlayerPerformance | undefined>;
+  getAllPlayerPerformances(): Promise<PlayerPerformance[]>;
+  getAdminAnalytics(): Promise<AdminAnalytics>;
+  getEasterEggs(): Promise<EasterEgg[]>;
+  detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]>;
 }
 
 const globalEvents: GlobalEvent[] = [
@@ -690,6 +705,238 @@ const weeklyDecisions: WeeklyDecision[] = [
   },
 ];
 
+const enhancedDecisions: EnhancedDecision[] = [
+  {
+    id: "ed1-automation-strategy",
+    weekNumber: 1,
+    category: "automation_financing",
+    title: "Automation Strategy Configuration",
+    context: "The board has approved an automation initiative. You must configure the key parameters of your approach - how aggressively to automate, how much to spend, and how to communicate with employees.",
+    stakeholderPerspectives: [
+      { role: "CFO", stance: "ROI-focused", quote: "The bank has approved $15M at 6.5%. Every dollar we borrow needs to pay back in 18-24 months." },
+      { role: "Operations Manager", stance: "Cautious", quote: "AutoTech Industries cut 30% in 18 months. My team is watching - if we go too fast, we'll lose our best people before automation is ready." },
+      { role: "HR Director", stance: "People-first", quote: "Industry research shows $10,000 per affected employee in reskilling reduces turnover intention by 12%." },
+    ],
+    attributes: [
+      {
+        id: "automation-intensity",
+        type: "slider",
+        label: "Automation Intensity",
+        description: "How aggressively will you deploy automation? Higher intensity means faster ROI but greater workforce disruption.",
+        min: 10,
+        max: 100,
+        step: 10,
+        defaultValue: 40,
+        impactFormula: { automationLevel: 0.5, morale: -0.3, unionSentiment: 0.4 },
+      },
+      {
+        id: "debt-financing",
+        type: "budget",
+        label: "Debt Financing Amount",
+        description: "How much of the $15M credit line will you draw? More capital enables faster automation but increases financial risk.",
+        min: 0,
+        max: 15000000,
+        step: 1000000,
+        defaultValue: 5000000,
+        impactFormula: { cost: 1, revenue: 0.1 },
+      },
+      {
+        id: "reskilling-budget",
+        type: "budget",
+        label: "Reskilling Investment",
+        description: "How much will you invest in employee reskilling? Industry data suggests $10K per affected employee = 12% turnover reduction.",
+        min: 0,
+        max: 3000000,
+        step: 250000,
+        defaultValue: 500000,
+        impactFormula: { morale: 0.01, adaptability: 0.02, cost: 1 },
+      },
+      {
+        id: "timeline",
+        type: "select",
+        label: "Implementation Timeline",
+        description: "How quickly will you roll out automation?",
+        options: [
+          { id: "aggressive", label: "Aggressive (12 months)", description: "40% success rate but faster ROI" },
+          { id: "standard", label: "Standard (18 months)", description: "70% success rate, balanced approach" },
+          { id: "conservative", label: "Conservative (24 months)", description: "85% success rate but competitors may advance" },
+        ],
+      },
+      {
+        id: "communication-strategy",
+        type: "select",
+        label: "Communication Approach",
+        description: "How will you communicate the automation plans to employees?",
+        options: [
+          { id: "transparent", label: "Full Transparency", description: "Share all details including job impacts - builds trust but may cause anxiety" },
+          { id: "phased", label: "Phased Disclosure", description: "Share information as decisions are finalized - balanced approach" },
+          { id: "minimal", label: "Need-to-Know Basis", description: "Share only when necessary - limits anxiety but risks rumors and distrust" },
+        ],
+      },
+    ],
+    requiredRationaleWords: 100,
+  },
+  {
+    id: "ed2-talent-development",
+    weekNumber: 2,
+    category: "management_pipeline",
+    title: "Talent & Leadership Development Strategy",
+    context: "Your talent pipeline is broken. Gen Z won't take management roles, experienced managers are retiring, and you need new skills for an automated factory. Design your talent strategy.",
+    stakeholderPerspectives: [
+      { role: "HR Director", stance: "Strategic", quote: "72% of Gen Z workers refuse management roles. We need dual career tracks or we'll never fill leadership gaps." },
+      { role: "Training Manager", stance: "Investment", quote: "TechnoForge allocated 25% of their automation budget to reskilling and repaid their debt by month 30." },
+      { role: "Operations Worker", stance: "Hopeful", quote: "I've been here 15 years. I can learn new skills if you give me the chance and some job security." },
+    ],
+    attributes: [
+      {
+        id: "external-hiring-budget",
+        type: "budget",
+        label: "External Hiring Budget",
+        description: "Budget for recruiting external talent with automation skills.",
+        min: 0,
+        max: 2000000,
+        step: 200000,
+        defaultValue: 400000,
+        impactFormula: { managementBench: 0.01, cost: 1, morale: -0.005 },
+      },
+      {
+        id: "internal-training-budget",
+        type: "budget",
+        label: "Internal Training Budget",
+        description: "Investment in training existing employees for new roles.",
+        min: 0,
+        max: 2500000,
+        step: 250000,
+        defaultValue: 750000,
+        impactFormula: { adaptability: 0.02, morale: 0.01, cost: 1 },
+      },
+      {
+        id: "dual-track-career",
+        type: "toggle",
+        label: "Create Dual Career Track",
+        description: "Establish technical expert track with equal prestige/pay as management track. One-time cost of $500K for restructuring.",
+        impactFormula: { morale: 15, managementBench: 10, cost: 500000 },
+      },
+      {
+        id: "job-guarantee-scope",
+        type: "slider",
+        label: "Job Guarantee Coverage",
+        description: "What percentage of affected workers will receive job guarantees if they complete reskilling? Higher coverage builds trust but increases costs.",
+        min: 0,
+        max: 100,
+        step: 10,
+        defaultValue: 50,
+        impactFormula: { morale: 0.3, unionSentiment: -0.4, cost: 10000 },
+      },
+      {
+        id: "management-compensation-increase",
+        type: "slider",
+        label: "Manager Compensation Increase (%)",
+        description: "Percentage increase to manager compensation to improve retention and attract internal candidates.",
+        min: 0,
+        max: 25,
+        step: 5,
+        defaultValue: 10,
+        impactFormula: { managementBench: 0.8, cost: 50000, morale: 0.2 },
+      },
+    ],
+    requiredRationaleWords: 100,
+  },
+  {
+    id: "ed3-union-response",
+    weekNumber: 3,
+    category: "union_relations",
+    title: "Union Relations Strategy",
+    context: "Union organizing is gaining momentum. A vote is scheduled for next month. Your approach will define labor relations for years.",
+    stakeholderPerspectives: [
+      { role: "General Counsel", stance: "Legal", quote: "We can share facts about unionization but cannot threaten or make promises to influence the vote." },
+      { role: "Union Organizer", stance: "Determined", quote: "Workers deserve a voice. 40% increase in manufacturing union organizing this year." },
+      { role: "CFO", stance: "Financial", quote: "Unionization typically increases labor costs 15-20%. Our automation ROI won't work if that happens." },
+    ],
+    attributes: [
+      {
+        id: "wage-increase",
+        type: "slider",
+        label: "Immediate Wage Increase (%)",
+        description: "Preemptive wage increase for non-management employees. Must be genuinely offered, not contingent on vote.",
+        min: 0,
+        max: 10,
+        step: 1,
+        defaultValue: 3,
+        impactFormula: { morale: 2, unionSentiment: -3, cost: 300000 },
+      },
+      {
+        id: "worker-council",
+        type: "toggle",
+        label: "Establish Worker Council",
+        description: "Create formal channel for worker input on company decisions. Demonstrates commitment to employee voice.",
+        impactFormula: { morale: 10, unionSentiment: -15, adaptability: 5 },
+      },
+      {
+        id: "communication-spending",
+        type: "budget",
+        label: "Information Campaign Budget",
+        description: "Budget for factual communications about what unionization means. Must be purely informational.",
+        min: 0,
+        max: 500000,
+        step: 50000,
+        defaultValue: 100000,
+        impactFormula: { unionSentiment: -0.02, cost: 1 },
+      },
+      {
+        id: "labor-consultant",
+        type: "toggle",
+        label: "Hire Labor Relations Consultant",
+        description: "External expert to help navigate the organizing process legally and strategically. $150K cost.",
+        impactFormula: { unionSentiment: -8, cost: 150000 },
+      },
+      {
+        id: "union-partnership-openness",
+        type: "slider",
+        label: "Partnership Openness Level",
+        description: "How open are you to working with a union if workers vote yes? 0=Adversarial, 100=Full Partnership",
+        min: 0,
+        max: 100,
+        step: 10,
+        defaultValue: 30,
+        impactFormula: { morale: 0.1, unionSentiment: -0.05, adaptability: 0.1 },
+      },
+    ],
+    requiredRationaleWords: 100,
+  },
+];
+
+const easterEggs: EasterEgg[] = [
+  { id: "ee1", keyword: "72%", sourceReport: "Gen Z refusing management roles", pointValue: 2 },
+  { id: "ee2", keyword: "10,000", sourceReport: "Reskilling investment per employee", pointValue: 2 },
+  { id: "ee3", keyword: "12%", sourceReport: "Turnover reduction from reskilling", pointValue: 2 },
+  { id: "ee4", keyword: "AutoTech", sourceReport: "AutoTech Industries case study", pointValue: 3 },
+  { id: "ee5", keyword: "30%", sourceReport: "AutoTech workforce reduction", pointValue: 2 },
+  { id: "ee6", keyword: "18 months", sourceReport: "AutoTech timeline", pointValue: 1 },
+  { id: "ee7", keyword: "TechnoForge", sourceReport: "TechnoForge reskilling success", pointValue: 3 },
+  { id: "ee8", keyword: "25%", sourceReport: "TechnoForge reskilling budget allocation", pointValue: 2 },
+  { id: "ee9", keyword: "7.2", sourceReport: "Average employee tenure", pointValue: 1 },
+  { id: "ee10", keyword: "40%", sourceReport: "Manufacturing union organizing increase", pointValue: 2 },
+  { id: "ee11", keyword: "85%", sourceReport: "Conservative timeline success rate", pointValue: 2 },
+  { id: "ee12", keyword: "35%", sourceReport: "Early communication anxiety reduction", pointValue: 2 },
+  { id: "ee13", keyword: "80%", sourceReport: "Internal redeployment with job guarantee", pointValue: 2 },
+  { id: "ee14", keyword: "dual career", sourceReport: "Dual career track solution", pointValue: 3 },
+  { id: "ee15", keyword: "15-20%", sourceReport: "Union labor cost increase", pointValue: 2 },
+];
+
+const defaultSimulationConfig: SimulationConfig = {
+  id: "default-sim",
+  name: "Future of Work Simulation",
+  competitionMode: "individual",
+  totalWeeks: 8,
+  enableGroupDecisions: false,
+  scoringWeights: { financial: 50, cultural: 50 },
+  easterEggBonusEnabled: true,
+  easterEggBonusPercentage: 5,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 const researchReports: ResearchReport[] = [
   {
     id: "report-1",
@@ -936,6 +1183,9 @@ export class MemStorage implements IStorage {
   private teams: Map<string, Team> = new Map();
   private departments: Department[] = [...defaultDepartments];
   private defaultTeamId: string | null = null;
+  private playerDecisions: Map<string, PlayerDecisionSubmission[]> = new Map();
+  private playerPerformances: Map<string, PlayerPerformance> = new Map();
+  private simulationConfig: SimulationConfig = { ...defaultSimulationConfig };
 
   async getTeam(id: string): Promise<Team | undefined> {
     return this.teams.get(id);
@@ -1251,6 +1501,135 @@ export class MemStorage implements IStorage {
 
     this.teams.set(teamId, updatedTeam);
     return updatedTeam;
+  }
+
+  async getEnhancedDecisions(weekNumber: number): Promise<EnhancedDecision[]> {
+    return enhancedDecisions.filter(d => d.weekNumber === weekNumber);
+  }
+
+  async submitEnhancedDecision(
+    playerId: string,
+    decisionId: string,
+    attributeValues: Record<string, number | string | boolean>,
+    rationale: string
+  ): Promise<PlayerDecisionSubmission> {
+    const decision = enhancedDecisions.find(d => d.id === decisionId);
+    if (!decision) throw new Error("Decision not found");
+
+    const computedImpact: Record<string, number> = {};
+    
+    for (const attr of decision.attributes) {
+      const value = attributeValues[attr.id];
+      if (value !== undefined && attr.impactFormula) {
+        for (const [impactKey, multiplier] of Object.entries(attr.impactFormula)) {
+          if (typeof multiplier === 'number' && typeof value === 'number') {
+            computedImpact[impactKey] = (computedImpact[impactKey] || 0) + (value * multiplier);
+          } else if (typeof value === 'boolean' && value && typeof multiplier === 'number') {
+            computedImpact[impactKey] = (computedImpact[impactKey] || 0) + multiplier;
+          }
+        }
+      }
+    }
+
+    const submission: PlayerDecisionSubmission = {
+      id: randomUUID(),
+      odecisionId: decisionId,
+      playerId,
+      weekNumber: decision.weekNumber,
+      attributeValues,
+      rationale,
+      timestamp: new Date().toISOString(),
+      computedImpact,
+    };
+
+    const existing = this.playerDecisions.get(playerId) || [];
+    this.playerDecisions.set(playerId, [...existing, submission]);
+
+    return submission;
+  }
+
+  async getSimulationConfig(): Promise<SimulationConfig> {
+    return this.simulationConfig;
+  }
+
+  async updateSimulationConfig(updates: Partial<SimulationConfig>): Promise<SimulationConfig> {
+    this.simulationConfig = {
+      ...this.simulationConfig,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    return this.simulationConfig;
+  }
+
+  async getPlayerPerformance(playerId: string): Promise<PlayerPerformance | undefined> {
+    return this.playerPerformances.get(playerId);
+  }
+
+  async getAllPlayerPerformances(): Promise<PlayerPerformance[]> {
+    return Array.from(this.playerPerformances.values());
+  }
+
+  async getAdminAnalytics(): Promise<AdminAnalytics> {
+    const performances = await this.getAllPlayerPerformances();
+    const totalPlayers = performances.length;
+    const activePlayers = performances.filter(p => p.weeklyScores.length > 0).length;
+
+    const avgFinancial = performances.length > 0 
+      ? performances.reduce((sum, p) => sum + p.totalFinancialScore, 0) / performances.length 
+      : 0;
+    const avgCultural = performances.length > 0
+      ? performances.reduce((sum, p) => sum + p.totalCulturalScore, 0) / performances.length
+      : 0;
+    const avgCombined = performances.length > 0
+      ? performances.reduce((sum, p) => sum + p.totalCombinedScore, 0) / performances.length
+      : 0;
+
+    const sortedPerformers = [...performances].sort((a, b) => b.totalCombinedScore - a.totalCombinedScore);
+    const topPerformers = sortedPerformers.slice(0, 10).map((p, idx) => ({
+      playerId: p.playerId,
+      playerName: p.playerName,
+      combinedScore: p.totalCombinedScore,
+      rank: idx + 1,
+    }));
+
+    const totalEasterEggsFound = performances.reduce((sum, p) => sum + p.totalEasterEggsFound, 0);
+    const possibleEasterEggs = performances.length * easterEggs.length;
+    const easterEggDetectionRate = possibleEasterEggs > 0 ? totalEasterEggsFound / possibleEasterEggs : 0;
+
+    return {
+      simulationId: this.simulationConfig.id,
+      totalPlayers,
+      activePlayers,
+      currentWeek: 1,
+      playerPerformances: performances,
+      topPerformers,
+      averageScores: {
+        financial: Math.round(avgFinancial),
+        cultural: Math.round(avgCultural),
+        combined: Math.round(avgCombined),
+      },
+      easterEggDetectionRate: Math.round(easterEggDetectionRate * 100),
+      completionRate: totalPlayers > 0 ? Math.round((activePlayers / totalPlayers) * 100) : 0,
+    };
+  }
+
+  async getEasterEggs(): Promise<EasterEgg[]> {
+    return easterEggs;
+  }
+
+  async detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]> {
+    const found: string[] = [];
+    const lowerRationale = rationale.toLowerCase();
+    
+    for (const egg of easterEggs) {
+      if (egg.weekNumber === undefined || egg.weekNumber === weekNumber) {
+        if (lowerRationale.includes(egg.keyword.toLowerCase())) {
+          found.push(egg.id);
+        }
+      }
+    }
+    
+    return found;
   }
 }
 
