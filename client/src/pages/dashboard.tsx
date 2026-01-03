@@ -13,6 +13,7 @@ import {
   Factory,
   Banknote,
   TrendingUp,
+  TrendingDown,
   ArrowRight,
   AlertCircle,
   Clock,
@@ -57,6 +58,17 @@ export default function Dashboard() {
     if (!previous) return "stable";
     return current > previous ? "up" : current < previous ? "down" : "stable";
   };
+
+  const getDelta = (current: number, previous: number | undefined): number | null => {
+    if (previous === undefined) return null;
+    return current - previous;
+  };
+
+  const lastFinancialScore = lastWeek?.financialScore ?? null;
+  const lastCulturalScore = lastWeek?.culturalScore ?? null;
+  const financialDelta = getDelta(financialScore, lastFinancialScore ?? undefined);
+  const culturalDelta = getDelta(culturalScore, lastCulturalScore ?? undefined);
+  const combinedDelta = financialDelta !== null && culturalDelta !== null ? Math.round((financialDelta + culturalDelta) / 2) : null;
 
   const debtToEquity = companyState.debt / (companyState.cash + 10000000);
   const unionRiskLevel = companyState.unionSentiment >= 75 ? "critical" : companyState.unionSentiment >= 50 ? "high" : companyState.unionSentiment >= 30 ? "medium" : "low";
@@ -132,29 +144,62 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
                 <div className="text-sm text-muted-foreground mb-2">Financial Score</div>
-                <div className="text-3xl font-bold font-mono text-primary" data-testid="financial-score">
-                  {financialScore}
+                <div className="flex items-center justify-center gap-2">
+                  <div className="text-3xl font-bold font-mono text-primary" data-testid="financial-score">
+                    {financialScore}
+                  </div>
+                  {financialDelta !== null && financialDelta !== 0 && (
+                    <div className={`flex items-center text-sm font-mono ${financialDelta > 0 ? 'text-success' : 'text-destructive'}`}>
+                      {financialDelta > 0 ? <TrendingUp className="h-4 w-4 mr-0.5" /> : <TrendingDown className="h-4 w-4 mr-0.5" />}
+                      {financialDelta > 0 ? '+' : ''}{financialDelta}
+                    </div>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Revenue × Workforce
                 </div>
+                <div className="text-xs text-muted-foreground/60 mt-0.5">
+                  Range: 0 - 150
+                </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-green-500/5 border border-green-500/10">
+              <div className="text-center p-4 rounded-lg bg-success/5 border border-success/10">
                 <div className="text-sm text-muted-foreground mb-2">Cultural Score</div>
-                <div className="text-3xl font-bold font-mono text-green-400" data-testid="cultural-score">
-                  {culturalScore}
+                <div className="flex items-center justify-center gap-2">
+                  <div className="text-3xl font-bold font-mono text-success" data-testid="cultural-score">
+                    {culturalScore}
+                  </div>
+                  {culturalDelta !== null && culturalDelta !== 0 && (
+                    <div className={`flex items-center text-sm font-mono ${culturalDelta > 0 ? 'text-success' : 'text-destructive'}`}>
+                      {culturalDelta > 0 ? <TrendingUp className="h-4 w-4 mr-0.5" /> : <TrendingDown className="h-4 w-4 mr-0.5" />}
+                      {culturalDelta > 0 ? '+' : ''}{culturalDelta}
+                    </div>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Morale + Stability
                 </div>
+                <div className="text-xs text-muted-foreground/60 mt-0.5">
+                  Range: 0 - 100
+                </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-blue-500/5 border border-blue-500/10">
+              <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/10">
                 <div className="text-sm text-muted-foreground mb-2">Combined Score</div>
-                <div className="text-3xl font-bold font-mono text-blue-400" data-testid="combined-score">
-                  {combinedScore}
+                <div className="flex items-center justify-center gap-2">
+                  <div className="text-3xl font-bold font-mono text-accent-foreground" data-testid="combined-score">
+                    {combinedScore}
+                  </div>
+                  {combinedDelta !== null && combinedDelta !== 0 && (
+                    <div className={`flex items-center text-sm font-mono ${combinedDelta > 0 ? 'text-success' : 'text-destructive'}`}>
+                      {combinedDelta > 0 ? <TrendingUp className="h-4 w-4 mr-0.5" /> : <TrendingDown className="h-4 w-4 mr-0.5" />}
+                      {combinedDelta > 0 ? '+' : ''}{combinedDelta}
+                    </div>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Overall Performance
+                </div>
+                <div className="text-xs text-muted-foreground/60 mt-0.5">
+                  Range: 0 - 125
                 </div>
               </div>
             </div>
@@ -170,9 +215,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
                   <AlertTriangle className={`h-4 w-4 ${
-                    unionRiskLevel === 'critical' ? 'text-red-400' :
-                    unionRiskLevel === 'high' ? 'text-orange-400' :
-                    unionRiskLevel === 'medium' ? 'text-yellow-400' : 'text-green-400'
+                    unionRiskLevel === 'critical' ? 'text-destructive' :
+                    unionRiskLevel === 'high' ? 'text-destructive/80' :
+                    unionRiskLevel === 'medium' ? 'text-warning' : 'text-success'
                   }`} />
                   Union Sentiment
                 </span>
@@ -189,7 +234,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
-                  <Factory className="h-4 w-4 text-blue-400" />
+                  <Factory className="h-4 w-4 text-primary" />
                   Automation Level
                 </span>
                 <span className="font-mono">{companyState.automationLevel}%</span>
@@ -200,7 +245,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
-                  <UserCheck className="h-4 w-4 text-purple-400" />
+                  <UserCheck className="h-4 w-4 text-accent" />
                   Management Bench
                 </span>
                 <span className="font-mono">{companyState.managementBenchStrength}%</span>
@@ -211,7 +256,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-400" />
+                  <TrendingUp className="h-4 w-4 text-success" />
                   Workforce Adaptability
                 </span>
                 <span className="font-mono">{companyState.workforceAdaptability}%</span>
@@ -226,7 +271,7 @@ export default function Dashboard() {
         <Card className="bg-card/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-500/10 text-blue-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Factory className="h-5 w-5" />
               </div>
               <div>
@@ -239,7 +284,7 @@ export default function Dashboard() {
         <Card className="bg-card/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-500/10 text-green-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-success/10 text-success">
                 <BookOpen className="h-5 w-5" />
               </div>
               <div>
@@ -252,7 +297,7 @@ export default function Dashboard() {
         <Card className="bg-card/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent/10 text-accent">
                 <Users className="h-5 w-5" />
               </div>
               <div>
@@ -265,7 +310,7 @@ export default function Dashboard() {
         <Card className="bg-card/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-orange-500/10 text-orange-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-warning/10 text-warning">
                 <AlertTriangle className="h-5 w-5" />
               </div>
               <div>
@@ -285,7 +330,7 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-500/10 text-green-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-success/10 text-success">
                   <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
@@ -299,7 +344,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-500/10 text-red-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-destructive/10 text-destructive">
                   <Banknote className="h-5 w-5" />
                 </div>
                 <div>
@@ -313,7 +358,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-yellow-500/10 text-yellow-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-warning/10 text-warning">
                   <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
@@ -321,7 +366,7 @@ export default function Dashboard() {
                   <div className="text-xs text-muted-foreground">Financial leverage</div>
                 </div>
               </div>
-              <div className={`text-lg font-mono font-bold ${debtToEquity > 1 ? 'text-red-400' : debtToEquity > 0.5 ? 'text-yellow-400' : 'text-green-400'}`}>
+              <div className={`text-lg font-mono font-bold ${debtToEquity > 1 ? 'text-destructive' : debtToEquity > 0.5 ? 'text-warning' : 'text-success'}`}>
                 {debtToEquity.toFixed(2)}
               </div>
             </div>

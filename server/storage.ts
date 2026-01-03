@@ -256,9 +256,10 @@ const weeklyDecisions: WeeklyDecision[] = [
     title: "Automation Financing Strategy",
     context: "The bank has approved a $15M credit line at 6.5% interest. How much debt will you take on, and how aggressively will you pursue automation?",
     stakeholderPerspectives: [
-      { role: "CFO", stance: "Pro-debt", quote: "Debt is cheap right now. We should move fast before competitors consolidate their advantage." },
-      { role: "HR Director", stance: "Cautious", quote: "The pace of change matters as much as the destination. Our people need time to adapt." },
-      { role: "Board Member", stance: "Aggressive", quote: "Half-measures won't save this company. Go big or go home." },
+      { role: "CFO", stance: "Pro-debt", quote: "Debt is cheap right now at 5.5-7%. We should move fast before competitors consolidate their advantage." },
+      { role: "HR Director", stance: "Cautious", quote: "The research shows companies allocating 15% or more of their AI budget to workforce transition see 40% higher adoption rates. We need time for that." },
+      { role: "Board Member", stance: "Aggressive", quote: "Look at AutoTech - they cut 30% of their workforce and increased output 45%. Half-measures won't save us." },
+      { role: "Skeptical Analyst", stance: "Warning", quote: "But AutoTech also had two strikes in 18 months and their customer satisfaction dropped 15 points. There's more to that story." },
     ],
     options: [
       {
@@ -301,9 +302,9 @@ const weeklyDecisions: WeeklyDecision[] = [
     title: "Workforce Communication Strategy",
     context: "Word of the automation plans has leaked. How will you communicate with your workforce?",
     stakeholderPerspectives: [
-      { role: "HR Director", stance: "Transparency", quote: "Rumors are worse than truth. We need to get ahead of this with honest communication." },
+      { role: "HR Director", stance: "Transparency", quote: "Research shows early communication reduces workforce anxiety by 35%. Employees who feel informed are 2.8x more likely to support change." },
       { role: "General Counsel", stance: "Cautious", quote: "Be careful what you promise. Any commitments become legally binding." },
-      { role: "Operations Manager", stance: "Practical", quote: "My team just wants to know if they'll have jobs next year." },
+      { role: "Operations Manager", stance: "Practical", quote: "My team just wants to know if they'll have jobs next year. 42% of our workforce already reports concern about AI job displacement." },
     ],
     options: [
       {
@@ -343,9 +344,9 @@ const weeklyDecisions: WeeklyDecision[] = [
     title: "Leadership Pipeline Strategy",
     context: "Gen Z workers are refusing management roles, and 5 managers retire within 3 years. How will you build your leadership pipeline?",
     stakeholderPerspectives: [
-      { role: "HR Director", stance: "Adapt", quote: "We can't force people into roles they don't want. We need new career models." },
-      { role: "COO", stance: "Practical", quote: "Someone has to manage. If internal candidates won't, we hire external." },
-      { role: "Gen Z Employee", stance: "Clear", quote: "I want to grow technically, not spend my days in meetings and dealing with drama." },
+      { role: "HR Director", stance: "Adapt", quote: "72% of our Gen Z workers have no interest in management - nationally it's the same. We need dual career tracks like TechnoForge implemented." },
+      { role: "COO", stance: "Practical", quote: "Someone has to manage. We have 8 unfilled positions and 5 managers retiring in 3 years. If internal candidates won't step up, we hire external." },
+      { role: "Gen Z Employee", stance: "Clear", quote: "I want to grow technically, not spend my days in meetings and dealing with emotional labor. Give us technical paths that pay like management." },
     ],
     options: [
       {
@@ -388,9 +389,9 @@ const weeklyDecisions: WeeklyDecision[] = [
     title: "Reskilling Investment",
     context: "You need workers who can operate and maintain automated systems. How much will you invest in reskilling?",
     stakeholderPerspectives: [
-      { role: "Training Manager", stance: "Invest", quote: "With the right training, 70% of our workers can transition to new roles." },
-      { role: "CFO", stance: "ROI-focused", quote: "Every dollar spent on training is a dollar not going to automation. What's the return?" },
-      { role: "Operations Worker", stance: "Hopeful", quote: "I've been here 15 years. I can learn new skills if you give me a chance." },
+      { role: "Training Manager", stance: "Invest", quote: "Industry data shows for every $10,000 invested per affected employee, turnover intention decreases by 12%. With job guarantees, we can achieve 80% internal redeployment." },
+      { role: "CFO", stance: "ROI-focused", quote: "TechnoForge allocated 25% of their automation budget to reskilling and repaid their debt by month 30. But that's a lot of upfront capital." },
+      { role: "Operations Worker", stance: "Hopeful", quote: "I've been here 15 years - our average tenure is 7.2 years. I can learn new skills if you give me a chance." },
     ],
     options: [
       {

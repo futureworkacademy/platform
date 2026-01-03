@@ -127,6 +127,56 @@ export default function Research() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadResearchAsPDF = () => {
+    const content = reports?.map(report => {
+      const keyFindings = report.keyFindings.map((f, i) => `   ${i + 1}. ${f}`).join("\n");
+      const dataPoints = report.dataPoints?.map(dp => `   - ${dp.label}: ${dp.value}`).join("\n") || "";
+      
+      return `
+================================================================================
+${report.title.toUpperCase()}
+================================================================================
+Category: ${report.category.replace("_", " ")} | Published: ${report.publishedDate} | Reading Time: ${report.readingTime} min
+
+SUMMARY
+${report.summary}
+
+CONTENT
+${report.content}
+
+KEY FINDINGS
+${keyFindings}
+${dataPoints ? `\nDATA POINTS\n${dataPoints}` : ""}
+`;
+    }).join("\n\n");
+
+    const fullDocument = `
+THE FUTURE OF WORK - RESEARCH MATERIALS
+Apex Manufacturing Inc. Business Simulation
+Generated: ${new Date().toLocaleDateString()}
+Team: ${team?.name || "Unknown"}
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+${reports?.map((r, i) => `${i + 1}. ${r.title} (${r.category.replace("_", " ")})`).join("\n")}
+
+${content}
+
+================================================================================
+END OF RESEARCH MATERIALS
+================================================================================
+`;
+
+    const blob = new Blob([fullDocument], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "research_materials.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (teamLoading || reportsLoading || histLoading || workforceLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -569,6 +619,31 @@ export default function Research() {
           </TabsContent>
 
           <TabsContent value="downloads" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Complete Research Package</CardTitle>
+                <CardDescription>
+                  Download all research materials as a single document for offline review
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Card className="hover-elevate cursor-pointer border-primary/50" onClick={downloadResearchAsPDF} data-testid="button-download-all-research">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">Download All Research Materials</p>
+                        <p className="text-xs text-muted-foreground">Complete document with all reports, findings, and data</p>
+                      </div>
+                      <Download className="h-5 w-5 text-primary" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Download Data for External Analysis</CardTitle>

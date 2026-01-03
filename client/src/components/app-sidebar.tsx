@@ -1,4 +1,5 @@
 import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   FileText,
@@ -6,6 +7,8 @@ import {
   Trophy,
   BarChart3,
   Building2,
+  Info,
+  Medal,
 } from "lucide-react";
 import {
   Sidebar,
@@ -20,6 +23,17 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface LeaderboardEntry {
+  rank: number;
+  teamId: string;
+  teamName: string;
+  financialScore: number;
+  culturalScore: number;
+  combinedScore: number;
+  week: number;
+}
 
 const navigationItems = [
   {
@@ -47,6 +61,11 @@ const navigationItems = [
     url: "/leaderboard",
     icon: Trophy,
   },
+  {
+    title: "About",
+    url: "/about",
+    icon: Info,
+  },
 ];
 
 interface AppSidebarProps {
@@ -57,6 +76,12 @@ interface AppSidebarProps {
 
 export function AppSidebar({ currentWeek, totalWeeks, teamName }: AppSidebarProps) {
   const [location] = useLocation();
+  
+  const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>({
+    queryKey: ["/api/leaderboard"],
+  });
+
+  const topThree = leaderboard?.slice(0, 3) || [];
 
   return (
     <Sidebar>
@@ -98,6 +123,59 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName }: AppSidebarProp
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 flex items-center gap-2">
+            <Trophy className="h-3 w-3" />
+            Leaderboard
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="px-4">
+            {leaderboardLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-8 w-full" />
+                ))}
+              </div>
+            ) : topThree.length > 0 ? (
+              <div className="space-y-2">
+                {topThree.map((entry, idx) => (
+                  <div
+                    key={entry.teamId}
+                    className={`flex items-center justify-between p-2 rounded-md text-xs ${
+                      entry.teamName === teamName
+                        ? "bg-sidebar-accent border border-sidebar-border"
+                        : "bg-sidebar-accent/50"
+                    }`}
+                    data-testid={`sidebar-leaderboard-${idx}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`font-bold ${
+                        idx === 0 ? "text-accent" :
+                        idx === 1 ? "text-muted-foreground" :
+                        "text-muted-foreground"
+                      }`}>
+                        {idx === 0 ? <Medal className="h-3.5 w-3.5" /> : `#${entry.rank}`}
+                      </span>
+                      <span className={`truncate max-w-[80px] ${entry.teamName === teamName ? 'font-medium' : ''}`}>
+                        {entry.teamName}
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-sidebar-foreground">
+                      {entry.combinedScore}
+                    </span>
+                  </div>
+                ))}
+                <Link href="/leaderboard" className="text-xs text-primary hover:underline block text-center mt-2">
+                  View Full Leaderboard
+                </Link>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-2">
+                No teams yet
+              </p>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

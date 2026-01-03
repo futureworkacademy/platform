@@ -17,7 +17,9 @@ import Briefing from "@/pages/briefing";
 import Decisions from "@/pages/decisions";
 import Analytics from "@/pages/analytics";
 import Leaderboard from "@/pages/leaderboard";
+import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
+import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -78,9 +80,7 @@ function GameLayout() {
             <div className="flex items-center gap-3">
               <SidebarTrigger data-testid="button-sidebar-toggle" />
               <div className="h-4 w-px bg-border" />
-              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">
-                Apex Manufacturing Inc.
-              </span>
+              <BreadcrumbNav />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground hidden md:inline font-mono">
@@ -96,6 +96,7 @@ function GameLayout() {
               <Route path="/decisions" component={Decisions} />
               <Route path="/analytics" component={Analytics} />
               <Route path="/leaderboard" component={Leaderboard} />
+              <Route path="/about" component={About} />
               <Route component={NotFound} />
             </Switch>
           </main>

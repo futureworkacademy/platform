@@ -7,12 +7,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import {
   CheckCircle2,
   ArrowRight,
+  ArrowLeft,
   AlertCircle,
   RefreshCw,
   DollarSign,
@@ -23,152 +25,13 @@ import {
   TrendingDown,
   Clock,
   MessageSquare,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import type { Team, WeeklyDecision, DecisionOption } from "@shared/schema";
 
-function ImpactBadge({ value, label, positive }: { value: string | number; label: string; positive?: boolean }) {
-  const isPositive = positive ?? (typeof value === 'number' ? value > 0 : value.startsWith('+'));
-  const colorClass = isPositive ? "text-green-400" : "text-red-400";
-  
-  return (
-    <div className="flex items-center gap-1 text-xs">
-      {isPositive ? <TrendingUp className="w-3 h-3 text-green-400" /> : <TrendingDown className="w-3 h-3 text-red-400" />}
-      <span className={colorClass}>{typeof value === 'number' && value > 0 ? '+' : ''}{value}</span>
-      <span className="text-muted-foreground">{label}</span>
-    </div>
-  );
-}
+const MINIMUM_WORDS = 100;
 
-function DecisionCard({ 
-  decision, 
-  selectedOption, 
-  onSelectOption,
-  onSubmit,
-  isSubmitting,
-  rationale,
-  onRationaleChange,
-}: { 
-  decision: WeeklyDecision;
-  selectedOption: string | null;
-  onSelectOption: (optionId: string) => void;
-  onSubmit: () => void;
-  isSubmitting: boolean;
-  rationale: string;
-  onRationaleChange: (value: string) => void;
-}) {
-  const [expanded, setExpanded] = useState(true);
-
-  const categoryColors: Record<string, string> = {
-    automation_financing: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    workforce_displacement: "bg-red-500/20 text-red-400 border-red-500/30",
-    union_relations: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    reskilling: "bg-green-500/20 text-green-400 border-green-500/30",
-    management_pipeline: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    organizational_change: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    strategic_investment: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  };
-
-  return (
-    <Card className="overflow-hidden" data-testid={`card-decision-${decision.id}`}>
-      <CardHeader 
-        className="cursor-pointer pb-3"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className={categoryColors[decision.category] || ""}>
-              {decision.category.replace(/_/g, ' ').toUpperCase()}
-            </Badge>
-            {decision.deadline && (
-              <Badge variant="secondary" className="text-xs">
-                <Clock className="w-3 h-3 mr-1" />
-                {decision.deadline}
-              </Badge>
-            )}
-          </div>
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </div>
-        <CardTitle className="text-lg mt-2">{decision.title}</CardTitle>
-        <CardDescription>{decision.context}</CardDescription>
-      </CardHeader>
-      
-      {expanded && (
-        <CardContent className="space-y-6">
-          {decision.stakeholderPerspectives.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                Stakeholder Perspectives
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {decision.stakeholderPerspectives.map((perspective, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium">{perspective.role}</span>
-                      <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Separator />
-
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Choose Your Approach</h4>
-            <div className="grid grid-cols-1 gap-4">
-              {decision.options.map((option) => (
-                <OptionCard
-                  key={option.id}
-                  option={option}
-                  isSelected={selectedOption === option.id}
-                  onSelect={() => onSelectOption(option.id)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {selectedOption && (
-            <div className="space-y-4 pt-4 border-t">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Decision Rationale (Optional)</label>
-                <Textarea
-                  placeholder="Document your reasoning for this decision..."
-                  value={rationale}
-                  onChange={(e) => onRationaleChange(e.target.value)}
-                  className="resize-none"
-                  rows={2}
-                  data-testid="input-rationale"
-                />
-              </div>
-              <Button 
-                className="w-full" 
-                onClick={onSubmit}
-                disabled={isSubmitting}
-                data-testid="button-submit-decision"
-              >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Confirm Decision
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      )}
-    </Card>
-  );
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 }
 
 function OptionCard({ option, isSelected, onSelect }: { option: DecisionOption; isSelected: boolean; onSelect: () => void }) {
@@ -270,6 +133,7 @@ function OptionCard({ option, isSelected, onSelect }: { option: DecisionOption; 
 export default function Decisions() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [rationales, setRationales] = useState<Record<string, string>>({});
   const [submittedDecisions, setSubmittedDecisions] = useState<Set<string>>(new Set());
@@ -284,16 +148,20 @@ export default function Decisions() {
   });
 
   const submitDecisionMutation = useMutation({
-    mutationFn: async ({ decisionId, optionId, rationale }: { decisionId: string; optionId: string; rationale?: string }) => {
+    mutationFn: async ({ decisionId, optionId, rationale }: { decisionId: string; optionId: string; rationale: string }) => {
       return apiRequest("POST", "/api/submit-decision", { decisionId, optionId, rationale });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/team"] });
-      setSubmittedDecisions(prev => new Set([...prev, variables.decisionId]));
+      setSubmittedDecisions(prev => new Set(Array.from(prev).concat(variables.decisionId)));
       toast({
         title: "Decision Submitted",
         description: "Your choice has been recorded.",
       });
+      
+      if (decisions && currentStep < decisions.length - 1) {
+        setCurrentStep(currentStep + 1);
+      }
     },
     onError: () => {
       toast({
@@ -342,8 +210,42 @@ export default function Decisions() {
     );
   }
 
-  const pendingDecisions = decisions.filter(d => !submittedDecisions.has(d.id));
-  const allDecisionsMade = pendingDecisions.length === 0 && decisions.length > 0;
+  const allDecisionsMade = submittedDecisions.size === decisions.length && decisions.length > 0;
+  const currentDecision = decisions[currentStep];
+  const isCurrentSubmitted = currentDecision ? submittedDecisions.has(currentDecision.id) : false;
+  const selectedOption = currentDecision ? selectedOptions[currentDecision.id] : null;
+  const currentRationale = currentDecision ? rationales[currentDecision.id] || "" : "";
+  const wordCount = countWords(currentRationale);
+  const isRationaleValid = wordCount >= MINIMUM_WORDS;
+
+  const categoryColors: Record<string, string> = {
+    automation_financing: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    workforce_displacement: "bg-red-500/20 text-red-400 border-red-500/30",
+    union_relations: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+    reskilling: "bg-green-500/20 text-green-400 border-green-500/30",
+    management_pipeline: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    organizational_change: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    strategic_investment: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  };
+
+  const handleSubmit = () => {
+    if (!currentDecision || !selectedOption) return;
+    
+    if (!isRationaleValid) {
+      toast({
+        title: "Rationale Required",
+        description: `Please provide at least ${MINIMUM_WORDS} words explaining your decision. Current: ${wordCount} words.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    submitDecisionMutation.mutate({
+      decisionId: currentDecision.id,
+      optionId: selectedOption,
+      rationale: currentRationale,
+    });
+  };
 
   return (
     <ScrollArea className="h-full">
@@ -363,25 +265,6 @@ export default function Decisions() {
               Make critical choices that will shape Apex's future
             </p>
           </div>
-          {allDecisionsMade && (
-            <Button
-              onClick={() => advanceWeekMutation.mutate()}
-              disabled={advanceWeekMutation.isPending}
-              data-testid="button-complete-week"
-            >
-              {advanceWeekMutation.isPending ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Complete Week {team.currentWeek}
-                </>
-              )}
-            </Button>
-          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -423,73 +306,228 @@ export default function Decisions() {
           </Card>
         </div>
 
-        <div className="space-y-6">
-          {decisions.map((decision) => {
-            const isSubmitted = submittedDecisions.has(decision.id);
-            
-            if (isSubmitted) {
-              return (
-                <Card key={decision.id} className="opacity-60 bg-muted/20">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-400" />
-                        {decision.title}
-                      </CardTitle>
-                      <Badge variant="outline" className="text-green-400 border-green-400/30">
-                        Decision Submitted
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                </Card>
-              );
-            }
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <div className="text-sm text-muted-foreground">
+                Decision {currentStep + 1} of {decisions.length}
+              </div>
+              <div className="flex items-center gap-2">
+                {decisions.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentStep(idx)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
+                      submittedDecisions.has(decisions[idx].id)
+                        ? "bg-green-500 text-white"
+                        : idx === currentStep
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    data-testid={`step-indicator-${idx}`}
+                  >
+                    {submittedDecisions.has(decisions[idx].id) ? (
+                      <CheckCircle2 className="w-4 h-4" />
+                    ) : (
+                      idx + 1
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Progress 
+              value={(submittedDecisions.size / decisions.length) * 100} 
+              className="h-2"
+            />
+          </CardHeader>
+        </Card>
 
-            return (
-              <DecisionCard
-                key={decision.id}
-                decision={decision}
-                selectedOption={selectedOptions[decision.id] || null}
-                onSelectOption={(optionId) => setSelectedOptions(prev => ({ ...prev, [decision.id]: optionId }))}
-                onSubmit={() => {
-                  const optionId = selectedOptions[decision.id];
-                  if (optionId) {
-                    submitDecisionMutation.mutate({
-                      decisionId: decision.id,
-                      optionId,
-                      rationale: rationales[decision.id],
-                    });
-                  }
-                }}
-                isSubmitting={submitDecisionMutation.isPending}
-                rationale={rationales[decision.id] || ""}
-                onRationaleChange={(value) => setRationales(prev => ({ ...prev, [decision.id]: value }))}
-              />
-            );
-          })}
-        </div>
+        {currentDecision && (
+          <Card data-testid={`card-decision-${currentDecision.id}`}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="outline" className={categoryColors[currentDecision.category] || ""}>
+                  {currentDecision.category.replace(/_/g, ' ').toUpperCase()}
+                </Badge>
+                {currentDecision.deadline && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {currentDecision.deadline}
+                  </Badge>
+                )}
+                {isCurrentSubmitted && (
+                  <Badge variant="outline" className="text-green-400 border-green-400/30">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    Submitted
+                  </Badge>
+                )}
+              </div>
+              <CardTitle className="text-lg mt-2">{currentDecision.title}</CardTitle>
+              <CardDescription>{currentDecision.context}</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {currentDecision.stakeholderPerspectives.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                    Stakeholder Perspectives
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {currentDecision.stakeholderPerspectives.map((perspective, i) => (
+                      <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium">{perspective.role}</span>
+                          <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium">Choose Your Approach</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  {currentDecision.options.map((option) => (
+                    <OptionCard
+                      key={option.id}
+                      option={option}
+                      isSelected={selectedOption === option.id}
+                      onSelect={() => {
+                        if (!isCurrentSubmitted) {
+                          setSelectedOptions(prev => ({ ...prev, [currentDecision.id]: option.id }));
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {selectedOption && !isCurrentSubmitted && (
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">
+                        Decision Rationale <span className="text-destructive">*</span>
+                      </label>
+                      <span className={`text-xs ${isRationaleValid ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        {wordCount} / {MINIMUM_WORDS} words minimum
+                      </span>
+                    </div>
+                    <Textarea
+                      placeholder={`Explain your reasoning for this decision in at least ${MINIMUM_WORDS} words. Consider the financial, cultural, and strategic implications of your choice...`}
+                      value={currentRationale}
+                      onChange={(e) => setRationales(prev => ({ ...prev, [currentDecision.id]: e.target.value }))}
+                      className={`resize-none ${!isRationaleValid && wordCount > 0 ? 'border-warning' : ''}`}
+                      rows={4}
+                      data-testid="input-rationale"
+                    />
+                    {wordCount > 0 && !isRationaleValid && (
+                      <p className="text-xs text-warning flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        {MINIMUM_WORDS - wordCount} more words needed
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-4 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+                  disabled={currentStep === 0}
+                  data-testid="button-previous-decision"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Previous
+                </Button>
+
+                {isCurrentSubmitted ? (
+                  currentStep < decisions.length - 1 ? (
+                    <Button
+                      onClick={() => setCurrentStep(currentStep + 1)}
+                      data-testid="button-next-decision"
+                    >
+                      Next Decision
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  ) : allDecisionsMade ? (
+                    <Button
+                      onClick={() => advanceWeekMutation.mutate()}
+                      disabled={advanceWeekMutation.isPending}
+                      data-testid="button-complete-week"
+                    >
+                      {advanceWeekMutation.isPending ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Complete Week {team.currentWeek}
+                        </>
+                      )}
+                    </Button>
+                  ) : null
+                ) : (
+                  <Button 
+                    onClick={handleSubmit}
+                    disabled={!selectedOption || submitDecisionMutation.isPending}
+                    data-testid="button-submit-decision"
+                  >
+                    {submitDecisionMutation.isPending ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Submit Decision
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {allDecisionsMade && (
-          <div className="flex justify-center pb-6">
-            <Button
-              size="lg"
-              onClick={() => advanceWeekMutation.mutate()}
-              disabled={advanceWeekMutation.isPending}
-              data-testid="button-complete-week-bottom"
-            >
-              {advanceWeekMutation.isPending ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  Complete Week {team.currentWeek} and See Results
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
+          <Card className="border-green-500/30 bg-green-500/5">
+            <CardContent className="p-6 text-center">
+              <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">All Decisions Complete</h3>
+              <p className="text-muted-foreground mb-4">
+                You have made all strategic decisions for Week {team.currentWeek}. 
+                Complete the week to see the impact of your choices.
+              </p>
+              <Button
+                size="lg"
+                onClick={() => advanceWeekMutation.mutate()}
+                disabled={advanceWeekMutation.isPending}
+                data-testid="button-complete-week-final"
+              >
+                {advanceWeekMutation.isPending ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Complete Week {team.currentWeek} and See Results
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
     </ScrollArea>
@@ -511,21 +549,17 @@ function DecisionsSkeleton() {
           <Skeleton key={i} className="h-20" />
         ))}
       </div>
-      <div className="space-y-6">
-        {[...Array(2)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <Skeleton className="h-6 w-64 mb-4" />
-              <Skeleton className="h-20 w-full mb-4" />
-              <div className="grid grid-cols-1 gap-4">
-                {[...Array(3)].map((_, j) => (
-                  <Skeleton key={j} className="h-32" />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <Skeleton className="h-6 w-64 mb-4" />
+          <Skeleton className="h-20 w-full mb-4" />
+          <div className="grid grid-cols-1 gap-4">
+            {[...Array(3)].map((_, j) => (
+              <Skeleton key={j} className="h-32" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
