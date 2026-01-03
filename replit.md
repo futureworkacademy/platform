@@ -86,3 +86,11 @@ The application runs via the "Start application" workflow which executes `npm ru
 - Bloomberg Terminal inspired design with Shadcn components
 - Full simulation loop: Dashboard → Briefing → Decisions → Analytics → Leaderboard
 - Dark mode support
+- Added Replit Auth integration with OIDC for school email authentication (January 2026)
+- Implemented admin-controlled team management system:
+  - Users cannot self-register to teams
+  - Admin assigns users to teams via /api/admin/assign-team
+  - Users table has teamId (nullable) and isAdmin fields
+- Created waiting assignment page for authenticated users without team assignment
+- Protected all game routes with isAuthenticated middleware
+- Each user sees only their assigned team's game data
