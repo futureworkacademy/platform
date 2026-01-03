@@ -23,8 +23,12 @@ import type {
   AdminAnalytics,
   EasterEgg,
   PlayerDecisionSubmission,
+  ActivityLog,
 } from "@shared/schema";
 import { defaultCompanyState } from "@shared/schema";
+
+// Activity log storage
+const activityLogs: ActivityLog[] = [];
 
 export interface IStorage {
   getTeam(id: string): Promise<Team | undefined>;
@@ -58,6 +62,11 @@ export interface IStorage {
   getAdminAnalytics(): Promise<AdminAnalytics>;
   getEasterEggs(): Promise<EasterEgg[]>;
   detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]>;
+  
+  // Activity logging
+  logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog>;
+  getActivityLogs(filters?: { eventType?: string; userId?: string; teamId?: string; startDate?: string; endDate?: string }): Promise<ActivityLog[]>;
+  exportActivityLogs(format: "csv" | "json"): Promise<string>;
 }
 
 const globalEvents: GlobalEvent[] = [
@@ -941,6 +950,7 @@ const researchReports: ResearchReport[] = [
   {
     id: "report-1",
     title: "State of AI in Manufacturing 2025",
+    sourceCode: "AIM",
     category: "industry",
     summary: "Comprehensive analysis of AI adoption trends across the manufacturing sector.",
     content: `The manufacturing industry is at a critical inflection point. Our research indicates that 67% of Fortune 500 manufacturers have initiated AI transformation programs, yet only 23% report successful enterprise-wide deployment.
@@ -967,6 +977,7 @@ A critical finding: companies that took on significant debt to finance automatio
   {
     id: "report-2",
     title: "Apex Manufacturing: Company Profile",
+    sourceCode: "APX",
     category: "company",
     summary: "Internal analysis of Apex Manufacturing's current position, capabilities, and strategic challenges.",
     content: `Apex Manufacturing Inc. is a mid-sized automotive parts supplier with 2,400 employees across operations, sales, customer service, R&D, and corporate functions. Founded in 1985, the company has built a reputation for quality but faces increasing pressure from competitors embracing automation.
@@ -997,6 +1008,7 @@ Union activity: While not currently unionized, informal organizing discussions h
   {
     id: "report-3",
     title: "Workforce Transition Best Practices",
+    sourceCode: "WFT",
     category: "workforce",
     summary: "Evidence-based strategies for managing workforce transitions during technological change.",
     content: `Research across 200+ manufacturing transformations reveals clear patterns distinguishing successful transitions from failures.
@@ -1028,6 +1040,7 @@ DISPLACEMENT BEST PRACTICES: Companies that offer reskilling with job guarantees
   {
     id: "report-4",
     title: "AI Technology Landscape for Manufacturing",
+    sourceCode: "ATL",
     category: "technology",
     summary: "Technical assessment of AI/ML solutions applicable to manufacturing operations.",
     content: `The manufacturing AI landscape has matured significantly. Key application areas include:
@@ -1059,6 +1072,7 @@ ROI TIMELINES: Typical automation investments break even in 18-24 months. Aggres
   {
     id: "report-5",
     title: "Competitive Analysis: Auto Parts Sector",
+    sourceCode: "CMP",
     category: "competition",
     summary: "Strategic assessment of key competitors and their AI transformation initiatives.",
     content: `TIER 1 COMPETITORS:
@@ -1096,6 +1110,7 @@ Bank debt accelerates transformation but amplifies both success and failure. Com
   {
     id: "report-6",
     title: "Case Study: TechnoForge Transformation",
+    sourceCode: "TFG",
     category: "case_study",
     summary: "Detailed examination of a successful AI transformation in the auto parts industry.",
     content: `TechnoForge, a 1,200-person automotive supplier, began their AI transformation in 2022. Their journey offers valuable lessons about balancing automation, debt, and workforce development.
@@ -1630,6 +1645,78 @@ export class MemStorage implements IStorage {
     }
     
     return found;
+  }
+
+  async logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog> {
+    const activityLog: ActivityLog = {
+      id: randomUUID(),
+      timestamp: new Date().toISOString(),
+      ...log,
+    };
+    activityLogs.push(activityLog);
+    return activityLog;
+  }
+
+  async getActivityLogs(filters?: { 
+    eventType?: string; 
+    userId?: string; 
+    teamId?: string; 
+    startDate?: string; 
+    endDate?: string;
+  }): Promise<ActivityLog[]> {
+    let logs = [...activityLogs];
+    
+    if (filters) {
+      if (filters.eventType) {
+        logs = logs.filter(l => l.eventType === filters.eventType);
+      }
+      if (filters.userId) {
+        logs = logs.filter(l => l.userId === filters.userId);
+      }
+      if (filters.teamId) {
+        logs = logs.filter(l => l.teamId === filters.teamId);
+      }
+      if (filters.startDate) {
+        const startTime = new Date(filters.startDate).getTime();
+        logs = logs.filter(l => new Date(l.timestamp).getTime() >= startTime);
+      }
+      if (filters.endDate) {
+        const endTime = new Date(filters.endDate).getTime();
+        logs = logs.filter(l => new Date(l.timestamp).getTime() <= endTime);
+      }
+    }
+    
+    // Sort by timestamp descending (most recent first)
+    return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+
+  async exportActivityLogs(format: "csv" | "json"): Promise<string> {
+    const logs = await this.getActivityLogs();
+    
+    if (format === "json") {
+      return JSON.stringify(logs, null, 2);
+    }
+    
+    // CSV format
+    const headers = ["Timestamp", "Event Type", "User ID", "User Email", "User Name", "Team ID", "Team Name", "Week", "Details"];
+    const rows = logs.map(log => [
+      log.timestamp,
+      log.eventType,
+      log.userId || "",
+      log.userEmail || "",
+      log.userName || "",
+      log.teamId || "",
+      log.teamName || "",
+      log.weekNumber?.toString() || "",
+      log.details ? JSON.stringify(log.details) : "",
+    ]);
+    
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    
+    return csvContent;
   }
 }
 

@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -28,13 +29,54 @@ import {
   MessageSquare,
   Sliders,
   Sparkles,
+  Info,
+  BookOpen,
 } from "lucide-react";
-import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute } from "@shared/schema";
+import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport } from "@shared/schema";
+
+// Source code reference key for helper text
+const SOURCE_CODES = [
+  { code: "AIM", title: "State of AI in Manufacturing 2025" },
+  { code: "APX", title: "Apex Manufacturing: Company Profile" },
+  { code: "WFT", title: "Workforce Transition Best Practices" },
+  { code: "ATL", title: "AI Technology Landscape for Manufacturing" },
+  { code: "CMP", title: "Competitive Analysis: Auto Parts Sector" },
+  { code: "TFG", title: "Case Study: TechnoForge Transformation" },
+];
 
 const MINIMUM_WORDS = 100;
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+}
+
+// Source code reference helper component
+function SourceCodeReference() {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <div className="bg-muted/30 rounded-lg border p-3 space-y-2">
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 text-xs font-medium text-muted-foreground w-full"
+        type="button"
+      >
+        <BookOpen className="w-3 h-3" />
+        <span>Source Code Reference Key</span>
+        <span className="ml-auto text-xs">{isExpanded ? "Hide" : "Show"}</span>
+      </button>
+      {isExpanded && (
+        <div className="grid grid-cols-2 gap-1 pt-2 border-t">
+          {SOURCE_CODES.map(({ code, title }) => (
+            <div key={code} className="flex items-start gap-2 text-xs">
+              <Badge variant="outline" className="font-mono shrink-0">{code}</Badge>
+              <span className="text-muted-foreground truncate">{title}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function formatCurrency(value: number): string {
@@ -151,6 +193,41 @@ function AttributeInput({
   value: number | string | boolean; 
   onChange: (value: number | string | boolean) => void;
 }) {
+  // Tooltip content based on attribute type and ID
+  const getTooltipContent = () => {
+    if (attribute.id.includes('automation') || attribute.id.includes('intensity')) {
+      return "Higher automation reduces labor costs but increases workforce anxiety and union risk.";
+    }
+    if (attribute.id.includes('reskill')) {
+      return "Investment in reskilling improves morale and reduces turnover. Research shows $10,000 per employee reduces turnover by 12%.";
+    }
+    if (attribute.id.includes('debt') || attribute.id.includes('financing')) {
+      return "Debt financing accelerates transformation but carries risk if implementation fails. Interest payments impact cash flow.";
+    }
+    if (attribute.id.includes('hiring')) {
+      return "External hiring brings new skills but may demoralize existing workforce if internal development is neglected.";
+    }
+    if (attribute.id.includes('training')) {
+      return "Internal training builds loyalty and institutional knowledge. Takes longer but improves retention.";
+    }
+    if (attribute.id.includes('dual_career') || attribute.id.includes('career')) {
+      return "Dual career tracks allow technical experts to advance without becoming managers - key for Gen Z retention.";
+    }
+    if (attribute.id.includes('job_guarantee')) {
+      return "Job guarantees for reskilled workers can achieve 80% internal redeployment and defuse union organizing.";
+    }
+    if (attribute.id.includes('wage')) {
+      return "Wage increases directly impact labor costs but improve morale and reduce union organizing pressure.";
+    }
+    if (attribute.id.includes('council') || attribute.id.includes('union')) {
+      return "Worker councils give employees a voice without full unionization. Can reduce adversarial dynamics.";
+    }
+    if (attribute.id.includes('communication') || attribute.id.includes('campaign')) {
+      return "Communication reduces workforce anxiety by 35% when done early and transparently.";
+    }
+    return attribute.description;
+  };
+
   if (attribute.type === "slider") {
     const numValue = typeof value === 'number' ? value : (attribute.defaultValue ?? attribute.min ?? 0);
     const isPercentage = attribute.label.toLowerCase().includes('%') || attribute.label.toLowerCase().includes('percentage');
@@ -160,7 +237,17 @@ function AttributeInput({
       <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <label className="text-sm font-medium">{attribute.label}</label>
+            <label className="text-sm font-medium flex items-center gap-2">
+              {attribute.label}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>{getTooltipContent()}</p>
+                </TooltipContent>
+              </Tooltip>
+            </label>
             <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
           </div>
           <div className="text-right shrink-0">
@@ -195,6 +282,14 @@ function AttributeInput({
             <label className="text-sm font-medium flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-primary" />
               {attribute.label}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>{getTooltipContent()}</p>
+                </TooltipContent>
+              </Tooltip>
             </label>
             <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
           </div>
@@ -226,7 +321,17 @@ function AttributeInput({
     return (
       <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border">
         <div className="flex-1">
-          <label className="text-sm font-medium">{attribute.label}</label>
+          <label className="text-sm font-medium flex items-center gap-2">
+            {attribute.label}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>{getTooltipContent()}</p>
+              </TooltipContent>
+            </Tooltip>
+          </label>
           <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
         </div>
         <Switch
@@ -244,7 +349,17 @@ function AttributeInput({
     return (
       <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
         <div>
-          <label className="text-sm font-medium">{attribute.label}</label>
+          <label className="text-sm font-medium flex items-center gap-2">
+            {attribute.label}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>{getTooltipContent()}</p>
+              </TooltipContent>
+            </Tooltip>
+          </label>
           <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
         </div>
         <Select value={strValue} onValueChange={(val) => onChange(val)}>
@@ -367,17 +482,37 @@ function EnhancedDecisionCard({
 
         {!isSubmitted && (
           <div className="space-y-4 pt-4 border-t">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium flex items-center gap-2">
                   Decision Rationale <span className="text-destructive">*</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Explain your strategy and cite research sources using the 3-letter source codes (e.g., AIM, APX).</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </label>
                 <span className={`text-xs ${isRationaleValid ? 'text-success' : 'text-muted-foreground'}`}>
                   {wordCount} / {MINIMUM_WORDS} words minimum
                 </span>
               </div>
+              
+              <SourceCodeReference />
+              
+              <div className="bg-accent/10 rounded-md p-3 border border-accent/20">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">Include source references:</strong> Cite your research materials using the source codes above.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 italic">
+                  Example: "Based on the 72% Gen Z management resistance statistic (APX), we recommend creating dual career tracks (WFT)."
+                </p>
+              </div>
+              
               <Textarea
-                placeholder={`Explain your reasoning for these choices in at least ${MINIMUM_WORDS} words. Reference specific data from your research to demonstrate thorough analysis...`}
+                placeholder={`Explain your reasoning for these choices in at least ${MINIMUM_WORDS} words. Include source codes (e.g., AIM, APX) to cite your research...`}
                 value={rationale}
                 onChange={(e) => onRationaleChange(e.target.value)}
                 className={`resize-none ${!isRationaleValid && wordCount > 0 ? 'border-warning' : ''}`}
@@ -821,21 +956,41 @@ export default function Decisions() {
 
                   {selectedOption && !isCurrentSubmitted && (
                     <div className="space-y-4 pt-4 border-t">
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium">
+                          <label className="text-sm font-medium flex items-center gap-2">
                             Decision Rationale <span className="text-destructive">*</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p>Explain your strategy and cite research sources using the 3-letter source codes (e.g., AIM, APX).</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </label>
                           <span className={`text-xs ${isRationaleValid ? 'text-success' : 'text-muted-foreground'}`}>
                             {wordCount} / {MINIMUM_WORDS} words minimum
                           </span>
                         </div>
+                        
+                        <SourceCodeReference />
+                        
+                        <div className="bg-accent/10 rounded-md p-3 border border-accent/20">
+                          <p className="text-xs text-muted-foreground">
+                            <strong className="text-foreground">Include source references:</strong> Cite your research materials using the source codes above.
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1 italic">
+                            Example: "Based on the 72% Gen Z management resistance statistic (APX), we recommend creating dual career tracks (WFT)."
+                          </p>
+                        </div>
+                        
                         <Textarea
-                          placeholder={`Explain your reasoning for this decision in at least ${MINIMUM_WORDS} words. Consider the financial, cultural, and strategic implications of your choice...`}
+                          placeholder={`Explain your reasoning for this decision in at least ${MINIMUM_WORDS} words. Include source codes (e.g., AIM, APX) to cite your research...`}
                           value={currentRationale}
                           onChange={(e) => setRationales(prev => ({ ...prev, [currentDecision.id]: e.target.value }))}
                           className={`resize-none ${!isRationaleValid && wordCount > 0 ? 'border-warning' : ''}`}
-                          rows={4}
+                          rows={5}
                           data-testid="input-rationale"
                         />
                         {wordCount > 0 && !isRationaleValid && (
@@ -844,6 +999,10 @@ export default function Decisions() {
                             {MINIMUM_WORDS - wordCount} more words needed
                           </p>
                         )}
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Tip: Reference specific statistics and case studies from your research materials for bonus points!
+                        </p>
                       </div>
                     </div>
                   )}

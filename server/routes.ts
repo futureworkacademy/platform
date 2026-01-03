@@ -63,6 +63,18 @@ export async function registerRoutes(
         });
       }
       const team = await storage.createTeam(validationResult.data);
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "team_created",
+        userId: userId,
+        userEmail: user?.email || undefined,
+        userName: user?.username || undefined,
+        teamId: team.id,
+        teamName: team.name,
+        details: { action: "admin_created_team" },
+      });
+      
       res.json(team);
     } catch (error) {
       res.status(500).json({ error: "Failed to create team" });
@@ -99,6 +111,23 @@ export async function registerRoutes(
       
       await db.update(users).set({ teamId, updatedAt: new Date() }).where(eq(users.id, userId));
       const updatedUser = await authStorage.getUser(userId);
+      const team = teamId ? await storage.getTeam(teamId) : null;
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "user_assigned",
+        userId: adminUserId,
+        userEmail: adminUser?.email || undefined,
+        userName: adminUser?.username || undefined,
+        teamId: teamId || undefined,
+        teamName: team?.name,
+        details: { 
+          assignedUserId: userId,
+          assignedUserEmail: updatedUser?.email,
+          action: teamId ? "assigned_to_team" : "removed_from_team",
+        },
+      });
+      
       res.json(updatedUser);
     } catch (error) {
       res.status(500).json({ error: "Failed to assign team" });
@@ -274,10 +303,26 @@ export async function registerRoutes(
       if (!user?.teamId) {
         return res.status(404).json({ error: "No team assigned" });
       }
+      const team = await storage.getTeam(user.teamId);
+      const previousWeek = team?.currentWeek || 1;
+      
       const updatedTeam = await storage.advanceWeek(user.teamId);
       if (!updatedTeam) {
         return res.status(400).json({ error: "Cannot advance week" });
       }
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "week_advanced",
+        userId: userId,
+        userEmail: user.email || undefined,
+        userName: user.username || undefined,
+        teamId: user.teamId,
+        teamName: updatedTeam.name,
+        weekNumber: updatedTeam.currentWeek,
+        details: { previousWeek, newWeek: updatedTeam.currentWeek },
+      });
+      
       res.json(updatedTeam);
     } catch (error) {
       res.status(500).json({ error: "Failed to advance week" });
@@ -320,10 +365,24 @@ export async function registerRoutes(
         return res.status(404).json({ error: "No team assigned" });
       }
       
+      const team = await storage.getTeam(user.teamId);
       const updatedTeam = await storage.submitDecision(user.teamId, decisionId, optionId, rationale);
       if (!updatedTeam) {
         return res.status(400).json({ error: "Failed to submit decision" });
       }
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "decision_submitted",
+        userId: userId,
+        userEmail: user.email || undefined,
+        userName: user.username || undefined,
+        teamId: user.teamId,
+        teamName: team?.name,
+        weekNumber: team?.currentWeek,
+        details: { decisionId, optionId, hasRationale: !!rationale },
+      });
+      
       res.json(updatedTeam);
     } catch (error) {
       res.status(500).json({ error: "Failed to submit decision" });
@@ -364,6 +423,23 @@ export async function registerRoutes(
       const easterEggsFound = await storage.detectEasterEggs(rationale, weekNumber);
       
       const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "enhanced_decision_submitted",
+        userId: userId,
+        userEmail: user?.email || undefined,
+        userName: user?.username || undefined,
+        teamId: user?.teamId || undefined,
+        teamName: team?.name,
+        weekNumber,
+        details: { 
+          decisionId, 
+          wordCount,
+          easterEggsFound: easterEggsFound.length,
+          attributeKeys: Object.keys(attributeValues),
+        },
+      });
       
       res.json({ 
         submission,
@@ -452,6 +528,51 @@ export async function registerRoutes(
       res.json(eggs);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch easter eggs" });
+    }
+  });
+
+  // Activity log routes
+  app.get("/api/admin/activity-logs", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const { eventType, userId: filterUserId, teamId, startDate, endDate } = req.query;
+      const logs = await storage.getActivityLogs({
+        eventType: eventType as string | undefined,
+        userId: filterUserId as string | undefined,
+        teamId: teamId as string | undefined,
+        startDate: startDate as string | undefined,
+        endDate: endDate as string | undefined,
+      });
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
+  app.get("/api/admin/activity-logs/export", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const format = (req.query.format as "csv" | "json") || "csv";
+      const content = await storage.exportActivityLogs(format);
+      
+      const contentType = format === "csv" ? "text/csv" : "application/json";
+      const filename = `activity-logs-${new Date().toISOString().split("T")[0]}.${format}`;
+      
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(content);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to export activity logs" });
     }
   });
 

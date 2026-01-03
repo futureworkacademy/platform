@@ -65,6 +65,8 @@ shared/
 - `POST /api/admin/simulation-config` - Update simulation configuration (admin only)
 - `GET /api/admin/analytics` - Get admin analytics dashboard data (admin only)
 - `GET /api/easter-eggs` - Get list of easter eggs (admin only)
+- `GET /api/admin/activity-logs` - Get activity logs with filters (admin only)
+- `GET /api/admin/activity-logs/export` - Export activity logs as CSV/JSON (admin only)
 
 ## Design System
 - **Primary**: Corporate Navy (#1E3A8A)
@@ -107,3 +109,7 @@ The application runs via the "Start application" workflow which executes `npm ru
   - 15 Easter eggs detect specific research statistics (72%, AutoTech, TechnoForge, etc.) for bonus points
   - Simulation config for admin to toggle individual/team/hybrid competition modes
   - Admin analytics dashboard with player performance tracking and easter egg detection rates
+- **Activity Logging System** (January 2026):
+  - Tracks key events: team_created, user_assigned, week_advanced, enhanced_decision_submitted
+  - Supports filtering by eventType, userId, teamId, and date range
+  - Export to CSV or JSON formats for analysis

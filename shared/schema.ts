@@ -275,6 +275,7 @@ export type HistoricalData = z.infer<typeof historicalDataSchema>;
 export const researchReportSchema = z.object({
   id: z.string(),
   title: z.string(),
+  sourceCode: z.string(), // 3-character reference code for citations (e.g., "AIM", "APX", "WFT")
   category: z.enum(["industry", "company", "workforce", "technology", "competition", "case_study"]),
   summary: z.string(),
   content: z.string(),
@@ -537,6 +538,40 @@ export const adminAnalyticsSchema = z.object({
 });
 
 export type AdminAnalytics = z.infer<typeof adminAnalyticsSchema>;
+
+// Activity log for admin tracking
+export const activityLogSchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  eventType: z.enum([
+    "simulation_start",
+    "research_viewed",
+    "research_complete",
+    "decision_submitted",
+    "enhanced_decision_submitted",
+    "week_advanced",
+    "team_created",
+    "user_assigned",
+    "user_login",
+    "user_logout",
+    "error",
+    "admin_action",
+  ]),
+  userId: z.string().optional(),
+  userEmail: z.string().optional(),
+  userName: z.string().optional(),
+  teamId: z.string().optional(),
+  teamName: z.string().optional(),
+  weekNumber: z.number().optional(),
+  details: z.record(z.any()).optional(),
+  metadata: z.object({
+    ipAddress: z.string().optional(),
+    userAgent: z.string().optional(),
+    sessionId: z.string().optional(),
+  }).optional(),
+});
+
+export type ActivityLog = z.infer<typeof activityLogSchema>;
 
 // Export auth models from Replit Auth integration
 export * from "./models/auth";
