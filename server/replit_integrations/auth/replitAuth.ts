@@ -111,11 +111,13 @@ export async function setupAuth(app: Express) {
     console.log("[Auth] ISSUER_URL:", process.env.ISSUER_URL ?? "https://replit.com/oidc");
     ensureStrategy(hostname);
     
-    // Wrap authenticate to log the redirect
-    const originalRedirect = res.redirect.bind(res);
-    res.redirect = function(url: string) {
-      console.log("[Auth] Redirecting to:", url);
-      return originalRedirect(url);
+    // Override setHeader to catch Location header
+    const originalSetHeader = res.setHeader.bind(res);
+    res.setHeader = function(name: string, value: string | number | readonly string[]) {
+      if (name.toLowerCase() === 'location') {
+        console.log("[Auth] Redirect Location:", value);
+      }
+      return originalSetHeader(name, value);
     } as any;
     
     passport.authenticate(`replitauth:${hostname}`, {
