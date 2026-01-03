@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/lib/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import Landing from "@/pages/landing";
+import WaitingAssignment from "@/pages/waiting-assignment";
 import TeamSetup from "@/pages/team-setup";
 import Research from "@/pages/research";
 import Dashboard from "@/pages/dashboard";
@@ -17,6 +19,7 @@ import Leaderboard from "@/pages/leaderboard";
 import NotFound from "@/pages/not-found";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
 
 function Redirect({ to }: { to: string }) {
@@ -101,7 +104,7 @@ function GameLayout() {
   );
 }
 
-function AppRouter() {
+function AuthenticatedApp() {
   const [location] = useLocation();
   const { data: team, isLoading } = useQuery<Team | null>({
     queryKey: ["/api/team"],
@@ -141,6 +144,36 @@ function AppRouter() {
   }
 
   return <GameLayout />;
+}
+
+function AppRouter() {
+  const { user, isLoading: authLoading } = useAuth();
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center">
+            <div className="h-12 w-12 rounded-md bg-primary animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-48 mx-auto" />
+            <Skeleton className="h-3 w-32 mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Landing />;
+  }
+
+  if (!user.teamId) {
+    return <WaitingAssignment />;
+  }
+
+  return <AuthenticatedApp />;
 }
 
 function App() {

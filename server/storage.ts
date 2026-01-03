@@ -22,6 +22,7 @@ import { defaultCompanyState } from "@shared/schema";
 
 export interface IStorage {
   getTeam(id: string): Promise<Team | undefined>;
+  getAllTeams(): Promise<Team[]>;
   getDefaultTeam(): Promise<Team | null>;
   createTeam(team: InsertTeam): Promise<Team>;
   updateTeam(id: string, updates: Partial<Team>): Promise<Team | undefined>;
@@ -937,6 +938,10 @@ export class MemStorage implements IStorage {
 
   async getTeam(id: string): Promise<Team | undefined> {
     return this.teams.get(id);
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return Array.from(this.teams.values());
   }
 
   async getDefaultTeam(): Promise<Team | null> {

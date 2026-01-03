@@ -3,22 +3,58 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertDecisionSchema, insertTeamSchema } from "@shared/schema";
 import { z } from "zod";
+import { isAuthenticated, authStorage } from "./replit_integrations/auth";
+import { db } from "./db";
+import { users } from "@shared/models/auth";
+import { eq } from "drizzle-orm";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  app.get("/api/team", async (req, res) => {
+  
+  app.get("/api/team", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      res.json(team);
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.json(null);
+      }
+      
+      const team = await storage.getTeam(user.teamId);
+      res.json(team || null);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch team" });
     }
   });
 
-  app.post("/api/team", async (req, res) => {
+  app.get("/api/admin/teams", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const teams = await storage.getAllTeams();
+      res.json(teams);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch teams" });
+    }
+  });
+
+  app.post("/api/admin/teams", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
       const validationResult = insertTeamSchema.safeParse(req.body);
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -33,13 +69,71 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/team/complete-research", async (req, res) => {
+  app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      if (!team) {
-        return res.status(404).json({ error: "No team found" });
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
       }
-      const result = await storage.completeResearch(team.id);
+      
+      const allUsers = await db.select().from(users);
+      res.json(allUsers);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/assign-team", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const adminUser = await authStorage.getUser(adminUserId);
+      if (adminUser?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const { userId, teamId } = req.body;
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+      
+      await db.update(users).set({ teamId, updatedAt: new Date() }).where(eq(users.id, userId));
+      const updatedUser = await authStorage.getUser(userId);
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assign team" });
+    }
+  });
+
+  app.post("/api/admin/set-admin", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const adminUser = await authStorage.getUser(adminUserId);
+      if (adminUser?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const { userId, isAdmin } = req.body;
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+      
+      await db.update(users).set({ isAdmin: isAdmin ? "true" : "false", updatedAt: new Date() }).where(eq(users.id, userId));
+      const updatedUser = await authStorage.getUser(userId);
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update admin status" });
+    }
+  });
+
+  app.post("/api/team/complete-research", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.status(404).json({ error: "No team assigned" });
+      }
+      const result = await storage.completeResearch(user.teamId);
       if (!result.success) {
         return res.status(400).json({ error: result.error });
       }
@@ -49,33 +143,35 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/research/mark-viewed/:reportId", async (req, res) => {
+  app.post("/api/research/mark-viewed/:reportId", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      if (!team) {
-        return res.status(404).json({ error: "No team found" });
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.status(404).json({ error: "No team assigned" });
       }
-      const updatedTeam = await storage.markReportViewed(team.id, req.params.reportId);
+      const updatedTeam = await storage.markReportViewed(user.teamId, req.params.reportId);
       res.json(updatedTeam);
     } catch (error) {
       res.status(500).json({ error: "Failed to mark report as viewed" });
     }
   });
 
-  app.get("/api/research/progress", async (req, res) => {
+  app.get("/api/research/progress", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      if (!team) {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
         return res.json({ viewed: 0, total: 6, percentage: 0 });
       }
-      const progress = await storage.getResearchProgress(team.id);
+      const progress = await storage.getResearchProgress(user.teamId);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch research progress" });
     }
   });
 
-  app.get("/api/research/reports", async (req, res) => {
+  app.get("/api/research/reports", isAuthenticated, async (req: any, res) => {
     try {
       const reports = await storage.getResearchReports();
       res.json(reports);
@@ -84,7 +180,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/research/historical", async (req, res) => {
+  app.get("/api/research/historical", isAuthenticated, async (req: any, res) => {
     try {
       const data = await storage.getHistoricalData();
       res.json(data);
@@ -93,7 +189,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/research/workforce", async (req, res) => {
+  app.get("/api/research/workforce", isAuthenticated, async (req: any, res) => {
     try {
       const demographics = await storage.getWorkforceDemographics();
       res.json(demographics);
@@ -102,7 +198,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/departments", async (req, res) => {
+  app.get("/api/departments", isAuthenticated, async (req: any, res) => {
     try {
       const departments = await storage.getDepartments();
       res.json(departments);
@@ -111,7 +207,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/briefing/:weekNumber?", async (req, res) => {
+  app.get("/api/briefing/:weekNumber?", isAuthenticated, async (req: any, res) => {
     try {
       const weekNumber = parseInt(req.params.weekNumber || "1", 10);
       const briefing = await storage.getWeeklyBriefing(weekNumber);
@@ -121,7 +217,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/leaderboard", async (req, res) => {
+  app.get("/api/leaderboard", isAuthenticated, async (req: any, res) => {
     try {
       const leaderboard = await storage.getLeaderboard();
       res.json(leaderboard);
@@ -130,10 +226,11 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/analytics", async (req, res) => {
+  app.get("/api/analytics", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      if (!team) {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
         return res.json({
           sentimentByDepartment: [],
           keyIssues: [],
@@ -141,14 +238,14 @@ export async function registerRoutes(
           employeeSegments: [],
         });
       }
-      const analytics = await storage.getPeopleAnalytics(team.id);
+      const analytics = await storage.getPeopleAnalytics(user.teamId);
       res.json(analytics);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch analytics" });
     }
   });
 
-  app.post("/api/decisions", async (req, res) => {
+  app.post("/api/decisions", isAuthenticated, async (req: any, res) => {
     try {
       const validationResult = insertDecisionSchema.safeParse(req.body);
       if (!validationResult.success) {
@@ -158,24 +255,26 @@ export async function registerRoutes(
         });
       }
 
-      const team = await storage.getDefaultTeam();
-      if (!team) {
-        return res.status(404).json({ error: "No team found" });
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.status(404).json({ error: "No team assigned" });
       }
-      const decision = await storage.addDecision(team.id, validationResult.data);
+      const decision = await storage.addDecision(user.teamId, validationResult.data);
       res.json(decision);
     } catch (error) {
       res.status(500).json({ error: "Failed to process decision" });
     }
   });
 
-  app.post("/api/advance-week", async (req, res) => {
+  app.post("/api/advance-week", isAuthenticated, async (req: any, res) => {
     try {
-      const team = await storage.getDefaultTeam();
-      if (!team) {
-        return res.status(404).json({ error: "No team found" });
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.status(404).json({ error: "No team assigned" });
       }
-      const updatedTeam = await storage.advanceWeek(team.id);
+      const updatedTeam = await storage.advanceWeek(user.teamId);
       if (!updatedTeam) {
         return res.status(400).json({ error: "Cannot advance week" });
       }
@@ -185,7 +284,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/scenario/:weekNumber", async (req, res) => {
+  app.get("/api/scenario/:weekNumber", isAuthenticated, async (req: any, res) => {
     try {
       const weekNumber = parseInt(req.params.weekNumber, 10);
       const scenario = await storage.getWeeklyScenario(weekNumber);
@@ -198,7 +297,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/decisions/:weekNumber", async (req, res) => {
+  app.get("/api/decisions/:weekNumber", isAuthenticated, async (req: any, res) => {
     try {
       const weekNumber = parseInt(req.params.weekNumber, 10);
       const decisions = await storage.getWeeklyDecisions(weekNumber);
@@ -208,19 +307,20 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/submit-decision", async (req, res) => {
+  app.post("/api/submit-decision", isAuthenticated, async (req: any, res) => {
     try {
       const { decisionId, optionId, rationale } = req.body;
       if (!decisionId || !optionId) {
         return res.status(400).json({ error: "Missing decisionId or optionId" });
       }
       
-      const team = await storage.getDefaultTeam();
-      if (!team) {
-        return res.status(404).json({ error: "No team found" });
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user?.teamId) {
+        return res.status(404).json({ error: "No team assigned" });
       }
       
-      const updatedTeam = await storage.submitDecision(team.id, decisionId, optionId, rationale);
+      const updatedTeam = await storage.submitDecision(user.teamId, decisionId, optionId, rationale);
       if (!updatedTeam) {
         return res.status(400).json({ error: "Failed to submit decision" });
       }
