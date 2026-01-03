@@ -573,5 +573,18 @@ export const activityLogSchema = z.object({
 
 export type ActivityLog = z.infer<typeof activityLogSchema>;
 
+// User profile update schema
+export const profileUpdateSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  jobTitle: z.string().optional(),
+  company: z.string().optional(),
+  institution: z.string().optional(),
+  department: z.string().optional(),
+  profileImageUrl: z.string().optional(),
+});
+
+export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
+
 // Export auth models from Replit Auth integration
 export * from "./models/auth";

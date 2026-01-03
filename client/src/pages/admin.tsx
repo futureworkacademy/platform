@@ -124,36 +124,36 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              <Link href="/">
-                <Button variant="outline" size="sm" data-testid="nav-dashboard">
+              <Button variant="outline" size="sm" asChild data-testid="nav-dashboard">
+                <Link href="/">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
-                </Button>
-              </Link>
-              <Link href="/briefing">
-                <Button variant="outline" size="sm" data-testid="nav-briefing">
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild data-testid="nav-briefing">
+                <Link href="/briefing">
                   <FileText className="mr-2 h-4 w-4" />
                   Briefing
-                </Button>
-              </Link>
-              <Link href="/analytics">
-                <Button variant="outline" size="sm" data-testid="nav-analytics">
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild data-testid="nav-analytics">
+                <Link href="/analytics">
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Analytics
-                </Button>
-              </Link>
-              <Link href="/leaderboard">
-                <Button variant="outline" size="sm" data-testid="nav-leaderboard">
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild data-testid="nav-leaderboard">
+                <Link href="/leaderboard">
                   <Trophy className="mr-2 h-4 w-4" />
                   Leaderboard
-                </Button>
-              </Link>
-              <Link href="/profile">
-                <Button variant="outline" size="sm" data-testid="nav-profile">
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild data-testid="nav-profile">
+                <Link href="/profile">
                   <UserIcon className="mr-2 h-4 w-4" />
                   Profile
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

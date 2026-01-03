@@ -69,7 +69,7 @@ export async function registerRoutes(
         eventType: "team_created",
         userId: userId,
         userEmail: user?.email || undefined,
-        userName: user?.username || undefined,
+        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined : undefined,
         teamId: team.id,
         teamName: team.name,
         details: { action: "admin_created_team" },
@@ -316,7 +316,7 @@ export async function registerRoutes(
         eventType: "week_advanced",
         userId: userId,
         userEmail: user.email || undefined,
-        userName: user.username || undefined,
+        userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined,
         teamId: user.teamId,
         teamName: updatedTeam.name,
         weekNumber: updatedTeam.currentWeek,
@@ -376,7 +376,7 @@ export async function registerRoutes(
         eventType: "decision_submitted",
         userId: userId,
         userEmail: user.email || undefined,
-        userName: user.username || undefined,
+        userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined,
         teamId: user.teamId,
         teamName: team?.name,
         weekNumber: team?.currentWeek,
@@ -429,7 +429,7 @@ export async function registerRoutes(
         eventType: "enhanced_decision_submitted",
         userId: userId,
         userEmail: user?.email || undefined,
-        userName: user?.username || undefined,
+        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined : undefined,
         teamId: user?.teamId || undefined,
         teamName: team?.name,
         weekNumber,
@@ -605,17 +605,14 @@ export async function registerRoutes(
   app.patch("/api/profile", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const { firstName, lastName, jobTitle, company, institution, department, profileImageUrl } = req.body;
+      const { profileUpdateSchema } = await import("@shared/schema");
+      const parsed = profileUpdateSchema.safeParse(req.body);
       
-      const user = await authStorage.updateProfile(userId, {
-        firstName,
-        lastName,
-        jobTitle,
-        company,
-        institution,
-        department,
-        profileImageUrl,
-      });
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid profile data", details: parsed.error.errors });
+      }
+      
+      const user = await authStorage.updateProfile(userId, parsed.data);
       
       if (!user) {
         return res.status(404).json({ error: "User not found" });

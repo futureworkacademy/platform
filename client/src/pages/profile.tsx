@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft } fr
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
+import { profileUpdateSchema, type ProfileUpdate } from "@shared/schema";
 
 interface Profile {
   id: string;
@@ -33,14 +35,8 @@ interface Profile {
   isAdmin: string | null;
 }
 
-interface ProfileFormData {
-  firstName: string;
-  lastName: string;
-  jobTitle: string;
-  company: string;
-  institution: string;
-  department: string;
-}
+const profileFormSchema = profileUpdateSchema.omit({ profileImageUrl: true });
+type ProfileFormData = ProfileUpdate;
 
 export default function Profile() {
   const { toast } = useToast();
@@ -52,6 +48,7 @@ export default function Profile() {
   });
 
   const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileFormSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
