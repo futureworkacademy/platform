@@ -576,5 +576,68 @@ export async function registerRoutes(
     }
   });
 
+  // Profile routes
+  app.get("/api/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        jobTitle: user.jobTitle,
+        company: user.company,
+        institution: user.institution,
+        department: user.department,
+        teamId: user.teamId,
+        isAdmin: user.isAdmin,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch profile" });
+    }
+  });
+
+  app.patch("/api/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { firstName, lastName, jobTitle, company, institution, department, profileImageUrl } = req.body;
+      
+      const user = await authStorage.updateProfile(userId, {
+        firstName,
+        lastName,
+        jobTitle,
+        company,
+        institution,
+        department,
+        profileImageUrl,
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        jobTitle: user.jobTitle,
+        company: user.company,
+        institution: user.institution,
+        department: user.department,
+        teamId: user.teamId,
+        isAdmin: user.isAdmin,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
   return httpServer;
 }

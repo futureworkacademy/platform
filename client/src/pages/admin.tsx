@@ -8,10 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Users, Plus, Shield, ArrowLeft } from "lucide-react";
+import { Users, Plus, Shield, ArrowLeft, LayoutDashboard, User as UserIcon, FileText, BarChart3, Trophy } from "lucide-react";
 import { Link } from "wouter";
 
-interface User {
+interface UserData {
   id: string;
   email: string;
   firstName: string;
@@ -33,11 +33,11 @@ export default function AdminPage() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
 
-  const { data: currentUser, isLoading: userLoading } = useQuery<User>({
+  const { data: currentUser, isLoading: userLoading } = useQuery<UserData>({
     queryKey: ["/api/auth/user"],
   });
 
-  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
+  const { data: users = [], isLoading: usersLoading } = useQuery<UserData[]>({
     queryKey: ["/api/admin/users"],
     enabled: currentUser?.isAdmin === "true",
   });
@@ -116,6 +116,47 @@ export default function AdminPage() {
             </Button>
           </Link>
         </div>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Quick Navigation</CardTitle>
+            <CardDescription>Jump to game areas or your profile</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/">
+                <Button variant="outline" size="sm" data-testid="nav-dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Button>
+              </Link>
+              <Link href="/briefing">
+                <Button variant="outline" size="sm" data-testid="nav-briefing">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Briefing
+                </Button>
+              </Link>
+              <Link href="/analytics">
+                <Button variant="outline" size="sm" data-testid="nav-analytics">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Analytics
+                </Button>
+              </Link>
+              <Link href="/leaderboard">
+                <Button variant="outline" size="sm" data-testid="nav-leaderboard">
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Leaderboard
+                </Button>
+              </Link>
+              <Link href="/profile">
+                <Button variant="outline" size="sm" data-testid="nav-profile">
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  Profile
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
           <Card>

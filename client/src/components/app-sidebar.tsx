@@ -9,6 +9,7 @@ import {
   Building2,
   Info,
   Medal,
+  User,
 } from "lucide-react";
 import {
   Sidebar,
@@ -65,6 +66,11 @@ const navigationItems = [
     title: "About",
     url: "/about",
     icon: Info,
+  },
+  {
+    title: "Profile",
+    url: "/profile",
+    icon: User,
   },
 ];
 

@@ -17,6 +17,7 @@ import Decisions from "@/pages/decisions";
 import Analytics from "@/pages/analytics";
 import Leaderboard from "@/pages/leaderboard";
 import About from "@/pages/about";
+import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -96,6 +97,7 @@ function GameLayout() {
               <Route path="/analytics" component={Analytics} />
               <Route path="/leaderboard" component={Leaderboard} />
               <Route path="/about" component={About} />
+              <Route path="/profile" component={Profile} />
               <Route component={NotFound} />
             </Switch>
           </main>

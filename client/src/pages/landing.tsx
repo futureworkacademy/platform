@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AppFooter } from "@/components/app-footer";
 import { 
   Factory, 
   TrendingUp, 
@@ -189,11 +190,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t py-8 px-4">
-        <div className="container mx-auto text-center text-sm text-muted-foreground">
-          The Future of Work - Business Simulation for Graduate Students
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }
