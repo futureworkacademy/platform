@@ -10,7 +10,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Landing from "@/pages/landing";
 import WaitingAssignment from "@/pages/waiting-assignment";
 import AdminPage from "@/pages/admin";
-import TeamSetup from "@/pages/team-setup";
 import Research from "@/pages/research";
 import Dashboard from "@/pages/dashboard";
 import Briefing from "@/pages/briefing";
@@ -59,8 +58,8 @@ function GameLayout() {
     );
   }
 
-  if (!team || !team.setupComplete) {
-    return <Redirect to="/setup" />;
+  if (!team) {
+    return <Redirect to="/" />;
   }
 
   if (!team.researchComplete) {
@@ -128,16 +127,9 @@ function AuthenticatedApp() {
     );
   }
 
-  if (location === "/setup") {
-    if (team?.setupComplete) {
-      return <Redirect to={team.researchComplete ? "/" : "/research"} />;
-    }
-    return <TeamSetup />;
-  }
-
   if (location === "/research") {
-    if (!team?.setupComplete) {
-      return <Redirect to="/setup" />;
+    if (!team) {
+      return <Redirect to="/" />;
     }
     if (team.researchComplete) {
       return <Redirect to="/" />;
