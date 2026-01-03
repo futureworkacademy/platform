@@ -45,7 +45,7 @@ export default function WaitingAssignment() {
 
   const requestVerificationMutation = useMutation({
     mutationFn: async (email: string) => {
-      return apiRequest('POST', '/api/auth/request-verification', { schoolEmail: email });
+      return apiRequest('POST', '/api/profile/request-verification', { schoolEmail: email });
     },
     onSuccess: () => {
       setShowVerificationInput(true);
@@ -65,7 +65,7 @@ export default function WaitingAssignment() {
 
   const verifyCodeMutation = useMutation({
     mutationFn: async (code: string) => {
-      return apiRequest('POST', '/api/auth/verify-email', { code });
+      return apiRequest('POST', '/api/profile/verify-email', { code });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });

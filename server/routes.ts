@@ -727,6 +727,20 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Name, email, and message are required" });
       }
       
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+      
+      // Validate lengths
+      if (name.length > 100) {
+        return res.status(400).json({ error: "Name is too long (max 100 characters)" });
+      }
+      if (message.length > 5000) {
+        return res.status(400).json({ error: "Message is too long (max 5000 characters)" });
+      }
+      
       console.log("[Feedback] Received:", { name, email, subject, message: message.substring(0, 100) + "..." });
       
       await storage.logActivity({
