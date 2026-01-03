@@ -181,7 +181,7 @@ function AppRouter() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="fow-theme">
+      <ThemeProvider defaultTheme="light" storageKey="fow-theme">
         <TooltipProvider>
           <AppRouter />
           <Toaster />
