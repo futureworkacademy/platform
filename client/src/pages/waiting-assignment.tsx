@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
-import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check } from "lucide-react";
+import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -142,6 +142,14 @@ export default function WaitingAssignment() {
             <span className="font-bold text-lg tracking-tight">Future of Work</span>
           </div>
           <div className="flex items-center gap-3">
+            {user?.isAdmin === "true" && (
+              <Link href="/admin">
+                <Button variant="outline" data-testid="link-admin">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Admin
+                </Button>
+              </Link>
+            )}
             <ThemeToggle />
             <Button variant="outline" onClick={() => logout()} data-testid="button-logout">
               <LogOut className="mr-2 h-4 w-4" />
