@@ -49,7 +49,7 @@ export default function AdminPage() {
 
   const createTeamMutation = useMutation({
     mutationFn: async (name: string) => {
-      return apiRequest("POST", "/api/admin/teams", { name });
+      return apiRequest("POST", "/api/admin/teams", { name, members: ["admin"] });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teams"] });
