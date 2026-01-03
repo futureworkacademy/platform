@@ -7,12 +7,17 @@ import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
 import { users } from "@shared/models/auth";
 import { eq } from "drizzle-orm";
+import { institutions } from "@shared/institutions";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
+  app.get("/api/institutions", (_req, res) => {
+    res.json(institutions);
+  });
+
   app.get("/api/team", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;

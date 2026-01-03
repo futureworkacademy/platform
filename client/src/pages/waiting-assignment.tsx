@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
-import { Factory, Clock, Mail, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 export default function WaitingAssignment() {
   const { user, logout } = useAuth();
@@ -19,9 +22,14 @@ export default function WaitingAssignment() {
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [institution, setInstitution] = useState(user?.institution || '');
+  const [institutionOpen, setInstitutionOpen] = useState(false);
   const [schoolEmail, setSchoolEmail] = useState(user?.schoolEmail || '');
   const [verificationCode, setVerificationCode] = useState('');
   const [showVerificationInput, setShowVerificationInput] = useState(false);
+  
+  const { data: institutions = [] } = useQuery<string[]>({
+    queryKey: ['/api/institutions'],
+  });
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { firstName: string; lastName: string; institution: string }) => {
@@ -211,14 +219,50 @@ export default function WaitingAssignment() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="institution">Institution</Label>
-                <Input
-                  id="institution"
-                  value={institution}
-                  onChange={(e) => setInstitution(e.target.value)}
-                  placeholder="Your university or organization"
-                  data-testid="input-institution"
-                />
+                <Label>Institution</Label>
+                <Popover open={institutionOpen} onOpenChange={setInstitutionOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={institutionOpen}
+                      className="w-full justify-between font-normal"
+                      data-testid="select-institution"
+                    >
+                      {institution || "Select your institution..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search institutions..." />
+                      <CommandList>
+                        <CommandEmpty>No institution found.</CommandEmpty>
+                        <CommandGroup>
+                          {institutions.map((inst) => (
+                            <CommandItem
+                              key={inst}
+                              value={inst}
+                              onSelect={(currentValue) => {
+                                setInstitution(currentValue === institution ? "" : currentValue);
+                                setInstitutionOpen(false);
+                              }}
+                              data-testid={`option-institution-${inst.replace(/\s+/g, '-').toLowerCase()}`}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  institution === inst ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {inst}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2">
                 <Label>Login Email</Label>
