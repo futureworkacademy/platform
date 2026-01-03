@@ -185,5 +185,50 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/scenario/:weekNumber", async (req, res) => {
+    try {
+      const weekNumber = parseInt(req.params.weekNumber, 10);
+      const scenario = await storage.getWeeklyScenario(weekNumber);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      res.json(scenario);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch scenario" });
+    }
+  });
+
+  app.get("/api/decisions/:weekNumber", async (req, res) => {
+    try {
+      const weekNumber = parseInt(req.params.weekNumber, 10);
+      const decisions = await storage.getWeeklyDecisions(weekNumber);
+      res.json(decisions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch decisions" });
+    }
+  });
+
+  app.post("/api/submit-decision", async (req, res) => {
+    try {
+      const { decisionId, optionId, rationale } = req.body;
+      if (!decisionId || !optionId) {
+        return res.status(400).json({ error: "Missing decisionId or optionId" });
+      }
+      
+      const team = await storage.getDefaultTeam();
+      if (!team) {
+        return res.status(404).json({ error: "No team found" });
+      }
+      
+      const updatedTeam = await storage.submitDecision(team.id, decisionId, optionId, rationale);
+      if (!updatedTeam) {
+        return res.status(400).json({ error: "Failed to submit decision" });
+      }
+      res.json(updatedTeam);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit decision" });
+    }
+  });
+
   return httpServer;
 }

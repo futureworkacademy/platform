@@ -3,21 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { MetricCard } from "@/components/metric-card";
-import { ScoreGauge } from "@/components/score-gauge";
-import { PerformanceChart } from "@/components/analytics-charts";
 import { Link } from "wouter";
 import {
   DollarSign,
   Users,
   Heart,
-  Cpu,
-  BookOpen,
-  Shield,
+  Factory,
+  Banknote,
   TrendingUp,
   ArrowRight,
   AlertCircle,
   Clock,
+  AlertTriangle,
+  UserCheck,
+  Building2,
+  BookOpen,
 } from "lucide-react";
 import type { Team } from "@shared/schema";
 
@@ -44,32 +46,20 @@ export default function Dashboard() {
 
   const { companyState, currentWeek, totalWeeks, weeklyHistory } = team;
 
-  const financialScore = (companyState.revenue / 1000000) * (companyState.employees / 500);
-  const culturalScore = companyState.morale / 100;
-  const combinedScore = financialScore * culturalScore;
+  const workforceRatio = companyState.employees / 2400;
+  const financialScore = Math.round((companyState.revenue / 125000000) * workforceRatio * 100);
+  const culturalScore = Math.round((companyState.morale + (100 - companyState.unionSentiment) + companyState.workforceAdaptability) / 3);
+  const combinedScore = Math.round((financialScore + culturalScore) / 2);
 
   const lastWeek = weeklyHistory.length > 0 ? weeklyHistory[weeklyHistory.length - 1] : null;
-  const revenueTrend = lastWeek
-    ? companyState.revenue > lastWeek.revenue
-      ? "up"
-      : companyState.revenue < lastWeek.revenue
-      ? "down"
-      : "stable"
-    : "stable";
-  const employeeTrend = lastWeek
-    ? companyState.employees > lastWeek.employees
-      ? "up"
-      : companyState.employees < lastWeek.employees
-      ? "down"
-      : "stable"
-    : "stable";
-  const moraleTrend = lastWeek
-    ? companyState.morale > lastWeek.morale
-      ? "up"
-      : companyState.morale < lastWeek.morale
-      ? "down"
-      : "stable"
-    : "stable";
+  
+  const getTrend = (current: number, previous: number | undefined) => {
+    if (!previous) return "stable";
+    return current > previous ? "up" : current < previous ? "down" : "stable";
+  };
+
+  const debtToEquity = companyState.debt / (companyState.cash + 10000000);
+  const unionRiskLevel = companyState.unionSentiment >= 75 ? "critical" : companyState.unionSentiment >= 50 ? "high" : companyState.unionSentiment >= 30 ? "medium" : "low";
 
   return (
     <div className="p-6 space-y-6" data-testid="dashboard-page">
@@ -77,7 +67,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Executive Dashboard</h1>
           <p className="text-muted-foreground">
-            Apex Manufacturing Inc. | Week {currentWeek} of {totalWeeks}
+            {team.name} | Week {currentWeek} of {totalWeeks}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -97,54 +87,34 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Revenue"
-          value={`$${(companyState.revenue / 1000000).toFixed(2)}M`}
+          value={`$${(companyState.revenue / 1000000).toFixed(1)}M`}
           subtitle="Annual revenue"
-          trend={revenueTrend}
-          trendValue={
-            lastWeek
-              ? `${(((companyState.revenue - lastWeek.revenue) / lastWeek.revenue) * 100).toFixed(1)}%`
-              : undefined
-          }
+          trend={getTrend(companyState.revenue, lastWeek?.revenue)}
           icon={<DollarSign className="h-4 w-4" />}
-          variant={revenueTrend === "up" ? "success" : revenueTrend === "down" ? "danger" : "default"}
+          variant="default"
         />
         <MetricCard
           title="Employees"
           value={companyState.employees.toLocaleString()}
           subtitle="Total workforce"
-          trend={employeeTrend}
-          trendValue={
-            lastWeek
-              ? `${companyState.employees - lastWeek.employees > 0 ? "+" : ""}${companyState.employees - lastWeek.employees}`
-              : undefined
-          }
+          trend={getTrend(companyState.employees, lastWeek?.employees)}
           icon={<Users className="h-4 w-4" />}
-          variant={employeeTrend === "up" ? "success" : employeeTrend === "down" ? "warning" : "default"}
+          variant="default"
         />
         <MetricCard
           title="Employee Morale"
           value={`${companyState.morale}%`}
           subtitle="Sentiment index"
-          trend={moraleTrend}
-          trendValue={
-            lastWeek
-              ? `${companyState.morale - lastWeek.morale > 0 ? "+" : ""}${companyState.morale - lastWeek.morale}`
-              : undefined
-          }
+          trend={getTrend(companyState.morale, lastWeek?.morale)}
           icon={<Heart className="h-4 w-4" />}
-          variant={
-            companyState.morale >= 70
-              ? "success"
-              : companyState.morale >= 50
-              ? "warning"
-              : "danger"
-          }
+          variant={companyState.morale >= 70 ? "success" : companyState.morale >= 50 ? "warning" : "danger"}
         />
         <MetricCard
-          title="AI Budget"
-          value={`$${(companyState.aiBudget / 1000).toFixed(0)}K`}
-          subtitle="Available for deployment"
-          icon={<Cpu className="h-4 w-4" />}
+          title="Total Debt"
+          value={`$${(companyState.debt / 1000000).toFixed(1)}M`}
+          subtitle={`${(companyState.debtInterestRate * 100).toFixed(1)}% interest`}
+          icon={<Banknote className="h-4 w-4" />}
+          variant={companyState.debt > 10000000 ? "danger" : companyState.debt > 5000000 ? "warning" : "default"}
         />
       </div>
 
@@ -163,106 +133,237 @@ export default function Dashboard() {
               <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
                 <div className="text-sm text-muted-foreground mb-2">Financial Score</div>
                 <div className="text-3xl font-bold font-mono text-primary" data-testid="financial-score">
-                  {financialScore.toFixed(2)}
+                  {financialScore}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Revenue × Workforce
                 </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-success/5 border border-success/10">
+              <div className="text-center p-4 rounded-lg bg-green-500/5 border border-green-500/10">
                 <div className="text-sm text-muted-foreground mb-2">Cultural Score</div>
-                <div className="text-3xl font-bold font-mono text-success" data-testid="cultural-score">
-                  {culturalScore.toFixed(2)}
+                <div className="text-3xl font-bold font-mono text-green-400" data-testid="cultural-score">
+                  {culturalScore}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  Employee Sentiment
+                  Morale + Stability
                 </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/10">
+              <div className="text-center p-4 rounded-lg bg-blue-500/5 border border-blue-500/10">
                 <div className="text-sm text-muted-foreground mb-2">Combined Score</div>
-                <div className="text-3xl font-bold font-mono text-accent" data-testid="combined-score">
-                  {combinedScore.toFixed(2)}
+                <div className="text-3xl font-bold font-mono text-blue-400" data-testid="combined-score">
+                  {combinedScore}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   Overall Performance
                 </div>
               </div>
             </div>
-            <ScoreGauge
-              label="Overall Company Health"
-              value={companyState.morale}
-              color={
-                companyState.morale >= 70
-                  ? "success"
-                  : companyState.morale >= 50
-                  ? "warning"
-                  : "danger"
-              }
-              size="lg"
-            />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">Available Resources</CardTitle>
+            <CardTitle className="text-base font-semibold">Risk Indicators</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2">
+                  <AlertTriangle className={`h-4 w-4 ${
+                    unionRiskLevel === 'critical' ? 'text-red-400' :
+                    unionRiskLevel === 'high' ? 'text-orange-400' :
+                    unionRiskLevel === 'medium' ? 'text-yellow-400' : 'text-green-400'
+                  }`} />
+                  Union Sentiment
+                </span>
+                <Badge variant={
+                  unionRiskLevel === 'critical' ? 'destructive' :
+                  unionRiskLevel === 'high' ? 'default' : 'secondary'
+                }>
+                  {companyState.unionSentiment}% {companyState.unionized && '(Unionized)'}
+                </Badge>
+              </div>
+              <Progress value={companyState.unionSentiment} className="h-2" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2">
+                  <Factory className="h-4 w-4 text-blue-400" />
+                  Automation Level
+                </span>
+                <span className="font-mono">{companyState.automationLevel}%</span>
+              </div>
+              <Progress value={companyState.automationLevel} className="h-2" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-purple-400" />
+                  Management Bench
+                </span>
+                <span className="font-mono">{companyState.managementBenchStrength}%</span>
+              </div>
+              <Progress value={companyState.managementBenchStrength} className="h-2" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-green-400" />
+                  Workforce Adaptability
+                </span>
+                <span className="font-mono">{companyState.workforceAdaptability}%</span>
+              </div>
+              <Progress value={companyState.workforceAdaptability} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-card/50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-500/10 text-blue-400">
+                <Factory className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Automation ROI</div>
+                <div className="text-lg font-mono font-bold">{companyState.automationROI}%</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-card/50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-500/10 text-green-400">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Reskilling Progress</div>
+                <div className="text-lg font-mono font-bold">{companyState.reskillingProgress}%</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-card/50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Gen Z Workforce</div>
+                <div className="text-lg font-mono font-bold">{companyState.genZWorkforcePercentage}%</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-card/50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-orange-500/10 text-orange-400">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Manager Vacancies</div>
+                <div className="text-lg font-mono font-bold">{companyState.managerVacancies}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Financial Position</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-                  <Cpu className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-500/10 text-green-400">
+                  <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">AI Budget</div>
-                  <div className="text-xs text-muted-foreground">For AI deployments</div>
+                  <div className="text-sm font-medium">Cash on Hand</div>
+                  <div className="text-xs text-muted-foreground">Available liquidity</div>
                 </div>
               </div>
               <div className="text-lg font-mono font-bold">
-                ${(companyState.aiBudget / 1000).toFixed(0)}K
+                ${(companyState.cash / 1000000).toFixed(1)}M
               </div>
             </div>
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-success/10 text-success">
-                  <BookOpen className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-500/10 text-red-400">
+                  <Banknote className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">Reskilling Fund</div>
-                  <div className="text-xs text-muted-foreground">Employee training</div>
+                  <div className="text-sm font-medium">Outstanding Debt</div>
+                  <div className="text-xs text-muted-foreground">{(companyState.debtInterestRate * 100).toFixed(1)}% annual interest</div>
                 </div>
               </div>
               <div className="text-lg font-mono font-bold">
-                ${(companyState.reskillingFund / 1000).toFixed(0)}K
+                ${(companyState.debt / 1000000).toFixed(1)}M
               </div>
             </div>
             <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-warning/10 text-warning">
-                  <Shield className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-yellow-500/10 text-yellow-400">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">Lobbying Budget</div>
-                  <div className="text-xs text-muted-foreground">Policy influence</div>
+                  <div className="text-sm font-medium">Debt-to-Equity Ratio</div>
+                  <div className="text-xs text-muted-foreground">Financial leverage</div>
                 </div>
               </div>
-              <div className="text-lg font-mono font-bold">
-                ${(companyState.lobbyingBudget / 1000).toFixed(0)}K
+              <div className={`text-lg font-mono font-bold ${debtToEquity > 1 ? 'text-red-400' : debtToEquity > 0.5 ? 'text-yellow-400' : 'text-green-400'}`}>
+                {debtToEquity.toFixed(2)}
               </div>
             </div>
-            <Button className="w-full" asChild data-testid="button-make-decisions">
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" variant="outline" asChild data-testid="button-briefing">
+              <Link href="/briefing">
+                <BookOpen className="h-4 w-4 mr-3" />
+                View Weekly Briefing
+                <ArrowRight className="h-4 w-4 ml-auto" />
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild data-testid="button-decisions">
               <Link href="/decisions">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Make Decisions
+                <TrendingUp className="h-4 w-4 mr-3" />
+                Make Strategic Decisions
+                <ArrowRight className="h-4 w-4 ml-auto" />
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild data-testid="button-analytics">
+              <Link href="/analytics">
+                <Users className="h-4 w-4 mr-3" />
+                People Analytics
+                <ArrowRight className="h-4 w-4 ml-auto" />
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild data-testid="button-leaderboard">
+              <Link href="/leaderboard">
+                <Building2 className="h-4 w-4 mr-3" />
+                View Leaderboard
+                <ArrowRight className="h-4 w-4 ml-auto" />
               </Link>
             </Button>
           </CardContent>
         </Card>
       </div>
-
-      {weeklyHistory.length > 0 && (
-        <PerformanceChart weeklyHistory={weeklyHistory} />
-      )}
     </div>
   );
 }

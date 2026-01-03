@@ -1,16 +1,62 @@
 import { z } from "zod";
 
-// Company state schema
+// Enhanced company state schema with automation and workforce metrics
 export const companyStateSchema = z.object({
   revenue: z.number(),
   employees: z.number(),
   morale: z.number().min(0).max(100),
+  
+  // Financial metrics
+  cash: z.number(),
+  debt: z.number(),
+  debtInterestRate: z.number(),
+  
+  // Automation metrics
+  automationLevel: z.number().min(0).max(100),
+  automationROI: z.number(),
+  roboticsInvestment: z.number(),
+  
+  // Workforce metrics
+  unionSentiment: z.number().min(0).max(100),
+  unionized: z.boolean(),
+  workforceAdaptability: z.number().min(0).max(100),
+  reskillingProgress: z.number().min(0).max(100),
+  
+  // Leadership metrics
+  managementBenchStrength: z.number().min(0).max(100),
+  genZWorkforcePercentage: z.number().min(0).max(100),
+  managerVacancies: z.number(),
+  
+  // Legacy fields
   aiBudget: z.number(),
   reskillingFund: z.number(),
   lobbyingBudget: z.number(),
 });
 
 export type CompanyState = z.infer<typeof companyStateSchema>;
+
+// Default company state for new games
+export const defaultCompanyState: CompanyState = {
+  revenue: 125000000,
+  employees: 2400,
+  morale: 68,
+  cash: 15000000,
+  debt: 0,
+  debtInterestRate: 0.065,
+  automationLevel: 12,
+  automationROI: 0,
+  roboticsInvestment: 0,
+  unionSentiment: 35,
+  unionized: false,
+  workforceAdaptability: 55,
+  reskillingProgress: 20,
+  managementBenchStrength: 45,
+  genZWorkforcePercentage: 28,
+  managerVacancies: 8,
+  aiBudget: 2000000,
+  reskillingFund: 500000,
+  lobbyingBudget: 100000,
+};
 
 // Department schema
 export const departmentSchema = z.object({
@@ -46,26 +92,101 @@ export const briefingArticleSchema = z.object({
   content: z.string(),
   source: z.string(),
   insights: z.array(z.string()),
-  category: z.enum(["ai", "trade", "workforce", "technology", "policy"]),
+  category: z.enum(["ai", "trade", "workforce", "technology", "policy", "labor", "finance"]),
 });
 
 export type BriefingArticle = z.infer<typeof briefingArticleSchema>;
 
-// Weekly briefing schema
-export const weeklyBriefingSchema = z.object({
+// Weekly scenario - the main narrative for each week
+export const weeklyScenarioSchema = z.object({
   weekNumber: z.number(),
-  date: z.string(),
-  articles: z.array(briefingArticleSchema),
-  event: globalEventSchema.optional(),
+  title: z.string(),
+  narrative: z.string(),
+  pressures: z.array(z.object({
+    source: z.string(),
+    message: z.string(),
+    urgency: z.enum(["low", "medium", "high", "critical"]),
+  })),
+  contextArticles: z.array(briefingArticleSchema),
+  keyQuestion: z.string(),
 });
 
-export type WeeklyBriefing = z.infer<typeof weeklyBriefingSchema>;
+export type WeeklyScenario = z.infer<typeof weeklyScenarioSchema>;
 
-// Decision schema
+// Decision option with detailed impacts
+export const decisionOptionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  description: z.string(),
+  financialImpact: z.object({
+    revenue: z.number().optional(),
+    cost: z.number().optional(),
+    debt: z.number().optional(),
+    cashFlow: z.number().optional(),
+  }),
+  workforceImpact: z.object({
+    employees: z.number().optional(),
+    morale: z.number().optional(),
+    unionSentiment: z.number().optional(),
+    adaptability: z.number().optional(),
+  }),
+  leadershipImpact: z.object({
+    managementBench: z.number().optional(),
+    managerVacancies: z.number().optional(),
+  }).optional(),
+  automationImpact: z.object({
+    level: z.number().optional(),
+    roi: z.number().optional(),
+  }).optional(),
+  risks: z.array(z.string()),
+  timeframe: z.string(),
+});
+
+export type DecisionOption = z.infer<typeof decisionOptionSchema>;
+
+// Weekly decision challenge
+export const weeklyDecisionSchema = z.object({
+  id: z.string(),
+  weekNumber: z.number(),
+  category: z.enum([
+    "automation_financing",
+    "workforce_displacement",
+    "union_relations",
+    "reskilling",
+    "management_pipeline",
+    "organizational_change",
+    "strategic_investment",
+  ]),
+  title: z.string(),
+  context: z.string(),
+  stakeholderPerspectives: z.array(z.object({
+    role: z.string(),
+    stance: z.string(),
+    quote: z.string(),
+  })),
+  options: z.array(decisionOptionSchema),
+  deadline: z.string().optional(),
+});
+
+export type WeeklyDecision = z.infer<typeof weeklyDecisionSchema>;
+
+// Decision record (what the team chose)
+export const decisionRecordSchema = z.object({
+  id: z.string(),
+  weekNumber: z.number(),
+  decisionId: z.string(),
+  optionId: z.string(),
+  timestamp: z.string(),
+  rationale: z.string().optional(),
+});
+
+export type DecisionRecord = z.infer<typeof decisionRecordSchema>;
+
+// Legacy decision schema for compatibility
 export const decisionSchema = z.object({
   id: z.string(),
   weekNumber: z.number(),
-  type: z.enum(["ai_deployment", "lobbying", "reskilling", "event_response"]),
+  type: z.enum(["ai_deployment", "lobbying", "reskilling", "event_response", "automation", "union", "management"]),
   departmentId: z.string().optional(),
   lobbyingSpend: z.number().optional(),
   reskillingSpend: z.number().optional(),
@@ -78,6 +199,23 @@ export type Decision = z.infer<typeof decisionSchema>;
 export const insertDecisionSchema = decisionSchema.omit({ id: true, timestamp: true });
 export type InsertDecision = z.infer<typeof insertDecisionSchema>;
 
+// Weekly history with enhanced metrics
+export const weeklyHistoryEntrySchema = z.object({
+  week: z.number(),
+  revenue: z.number(),
+  employees: z.number(),
+  morale: z.number(),
+  financialScore: z.number(),
+  culturalScore: z.number(),
+  debt: z.number(),
+  automationLevel: z.number(),
+  unionSentiment: z.number(),
+  managementBench: z.number(),
+  decisionsThisWeek: z.array(z.string()),
+});
+
+export type WeeklyHistoryEntry = z.infer<typeof weeklyHistoryEntrySchema>;
+
 // Team schema
 export const teamSchema = z.object({
   id: z.string(),
@@ -87,14 +225,8 @@ export const teamSchema = z.object({
   currentWeek: z.number(),
   totalWeeks: z.number(),
   decisions: z.array(decisionSchema),
-  weeklyHistory: z.array(z.object({
-    week: z.number(),
-    revenue: z.number(),
-    employees: z.number(),
-    morale: z.number(),
-    financialScore: z.number(),
-    culturalScore: z.number(),
-  })),
+  decisionRecords: z.array(decisionRecordSchema).default([]),
+  weeklyHistory: z.array(weeklyHistoryEntrySchema),
   setupComplete: z.boolean().default(false),
   researchComplete: z.boolean().default(false),
   viewedReportIds: z.array(z.string()).default([]),
@@ -110,6 +242,18 @@ export const insertTeamSchema = z.object({
 });
 
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
+
+// Weekly briefing schema
+export const weeklyBriefingSchema = z.object({
+  weekNumber: z.number(),
+  date: z.string(),
+  articles: z.array(briefingArticleSchema),
+  event: globalEventSchema.optional(),
+  scenario: weeklyScenarioSchema.optional(),
+  decisions: z.array(weeklyDecisionSchema).optional(),
+});
+
+export type WeeklyBriefing = z.infer<typeof weeklyBriefingSchema>;
 
 // Historical company data for pre-game research
 export const historicalDataSchema = z.object({
