@@ -19,7 +19,7 @@ import {
   Landmark,
   Brain
 } from "lucide-react";
-import logoImage from "@assets/fwalogo-1_1768083120572.png";
+import logoImage from "@assets/fwalogo-2_1768083577051.png";
 
 const challengeSets = [
   [
@@ -58,7 +58,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="Future Work Academy" 
-              className="h-14 w-auto"
+              className="h-12 w-auto"
               data-testid="img-header-logo"
             />
           </div>
