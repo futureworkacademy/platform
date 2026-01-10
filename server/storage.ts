@@ -1195,72 +1195,60 @@ const workforceDemographics: WorkforceDemographics = {
 };
 
 export class MemStorage implements IStorage {
-  private teams: Map<string, Team> = new Map();
   private departments: Department[] = [...defaultDepartments];
-  private defaultTeamId: string | null = null;
   private playerDecisions: Map<string, PlayerDecisionSubmission[]> = new Map();
   private playerPerformances: Map<string, PlayerPerformance> = new Map();
   private simulationConfig: SimulationConfig = { ...defaultSimulationConfig };
 
   async getTeam(id: string): Promise<Team | undefined> {
-    return this.teams.get(id);
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.getTeam(id);
   }
 
   async getAllTeams(): Promise<Team[]> {
-    return Array.from(this.teams.values());
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.getAllTeams();
   }
 
   async getDefaultTeam(): Promise<Team | null> {
-    if (!this.defaultTeamId) return null;
-    return this.teams.get(this.defaultTeamId) || null;
+    const { teamStorage } = await import("./team-storage");
+    const teams = await teamStorage.getAllTeams();
+    return teams.length > 0 ? teams[0] : null;
   }
 
   async hasActiveTeam(): Promise<boolean> {
-    return this.defaultTeamId !== null && this.teams.has(this.defaultTeamId);
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.hasActiveTeam();
   }
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {
-    const id = randomUUID();
-    const team: Team = {
-      id,
-      name: insertTeam.name,
-      members: insertTeam.members,
-      companyState: { ...defaultCompanyState },
-      currentWeek: 0,
-      totalWeeks: insertTeam.totalWeeks ?? 8,
-      decisions: [],
-      decisionRecords: [],
-      weeklyHistory: [],
-      setupComplete: true,
-      researchComplete: false,
-      viewedReportIds: [],
-      createdAt: new Date().toISOString(),
-    };
-    this.teams.set(id, team);
-    this.defaultTeamId = id;
-    return team;
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.createTeam(insertTeam);
   }
 
   async markReportViewed(teamId: string, reportId: string): Promise<Team | undefined> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     if (!team) return undefined;
     if (!team.viewedReportIds.includes(reportId)) {
-      const updatedTeam = { ...team, viewedReportIds: [...team.viewedReportIds, reportId] };
-      this.teams.set(teamId, updatedTeam);
-      return updatedTeam;
+      return teamStorage.updateTeam(teamId, { 
+        viewedReportIds: [...team.viewedReportIds, reportId] 
+      });
     }
     return team;
   }
 
   async getResearchProgress(teamId: string): Promise<{ viewed: number; total: number; percentage: number }> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     const total = researchReports.length;
     const viewed = team?.viewedReportIds?.length || 0;
     return { viewed, total, percentage: total > 0 ? (viewed / total) * 100 : 0 };
   }
 
   async completeResearch(teamId: string): Promise<{ success: boolean; team?: Team; error?: string }> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     if (!team) return { success: false, error: "Team not found" };
     
     const progress = await this.getResearchProgress(teamId);
@@ -1268,8 +1256,7 @@ export class MemStorage implements IStorage {
       return { success: false, error: `Must review at least 50% of research materials. Current: ${Math.round(progress.percentage)}%` };
     }
     
-    const updatedTeam = { ...team, researchComplete: true, currentWeek: 1 };
-    this.teams.set(teamId, updatedTeam);
+    const updatedTeam = await teamStorage.updateTeam(teamId, { researchComplete: true, currentWeek: 1 });
     return { success: true, team: updatedTeam };
   }
 
@@ -1286,11 +1273,8 @@ export class MemStorage implements IStorage {
   }
 
   async updateTeam(id: string, updates: Partial<Team>): Promise<Team | undefined> {
-    const team = this.teams.get(id);
-    if (!team) return undefined;
-    const updatedTeam = { ...team, ...updates };
-    this.teams.set(id, updatedTeam);
-    return updatedTeam;
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.updateTeam(id, updates);
   }
 
   async getDepartments(): Promise<Department[]> {
@@ -1327,7 +1311,8 @@ export class MemStorage implements IStorage {
   }
 
   async submitDecision(teamId: string, decisionId: string, optionId: string, rationale?: string): Promise<Team | undefined> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     if (!team) return undefined;
 
     const decision = weeklyDecisions.find(d => d.id === decisionId);
@@ -1388,20 +1373,18 @@ export class MemStorage implements IStorage {
       updatedState.unionized = true;
     }
 
-    const updatedTeam: Team = {
-      ...team,
+    return teamStorage.updateTeam(teamId, {
       companyState: updatedState,
       decisionRecords: [...team.decisionRecords, record],
-    };
-
-    this.teams.set(teamId, updatedTeam);
-    return updatedTeam;
+    });
   }
 
   async getLeaderboard(): Promise<LeaderboardEntry[]> {
+    const { teamStorage } = await import("./team-storage");
+    const teams = await teamStorage.getAllTeams();
     const entries: LeaderboardEntry[] = [];
     
-    this.teams.forEach((team) => {
+    for (const team of teams) {
       const workforceRatio = team.companyState.employees / 2400;
       const financialScore = (team.companyState.revenue / 125000000) * workforceRatio * 100;
       const culturalScore = (team.companyState.morale + (100 - team.companyState.unionSentiment) + team.companyState.workforceAdaptability) / 3;
@@ -1415,7 +1398,7 @@ export class MemStorage implements IStorage {
         combinedScore: Math.round((financialScore + culturalScore) / 2),
         currentWeek: team.currentWeek,
       });
-    });
+    }
 
     entries.sort((a, b) => b.combinedScore - a.combinedScore);
     entries.forEach((entry, index) => {
@@ -1426,7 +1409,8 @@ export class MemStorage implements IStorage {
   }
 
   async getPeopleAnalytics(teamId: string): Promise<PeopleAnalytics> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     const morale = team?.companyState.morale ?? 68;
     const unionSentiment = team?.companyState.unionSentiment ?? 35;
     
@@ -1460,7 +1444,8 @@ export class MemStorage implements IStorage {
   }
 
   async addDecision(teamId: string, decision: InsertDecision): Promise<Decision> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     if (!team) throw new Error("Team not found");
 
     const newDecision: Decision = {
@@ -1470,13 +1455,14 @@ export class MemStorage implements IStorage {
     };
 
     const updatedDecisions = [...team.decisions, newDecision];
-    await this.updateTeam(teamId, { decisions: updatedDecisions });
+    await teamStorage.updateTeam(teamId, { decisions: updatedDecisions });
 
     return newDecision;
   }
 
   async advanceWeek(teamId: string): Promise<Team | undefined> {
-    const team = this.teams.get(teamId);
+    const { teamStorage } = await import("./team-storage");
+    const team = await teamStorage.getTeam(teamId);
     if (!team) return undefined;
     if (team.currentWeek >= team.totalWeeks) return team;
 
@@ -1498,7 +1484,7 @@ export class MemStorage implements IStorage {
       automationLevel: state.automationLevel,
       unionSentiment: state.unionSentiment,
       managementBench: state.managementBenchStrength,
-      decisionsThisWeek: team.decisionRecords.filter(d => d.weekNumber === team.currentWeek).map(d => d.optionId),
+      decisionsThisWeek: team.decisionRecords.filter((d: DecisionRecord) => d.weekNumber === team.currentWeek).map((d: DecisionRecord) => d.optionId),
     };
 
     const updatedState = {
@@ -1507,15 +1493,11 @@ export class MemStorage implements IStorage {
       revenue: state.revenue + revenueChange,
     };
 
-    const updatedTeam = {
-      ...team,
+    return teamStorage.updateTeam(teamId, {
       currentWeek: team.currentWeek + 1,
       companyState: updatedState,
       weeklyHistory: [...team.weeklyHistory, historyEntry],
-    };
-
-    this.teams.set(teamId, updatedTeam);
-    return updatedTeam;
+    });
   }
 
   async getEnhancedDecisions(weekNumber: number): Promise<EnhancedDecision[]> {
