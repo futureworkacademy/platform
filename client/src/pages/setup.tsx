@@ -98,7 +98,7 @@ export default function SetupPage() {
           A Super Admin has already been set up for this platform. 
           Contact them if you need admin access.
         </p>
-        <Button onClick={() => setLocation("/")} data-testid="button-go-home">
+        <Button onClick={() => window.location.href = "/"} data-testid="button-go-home">
           Go to Home
         </Button>
       </div>
