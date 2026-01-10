@@ -4,7 +4,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AppFooter } from "@/components/app-footer";
 import { useState, useEffect } from "react";
 import { 
-  Factory, 
   TrendingUp, 
   Users, 
   Bot, 
@@ -20,6 +19,7 @@ import {
   Landmark,
   Brain
 } from "lucide-react";
+import logoImage from "@assets/fwalogo-1_1768083120572.png";
 
 const challengeSets = [
   [
@@ -54,11 +54,13 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-              <Factory className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">Future of Work</span>
+          <div className="flex items-center gap-2">
+            <img 
+              src={logoImage} 
+              alt="Future Work Academy" 
+              className="h-10 w-auto"
+              data-testid="img-header-logo"
+            />
           </div>
           <div className="flex items-center gap-3">
             <a 
