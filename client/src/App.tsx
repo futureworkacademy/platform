@@ -22,6 +22,7 @@ import Leaderboard from "@/pages/leaderboard";
 import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
+import ForEducators from "@/pages/for-educators";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -171,6 +172,10 @@ function AppRouter() {
   }
 
   if (!user) {
+    // Allow For Educators page without authentication
+    if (location === "/for-educators") {
+      return <ForEducators />;
+    }
     return <Landing />;
   }
 
@@ -197,6 +202,11 @@ function AppRouter() {
   // Feedback page accessible to any logged-in user
   if (location === "/feedback") {
     return <Feedback />;
+  }
+
+  // For Educators page accessible to any logged-in user
+  if (location === "/for-educators") {
+    return <ForEducators />;
   }
 
   if (!user.teamId) {

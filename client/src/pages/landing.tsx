@@ -62,7 +62,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <a 
-              href="mailto:info@themitchellgroup.io?subject=Future of Work Simulation Inquiry"
+              href="/for-educators"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
             >
@@ -204,7 +204,7 @@ export default function Landing() {
                 Interested in bringing this simulation to your classroom?
               </p>
               <a 
-                href="mailto:info@themitchellgroup.io?subject=Future of Work Simulation Inquiry" 
+                href="/for-educators" 
                 className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
                 data-testid="link-professor-inquiry"
               >

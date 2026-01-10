@@ -766,6 +766,99 @@ export async function registerRoutes(
     }
   });
 
+  // Educator inquiry (public - from "For Educators" page)
+  app.post("/api/educator-inquiry", async (req, res) => {
+    try {
+      const { name, email, phone, institution, inquiryType, message } = req.body;
+      
+      if (!name || !email || !message) {
+        return res.status(400).json({ error: "Name, email, and message are required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+      
+      // Validate lengths
+      if (name.length > 100) {
+        return res.status(400).json({ error: "Name is too long (max 100 characters)" });
+      }
+      if (message.length > 5000) {
+        return res.status(400).json({ error: "Message is too long (max 5000 characters)" });
+      }
+      
+      console.log("[Educator Inquiry] Received:", { 
+        name, 
+        email, 
+        phone, 
+        institution, 
+        inquiryType, 
+        message: message.substring(0, 100) + "..." 
+      });
+      
+      // Store in database
+      const inquiry = await storage.createEducatorInquiry({
+        name,
+        email,
+        phone: phone || null,
+        institution: institution || null,
+        inquiryType: inquiryType || 'general',
+        message,
+      });
+      
+      // Log activity
+      await storage.logActivity({
+        eventType: "educator_inquiry_submitted",
+        userEmail: email,
+        userName: name,
+        details: { inquiryType, institution, message },
+      });
+      
+      // Send SMS notification to super admin if configured
+      try {
+        if (await isTwilioConfigured()) {
+          // Get super admin's phone number
+          const superAdmins = await db.select()
+            .from(users)
+            .where(eq(users.isAdmin, 'super_admin'));
+          
+          // Also check for legacy 'true' super admin
+          const legacySuperAdmins = await db.select()
+            .from(users)
+            .where(eq(users.isAdmin, 'true'));
+          
+          const allSuperAdmins = [...superAdmins, ...legacySuperAdmins];
+          
+          for (const admin of allSuperAdmins) {
+            // Check if admin has a phone associated with any organization they own
+            const adminOrgs = await organizationStorage.getOrganizationsByOwner(admin.id);
+            for (const org of adminOrgs) {
+              if (org.notifyOnSignup && org.notifyPhone) {
+                await sendSmsNotification(org.notifyPhone, 'educator_inquiry', {
+                  inquirerName: name,
+                  inquirerEmail: email,
+                  inquiryType: inquiryType || 'general',
+                  institution: institution || undefined,
+                });
+                break; // Only notify once per admin
+              }
+            }
+          }
+        }
+      } catch (smsError) {
+        console.error("[Educator Inquiry] SMS notification failed:", smsError);
+        // Don't fail the request if SMS fails
+      }
+      
+      res.json({ success: true, id: inquiry?.id });
+    } catch (error) {
+      console.error("[Educator Inquiry] Error:", error);
+      res.status(500).json({ error: "Failed to submit inquiry" });
+    }
+  });
+
   // ==================== ORGANIZATION ROUTES ====================
   
   // Validate team code (public - for signup flow)

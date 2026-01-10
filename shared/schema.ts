@@ -558,6 +558,7 @@ export const activityLogSchema = z.object({
     "error",
     "admin_action",
     "feedback_submitted",
+    "educator_inquiry_submitted",
   ]),
   userId: z.string().optional(),
   userEmail: z.string().optional(),

@@ -67,6 +67,9 @@ export interface IStorage {
   logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog>;
   getActivityLogs(filters?: { eventType?: string; userId?: string; teamId?: string; startDate?: string; endDate?: string }): Promise<ActivityLog[]>;
   exportActivityLogs(format: "csv" | "json"): Promise<string>;
+  
+  // Educator inquiries
+  createEducatorInquiry(inquiry: { name: string; email: string; phone?: string | null; institution?: string | null; inquiryType: string; message: string }): Promise<{ id: string }>;
 }
 
 const globalEvents: GlobalEvent[] = [
@@ -1699,6 +1702,29 @@ export class MemStorage implements IStorage {
     ].join("\n");
     
     return csvContent;
+  }
+
+  async createEducatorInquiry(inquiry: { 
+    name: string; 
+    email: string; 
+    phone?: string | null; 
+    institution?: string | null; 
+    inquiryType: string; 
+    message: string 
+  }): Promise<{ id: string }> {
+    const { db } = await import("./db");
+    const { educatorInquiries } = await import("@shared/models/auth");
+    
+    const [result] = await db.insert(educatorInquiries).values({
+      name: inquiry.name,
+      email: inquiry.email,
+      phone: inquiry.phone || null,
+      institution: inquiry.institution || null,
+      inquiryType: inquiry.inquiryType,
+      message: inquiry.message,
+    }).returning({ id: educatorInquiries.id });
+    
+    return { id: result.id };
   }
 }
 

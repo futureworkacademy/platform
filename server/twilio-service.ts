@@ -56,7 +56,8 @@ export type NotificationType =
   | 'team_assignment'
   | 'week_advanced'
   | 'decision_submitted'
-  | 'organization_created';
+  | 'organization_created'
+  | 'educator_inquiry';
 
 interface NotificationData {
   studentName?: string;
@@ -65,6 +66,10 @@ interface NotificationData {
   organizationName?: string;
   weekNumber?: number;
   decisionTitle?: string;
+  inquirerName?: string;
+  inquirerEmail?: string;
+  inquiryType?: string;
+  institution?: string;
 }
 
 // Send SMS notification to admin/instructor
@@ -114,6 +119,9 @@ function generateNotificationMessage(type: NotificationType, data: NotificationD
     
     case 'organization_created':
       return `[Future of Work] New organization created: ${data.organizationName}.`;
+    
+    case 'educator_inquiry':
+      return `[Future of Work] New educator inquiry from ${data.inquirerName} (${data.inquirerEmail})${data.institution ? ` at ${data.institution}` : ''}. Type: ${data.inquiryType || 'general'}.`;
     
     default:
       return `[Future of Work] Notification: ${JSON.stringify(data)}`;
