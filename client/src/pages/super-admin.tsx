@@ -17,7 +17,8 @@ import {
   Copy, 
   UserPlus,
   Settings,
-  RefreshCw
+  RefreshCw,
+  Pencil
 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,6 +32,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 interface Organization {
   id: string;
@@ -39,7 +41,9 @@ interface Organization {
   description?: string;
   ownerId: string;
   maxMembers: number;
-  isActive: boolean;
+  status: string;
+  notifyPhone?: string;
+  notifyOnSignup?: boolean;
   createdAt: string;
 }
 
@@ -82,6 +86,14 @@ export default function SuperAdminPage() {
   const [promoteEmail, setPromoteEmail] = useState("");
   const [selectedOrgId, setSelectedOrgId] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editMaxMembers, setEditMaxMembers] = useState(100);
+  const [editNotifyPhone, setEditNotifyPhone] = useState("");
+  const [editNotifyOnSignup, setEditNotifyOnSignup] = useState(true);
+  const [editStatus, setEditStatus] = useState("active");
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -117,7 +129,8 @@ export default function SuperAdminPage() {
 
   const generateInviteMutation = useMutation({
     mutationFn: async (data: { organizationId: string; maxUses?: number; expiresAt?: string }) => {
-      return apiRequest("POST", "/api/super-admin/invites", data);
+      const response = await apiRequest("POST", "/api/super-admin/invites", data);
+      return response.json();
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
@@ -125,6 +138,7 @@ export default function SuperAdminPage() {
         title: "Invite code generated", 
         description: `Code: ${data.code}` 
       });
+      copyToClipboard(data.code);
     },
     onError: (error: any) => {
       toast({ title: "Error generating invite", description: error.message, variant: "destructive" });
@@ -145,6 +159,33 @@ export default function SuperAdminPage() {
       toast({ title: "Error promoting user", description: error.message, variant: "destructive" });
     },
   });
+
+  const updateOrgMutation = useMutation({
+    mutationFn: async (data: { id: string; name: string; description: string; maxMembers: number; notifyPhone?: string; notifyOnSignup: boolean; status: string }) => {
+      const response = await apiRequest("PUT", `/api/super-admin/organizations/${data.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
+      setEditDialogOpen(false);
+      setEditingOrg(null);
+      toast({ title: "Organization updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error updating organization", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const openEditDialog = (org: Organization) => {
+    setEditingOrg(org);
+    setEditName(org.name);
+    setEditDescription(org.description || "");
+    setEditMaxMembers(org.maxMembers);
+    setEditNotifyPhone(org.notifyPhone || "");
+    setEditNotifyOnSignup(org.notifyOnSignup ?? true);
+    setEditStatus(org.status);
+    setEditDialogOpen(true);
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -337,6 +378,112 @@ export default function SuperAdminPage() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+
+              <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Organization</DialogTitle>
+                    <DialogDescription>
+                      Update organization details. Changes will apply immediately.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-name">Organization Name</Label>
+                      <Input
+                        id="edit-name"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        data-testid="input-edit-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-description">Description</Label>
+                      <Textarea
+                        id="edit-description"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        data-testid="input-edit-description"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-max">Max Members</Label>
+                      <Input
+                        id="edit-max"
+                        type="number"
+                        value={editMaxMembers}
+                        onChange={(e) => setEditMaxMembers(parseInt(e.target.value) || 100)}
+                        data-testid="input-edit-max-members"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-phone">SMS Notification Phone</Label>
+                      <Input
+                        id="edit-phone"
+                        type="tel"
+                        placeholder="+1234567890"
+                        value={editNotifyPhone}
+                        onChange={(e) => setEditNotifyPhone(e.target.value)}
+                        data-testid="input-edit-phone"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="edit-notify">SMS Notifications</Label>
+                        <p className="text-xs text-muted-foreground">Receive SMS alerts on student signup</p>
+                      </div>
+                      <Switch
+                        id="edit-notify"
+                        checked={editNotifyOnSignup}
+                        onCheckedChange={setEditNotifyOnSignup}
+                        data-testid="switch-edit-notify"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-status">Status</Label>
+                      <select
+                        id="edit-status"
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        data-testid="select-edit-status"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditDialogOpen(false)}
+                      data-testid="button-cancel-edit"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (editingOrg) {
+                          updateOrgMutation.mutate({
+                            id: editingOrg.id,
+                            name: editName,
+                            description: editDescription,
+                            maxMembers: editMaxMembers,
+                            notifyPhone: editNotifyPhone || undefined,
+                            notifyOnSignup: editNotifyOnSignup,
+                            status: editStatus,
+                          });
+                        }
+                      }}
+                      disabled={!editName || updateOrgMutation.isPending}
+                      data-testid="button-submit-edit"
+                    >
+                      {updateOrgMutation.isPending ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {orgsLoading ? (
@@ -359,8 +506,8 @@ export default function SuperAdminPage() {
                           <CardDescription>{org.description || "No description"}</CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={org.isActive ? "default" : "secondary"}>
-                            {org.isActive ? "Active" : "Inactive"}
+                          <Badge variant={org.status === "active" ? "default" : "secondary"}>
+                            {org.status === "active" ? "Active" : org.status === "inactive" ? "Inactive" : org.status}
                           </Badge>
                         </div>
                       </div>
@@ -393,6 +540,15 @@ export default function SuperAdminPage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(org)}
+                            data-testid={`button-edit-${org.id}`}
+                          >
+                            <Pencil className="mr-2 h-3 w-3" />
+                            Edit
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

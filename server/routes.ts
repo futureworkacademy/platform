@@ -986,6 +986,54 @@ export async function registerRoutes(
     }
   });
 
+  // Update organization (Super Admin only)
+  app.put("/api/super-admin/organizations/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { name, description, maxMembers, notifyPhone, notifyOnSignup, status } = req.body;
+
+      // Validate required fields
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: "Organization name is required" });
+      }
+
+      // Validate status
+      const validStatuses = ['active', 'inactive', 'archived'];
+      if (status && !validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status. Must be one of: active, inactive, archived" });
+      }
+
+      // Validate maxMembers
+      const parsedMaxMembers = typeof maxMembers === 'number' && !isNaN(maxMembers) && maxMembers > 0 
+        ? maxMembers 
+        : undefined;
+
+      const org = await organizationStorage.updateOrganization(id, {
+        name: name.trim(),
+        description: description || undefined,
+        maxMembers: parsedMaxMembers,
+        notifyPhone: notifyPhone || undefined,
+        notifyOnSignup: typeof notifyOnSignup === 'boolean' ? notifyOnSignup : undefined,
+        status: status || undefined,
+      });
+
+      if (!org) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+
+      res.json(org);
+    } catch (error) {
+      console.error("[Update Org] Error:", error);
+      res.status(500).json({ error: "Failed to update organization" });
+    }
+  });
+
   // Generate invite code for organization (Super Admin only)
   app.post("/api/super-admin/invites", isAuthenticated, async (req: any, res) => {
     try {
