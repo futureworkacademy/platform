@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Factory, ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
+import danMitchellPhoto from "@assets/image_1768085802226.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -162,11 +163,13 @@ export default function ForEducators() {
               <CardContent className="pt-6">
                 <div className="flex flex-col sm:flex-row gap-6">
                   <div className="flex-shrink-0">
-                    <div className="w-40 h-40 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-                      <div className="text-center p-4">
-                        <Users className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground">Photo Coming Soon</span>
-                      </div>
+                    <div className="w-40 h-40 rounded-lg overflow-hidden">
+                      <img 
+                        src={danMitchellPhoto} 
+                        alt="Dr. Dan Mitchell" 
+                        className="w-full h-full object-cover"
+                        data-testid="img-educator-photo"
+                      />
                     </div>
                   </div>
                   <div className="flex-1 space-y-3">
