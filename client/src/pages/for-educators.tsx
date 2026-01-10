@@ -161,58 +161,54 @@ export default function ForEducators() {
           <div className="space-y-6">
             <Card className="bg-card">
               <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-40 h-40 rounded-lg overflow-hidden">
-                      <img 
-                        src={danMitchellPhoto} 
-                        alt="Dr. Dan Mitchell" 
-                        className="w-full h-full object-cover"
-                        data-testid="img-educator-photo"
-                      />
-                    </div>
+                <div className="float-left mr-5 mb-3">
+                  <div className="w-36 h-36 rounded-lg overflow-hidden">
+                    <img 
+                      src={danMitchellPhoto} 
+                      alt="Douglas E. Mitchell" 
+                      className="w-full h-full object-cover"
+                      data-testid="img-educator-photo"
+                    />
                   </div>
-                  <div className="flex-1 space-y-3">
-                    <div>
-                      <h2 className="text-xl font-semibold">Dr. Dan Mitchell</h2>
-                      <p className="text-sm text-muted-foreground">Creator & Lead Developer</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
-                      incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                      exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
-                      irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
-                      pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia 
-                      deserunt mollit anim id est laborum.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
-                      laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi 
-                      architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas 
-                      sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione 
-                      voluptatem sequi nesciunt.
-                    </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <a 
-                        href="mailto:dmitchell@grandview.edu" 
-                        className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                        data-testid="link-email"
-                      >
-                        <Mail className="h-4 w-4" />
-                        dmitchell@grandview.edu
-                      </a>
-                      <a 
-                        href="https://linkedin.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                        data-testid="link-linkedin"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
-                      </a>
-                    </div>
-                  </div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Douglas E. Mitchell</h2>
+                  <p className="text-sm text-muted-foreground mb-3">Creator & Lead Developer</p>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
+                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
+                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
+                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia 
+                  deserunt mollit anim id est laborum.
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
+                  laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi 
+                  architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas 
+                  sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione 
+                  voluptatem sequi nesciunt.
+                </p>
+                <div className="clear-both flex items-center gap-3 pt-2">
+                  <a 
+                    href="mailto:dmitchell@grandview.edu" 
+                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                    data-testid="link-email"
+                  >
+                    <Mail className="h-4 w-4" />
+                    dmitchell@grandview.edu
+                  </a>
+                  <a 
+                    href="https://linkedin.com/in/dougmitchell" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                    data-testid="link-linkedin"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </a>
                 </div>
               </CardContent>
             </Card>
@@ -221,41 +217,35 @@ export default function ForEducators() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Why Use This Simulation?</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2 p-3 rounded-lg bg-muted/50">
+                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                    </div>
                     <h3 className="font-medium text-sm">Experiential Learning</h3>
-                    <p className="text-sm text-muted-foreground">Students make real strategic decisions and see immediate consequences over 8 simulated weeks.</p>
+                    <p className="text-xs text-muted-foreground">Students make real strategic decisions and see immediate consequences over 8 simulated weeks.</p>
                   </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
+                  <div className="flex flex-col gap-2 p-3 rounded-lg bg-muted/50">
+                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                      <Users className="h-4 w-4 text-primary" />
+                    </div>
                     <h3 className="font-medium text-sm">Team Collaboration</h3>
-                    <p className="text-sm text-muted-foreground">Groups work together to balance financial performance with cultural health.</p>
+                    <p className="text-xs text-muted-foreground">Groups work together to balance financial performance with cultural health.</p>
                   </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
+                  <div className="flex flex-col gap-2 p-3 rounded-lg bg-muted/50">
+                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                    </div>
                     <h3 className="font-medium text-sm">Real-World Relevance</h3>
-                    <p className="text-sm text-muted-foreground">Weekly briefings feature current AI adoption trends and workforce challenges.</p>
+                    <p className="text-xs text-muted-foreground">Weekly briefings feature current AI adoption trends and workforce challenges.</p>
                   </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                    <Award className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
+                  <div className="flex flex-col gap-2 p-3 rounded-lg bg-muted/50">
+                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                      <Award className="h-4 w-4 text-primary" />
+                    </div>
                     <h3 className="font-medium text-sm">Competitive Element</h3>
-                    <p className="text-sm text-muted-foreground">Leaderboard rankings drive engagement and reflection on strategy choices.</p>
+                    <p className="text-xs text-muted-foreground">Leaderboard rankings drive engagement and reflection on strategy choices.</p>
                   </div>
                 </div>
               </CardContent>
