@@ -18,6 +18,10 @@ interface UserData {
   lastName: string;
   teamId: string | null;
   isAdmin: string;
+  schoolEmail?: string;
+  schoolEmailVerified?: string;
+  verificationCode?: string;
+  institution?: string;
 }
 
 interface Team {
@@ -204,12 +208,16 @@ export default function AdminPage() {
                     <SelectValue placeholder="Choose a user..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName} ({user.email})
-                        {user.teamId && " - Already assigned"}
-                      </SelectItem>
-                    ))}
+                    {users.map((user) => {
+                      const hasValidTeam = user.teamId && teams.some(t => t.id === user.teamId);
+                      return (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.firstName} {user.lastName} ({user.email})
+                          {hasValidTeam && " - Already assigned"}
+                          {user.teamId && !hasValidTeam && " - Orphaned ref"}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -279,40 +287,45 @@ export default function AdminPage() {
               <p className="text-muted-foreground">No users registered yet.</p>
             ) : (
               <div className="space-y-3">
-                {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between gap-4 p-3 rounded-md bg-muted/50">
-                    <div className="space-y-1">
-                      <p className="font-medium">
-                        {user.firstName} {user.lastName}
-                        {user.isAdmin === "true" && (
-                          <Badge variant="secondary" className="ml-2">Admin</Badge>
-                        )}
-                        {user.schoolEmailVerified === "true" && (
-                          <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/20">Verified</Badge>
-                        )}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                      {user.schoolEmail && (
-                        <p className="text-xs text-muted-foreground">
-                          School: {user.schoolEmail}
-                          {user.schoolEmailVerified !== "true" && user.verificationCode && (
-                            <span className="ml-2 font-mono text-primary">Code: {user.verificationCode}</span>
+                {users.map((user) => {
+                  const assignedTeam = user.teamId ? teams.find(t => t.id === user.teamId) : null;
+                  return (
+                    <div key={user.id} className="flex items-center justify-between gap-4 p-3 rounded-md bg-muted/50">
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {user.firstName} {user.lastName}
+                          {user.isAdmin === "true" && (
+                            <Badge variant="secondary" className="ml-2">Admin</Badge>
+                          )}
+                          {user.schoolEmailVerified === "true" && (
+                            <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/20">Verified</Badge>
                           )}
                         </p>
-                      )}
-                      {user.institution && (
-                        <p className="text-xs text-muted-foreground">Institution: {user.institution}</p>
-                      )}
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        {user.schoolEmail && (
+                          <p className="text-xs text-muted-foreground">
+                            School: {user.schoolEmail}
+                            {user.schoolEmailVerified !== "true" && user.verificationCode && (
+                              <span className="ml-2 font-mono text-primary">Code: {user.verificationCode}</span>
+                            )}
+                          </p>
+                        )}
+                        {user.institution && (
+                          <p className="text-xs text-muted-foreground">Institution: {user.institution}</p>
+                        )}
+                      </div>
+                      <div>
+                        {assignedTeam ? (
+                          <Badge>{assignedTeam.name}</Badge>
+                        ) : user.teamId ? (
+                          <Badge variant="destructive">Invalid Team Ref</Badge>
+                        ) : (
+                          <Badge variant="outline">No Team</Badge>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      {user.teamId ? (
-                        <Badge>Team Assigned</Badge>
-                      ) : (
-                        <Badge variant="outline">No Team</Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
