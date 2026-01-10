@@ -10,6 +10,9 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Landing from "@/pages/landing";
 import WaitingAssignment from "@/pages/waiting-assignment";
 import AdminPage from "@/pages/admin";
+import SuperAdminPage from "@/pages/super-admin";
+import SetupPage from "@/pages/setup";
+import ClassAdminPage from "@/pages/class-admin";
 import Research from "@/pages/research";
 import Dashboard from "@/pages/dashboard";
 import Briefing from "@/pages/briefing";
@@ -174,6 +177,21 @@ function AppRouter() {
   // Admin page accessible to any logged-in user (will check isAdmin internally)
   if (location === "/admin") {
     return <AdminPage />;
+  }
+
+  // Super Admin page - role checked internally
+  if (location === "/super-admin") {
+    return <SuperAdminPage />;
+  }
+
+  // Setup page - for initial platform configuration
+  if (location === "/setup") {
+    return <SetupPage />;
+  }
+
+  // Class Admin page - role checked internally
+  if (location.startsWith("/class-admin")) {
+    return <ClassAdminPage />;
   }
 
   // Feedback page accessible to any logged-in user

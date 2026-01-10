@@ -969,6 +969,43 @@ export async function registerRoutes(
     }
   });
 
+  // Generate invite code for organization (Super Admin only)
+  app.post("/api/super-admin/invites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { organizationId, maxUses, expiresAt } = req.body;
+      if (!organizationId) {
+        return res.status(400).json({ error: "organizationId is required" });
+      }
+
+      // Generate unique code
+      let code = generateTeamCode();
+      let existing = await organizationStorage.getInviteByCode(code);
+      while (existing) {
+        code = generateTeamCode();
+        existing = await organizationStorage.getInviteByCode(code);
+      }
+
+      const invite = await organizationStorage.createInvite({
+        code,
+        organizationId,
+        createdBy: userId,
+        maxUses: maxUses || 100,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+      });
+
+      res.json(invite);
+    } catch (error) {
+      console.error("[Create Invite] Error:", error);
+      res.status(500).json({ error: "Failed to create invite" });
+    }
+  });
+
   // Promote user to Class Admin (Super Admin only)
   app.post("/api/super-admin/promote-class-admin", isAuthenticated, async (req: any, res) => {
     try {
@@ -1199,6 +1236,117 @@ export async function registerRoutes(
       res.json(team);
     } catch (error) {
       res.status(500).json({ error: "Failed to create team" });
+    }
+  });
+
+  // Get teams for organization (Class Admin)
+  app.get("/api/class-admin/organizations/:orgId/teams", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required for this organization" });
+      }
+
+      // Get teams for this organization
+      const orgTeams = await db.select().from(teams).where(eq(teams.organizationId, orgId));
+      res.json(orgTeams.map(t => ({
+        id: t.id,
+        name: t.name,
+        members: t.members || [],
+        currentWeek: t.currentWeek,
+        organizationId: t.organizationId,
+      })));
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch teams" });
+    }
+  });
+
+  // Assign member to team (alternate path for Class Admin)
+  app.post("/api/class-admin/organizations/:orgId/assign-team", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { memberId, teamId } = req.body;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Get the member
+      const allMembers = await db.select().from(organizationMembers).where(eq(organizationMembers.id, memberId));
+      if (allMembers.length === 0) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+      
+      const member = allMembers[0];
+
+      // Update user's team assignment
+      await db.update(users).set({ teamId, updatedAt: new Date() }).where(eq(users.id, member.userId));
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assign team" });
+    }
+  });
+
+  // Approve member (Class Admin - alternate path)
+  app.post("/api/class-admin/organizations/:orgId/approve-member", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { memberId } = req.body;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Update member status
+      await organizationStorage.updateMember(memberId, {
+        status: "active",
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve member" });
+    }
+  });
+
+  // Remove member from organization (Class Admin)
+  app.delete("/api/class-admin/organizations/:orgId/members/:memberId", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId, memberId } = req.params;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Remove the member
+      await db.delete(organizationMembers).where(eq(organizationMembers.id, memberId));
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove member" });
     }
   });
 
