@@ -141,3 +141,11 @@ The app uses Replit Auth (OIDC). When users click "Sign In":
   - Replit Twilio integration for SMS notifications to admins on signups
   - Setup page at /setup for initial Super Admin initialization
   - Role-based API routes with proper authorization middleware
+- **Member Management System** (January 2026):
+  - Add members to organizations by email via POST /api/class-admin/organizations/:orgId/add-member
+  - Update member roles via PATCH /api/class-admin/organizations/:orgId/members/:memberId/role
+  - Remove members via DELETE /api/class-admin/organizations/:orgId/members/:memberId
+  - Role validation allowlist prevents privilege escalation (only STUDENT and CLASS_ADMIN allowed)
+  - Only Super Admins can add CLASS_ADMIN (Instructor) members
+  - Simplified invite system: organizations use permanent team codes with copy functionality
+  - Full member management UI in class-admin dashboard with tabbed interface
