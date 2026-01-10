@@ -147,3 +147,21 @@ export const notifications = pgTable("notifications", {
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+// Educator inquiries - contact form submissions from "For Educators" page
+export const educatorInquiries = pgTable("educator_inquiries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  institution: varchar("institution"),
+  inquiryType: varchar("inquiry_type").notNull().default("general"), // general, demo_request, pricing, partnership
+  message: text("message").notNull(),
+  status: varchar("status").notNull().default("new"), // new, contacted, resolved
+  notes: text("notes"), // Admin notes
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type EducatorInquiry = typeof educatorInquiries.$inferSelect;
+export type InsertEducatorInquiry = typeof educatorInquiries.$inferInsert;
