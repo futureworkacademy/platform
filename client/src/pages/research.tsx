@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -104,6 +104,13 @@ export default function Research() {
 
   const viewedReports = new Set(team?.viewedReportIds || []);
 
+  // Redirect to setup if not complete - use effect to avoid setState during render
+  useEffect(() => {
+    if (team && !team.setupComplete) {
+      setLocation("/setup");
+    }
+  }, [team, setLocation]);
+
   const handleReportView = (reportId: string) => {
     setSelectedReport(reportId);
     if (!viewedReports.has(reportId)) {
@@ -188,7 +195,6 @@ END OF RESEARCH MATERIALS
   }
 
   if (!team?.setupComplete) {
-    setLocation("/setup");
     return null;
   }
 
