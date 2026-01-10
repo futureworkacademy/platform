@@ -127,23 +127,6 @@ export default function SuperAdminPage() {
     },
   });
 
-  const generateInviteMutation = useMutation({
-    mutationFn: async (data: { organizationId: string; maxUses?: number; expiresAt?: string }) => {
-      const response = await apiRequest("POST", "/api/super-admin/invites", data);
-      return response.json();
-    },
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
-      toast({ 
-        title: "Invite code generated", 
-        description: `Code: ${data.code}` 
-      });
-      copyToClipboard(data.code);
-    },
-    onError: (error: any) => {
-      toast({ title: "Error generating invite", description: error.message, variant: "destructive" });
-    },
-  });
 
   const promoteToClassAdminMutation = useMutation({
     mutationFn: async (data: { userId: string; organizationId: string }) => {
@@ -548,16 +531,6 @@ export default function SuperAdminPage() {
                           >
                             <Pencil className="mr-2 h-3 w-3" />
                             Edit
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => generateInviteMutation.mutate({ organizationId: org.id })}
-                            disabled={generateInviteMutation.isPending}
-                            data-testid={`button-new-invite-${org.id}`}
-                          >
-                            <Key className="mr-2 h-3 w-3" />
-                            New Invite Code
                           </Button>
                           <Link href={`/class-admin?org=${org.id}`}>
                             <Button variant="outline" size="sm" data-testid={`button-manage-${org.id}`}>

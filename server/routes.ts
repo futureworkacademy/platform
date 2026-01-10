@@ -5,7 +5,7 @@ import { insertDecisionSchema, insertTeamSchema } from "@shared/schema";
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizationMembers, ROLES } from "@shared/models/auth";
+import { users, organizationMembers, ROLES, type Role } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -1412,6 +1412,89 @@ export async function registerRoutes(
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to remove member" });
+    }
+  });
+
+  // Add member to organization by email (Class Admin)
+  app.post("/api/class-admin/organizations/:orgId/add-member", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { email, role = "STUDENT" } = req.body;
+      
+      // Validate role - Class Admins can only add STUDENT or CLASS_ADMIN, never SUPER_ADMIN
+      const allowedRoles = ["STUDENT", "CLASS_ADMIN"];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ error: "Invalid role. Allowed: STUDENT, CLASS_ADMIN" });
+      }
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      // Only Super Admins can add CLASS_ADMIN members
+      if (role === "CLASS_ADMIN" && !isSuperAdmin) {
+        return res.status(403).json({ error: "Only Super Admins can add Instructors" });
+      }
+
+      // Find user by email
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      if (!user) {
+        return res.status(404).json({ error: "User not found. They must sign up first." });
+      }
+
+      // Check if already a member
+      const existingMember = await organizationStorage.getMember(user.id, orgId);
+      if (existingMember) {
+        return res.status(400).json({ error: "User is already a member of this organization" });
+      }
+
+      // Add as member
+      const member = await organizationStorage.addMember({
+        userId: user.id,
+        organizationId: orgId,
+        role: role as Role,
+        status: "active",
+      });
+
+      res.json(member);
+    } catch (error) {
+      console.error("Error adding member:", error);
+      res.status(500).json({ error: "Failed to add member" });
+    }
+  });
+
+  // Update member role (Class Admin)
+  app.patch("/api/class-admin/organizations/:orgId/members/:memberId/role", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId, memberId } = req.params;
+      const { role } = req.body;
+      
+      // Only super admins can change roles (Class Admins can't promote themselves)
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Only Super Admins can change member roles" });
+      }
+
+      if (!role || !["STUDENT", "CLASS_ADMIN", "SUPER_ADMIN"].includes(role)) {
+        return res.status(400).json({ error: "Invalid role" });
+      }
+
+      const updatedMember = await organizationStorage.updateMember(memberId, { role: role as Role });
+      if (!updatedMember) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      res.json(updatedMember);
+    } catch (error) {
+      console.error("Error updating member role:", error);
+      res.status(500).json({ error: "Failed to update member role" });
     }
   });
 

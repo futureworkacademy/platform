@@ -91,6 +91,9 @@ export default function ClassAdminPage() {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [createTeamDialogOpen, setCreateTeamDialogOpen] = useState(false);
+  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState("STUDENT");
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -167,6 +170,22 @@ export default function ClassAdminPage() {
     },
     onError: (error: any) => {
       toast({ title: "Error removing member", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const addMemberMutation = useMutation({
+    mutationFn: async (data: { email: string; role: string }) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/add-member`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"] });
+      setNewMemberEmail("");
+      setNewMemberRole("STUDENT");
+      setAddMemberDialogOpen(false);
+      toast({ title: "Member added successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error adding member", description: error.message, variant: "destructive" });
     },
   });
 
@@ -356,6 +375,66 @@ export default function ClassAdminPage() {
                     <CardTitle>Class Members</CardTitle>
                     <CardDescription>All active members in this class</CardDescription>
                   </div>
+                  <Dialog open={addMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button data-testid="button-add-member">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Member
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Member</DialogTitle>
+                        <DialogDescription>
+                          Add an existing user to this organization by their email address.
+                          The user must have already signed up to the platform.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="member-email">Email Address</Label>
+                          <Input
+                            id="member-email"
+                            type="email"
+                            placeholder="student@university.edu"
+                            value={newMemberEmail}
+                            onChange={(e) => setNewMemberEmail(e.target.value)}
+                            data-testid="input-member-email"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="member-role">Role</Label>
+                          <Select value={newMemberRole} onValueChange={setNewMemberRole}>
+                            <SelectTrigger data-testid="select-member-role">
+                              <SelectValue placeholder="Select role..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="STUDENT">Student</SelectItem>
+                              {roleInfo?.isSuperAdmin && (
+                                <SelectItem value="CLASS_ADMIN">Instructor</SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setAddMemberDialogOpen(false)}
+                          data-testid="button-cancel-add-member"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => addMemberMutation.mutate({ email: newMemberEmail, role: newMemberRole })}
+                          disabled={!newMemberEmail || addMemberMutation.isPending}
+                          data-testid="button-submit-add-member"
+                        >
+                          {addMemberMutation.isPending ? "Adding..." : "Add Member"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardHeader>
               <CardContent>
@@ -396,25 +475,36 @@ export default function ClassAdminPage() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {member.role === "STUDENT" && (
-                              <Select
-                                value={member.user?.teamId || ""}
-                                onValueChange={(value) => {
-                                  assignTeamMutation.mutate({ memberId: member.id, teamId: value });
-                                }}
+                            <div className="flex items-center gap-2">
+                              {member.role === "STUDENT" && (
+                                <Select
+                                  value={member.user?.teamId || ""}
+                                  onValueChange={(value) => {
+                                    assignTeamMutation.mutate({ memberId: member.id, teamId: value });
+                                  }}
+                                >
+                                  <SelectTrigger className="w-32" data-testid={`select-team-${member.id}`}>
+                                    <SelectValue placeholder="Assign..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {teams.map((team) => (
+                                      <SelectItem key={team.id} value={team.id}>
+                                        {team.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeMemberMutation.mutate(member.id)}
+                                disabled={removeMemberMutation.isPending}
+                                data-testid={`button-remove-member-${member.id}`}
                               >
-                                <SelectTrigger className="w-32" data-testid={`select-team-${member.id}`}>
-                                  <SelectValue placeholder="Assign..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {teams.map((team) => (
-                                    <SelectItem key={team.id} value={team.id}>
-                                      {team.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
+                                <UserMinus className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
