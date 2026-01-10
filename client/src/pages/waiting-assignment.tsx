@@ -15,7 +15,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
-export default function WaitingAssignment() {
+interface WaitingAssignmentProps {
+  teamNotFound?: boolean;
+}
+
+export default function WaitingAssignment({ teamNotFound = false }: WaitingAssignmentProps) {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   
@@ -165,7 +169,9 @@ export default function WaitingAssignment() {
             <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Clock className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Waiting for Team Assignment</CardTitle>
+            <CardTitle className="text-2xl">
+              {teamNotFound ? "Team Data Not Found" : "Waiting for Team Assignment"}
+            </CardTitle>
             <CardDescription className="text-base mt-2">
               Welcome, {user?.firstName || user?.email}! Your account has been created successfully.
             </CardDescription>
@@ -173,8 +179,10 @@ export default function WaitingAssignment() {
           <CardContent className="space-y-4">
             <div className="bg-muted/50 rounded-md p-4">
               <p className="text-sm text-muted-foreground">
-                Your instructor will assign you to a team before the simulation begins. 
-                While you wait, please complete your profile below so your instructor can identify you.
+                {teamNotFound 
+                  ? "Your team data was not found. This may happen after a server restart. Please contact your instructor to reassign you to a team."
+                  : "Your instructor will assign you to a team before the simulation begins. While you wait, please complete your profile below so your instructor can identify you."
+                }
               </p>
             </div>
             

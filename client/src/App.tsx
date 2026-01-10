@@ -64,7 +64,7 @@ function GameLayout() {
   }
 
   if (!team) {
-    return <Redirect to="/" />;
+    return <WaitingAssignment teamNotFound />;
   }
 
   if (!team.researchComplete) {
