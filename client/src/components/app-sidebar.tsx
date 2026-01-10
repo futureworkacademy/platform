@@ -12,7 +12,6 @@ import {
   User,
   Shield,
 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
 import {
   Sidebar,
   SidebarContent,
@@ -80,17 +79,15 @@ interface AppSidebarProps {
   currentWeek: number;
   totalWeeks: number;
   teamName: string;
+  isAdmin?: boolean;
 }
 
-export function AppSidebar({ currentWeek, totalWeeks, teamName }: AppSidebarProps) {
+export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false }: AppSidebarProps) {
   const [location] = useLocation();
-  const { user } = useAuth();
   
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>({
     queryKey: ["/api/leaderboard"],
   });
-  
-  const isAdmin = user?.isAdmin === "true";
 
   const topThree = leaderboard?.slice(0, 3) || [];
 

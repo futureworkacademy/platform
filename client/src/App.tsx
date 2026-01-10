@@ -35,9 +35,12 @@ function Redirect({ to }: { to: string }) {
 }
 
 function GameLayout() {
+  const { user } = useAuth();
   const { data: team, isLoading } = useQuery<Team | null>({
     queryKey: ["/api/team"],
   });
+  
+  const isAdmin = user?.isAdmin === "true";
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -75,6 +78,7 @@ function GameLayout() {
           currentWeek={team.currentWeek}
           totalWeeks={team.totalWeeks}
           teamName={team.name}
+          isAdmin={isAdmin}
         />
         <div className="flex flex-col flex-1 overflow-hidden">
           <header className="flex items-center justify-between gap-4 p-3 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
