@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
 import logoLight from "@assets/fwalogo-2_1768083577051.png";
-import logoDark from "@assets/fwa_white_logo_on_transparent_1768086937618.png";
+import logoDark from "@assets/fwa_white_logo_on_transparent_1768088341058.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
