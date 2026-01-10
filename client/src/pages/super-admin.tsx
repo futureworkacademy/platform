@@ -78,6 +78,7 @@ export default function SuperAdminPage() {
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgDescription, setNewOrgDescription] = useState("");
   const [newOrgMaxMembers, setNewOrgMaxMembers] = useState(100);
+  const [newOrgNotifyPhone, setNewOrgNotifyPhone] = useState("");
   const [promoteEmail, setPromoteEmail] = useState("");
   const [selectedOrgId, setSelectedOrgId] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -97,7 +98,7 @@ export default function SuperAdminPage() {
   });
 
   const createOrgMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string; maxMembers: number }) => {
+    mutationFn: async (data: { name: string; description: string; maxMembers: number; notifyPhone?: string }) => {
       return apiRequest("POST", "/api/super-admin/organizations", data);
     },
     onSuccess: () => {
@@ -105,6 +106,7 @@ export default function SuperAdminPage() {
       setNewOrgName("");
       setNewOrgDescription("");
       setNewOrgMaxMembers(100);
+      setNewOrgNotifyPhone("");
       setCreateDialogOpen(false);
       toast({ title: "Organization created successfully" });
     },
@@ -304,6 +306,20 @@ export default function SuperAdminPage() {
                         data-testid="input-org-max-members"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="org-phone">SMS Notification Phone (optional)</Label>
+                      <Input
+                        id="org-phone"
+                        type="tel"
+                        placeholder="+1234567890"
+                        value={newOrgNotifyPhone}
+                        onChange={(e) => setNewOrgNotifyPhone(e.target.value)}
+                        data-testid="input-org-phone"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Receive SMS alerts when students sign up. Include country code.
+                      </p>
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button
@@ -311,6 +327,7 @@ export default function SuperAdminPage() {
                         name: newOrgName,
                         description: newOrgDescription,
                         maxMembers: newOrgMaxMembers,
+                        notifyPhone: newOrgNotifyPhone || undefined,
                       })}
                       disabled={!newOrgName || createOrgMutation.isPending}
                       data-testid="button-submit-org"

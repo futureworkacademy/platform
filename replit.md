@@ -131,3 +131,13 @@ The app uses Replit Auth (OIDC). When users click "Sign In":
   - Tracks key events: team_created, user_assigned, week_advanced, enhanced_decision_submitted
   - Supports filtering by eventType, userId, teamId, and date range
   - Export to CSV or JSON formats for analysis
+- **Multi-Tenant Role System** (January 2026):
+  - Three-tier role hierarchy: Super Admin → Class Admin → Student
+  - Organizations table with unique team codes for signup segmentation
+  - Super Admin dashboard at /super-admin for platform-wide management
+  - Class Admin dashboard at /class-admin for organization management
+  - Team code system: Super Admin creates codes, professors distribute to students
+  - .edu email validation for student signups
+  - Replit Twilio integration for SMS notifications to admins on signups
+  - Setup page at /setup for initial Super Admin initialization
+  - Role-based API routes with proper authorization middleware

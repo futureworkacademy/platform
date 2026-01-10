@@ -119,6 +119,13 @@ class OrganizationStorage {
   }
 
   async isSuperAdmin(userId: string): Promise<boolean> {
+    // Check users table first (for legacy super admin flag)
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (user?.isAdmin === 'super_admin') {
+      return true;
+    }
+    
+    // Then check organization_members for super_admin role
     const memberships = await this.getMembershipsByUser(userId);
     return memberships.some(m => m.role === ROLES.SUPER_ADMIN);
   }

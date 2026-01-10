@@ -6,10 +6,12 @@ import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
 import { users, organizationMembers, ROLES } from "@shared/models/auth";
+import { teams } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
 import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
+import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -835,12 +837,25 @@ export async function registerRoutes(
       // Update user's school email
       await authStorage.updateProfile(userId, { schoolEmail });
 
-      // Notify admins
+      // Notify admins via in-app notifications
       await organizationStorage.notifyAdminsOfSignup(result.organization.id, {
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         email: user.email || schoolEmail,
       });
+
+      // Also try to send SMS notifications to admins
+      try {
+        const studentName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "New Student";
+        await notifyAdminViaSmsForOrg(
+          result.organization.id,
+          studentName,
+          user.email || schoolEmail,
+          result.organization.name
+        );
+      } catch (smsError) {
+        console.log("[SMS] Non-critical SMS notification failed:", smsError);
+      }
 
       res.json({ 
         success: true, 
@@ -920,7 +935,7 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Super Admin access required" });
       }
 
-      const { name, description, ownerEmail, maxMembers } = req.body;
+      const { name, description, ownerEmail, maxMembers, notifyPhone } = req.body;
       if (!name) {
         return res.status(400).json({ error: "Organization name is required" });
       }
@@ -948,6 +963,8 @@ export async function registerRoutes(
         description,
         ownerId,
         maxMembers: maxMembers || 100,
+        notifyOnSignup: !!notifyPhone,
+        notifyPhone: notifyPhone || undefined,
       });
 
       // If owner is different from creator, add them as class admin
@@ -1438,6 +1455,97 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch role information" });
     }
   });
+
+  // ==================== SMS NOTIFICATION ROUTES ====================
+  
+  // Check if Twilio is configured
+  app.get("/api/notifications/twilio-status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isClassAdmin = await organizationStorage.isClassAdmin(userId);
+      
+      if (!isSuperAdmin && !isClassAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const configured = await isTwilioConfigured();
+      res.json({ configured });
+    } catch (error) {
+      res.json({ configured: false });
+    }
+  });
+
+  // Send test SMS notification (Super Admin only)
+  app.post("/api/notifications/test-sms", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { phoneNumber } = req.body;
+      if (!phoneNumber) {
+        return res.status(400).json({ error: "Phone number is required" });
+      }
+
+      const result = await sendSmsNotification(phoneNumber, 'student_signup', {
+        studentName: 'Test Student',
+        studentEmail: 'test@university.edu',
+        organizationName: 'Test Organization',
+      });
+
+      if (result.success) {
+        res.json({ success: true, messageId: result.messageId });
+      } else {
+        res.status(500).json({ success: false, error: result.error });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to send test SMS" });
+    }
+  });
+
+  // Utility function to send signup notifications for an organization
+  async function notifyAdminViaSmsForOrg(
+    organizationId: string, 
+    studentName: string, 
+    studentEmail: string,
+    organizationName: string
+  ) {
+    try {
+      const configured = await isTwilioConfigured();
+      if (!configured) {
+        console.log("[SMS] Twilio not configured, skipping SMS notification");
+        return;
+      }
+
+      // Get organization to check if notification is enabled and get phone number
+      const org = await organizationStorage.getOrganization(organizationId);
+      if (!org) return;
+
+      // Check if organization has SMS notifications enabled and has a phone number
+      if (org.notifyOnSignup && org.notifyPhone) {
+        console.log(`[SMS] Sending signup notification to ${org.notifyPhone}`);
+        const result = await sendSmsNotification(org.notifyPhone, 'student_signup', {
+          studentName,
+          studentEmail,
+          organizationName,
+        });
+        
+        if (result.success) {
+          console.log(`[SMS] Notification sent successfully: ${result.messageId}`);
+        } else {
+          console.log(`[SMS] Failed to send notification: ${result.error}`);
+        }
+      } else {
+        console.log(`[SMS] Organization ${organizationName} does not have SMS notifications enabled or no phone configured`);
+      }
+    } catch (error) {
+      console.error("[SMS] Error sending notification:", error);
+    }
+  }
 
   return httpServer;
 }
