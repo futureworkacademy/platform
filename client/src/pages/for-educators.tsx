@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
-import logoImage from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoDark from "@assets/fwa_white_logo_on_transparent_1768086937618.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -92,10 +93,16 @@ export default function ForEducators() {
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link href="/">
               <img 
-                src={logoImage} 
+                src={logoLight} 
                 alt="Future Work Academy" 
-                className="h-12 w-auto cursor-pointer"
-                data-testid="img-header-logo"
+                className="h-12 w-auto cursor-pointer dark:hidden"
+                data-testid="img-header-logo-light"
+              />
+              <img 
+                src={logoDark} 
+                alt="Future Work Academy" 
+                className="h-12 w-auto cursor-pointer hidden dark:block"
+                data-testid="img-header-logo-dark"
               />
             </Link>
             <ThemeToggle />
@@ -131,10 +138,16 @@ export default function ForEducators() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Link href="/">
             <img 
-              src={logoImage} 
+              src={logoLight} 
               alt="Future Work Academy" 
-              className="h-12 w-auto cursor-pointer"
-              data-testid="img-header-logo"
+              className="h-12 w-auto cursor-pointer dark:hidden"
+              data-testid="img-header-logo-light"
+            />
+            <img 
+              src={logoDark} 
+              alt="Future Work Academy" 
+              className="h-12 w-auto cursor-pointer hidden dark:block"
+              data-testid="img-header-logo-dark"
             />
           </Link>
           <div className="flex items-center gap-3">

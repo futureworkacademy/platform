@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
-import logoImage from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoDark from "@assets/fwa_white_logo_on_transparent_1768086937618.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -56,12 +57,20 @@ export default function Feedback() {
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <img 
-              src={logoImage} 
-              alt="Future Work Academy" 
-              className="h-12 w-auto"
-              data-testid="img-header-logo"
-            />
+            <div className="flex items-center">
+              <img 
+                src={logoLight} 
+                alt="Future Work Academy" 
+                className="h-12 w-auto dark:hidden"
+                data-testid="img-header-logo-light"
+              />
+              <img 
+                src={logoDark} 
+                alt="Future Work Academy" 
+                className="h-12 w-auto hidden dark:block"
+                data-testid="img-header-logo-dark"
+              />
+            </div>
             <ThemeToggle />
           </div>
         </header>
@@ -93,12 +102,20 @@ export default function Feedback() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <img 
-            src={logoImage} 
-            alt="Future Work Academy" 
-            className="h-12 w-auto"
-            data-testid="img-header-logo"
-          />
+          <div className="flex items-center">
+            <img 
+              src={logoLight} 
+              alt="Future Work Academy" 
+              className="h-12 w-auto dark:hidden"
+              data-testid="img-header-logo-light"
+            />
+            <img 
+              src={logoDark} 
+              alt="Future Work Academy" 
+              className="h-12 w-auto hidden dark:block"
+              data-testid="img-header-logo-dark"
+            />
+          </div>
           <div className="flex items-center gap-3">
             <Link href="/">
               <Button variant="ghost" size="sm" data-testid="button-back">

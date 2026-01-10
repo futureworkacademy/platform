@@ -19,7 +19,8 @@ import {
   Landmark,
   Brain
 } from "lucide-react";
-import logoImage from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoDark from "@assets/fwa_white_logo_on_transparent_1768086937618.png";
 
 const challengeSets = [
   [
@@ -56,10 +57,16 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img 
-              src={logoImage} 
+              src={logoLight} 
               alt="Future Work Academy" 
-              className="h-[77px] w-auto"
-              data-testid="img-header-logo"
+              className="h-[77px] w-auto dark:hidden"
+              data-testid="img-header-logo-light"
+            />
+            <img 
+              src={logoDark} 
+              alt="Future Work Academy" 
+              className="h-[77px] w-auto hidden dark:block"
+              data-testid="img-header-logo-dark"
             />
           </div>
           <div className="flex items-center gap-3">

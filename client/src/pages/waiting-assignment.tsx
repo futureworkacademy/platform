@@ -7,7 +7,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
-import logoImage from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoDark from "@assets/fwa_white_logo_on_transparent_1768086937618.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -193,10 +194,16 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <img 
-            src={logoImage} 
+            src={logoLight} 
             alt="Future Work Academy" 
-            className="h-12 w-auto"
-            data-testid="img-header-logo"
+            className="h-12 w-auto dark:hidden"
+            data-testid="img-header-logo-light"
+          />
+          <img 
+            src={logoDark} 
+            alt="Future Work Academy" 
+            className="h-12 w-auto hidden dark:block"
+            data-testid="img-header-logo-dark"
           />
           <div className="flex items-center gap-3">
             {user?.isAdmin === "true" && (
