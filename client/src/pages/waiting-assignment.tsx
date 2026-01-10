@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
-import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
+import { Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
+import logoImage from "@assets/fwalogo-2_1768083577051.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -191,12 +192,12 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-              <Factory className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">Future of Work</span>
-          </div>
+          <img 
+            src={logoImage} 
+            alt="Future Work Academy" 
+            className="h-12 w-auto"
+            data-testid="img-header-logo"
+          />
           <div className="flex items-center gap-3">
             {user?.isAdmin === "true" && (
               <Link href="/admin">

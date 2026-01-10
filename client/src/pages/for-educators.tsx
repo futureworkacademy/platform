@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Factory, ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
+import logoImage from "@assets/fwalogo-2_1768083577051.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -90,12 +91,12 @@ export default function ForEducators() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link href="/">
-              <div className="flex items-center gap-3 cursor-pointer">
-                <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-                  <Factory className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="font-bold text-lg tracking-tight">Future of Work</span>
-              </div>
+              <img 
+                src={logoImage} 
+                alt="Future Work Academy" 
+                className="h-12 w-auto cursor-pointer"
+                data-testid="img-header-logo"
+              />
             </Link>
             <ThemeToggle />
           </div>
@@ -129,12 +130,12 @@ export default function ForEducators() {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-                <Factory className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-lg tracking-tight">Future of Work</span>
-            </div>
+            <img 
+              src={logoImage} 
+              alt="Future Work Academy" 
+              className="h-12 w-auto cursor-pointer"
+              data-testid="img-header-logo"
+            />
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/">

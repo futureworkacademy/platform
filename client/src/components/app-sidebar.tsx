@@ -6,12 +6,12 @@ import {
   Settings,
   Trophy,
   BarChart3,
-  Building2,
   Info,
   Medal,
   User,
   Shield,
 } from "lucide-react";
+import logoImage from "@assets/fwalogo-2_1768083577051.png";
 import {
   Sidebar,
   SidebarContent,
@@ -94,19 +94,14 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
   return (
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-            <Building2 className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-sidebar-foreground">
-              The Future of Work
-            </span>
-            <span className="text-xs text-muted-foreground">
-              Business Simulation
-            </span>
-          </div>
-        </div>
+        <Link href="/">
+          <img 
+            src={logoImage} 
+            alt="Future Work Academy" 
+            className="h-10 w-auto cursor-pointer"
+            data-testid="img-sidebar-logo"
+          />
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
