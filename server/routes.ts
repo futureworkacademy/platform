@@ -801,18 +801,26 @@ export async function registerRoutes(
         return res.status(404).json({ error: "User not found" });
       }
 
-      const { code, schoolEmail } = req.body;
-      if (!code) {
+      const { teamCode, code, phoneNumber, smsConsent } = req.body;
+      const teamCodeValue = teamCode || code; // Support both field names
+      
+      if (!teamCodeValue) {
         return res.status(400).json({ error: "Team code is required" });
       }
 
-      // Validate .edu email
-      if (!schoolEmail || !validateEduEmail(schoolEmail)) {
-        return res.status(400).json({ error: "A valid .edu email is required" });
+      // SECURITY: Only allow joining if user has a verified .edu email in their profile
+      // We do NOT accept schoolEmail from request body to prevent bypassing verification
+      if (user.schoolEmailVerified !== "true") {
+        return res.status(400).json({ error: "Please verify your .edu email before joining an organization." });
+      }
+      
+      const userSchoolEmail = user.schoolEmail;
+      if (!userSchoolEmail || !validateEduEmail(userSchoolEmail)) {
+        return res.status(400).json({ error: "A verified .edu email is required. Please verify your email first." });
       }
 
       // Validate the team code
-      const result = await organizationStorage.validateInviteCode(code.toUpperCase());
+      const result = await organizationStorage.validateInviteCode(teamCodeValue.toUpperCase());
       if (!result.valid || !result.invite || !result.organization) {
         return res.status(400).json({ error: result.error || "Invalid team code" });
       }
@@ -823,25 +831,25 @@ export async function registerRoutes(
         return res.status(400).json({ error: "You are already a member of this organization" });
       }
 
-      // Add user as pending student member
+      // Add user as active student member (auto-approved with valid code)
       await organizationStorage.addMember({
         userId,
         organizationId: result.organization.id,
         role: ROLES.STUDENT,
-        status: "pending",
+        status: "active", // Auto-approve when they have a valid code and verified email
       });
 
       // Increment invite usage
       await organizationStorage.incrementInviteUsage(result.invite.id);
 
-      // Update user's school email
-      await authStorage.updateProfile(userId, { schoolEmail });
+      // Note: phoneNumber and smsConsent can be stored if we add user phone field later
+      // For now, they're logged but not persisted
 
       // Notify admins via in-app notifications
       await organizationStorage.notifyAdminsOfSignup(result.organization.id, {
         firstName: user.firstName || "",
         lastName: user.lastName || "",
-        email: user.email || schoolEmail,
+        email: userSchoolEmail || user.email || "",
       });
 
       // Also try to send SMS notifications to admins
@@ -850,7 +858,7 @@ export async function registerRoutes(
         await notifyAdminViaSmsForOrg(
           result.organization.id,
           studentName,
-          user.email || schoolEmail,
+          userSchoolEmail || user.email || "",
           result.organization.name
         );
       } catch (smsError) {
@@ -859,7 +867,7 @@ export async function registerRoutes(
 
       res.json({ 
         success: true, 
-        message: "You have joined the organization. Please wait for admin approval.",
+        message: "You have joined the organization successfully!",
         organizationName: result.organization.name 
       });
     } catch (error) {

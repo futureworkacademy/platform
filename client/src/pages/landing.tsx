@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppFooter } from "@/components/app-footer";
+import { useState, useEffect } from "react";
 import { 
   Factory, 
   TrendingUp, 
@@ -11,10 +12,44 @@ import {
   Target,
   ArrowRight,
   BarChart3,
-  Zap
+  Zap,
+  Scale,
+  Globe,
+  Lightbulb,
+  HeartHandshake,
+  Landmark,
+  Brain
 } from "lucide-react";
 
+const challengeSets = [
+  [
+    { icon: Bot, title: "Automation Financing", description: "Secure bank debt at 6.5% interest to fund robotics and AI deployment", colorClass: "primary" },
+    { icon: Users, title: "Workforce Displacement", description: "Manage layoffs, reskilling programs, and employee anxiety about job security", colorClass: "destructive" },
+    { icon: Shield, title: "Union Relations", description: "Prevent unionization or manage collective bargaining if sentiment reaches 75%", colorClass: "warning" },
+    { icon: Target, title: "Gen Z Management", description: "Address leadership pipeline crisis as young workers refuse management roles", colorClass: "accent" },
+    { icon: TrendingUp, title: "Financial Performance", description: "Balance debt service, automation ROI, and revenue while managing costs", colorClass: "chart-2" },
+    { icon: BarChart3, title: "Cultural Health", description: "Maintain employee morale and adaptability through rapid organizational change", colorClass: "chart-3" },
+  ],
+  [
+    { icon: Scale, title: "Ethical AI Decisions", description: "Navigate the moral implications of replacing human workers with intelligent systems", colorClass: "primary" },
+    { icon: Globe, title: "Global Competition", description: "Respond to overseas competitors who have already embraced full automation", colorClass: "destructive" },
+    { icon: Lightbulb, title: "Innovation vs. Stability", description: "Balance disruptive technology adoption with operational continuity", colorClass: "warning" },
+    { icon: HeartHandshake, title: "Stakeholder Trust", description: "Maintain credibility with employees, investors, and community partners", colorClass: "accent" },
+    { icon: Landmark, title: "Regulatory Compliance", description: "Anticipate and adapt to evolving labor laws and AI governance policies", colorClass: "chart-2" },
+    { icon: Brain, title: "Knowledge Transfer", description: "Preserve institutional knowledge as experienced workers exit the organization", colorClass: "chart-3" },
+  ],
+];
+
 export default function Landing() {
+  const [currentSet, setCurrentSet] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSet((prev) => (prev + 1) % challengeSets.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -26,6 +61,13 @@ export default function Landing() {
             <span className="font-bold text-lg tracking-tight">Future of Work</span>
           </div>
           <div className="flex items-center gap-3">
+            <a 
+              href="mailto:info@themitchellgroup.io?subject=Future of Work Simulation Inquiry"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
+              data-testid="link-educator-inquiry"
+            >
+              For Educators
+            </a>
             <ThemeToggle />
             <a href="/api/login">
               <Button data-testid="button-login">
@@ -44,12 +86,12 @@ export default function Landing() {
               <Zap className="h-3 w-3" />
               Business Simulation Game
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-              Navigate the AI Revolution
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground whitespace-nowrap">
+              Are you Ready to Navigate the AI Revolution?
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Lead Apex Manufacturing through 8 weeks of strategic decisions balancing 
-              automation, workforce displacement, union dynamics, and Gen Z management challenges.
+              automation, robotics, workforce displacement, union dynamics, generational, and cultural challenges.
             </p>
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <a href="/api/login">
@@ -64,79 +106,48 @@ export default function Landing() {
 
         <section className="py-16 px-4 bg-card/30">
           <div className="container mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold text-center mb-12">Key Challenges You'll Face</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center mb-2">
-                    <Bot className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">Automation Financing</CardTitle>
-                  <CardDescription>
-                    Secure bank debt at 6.5% interest to fund robotics and AI deployment
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-destructive/10 flex items-center justify-center mb-2">
-                    <Users className="h-5 w-5 text-destructive" />
-                  </div>
-                  <CardTitle className="text-lg">Workforce Displacement</CardTitle>
-                  <CardDescription>
-                    Manage layoffs, reskilling programs, and employee anxiety about job security
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-warning/10 flex items-center justify-center mb-2">
-                    <Shield className="h-5 w-5 text-warning" />
-                  </div>
-                  <CardTitle className="text-lg">Union Relations</CardTitle>
-                  <CardDescription>
-                    Prevent unionization or manage collective bargaining if sentiment reaches 75%
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-accent/10 flex items-center justify-center mb-2">
-                    <Target className="h-5 w-5 text-accent" />
-                  </div>
-                  <CardTitle className="text-lg">Gen Z Management</CardTitle>
-                  <CardDescription>
-                    Address leadership pipeline crisis as young workers refuse management roles
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-chart-2/10 flex items-center justify-center mb-2">
-                    <TrendingUp className="h-5 w-5 text-chart-2" />
-                  </div>
-                  <CardTitle className="text-lg">Financial Performance</CardTitle>
-                  <CardDescription>
-                    Balance debt service, automation ROI, and revenue while managing costs
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-card">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-md bg-chart-3/10 flex items-center justify-center mb-2">
-                    <BarChart3 className="h-5 w-5 text-chart-3" />
-                  </div>
-                  <CardTitle className="text-lg">Cultural Health</CardTitle>
-                  <CardDescription>
-                    Maintain employee morale and adaptability through rapid organizational change
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+            <div className="text-center mb-12">
+              <h2 className="text-2xl font-bold mb-2">Key Challenges You'll Face</h2>
+              <p className="text-sm text-muted-foreground">Explore the strategic dilemmas awaiting your leadership</p>
+            </div>
+            <div className="relative min-h-[400px]">
+              {challengeSets.map((challenges, setIndex) => (
+                <div
+                  key={setIndex}
+                  className={`grid md:grid-cols-3 gap-6 transition-all duration-700 ease-in-out ${
+                    setIndex === currentSet
+                      ? "opacity-100"
+                      : "opacity-0 absolute inset-0 pointer-events-none"
+                  }`}
+                >
+                  {challenges.map((challenge, index) => {
+                    const IconComponent = challenge.icon;
+                    return (
+                      <Card key={index} className="bg-card">
+                        <CardHeader>
+                          <div className={`h-10 w-10 rounded-md bg-${challenge.colorClass}/10 flex items-center justify-center mb-2`}>
+                            <IconComponent className={`h-5 w-5 text-${challenge.colorClass}`} />
+                          </div>
+                          <CardTitle className="text-lg">{challenge.title}</CardTitle>
+                          <CardDescription>{challenge.description}</CardDescription>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center gap-2 mt-6">
+              {challengeSets.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSet(index)}
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    index === currentSet ? "bg-primary" : "bg-muted-foreground/30"
+                  }`}
+                  data-testid={`button-challenge-set-${index}`}
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -180,12 +191,26 @@ export default function Landing() {
             <p className="opacity-90 mb-6">
               Sign in with your school email to access your team's simulation.
             </p>
-            <a href="/api/login">
-              <Button variant="secondary" size="lg" data-testid="button-login-cta">
-                Sign In to Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </a>
+            <div className="flex flex-wrap justify-center gap-4">
+              <a href="/api/login">
+                <Button variant="secondary" size="lg" data-testid="button-login-cta">
+                  Sign In to Continue
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </a>
+            </div>
+            <div className="mt-8 pt-6 border-t border-primary-foreground/20">
+              <p className="text-sm opacity-80 mb-3">
+                Interested in bringing this simulation to your classroom?
+              </p>
+              <a 
+                href="mailto:info@themitchellgroup.io?subject=Future of Work Simulation Inquiry" 
+                className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
+                data-testid="link-professor-inquiry"
+              >
+                Contact us about academic licensing
+              </a>
+            </div>
           </div>
         </section>
       </main>

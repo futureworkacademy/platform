@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
-import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings } from "lucide-react";
+import { Factory, Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -22,6 +23,7 @@ interface WaitingAssignmentProps {
 export default function WaitingAssignment({ teamNotFound = false }: WaitingAssignmentProps) {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
@@ -30,6 +32,10 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
   const [schoolEmail, setSchoolEmail] = useState(user?.schoolEmail || '');
   const [verificationCode, setVerificationCode] = useState('');
   const [showVerificationInput, setShowVerificationInput] = useState(false);
+  
+  const [teamCode, setTeamCode] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [smsConsent, setSmsConsent] = useState(false);
   
   const { data: institutions = [] } = useQuery<string[]>({
     queryKey: ['/api/institutions'],
@@ -96,6 +102,28 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     }
   });
 
+  const joinOrganizationMutation = useMutation({
+    mutationFn: async (data: { teamCode: string; phoneNumber?: string; smsConsent: boolean }) => {
+      return apiRequest('POST', '/api/join-organization', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/role'] });
+      toast({
+        title: "Welcome!",
+        description: "You've successfully joined the organization. Your instructor will assign you to a team soon.",
+      });
+      setLocation('/dashboard');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to join",
+        description: error.message || "Invalid team code or organization not found.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfileMutation.mutate({ firstName, lastName, institution });
@@ -131,6 +159,30 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       return;
     }
     verifyCodeMutation.mutate(verificationCode);
+  };
+
+  const handleJoinOrganization = () => {
+    if (!teamCode.trim()) {
+      toast({
+        title: "Team code required",
+        description: "Please enter the team code provided by your instructor.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!isSchoolEmailVerified) {
+      toast({
+        title: "Email verification required",
+        description: "Please verify your .edu email before joining an organization.",
+        variant: "destructive",
+      });
+      return;
+    }
+    joinOrganizationMutation.mutate({
+      teamCode: teamCode.trim().toUpperCase(),
+      phoneNumber: phoneNumber.trim() || undefined,
+      smsConsent,
+    });
   };
 
   const isSchoolEmailVerified = user?.schoolEmailVerified === "true";
@@ -197,6 +249,90 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
                 </Link>
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <KeyRound className="h-5 w-5" />
+              Join Your Class
+            </CardTitle>
+            <CardDescription>
+              Enter the team code provided by your instructor to join the simulation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="teamCode">Team Code</Label>
+              <Input
+                id="teamCode"
+                value={teamCode}
+                onChange={(e) => setTeamCode(e.target.value.toUpperCase())}
+                placeholder="Enter code (e.g., ABC123)"
+                className="font-mono tracking-wider uppercase"
+                data-testid="input-teamCode"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your instructor should have provided this code to you.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                Phone Number (Optional)
+              </Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                data-testid="input-phoneNumber"
+              />
+            </div>
+            
+            <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-md">
+              <Checkbox
+                id="smsConsent"
+                checked={smsConsent}
+                onCheckedChange={(checked) => setSmsConsent(checked === true)}
+                data-testid="checkbox-smsConsent"
+              />
+              <div className="grid gap-1.5 leading-none">
+                <label
+                  htmlFor="smsConsent"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Receive SMS notifications
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  Get text alerts about game updates and deadlines. Standard messaging rates may apply depending on your mobile carrier plan.
+                </p>
+              </div>
+            </div>
+            
+            {!isSchoolEmailVerified && (
+              <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-md border border-yellow-500/20">
+                <AlertCircle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-yellow-700 dark:text-yellow-400">Email verification required</p>
+                  <p className="text-muted-foreground">
+                    Please verify your .edu email address below before joining an organization.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <Button
+              onClick={handleJoinOrganization}
+              disabled={joinOrganizationMutation.isPending || !isSchoolEmailVerified}
+              className="w-full"
+              data-testid="button-join-organization"
+            >
+              {joinOrganizationMutation.isPending ? "Joining..." : "Join Organization"}
+            </Button>
           </CardContent>
         </Card>
 
