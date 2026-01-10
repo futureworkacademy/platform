@@ -58,7 +58,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="Future Work Academy" 
-              className="h-10 w-auto"
+              className="h-14 w-auto"
               data-testid="img-header-logo"
             />
           </div>
