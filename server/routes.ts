@@ -5,9 +5,11 @@ import { insertDecisionSchema, insertTeamSchema } from "@shared/schema";
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users } from "@shared/models/auth";
+import { users, organizationMembers, ROLES } from "@shared/models/auth";
 import { eq } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
+import { organizationStorage } from "./organization-storage";
+import { validateEduEmail, generateTeamCode } from "./auth-middleware";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -759,6 +761,533 @@ export async function registerRoutes(
     } catch (error) {
       console.error("[Feedback] Error:", error);
       res.status(500).json({ error: "Failed to submit feedback" });
+    }
+  });
+
+  // ==================== ORGANIZATION ROUTES ====================
+  
+  // Validate team code (public - for signup flow)
+  app.post("/api/validate-team-code", async (req, res) => {
+    try {
+      const { code } = req.body;
+      if (!code) {
+        return res.status(400).json({ error: "Team code is required" });
+      }
+      
+      const result = await organizationStorage.validateInviteCode(code.toUpperCase());
+      if (!result.valid) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      res.json({ 
+        valid: true, 
+        organizationName: result.organization?.name,
+        organizationId: result.organization?.id 
+      });
+    } catch (error) {
+      console.error("[Team Code] Validation error:", error);
+      res.status(500).json({ error: "Failed to validate team code" });
+    }
+  });
+
+  // Join organization with team code
+  app.post("/api/join-organization", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { code, schoolEmail } = req.body;
+      if (!code) {
+        return res.status(400).json({ error: "Team code is required" });
+      }
+
+      // Validate .edu email
+      if (!schoolEmail || !validateEduEmail(schoolEmail)) {
+        return res.status(400).json({ error: "A valid .edu email is required" });
+      }
+
+      // Validate the team code
+      const result = await organizationStorage.validateInviteCode(code.toUpperCase());
+      if (!result.valid || !result.invite || !result.organization) {
+        return res.status(400).json({ error: result.error || "Invalid team code" });
+      }
+
+      // Check if already a member
+      const existingMember = await organizationStorage.getMember(userId, result.organization.id);
+      if (existingMember) {
+        return res.status(400).json({ error: "You are already a member of this organization" });
+      }
+
+      // Add user as pending student member
+      await organizationStorage.addMember({
+        userId,
+        organizationId: result.organization.id,
+        role: ROLES.STUDENT,
+        status: "pending",
+      });
+
+      // Increment invite usage
+      await organizationStorage.incrementInviteUsage(result.invite.id);
+
+      // Update user's school email
+      await authStorage.updateProfile(userId, { schoolEmail });
+
+      // Notify admins
+      await organizationStorage.notifyAdminsOfSignup(result.organization.id, {
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || schoolEmail,
+      });
+
+      res.json({ 
+        success: true, 
+        message: "You have joined the organization. Please wait for admin approval.",
+        organizationName: result.organization.name 
+      });
+    } catch (error) {
+      console.error("[Join Org] Error:", error);
+      res.status(500).json({ error: "Failed to join organization" });
+    }
+  });
+
+  // Get user's memberships
+  app.get("/api/my-memberships", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const memberships = await organizationStorage.getMembershipsByUser(userId);
+      
+      // Enrich with organization details
+      const enriched = await Promise.all(memberships.map(async (m) => {
+        const org = await organizationStorage.getOrganization(m.organizationId);
+        return { ...m, organization: org };
+      }));
+      
+      res.json(enriched);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch memberships" });
+    }
+  });
+
+  // Get user's notifications
+  app.get("/api/notifications", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const notifications = await organizationStorage.getNotificationsForUser(userId);
+      const unreadCount = await organizationStorage.getUnreadCount(userId);
+      res.json({ notifications, unreadCount });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.post("/api/notifications/:id/read", isAuthenticated, async (req: any, res) => {
+    try {
+      await organizationStorage.markNotificationRead(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to mark notification read" });
+    }
+  });
+
+  // ==================== SUPER ADMIN ROUTES ====================
+  
+  // Get all organizations (Super Admin only)
+  app.get("/api/super-admin/organizations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+      
+      const orgs = await organizationStorage.getAllOrganizations();
+      res.json(orgs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch organizations" });
+    }
+  });
+
+  // Create organization (Super Admin only)
+  app.post("/api/super-admin/organizations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { name, description, ownerEmail, maxMembers } = req.body;
+      if (!name) {
+        return res.status(400).json({ error: "Organization name is required" });
+      }
+
+      // Generate unique team code
+      let code = generateTeamCode();
+      let existing = await organizationStorage.getOrganizationByCode(code);
+      while (existing) {
+        code = generateTeamCode();
+        existing = await organizationStorage.getOrganizationByCode(code);
+      }
+
+      // Find owner by email if provided, otherwise use super admin
+      let ownerId = userId;
+      if (ownerEmail) {
+        const [owner] = await db.select().from(users).where(eq(users.email, ownerEmail));
+        if (owner) {
+          ownerId = owner.id;
+        }
+      }
+
+      const org = await organizationStorage.createOrganization({
+        code,
+        name,
+        description,
+        ownerId,
+        maxMembers: maxMembers || 100,
+      });
+
+      // If owner is different from creator, add them as class admin
+      if (ownerId !== userId) {
+        await organizationStorage.addMember({
+          userId: ownerId,
+          organizationId: org.id,
+          role: ROLES.CLASS_ADMIN,
+          status: "active",
+          approvedBy: userId,
+          approvedAt: new Date(),
+        });
+      }
+
+      res.json(org);
+    } catch (error) {
+      console.error("[Create Org] Error:", error);
+      res.status(500).json({ error: "Failed to create organization" });
+    }
+  });
+
+  // Promote user to Class Admin (Super Admin only)
+  app.post("/api/super-admin/promote-class-admin", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { userId, organizationId } = req.body;
+      if (!userId || !organizationId) {
+        return res.status(400).json({ error: "userId and organizationId are required" });
+      }
+
+      // Check if already a member
+      let member = await organizationStorage.getMember(userId, organizationId);
+      
+      if (member) {
+        // Update existing membership
+        await organizationStorage.updateMember(member.id, {
+          role: ROLES.CLASS_ADMIN,
+          status: "active",
+          approvedBy: adminUserId,
+          approvedAt: new Date(),
+        });
+      } else {
+        // Create new membership
+        member = await organizationStorage.addMember({
+          userId,
+          organizationId,
+          role: ROLES.CLASS_ADMIN,
+          status: "active",
+          approvedBy: adminUserId,
+          approvedAt: new Date(),
+        });
+      }
+
+      // Also update the organization owner if needed
+      const org = await organizationStorage.getOrganization(organizationId);
+      if (org && org.ownerId !== userId) {
+        await organizationStorage.updateOrganization(organizationId, { ownerId: userId });
+      }
+
+      res.json({ success: true, message: "User promoted to Class Admin" });
+    } catch (error) {
+      console.error("[Promote] Error:", error);
+      res.status(500).json({ error: "Failed to promote user" });
+    }
+  });
+
+  // Get all users with their roles (Super Admin only)
+  app.get("/api/super-admin/users-with-roles", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const allUsers = await db.select().from(users);
+      
+      // Enrich with role info
+      const enriched = await Promise.all(allUsers.map(async (user) => {
+        const memberships = await organizationStorage.getMembershipsByUser(user.id);
+        const highestRole = await organizationStorage.getUserRole(user.id);
+        return { 
+          ...user, 
+          memberships, 
+          highestRole,
+          membershipCount: memberships.length 
+        };
+      }));
+
+      res.json(enriched);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  // ==================== CLASS ADMIN ROUTES ====================
+  
+  // Get organizations I manage (Class Admin)
+  app.get("/api/class-admin/my-organizations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const memberships = await organizationStorage.getMembershipsByUser(userId);
+      
+      // Get orgs where user is class admin or super admin
+      const adminMemberships = memberships.filter(m => 
+        m.role === ROLES.CLASS_ADMIN || m.role === ROLES.SUPER_ADMIN
+      );
+      
+      const orgs = await Promise.all(adminMemberships.map(async (m) => {
+        const org = await organizationStorage.getOrganization(m.organizationId);
+        const members = await organizationStorage.getMembersByOrganization(m.organizationId);
+        const invites = await organizationStorage.getInvitesByOrganization(m.organizationId);
+        return { ...org, memberCount: members.length, invites };
+      }));
+      
+      res.json(orgs.filter(Boolean));
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch organizations" });
+    }
+  });
+
+  // Get members of an organization (Class Admin)
+  app.get("/api/class-admin/organizations/:orgId/members", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      
+      // Check if user is admin of this org or super admin
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required for this organization" });
+      }
+
+      const members = await organizationStorage.getMembersByOrganization(orgId);
+      
+      // Enrich with user details
+      const enriched = await Promise.all(members.map(async (m) => {
+        const user = await authStorage.getUser(m.userId);
+        return { ...m, user };
+      }));
+
+      res.json(enriched);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch members" });
+    }
+  });
+
+  // Approve/activate member (Class Admin)
+  app.post("/api/class-admin/members/:memberId/approve", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { memberId } = req.params;
+      
+      // Get the member to find org ID
+      const allMembers = await db.select().from(organizationMembers).where(eq(organizationMembers.id, memberId));
+      if (allMembers.length === 0) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+      
+      const member = allMembers[0];
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, member.organizationId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      await organizationStorage.updateMember(memberId, {
+        status: "active",
+        approvedBy: adminUserId,
+        approvedAt: new Date(),
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve member" });
+    }
+  });
+
+  // Assign member to team (Class Admin)
+  app.post("/api/class-admin/members/:memberId/assign-team", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { memberId } = req.params;
+      const { teamId } = req.body;
+      
+      // Get the member
+      const allMembers = await db.select().from(organizationMembers).where(eq(organizationMembers.id, memberId));
+      if (allMembers.length === 0) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+      
+      const member = allMembers[0];
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, member.organizationId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Update user's team assignment
+      await db.update(users).set({ teamId, updatedAt: new Date() }).where(eq(users.id, member.userId));
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assign team" });
+    }
+  });
+
+  // Create team within organization (Class Admin)
+  app.post("/api/class-admin/organizations/:orgId/teams", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required for this organization" });
+      }
+
+      const validationResult = insertTeamSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid team data",
+          details: validationResult.error.flatten() 
+        });
+      }
+
+      // Create team with organization ID
+      const team = await storage.createTeam({
+        ...validationResult.data,
+        organizationId: orgId,
+      });
+
+      res.json(team);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create team" });
+    }
+  });
+
+  // ==================== INITIALIZATION ROUTES ====================
+  
+  // Check if any Super Admins exist
+  app.get("/api/setup/status", async (_req, res) => {
+    try {
+      const allMembers = await db.select().from(organizationMembers)
+        .where(eq(organizationMembers.role, ROLES.SUPER_ADMIN));
+      
+      res.json({
+        hasSuperAdmin: allMembers.length > 0,
+        superAdminCount: allMembers.length,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check setup status" });
+    }
+  });
+
+  // Initialize Super Admin (only works if no Super Admins exist)
+  app.post("/api/setup/initialize-super-admin", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Check if any super admins already exist
+      const existingSuperAdmins = await db.select().from(organizationMembers)
+        .where(eq(organizationMembers.role, ROLES.SUPER_ADMIN));
+      
+      if (existingSuperAdmins.length > 0) {
+        return res.status(400).json({ error: "Super Admin already exists. Contact existing admin." });
+      }
+
+      // Create the Platform organization
+      const platformOrg = await organizationStorage.createOrganization({
+        code: "PLATFORM",
+        name: "Platform Administration",
+        description: "Global platform management organization",
+        ownerId: userId,
+        maxMembers: 1000,
+      });
+
+      // Add user as Super Admin
+      await organizationStorage.addMember({
+        userId,
+        organizationId: platformOrg.id,
+        role: ROLES.SUPER_ADMIN,
+        status: "active",
+        approvedBy: userId,
+        approvedAt: new Date(),
+      });
+
+      // Also update user's isAdmin flag for backward compatibility
+      await db.update(users).set({ isAdmin: "true", updatedAt: new Date() }).where(eq(users.id, userId));
+
+      res.json({ 
+        success: true, 
+        message: "You are now the Super Admin",
+        organization: platformOrg 
+      });
+    } catch (error) {
+      console.error("[Init Super Admin] Error:", error);
+      res.status(500).json({ error: "Failed to initialize Super Admin" });
+    }
+  });
+
+  // Get current user's role information
+  app.get("/api/my-role", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const role = await organizationStorage.getUserRole(userId);
+      const memberships = await organizationStorage.getMembershipsByUser(userId);
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isClassAdmin = await organizationStorage.isClassAdmin(userId);
+
+      res.json({
+        role,
+        isSuperAdmin,
+        isClassAdmin,
+        membershipCount: memberships.length,
+        memberships,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch role information" });
     }
   });
 

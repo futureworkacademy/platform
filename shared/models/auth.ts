@@ -1,5 +1,23 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, timestamp, varchar, text } from "drizzle-orm/pg-core";
+
+// Role enum values
+export const ROLES = {
+  SUPER_ADMIN: "super_admin",
+  CLASS_ADMIN: "class_admin", 
+  STUDENT: "student",
+} as const;
+
+export type Role = typeof ROLES[keyof typeof ROLES];
+
+// Organization status enum values
+export const ORG_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  ARCHIVED: "archived",
+} as const;
+
+export type OrgStatus = typeof ORG_STATUS[keyof typeof ORG_STATUS];
 
 // Session storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
@@ -42,6 +60,7 @@ export type User = typeof users.$inferSelect;
 export const teams = pgTable("teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+  organizationId: varchar("organization_id"), // Links team to organization/class
   currentWeek: integer("current_week").notNull().default(1),
   totalWeeks: integer("total_weeks").notNull().default(8),
   setupComplete: boolean("setup_complete").notNull().default(false),
@@ -61,3 +80,70 @@ export const teams = pgTable("teams", {
 
 export type DbTeam = typeof teams.$inferSelect;
 export type InsertDbTeam = typeof teams.$inferInsert;
+
+// Organizations table - represents a class/cohort managed by a Class Admin
+export const organizations = pgTable("organizations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").notNull().unique(), // The "team code" professors give to students
+  name: varchar("name").notNull(),
+  description: text("description"),
+  ownerId: varchar("owner_id").notNull(), // The Class Admin who owns this org
+  status: varchar("status").notNull().default("active"), // active, inactive, archived
+  maxMembers: integer("max_members").default(100),
+  notifyOnSignup: boolean("notify_on_signup").default(true),
+  notifyEmail: varchar("notify_email"),
+  notifyPhone: varchar("notify_phone"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = typeof organizations.$inferInsert;
+
+// Organization members - links users to organizations with roles
+export const organizationMembers = pgTable("organization_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  organizationId: varchar("organization_id").notNull(),
+  role: varchar("role").notNull().default("student"), // super_admin, class_admin, student
+  status: varchar("status").notNull().default("pending"), // pending, active, suspended
+  joinedAt: timestamp("joined_at").defaultNow(),
+  approvedBy: varchar("approved_by"),
+  approvedAt: timestamp("approved_at"),
+});
+
+export type OrganizationMember = typeof organizationMembers.$inferSelect;
+export type InsertOrganizationMember = typeof organizationMembers.$inferInsert;
+
+// Organization invites - team codes with usage tracking and expiration
+export const organizationInvites = pgTable("organization_invites", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull(),
+  code: varchar("code").notNull().unique(), // Same as org code, or additional invite codes
+  maxUses: integer("max_uses").default(100),
+  usedCount: integer("used_count").notNull().default(0),
+  expiresAt: timestamp("expires_at"),
+  createdBy: varchar("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export type OrganizationInvite = typeof organizationInvites.$inferSelect;
+export type InsertOrganizationInvite = typeof organizationInvites.$inferInsert;
+
+// Notifications table - for dashboard alerts
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(), // Who should see this notification
+  type: varchar("type").notNull(), // signup, team_assignment, week_advanced, etc.
+  title: varchar("title").notNull(),
+  message: text("message"),
+  data: jsonb("data"), // Additional context data
+  read: boolean("read").notNull().default(false),
+  emailSent: boolean("email_sent").default(false),
+  smsSent: boolean("sms_sent").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;

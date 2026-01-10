@@ -67,6 +67,7 @@ class TeamStorage implements ITeamStorage {
       .values({
         id,
         name: input.name,
+        organizationId: input.organizationId,
         totalWeeks: input.totalWeeks || 8,
         currentWeek: 1,
         setupComplete: false,
