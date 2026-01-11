@@ -73,56 +73,84 @@ export interface IStorage {
 }
 
 const globalEvents: GlobalEvent[] = [
-  { id: "1", name: "Tariff Increase (50%)", description: "US tariffs on imports rise to 50%, increasing costs for raw materials.", impact: { revenue: -0.15, morale: -10 } },
-  { id: "2", name: "Reciprocal Tariff on US", description: "China imposes reciprocal tariffs on US exports, hitting Apex's overseas sales.", impact: { revenue: -0.20, morale: -5 } },
-  { id: "3", name: "Geopolitical Tension", description: "Escalating conflicts disrupt global supply chains.", impact: { revenue: -0.10, employees: -10, morale: -15 } },
-  { id: "4", name: "Labor Strike", description: "Union workers strike over AI-related job concerns.", impact: { morale: -20, revenue: -0.05 } },
-  { id: "5", name: "Tech Breakthrough", description: "New ML tools for manufacturing reduce costs industry-wide.", impact: { revenue: 0.15, morale: 10 } },
-  { id: "6", name: "Economic Boom", description: "US economy surges, boosting demand for auto parts.", impact: { revenue: 0.10, employees: 20 } },
-  { id: "7", name: "Supply Chain Shortage", description: "Chip shortages delay production.", impact: { revenue: -0.12, morale: -8 } },
-  { id: "8", name: "Regulatory Change", description: "New incentives for AI adoption in manufacturing.", impact: { revenue: 0.08, morale: 5 } },
+  { id: "1", name: "Steel & Aluminum Tariffs (25%)", description: "New 25% tariffs on imported steel and aluminum increase raw material costs for precision components.", impact: { revenue: -0.12, morale: -8 } },
+  { id: "2", name: "Tariffs on Chinese Components", description: "20% tariff on Chinese precision components boosts demand for domestic suppliers like Apex.", impact: { revenue: 0.15, morale: 5 } },
+  { id: "3", name: "Diesel Price Surge", description: "Diesel prices spike 30%, increasing distribution costs across Apex's trucking network.", impact: { revenue: -0.08, morale: -5 } },
+  { id: "4", name: "DOT Hours Regulation", description: "New DOT regulations limit trucker hours, creating delivery delays and increased logistics costs.", impact: { revenue: -0.06, morale: -3 } },
+  { id: "5", name: "FDA Compliance Audit", description: "FDA announces surprise audits of medical device suppliers. Quality documentation becomes critical.", impact: { revenue: -0.05, morale: -10 } },
+  { id: "6", name: "Medical Device Demand Surge", description: "Aging population drives 20% increase in medical device orders. Precision component demand soars.", impact: { revenue: 0.18, morale: 12 } },
+  { id: "7", name: "Skilled Worker Shortage Crisis", description: "Regional manufacturing labor shortage hits 415,000 unfilled jobs. Wage competition intensifies.", impact: { revenue: -0.10, employees: -15, morale: -8 } },
+  { id: "8", name: "Aerospace Contract Win", description: "Major aerospace contractor seeks domestic suppliers after tariff changes. New RFQ opportunities.", impact: { revenue: 0.12, morale: 8 } },
+  { id: "9", name: "Community College Partnership", description: "State announces funding for manufacturing training programs. Reskilling costs reduced 40%.", impact: { revenue: 0.05, morale: 15 } },
+  { id: "10", name: "Competitor Plant Closure", description: "Overseas competitor closes US operations due to tariff pressure. Their customers seek new suppliers.", impact: { revenue: 0.10, morale: 5 } },
+  { id: "11", name: "Union Organizing Campaign", description: "UAW announces campaign targeting Midwest precision manufacturers. Workers at Apex are contacted.", impact: { morale: -15, revenue: -0.03 } },
+  { id: "12", name: "Copper Tariff (50%)", description: "New 50% tariff on copper imports dramatically increases costs for electronic component manufacturing.", impact: { revenue: -0.15, morale: -10 } },
 ];
 
 const briefingArticles: BriefingArticle[] = [
   {
     id: "1",
-    title: "AI in Manufacturing: Opportunities and Risks",
-    content: "Experts predict AI could boost productivity by 40% but displace 20% of jobs. Industry leaders emphasize the importance of proactive workforce transition programs to maintain employee morale during digital transformation.",
-    source: "Manufacturing Today",
-    category: "ai",
-    insights: ["AI boosts productivity", "Job displacement risk", "Reskilling mitigates morale drop"],
+    title: "Manufacturing Labor Crisis: 415,000 Jobs Unfilled",
+    content: "The US manufacturing sector faces a structural crisis with 415,000 unfilled positions and projections of 2.1 million unfilled jobs by 2030. Iowa is among the hardest-hit states. Despite average compensation exceeding $102,000 annually, manufacturers struggle to attract workers. 26% of the current workforce is approaching retirement, and younger workers show little interest in manufacturing careers.",
+    source: "Manufacturing Institute",
+    category: "workforce",
+    insights: ["415K unfilled manufacturing jobs", "2.1M shortfall projected by 2030", "Iowa heavily affected", "$102K avg compensation not enough"],
   },
   {
     id: "2",
-    title: "Trade Wars Heat Up",
-    content: "US-China tariffs expected to rise further. Companies with strong government relations are better positioned to secure exemptions. Consider diversifying suppliers to reduce geopolitical exposure.",
+    title: "Trump Announces 25% Tariffs on Steel and Aluminum",
+    content: "New 25% tariffs on imported steel and aluminum take effect, increasing raw material costs for precision manufacturers. However, the tariffs also boost demand for domestic suppliers as buyers seek to avoid duties on imported components. Companies with US-based production capacity are seeing increased RFQs from medical device and aerospace customers.",
     source: "Bloomberg",
     category: "trade",
-    insights: ["Tariffs incoming", "Lobby for exemptions", "Supply chain diversification"],
+    insights: ["25% steel/aluminum tariffs", "Raw material costs up 2-4%", "Domestic suppliers see opportunity", "Medical/aerospace seeking US sources"],
   },
   {
     id: "3",
     title: "Gen Z Workers Shun Management Roles",
-    content: "New research shows 72% of Gen Z workers have no interest in becoming managers. They cite work-life balance concerns and the 'emotional labor' of management. Companies must adapt their leadership pipelines.",
+    content: "New research shows 72% of Gen Z workers have no interest in becoming managers. They cite work-life balance concerns and the 'emotional labor' of management. Companies must adapt their leadership pipelines. Successful manufacturers are creating dual career tracks with technical specialist roles that pay as well as management without the supervisory burden.",
     source: "Harvard Business Review",
     category: "workforce",
-    insights: ["Gen Z avoids management", "Leadership pipeline at risk", "New career paths needed"],
+    insights: ["72% of Gen Z refuse management", "Leadership pipeline at risk", "Dual career tracks emerging", "Technical specialist roles gaining traction"],
   },
   {
     id: "4",
-    title: "Union Activity Surges in Manufacturing",
-    content: "Union organizing campaigns have increased 40% year-over-year in manufacturing. Workers cite automation fears and wage stagnation as primary motivators. Proactive engagement can mitigate organizing risk.",
-    source: "Labor Relations Weekly",
-    category: "labor",
-    insights: ["Union activity rising", "Automation fears drive organizing", "Proactive engagement helps"],
+    title: "Precision Manufacturing Sees Reshoring Wave",
+    content: "Tariffs and supply chain concerns are driving a reshoring wave in precision manufacturing. Medical device companies report shifting 30% of component sourcing to domestic suppliers. The challenge: US manufacturers lack capacity and skilled workers to meet surging demand. Companies that can scale quickly will capture significant market share.",
+    source: "Supply Chain Dive",
+    category: "trade",
+    insights: ["30% medical components reshoring", "Capacity constraints limit opportunity", "Skilled worker shortage bottleneck", "First movers gain market share"],
   },
   {
     id: "5",
-    title: "Bank Lending for Automation Investments",
-    content: "Commercial banks are offering favorable terms for automation investments, with rates as low as 5.5%. However, debt-financed automation carries risks if implementation fails or displaces too many workers.",
-    source: "Financial Times",
-    category: "finance",
-    insights: ["Favorable lending rates", "Debt financing available", "Implementation risk exists"],
+    title: "Diesel Prices Surge, Trucking Costs Soar",
+    content: "Diesel prices have increased 25% year-over-year, dramatically impacting distribution costs for manufacturers. Companies with extensive trucking networks face margin pressure. Logistics experts recommend consolidating shipments, optimizing routes, and exploring regional distribution center strategies to mitigate costs.",
+    source: "Transport Topics",
+    category: "logistics",
+    insights: ["Diesel up 25% YoY", "Distribution costs squeezing margins", "Route optimization critical", "Regional DC strategy helps"],
+  },
+  {
+    id: "6",
+    title: "FDA Increases Medical Device Supplier Audits",
+    content: "The FDA has announced increased scrutiny of medical device supply chains, including component suppliers. Precision manufacturers serving medical customers face more frequent audits and documentation requirements. Non-compliance can result in supply chain exclusion. Companies with robust quality management systems gain competitive advantage.",
+    source: "MedTech Insight",
+    category: "regulatory",
+    insights: ["FDA audits increasing", "Documentation requirements rising", "Non-compliance = exclusion", "QMS becomes competitive advantage"],
+  },
+  {
+    id: "7",
+    title: "Union Activity Surges in Midwest Manufacturing",
+    content: "Union organizing campaigns have increased 40% year-over-year in manufacturing. The UAW has announced specific focus on precision manufacturers in Iowa, Wisconsin, and Michigan. Workers cite automation fears, wage stagnation, and job security as primary motivators. Proactive engagement and transparent communication can mitigate organizing risk.",
+    source: "Labor Relations Weekly",
+    category: "labor",
+    insights: ["UAW targeting Midwest", "40% increase in organizing", "Automation fears drive campaigns", "Transparency reduces risk"],
+  },
+  {
+    id: "8",
+    title: "AI-Powered Quality Inspection Gains Traction",
+    content: "Machine learning-based quality inspection systems are achieving 99.7% defect detection rates in precision manufacturing, compared to 94% for human inspectors. Early adopters report 30% reduction in quality escapes and significant reskilling opportunities for displaced QA workers. The technology requires $2-5M investment and 6-month implementation.",
+    source: "Manufacturing Today",
+    category: "ai",
+    insights: ["ML achieves 99.7% defect detection", "30% fewer quality escapes", "Reskilling paths available", "$2-5M investment required"],
   },
 ];
 
@@ -137,139 +165,139 @@ const defaultDepartments: Department[] = [
 const weeklyScenarios: WeeklyScenario[] = [
   {
     weekNumber: 1,
-    title: "The Automation Imperative",
-    narrative: `The board has delivered an ultimatum: Apex Manufacturing must modernize or face acquisition. Competitors have achieved 30% cost reductions through robotics and AI. Your CFO has secured preliminary approval for a $15M line of credit from First National Bank at 6.5% interest to fund automation investments.
+    title: "The Precision Imperative",
+    narrative: `The board has delivered an ultimatum: Apex Manufacturing must modernize or face acquisition. Your precision micro-molding competitors have achieved 30% cost reductions through AI-powered quality inspection and robotic automation. Meanwhile, new tariffs on Chinese components are driving a surge of RFQs from medical device and aerospace customers seeking domestic suppliers.
 
-However, the factory floor is buzzing with rumors. Workers have seen what happened at AutoTech Industries - 30% workforce reduction in 18 months. Your HR Director reports that informal union organizing discussions have begun in the Operations department.
+Your CFO has secured preliminary approval for a $15M line of credit from First Midwest Bank at 6.5% interest. The opportunity is clear: capture reshoring demand while competitors struggle with capacity. But the challenge is equally clear: Iowa faces one of the nation's worst manufacturing labor shortages, with 415,000 jobs unfilled nationally and 26% of your skilled workforce approaching retirement.
 
-You have one week to decide how to approach this transformation. The board wants bold action, but your workforce wants assurance.`,
+The production floor is buzzing with anxiety. Workers have heard about the UAW's new organizing campaign targeting Midwest precision manufacturers. Your HR Director reports informal union discussions have begun among the moldmakers.`,
     pressures: [
-      { source: "Board of Directors", message: "We need a 25% cost reduction within 2 years or we'll explore strategic alternatives.", urgency: "critical" },
+      { source: "Board of Directors", message: "Tariffs are creating a once-in-a-decade opportunity. We need to scale capacity 40% in 18 months or lose it forever.", urgency: "critical" },
       { source: "CFO", message: "The bank loan is ready. We can draw $15M at 6.5% interest, but we need a solid plan.", urgency: "high" },
-      { source: "Operations Manager", message: "My team is scared. If we don't address their concerns, we'll see productivity drop before we even start.", urgency: "high" },
-      { source: "Union Representative", message: "Workers are talking. How leadership handles this will determine whether we organize.", urgency: "medium" },
+      { source: "Lead Moldmaker", message: "My team built this company's reputation by hand. If machines replace us, who maintains the quality?", urgency: "high" },
+      { source: "UAW Organizer", message: "Workers are talking. How leadership handles this will determine whether we organize.", urgency: "medium" },
     ],
     contextArticles: briefingArticles.slice(0, 3),
-    keyQuestion: "How will you finance and communicate your automation strategy?",
+    keyQuestion: "How will you balance the reshoring opportunity against workforce concerns and capacity constraints?",
   },
   {
     weekNumber: 2,
     title: "The Talent Pipeline Crisis",
-    narrative: `Your automation planning has revealed a deeper problem: Apex lacks the technical talent to implement and maintain advanced systems. Your current managers are stretched thin, and the Gen Z workers who could fill the pipeline have no interest in management roles.
+    narrative: `Your expansion planning has revealed a deeper problem: Apex lacks the skilled workers to scale production. The micro-molding technicians who can hold tolerances to 0.001" take years to train, and the labor market is bone-dry - Iowa has fewer manufacturing job seekers than openings.
 
-Exit interviews from the past quarter show a troubling pattern - your best young talent is leaving for companies offering 'individual contributor' career tracks without management responsibilities. Meanwhile, 5 of your 12 middle managers are within 3 years of retirement.
+Exit interviews from the past quarter show a troubling pattern - your best young talent is leaving for tech companies offering remote work and higher pay. Meanwhile, 5 of your 12 master moldmakers are within 3 years of retirement, and Gen Z workers show no interest in the supervisory roles that would traditionally replace them.
 
-The technology vendor has offered to provide training, but it will cost $2M and take 6 months. Some board members suggest just hiring externally. Your HR Director warns this could further demoralize the existing workforce.`,
+The community college has proposed a partnership: $800K investment for a precision manufacturing program that would create a talent pipeline in 18 months. Some board members want to poach talent from competitors instead. Your HR Director warns that without fresh approaches, you simply cannot staff the expansion the board demands.`,
     pressures: [
-      { source: "HR Director", message: "We're losing Gen Z talent to competitors. They don't want to be managers - they want technical career paths.", urgency: "high" },
-      { source: "Operations Manager", message: "Half my supervisors will retire in 3 years. We have no one ready to step up.", urgency: "high" },
-      { source: "Technology Vendor", message: "We can train your team, but it requires commitment and investment upfront.", urgency: "medium" },
-      { source: "Board Member", message: "Just hire the talent we need. The existing workforce has the wrong skills anyway.", urgency: "medium" },
+      { source: "HR Director", message: "We posted 15 positions last month. We got 3 qualified applicants. The $102K average compensation isn't enough - they want flexibility we can't offer.", urgency: "critical" },
+      { source: "Master Moldmaker", message: "It took me 8 years to learn this craft. You can't replace us with a 6-week training program.", urgency: "high" },
+      { source: "Community College Dean", message: "We can build a precision manufacturing program, but we need industry commitment and curriculum input.", urgency: "medium" },
+      { source: "Board Member", message: "Poach from competitors. Offer 20% premiums. We don't have time to grow talent.", urgency: "medium" },
     ],
     contextArticles: briefingArticles.filter(a => a.category === "workforce"),
-    keyQuestion: "How will you build your leadership and technical talent pipeline?",
+    keyQuestion: "How will you build the skilled workforce needed to capture the reshoring opportunity?",
   },
   {
     weekNumber: 3,
     title: "Union Storm Brewing",
-    narrative: `The union organizing effort has gained momentum. A vote is now scheduled for next month. Union representatives are framing the automation initiative as a 'job elimination program' and pointing to your bank loan as evidence of management prioritizing machines over people.
+    narrative: `The UAW organizing effort has gained momentum. A vote is now scheduled for next month. Union representatives are framing your expansion plans as 'automation by another name' and pointing to your bank loan as evidence of management prioritizing machines over people.
 
-Your legal team advises that you can communicate with employees about the implications of unionization, but you cannot threaten or promise benefits to influence the vote. Your HR Director believes a comprehensive reskilling commitment might defuse the situation.
+Your legal team advises that you can communicate with employees about the implications of unionization, but you cannot threaten or promise benefits to influence the vote. Your HR Director believes a comprehensive skills investment commitment might defuse the situation.
 
-Meanwhile, the first automation equipment has arrived and is sitting on the loading dock. Workers are photographing it and sharing images on social media with captions like 'Our replacements have arrived.'`,
+Meanwhile, a major medical device customer has sent an urgent RFP requiring 50% capacity increase within 12 months. The contract would add $18M in annual revenue - but you can't staff it with current workforce levels. The union is watching how you respond: will you automate, outsource, or invest in workers?`,
     pressures: [
-      { source: "Union Organizer", message: "Workers have a right to collective bargaining. Management has shown they care more about robots than people.", urgency: "critical" },
+      { source: "UAW Organizer", message: "Workers have a right to collective bargaining. Management keeps talking about 'opportunity' but workers only see risk.", urgency: "critical" },
       { source: "General Counsel", message: "We need to be very careful here. Any missteps could be unfair labor practice charges.", urgency: "high" },
-      { source: "HR Director", message: "A genuine reskilling commitment - not just words - could change the narrative.", urgency: "high" },
-      { source: "CFO", message: "If we unionize, our labor costs will increase 15-20%. The automation ROI projections won't work.", urgency: "high" },
+      { source: "HR Director", message: "A genuine skills investment commitment - not just words - could change the narrative.", urgency: "high" },
+      { source: "Medical Device Customer", message: "We need your answer on the capacity expansion within 2 weeks. Our supply chain team is evaluating alternatives.", urgency: "critical" },
     ],
     contextArticles: briefingArticles.filter(a => a.category === "labor" || a.category === "workforce"),
-    keyQuestion: "How will you respond to the unionization effort while maintaining your transformation agenda?",
+    keyQuestion: "How will you respond to the unionization effort while capturing the customer opportunity?",
   },
   {
     weekNumber: 4,
-    title: "The First Displacement",
-    narrative: `Phase 1 automation is ready to go live in the Operations department. The system will eliminate 45 positions - about 8% of your total workforce. You must decide what happens to these workers.
+    title: "The Supply Chain Squeeze",
+    narrative: `New tariffs have created both opportunity and crisis. The 25% steel and aluminum tariffs have increased your raw material costs by 3.5%. Simultaneously, the 50% copper tariff is devastating your electronic component costs. Your margins are being squeezed just as demand is surging.
 
-Your reskilling program has identified that 30 of the 45 affected workers could transition to new roles operating and maintaining the automated systems - but this requires 3 months of training during which they would be paid but not productive. The remaining 15 workers lack the aptitude for technical roles.
+Your procurement team has identified domestic suppliers who could reduce tariff exposure, but they require 6-month contracts and 20% volume commitments. Meanwhile, your trucking costs are up 25% due to diesel price increases, and new DOT regulations are causing delivery delays to your distribution network.
 
-Industry benchmarks suggest severance of 2 weeks per year of service is standard, but some competitors have offered enhanced packages to maintain community reputation. The local newspaper has already published a story about 'layoff rumors at Apex.'`,
+The medical device customer is pressing for a decision on their $18M contract. They want pricing locked for 3 years - but with material costs in flux, that's a significant risk.`,
     pressures: [
-      { source: "Operations Manager", message: "We can't delay the automation anymore. Every week we wait costs us $200K in competitive disadvantage.", urgency: "critical" },
-      { source: "HR Director", message: "How we handle these 45 workers will define our employer brand for a decade.", urgency: "high" },
-      { source: "CFO", message: "The bank is watching. They want to see ROI from their loan, not just training expenses.", urgency: "high" },
-      { source: "Mayor's Office", message: "Apex is the second-largest employer in this county. We're concerned about workforce impacts.", urgency: "medium" },
+      { source: "Procurement Director", message: "We can lock in domestic steel suppliers, but they want 3-year commitments. If tariffs drop, we're stuck.", urgency: "critical" },
+      { source: "CFO", message: "Margins have dropped 2.5 points this quarter. We need to raise prices or find cost offsets.", urgency: "high" },
+      { source: "Logistics Manager", message: "Our trucking costs are up 25%. We need to rethink our distribution strategy - maybe regional warehouses.", urgency: "high" },
+      { source: "Medical Device Customer", message: "We need 3-year pricing. Our procurement board won't approve contracts with escalation clauses.", urgency: "critical" },
     ],
-    contextArticles: briefingArticles.slice(0, 2),
-    keyQuestion: "How will you handle the workers displaced by automation?",
+    contextArticles: briefingArticles.filter(a => a.category === "trade" || a.category === "logistics"),
+    keyQuestion: "How will you manage supply chain volatility while locking in customer contracts?",
   },
   {
     weekNumber: 5,
-    title: "The Manager Exodus",
-    narrative: `Three of your middle managers have resigned this week, citing 'burnout' and 'change fatigue.' They're not going to competitors - they're leaving manufacturing entirely. This leaves critical gaps in Production Planning, Quality Control, and Maintenance.
+    title: "The Quality Crisis",
+    narrative: `An FDA audit of your largest medical device customer has flagged quality concerns with Apex components. Three lots have been placed on hold pending investigation. The customer's quality director is demanding immediate action: implement AI-powered inspection systems or face supply chain exclusion.
 
-Your Gen Z workers refuse the promotion opportunities. In focus groups, they cite 'unrealistic expectations,' 'always-on culture,' and 'emotional labor with no upside.' They prefer the new technical specialist track you created, which pays well but has no direct reports.
+Your QA team is stretched thin - two supervisors resigned last month, citing burnout. The remaining inspectors are working mandatory overtime, and error rates are climbing. Your master moldmakers argue that the quality issues stem from rushing new hires through training, not from inspection failures.
 
-The remaining managers are working 60+ hour weeks. Two have requested medical leave for stress-related conditions. Your COO is asking if AI could augment management capacity - essentially having algorithms handle scheduling, performance monitoring, and routine decisions.`,
+Meanwhile, your aerospace customer has sent a new RFQ worth $8M annually - but their quality requirements are even more stringent than medical. Can you capture this opportunity while fixing the quality crisis?`,
     pressures: [
-      { source: "COO", message: "We need to fundamentally rethink the management model. AI-augmented management could be the answer.", urgency: "high" },
-      { source: "HR Director", message: "Our remaining managers are burning out. If we lose more, operations will collapse.", urgency: "critical" },
-      { source: "Gen Z Focus Group", message: "We want careers, not boss jobs. Give us technical paths that pay like management.", urgency: "high" },
-      { source: "External Consultant", message: "Many companies are flattening hierarchies and using technology to reduce management layers.", urgency: "medium" },
+      { source: "Medical Device Quality Director", message: "We need to see your corrective action plan within 30 days or we'll activate our backup suppliers.", urgency: "critical" },
+      { source: "QA Manager", message: "My team is exhausted. We're catching defects, but we can't keep up with the volume increase.", urgency: "critical" },
+      { source: "Master Moldmaker", message: "The quality problems start at the press, not inspection. New hires are rushing and making mistakes.", urgency: "high" },
+      { source: "Aerospace Customer", message: "We're interested in Apex, but we've heard rumors about quality issues. Can you assure us?", urgency: "high" },
     ],
-    contextArticles: briefingArticles.filter(a => a.category === "workforce" || a.category === "ai"),
-    keyQuestion: "How will you address the management crisis and adapt your organizational structure?",
+    contextArticles: briefingArticles.filter(a => a.category === "regulatory" || a.category === "ai"),
+    keyQuestion: "How will you resolve the quality crisis while pursuing new opportunities?",
   },
   {
     weekNumber: 6,
-    title: "Debt Day of Reckoning",
-    narrative: `The quarterly board meeting is approaching, and the numbers tell a mixed story. Automation has delivered 15% of projected cost savings - but implementation delays and worker transition costs have eaten into the ROI. You're now carrying $12M in debt with $650K in quarterly interest payments.
+    title: "The Workforce Investment Decision",
+    narrative: `Your community college partnership is ready to launch - but it requires final commitment. The $800K investment would create a precision manufacturing program producing 40 qualified technicians per year. The catch: you must guarantee employment for graduates at $55K+ salaries.
 
-The bank has requested a meeting to review the loan covenant terms. While you're not yet in violation, they're 'concerned about trajectory.' If the automation doesn't deliver results in the next two quarters, you may face a capital call or restructuring.
+Meanwhile, your competitors are taking different approaches. MicroPrecision Inc. has announced plans to offshore 30% of production to Mexico to avoid labor costs. TechMold Partners is acquiring a struggling competitor to capture their skilled workforce. The industry is fragmenting into different strategic camps.
 
-Meanwhile, morale has stabilized after the rocky start. The reskilling program is showing results, and the union vote - whether it happened or not - has clarified the employee relations situation. But the financial pressure is mounting.`,
+Your board wants to know: is the long-term workforce investment worth it, or should you follow competitors toward lower-cost alternatives? The tariff situation remains volatile - what happens if reshoring demand fades?`,
     pressures: [
-      { source: "Bank Representative", message: "We need to see the automation ROI materialize. The covenant requires 1.5x debt service coverage by Q3.", urgency: "critical" },
-      { source: "CFO", message: "We have options: accelerate automation to capture more savings, or slow down to reduce burn rate.", urgency: "high" },
-      { source: "Board Chair", message: "The shareholders are getting nervous. We need a credible path to profitability improvement.", urgency: "high" },
-      { source: "COO", message: "The team is finally getting the hang of the new systems. Momentum is building.", urgency: "medium" },
+      { source: "Community College Dean", message: "We need your final commitment by month-end. Other manufacturers are interested if you pass.", urgency: "critical" },
+      { source: "CFO", message: "$800K is significant. If tariffs drop and reshoring reverses, we're stuck with training costs and employment guarantees.", urgency: "high" },
+      { source: "Board Member", message: "MicroPrecision is moving to Mexico. Their labor costs will be 40% lower. How do we compete?", urgency: "high" },
+      { source: "HR Director", message: "This pipeline would solve our talent crisis permanently. No more competing for the same 50 qualified workers in Iowa.", urgency: "high" },
     ],
-    contextArticles: briefingArticles.filter(a => a.category === "finance" || a.category === "ai"),
-    keyQuestion: "How will you manage the financial pressure while maintaining transformation momentum?",
+    contextArticles: briefingArticles.filter(a => a.category === "workforce" || a.category === "trade"),
+    keyQuestion: "Will you invest in building the workforce of tomorrow, or pursue cost-reduction alternatives?",
   },
   {
     weekNumber: 7,
     title: "The Competitive Response",
-    narrative: `Your largest competitor, PrecisionParts, has announced a major customer win - a contract you were favored to get. Their pitch emphasized 'automation-enabled quality' and 'flexible workforce capabilities.' The customer specifically cited concerns about labor instability at Apex.
+    narrative: `Breaking news: MicroPrecision's Mexico facility has failed its FDA audit. Their medical device customers are scrambling for alternatives, and your phone is ringing off the hook. This is the reshoring opportunity you've been preparing for - but can you deliver?
 
-The market is taking notice. Industry analysts have downgraded Apex's outlook, citing 'execution risk' and 'unclear cultural health.' Your sales pipeline has softened 15% as prospects adopt a wait-and-see approach.
+Simultaneously, TechMold Partners' acquisition has backfired. They inherited labor disputes and equipment problems, and they're now shedding the skilled workers they acquired. These workers - experienced micro-molding technicians - are suddenly available.
 
-However, there's opportunity in crisis. A smaller competitor, FastParts, is struggling with their own automation initiative and has laid off 25% of their workforce. Their customers are looking for alternatives, and their displaced workers - many of them skilled - are available for hire.`,
+Your sales team is pressing for aggressive commitments. Your operations team is warning about capacity limits. Your HR team sees a once-in-a-career hiring opportunity. The decisions you make this week could define Apex's position for the next decade.`,
     pressures: [
-      { source: "Sales VP", message: "We're losing deals because of our reputation. We need a bold move to show we've figured this out.", urgency: "critical" },
-      { source: "Industry Analyst", message: "The market sees Apex as behind the curve. You need proof points of successful transformation.", urgency: "high" },
-      { source: "Recruiting", message: "FastParts laid off excellent talent. We could hire 20 skilled workers at below-market rates.", urgency: "medium" },
-      { source: "Customer", message: "We want to work with Apex, but we need assurance your operations are stable.", urgency: "high" },
+      { source: "Sales VP", message: "MicroPrecision's customers are calling us. We could add $25M in revenue - but we need to commit capacity now.", urgency: "critical" },
+      { source: "Operations Manager", message: "We're at 87% capacity. Any major new contracts will require overtime, hiring, or automation acceleration.", urgency: "high" },
+      { source: "HR Director", message: "TechMold laid off 35 skilled technicians. We could hire them at market rate - no premium needed. But we have to move fast.", urgency: "critical" },
+      { source: "CFO", message: "This is the moment we invested for. But overcommitting could break us. We need disciplined growth.", urgency: "high" },
     ],
-    contextArticles: briefingArticles.slice(0, 3),
-    keyQuestion: "How will you respond to competitive pressure and rebuild market confidence?",
+    contextArticles: briefingArticles.slice(0, 4),
+    keyQuestion: "How will you capitalize on competitors' failures without overextending?",
   },
   {
     weekNumber: 8,
     title: "The New Equilibrium",
-    narrative: `Eight weeks have passed since you began this transformation. The dust is settling, and the organization is finding a new equilibrium. Some choices worked brilliantly; others have created lasting challenges. It's time to consolidate gains and set direction for the next phase.
+    narrative: `Eight weeks have passed since the tariff announcement that triggered this transformation. The dust is settling, and Apex is finding a new equilibrium. Some choices worked brilliantly; others have created lasting challenges.
 
-Your workforce has changed fundamentally. The skills mix is different, the organizational structure has evolved, and the relationship between management and workers has been redefined. The question now is sustainability - can you maintain momentum without burning out the organization?
+The reshoring wave is real - your medical and aerospace customers are committed to domestic sourcing for the foreseeable future. But the labor shortage hasn't eased, and the workers you've invested in are now being recruited by competitors who didn't make the same investments.
 
-The board wants a 3-year strategic plan incorporating lessons learned. The bank wants a refinancing proposal. Your employees want clarity about their futures. And the market wants proof that Apex can compete.`,
+The board wants a 3-year strategic plan. Should you double down on the precision micro-molding niche, or diversify into adjacent markets? Should you expand the Iowa facility or open a second location? The foundation you've built could support many futures.`,
     pressures: [
       { source: "Board of Directors", message: "Present your 3-year strategic plan. We need to see how this quarter's actions become sustainable advantage.", urgency: "high" },
-      { source: "Bank", message: "Based on your progress, we're prepared to discuss refinancing options.", urgency: "medium" },
-      { source: "Employee Council", message: "We've come through a lot together. What's the vision for the next three years?", urgency: "high" },
-      { source: "Major Customer", message: "We're ready to expand our relationship if you can demonstrate sustained capability.", urgency: "high" },
+      { source: "Master Moldmaker", message: "Three of my best technicians got offers from competitors. They're staying for now, but we need to show them a future here.", urgency: "high" },
+      { source: "Major Customer", message: "We're ready to expand our relationship significantly - if you can demonstrate sustained quality and capacity.", urgency: "high" },
+      { source: "Community College Dean", message: "Our first cohort graduates in 6 months. The program is a success - other manufacturers want to replicate it.", urgency: "medium" },
     ],
     contextArticles: briefingArticles,
-    keyQuestion: "What legacy will you leave, and what foundation will you build for the future?",
+    keyQuestion: "What legacy will you leave, and what foundation will you build for the next decade?",
   },
 ];
 
@@ -919,21 +947,21 @@ const enhancedDecisions: EnhancedDecision[] = [
 ];
 
 const easterEggs: EasterEgg[] = [
-  { id: "ee1", keyword: "72%", sourceReport: "Gen Z refusing management roles", pointValue: 2 },
-  { id: "ee2", keyword: "10,000", sourceReport: "Reskilling investment per employee", pointValue: 2 },
-  { id: "ee3", keyword: "12%", sourceReport: "Turnover reduction from reskilling", pointValue: 2 },
-  { id: "ee4", keyword: "AutoTech", sourceReport: "AutoTech Industries case study", pointValue: 3 },
-  { id: "ee5", keyword: "30%", sourceReport: "AutoTech workforce reduction", pointValue: 2 },
-  { id: "ee6", keyword: "18 months", sourceReport: "AutoTech timeline", pointValue: 1 },
-  { id: "ee7", keyword: "TechnoForge", sourceReport: "TechnoForge reskilling success", pointValue: 3 },
-  { id: "ee8", keyword: "25%", sourceReport: "TechnoForge reskilling budget allocation", pointValue: 2 },
-  { id: "ee9", keyword: "7.2", sourceReport: "Average employee tenure", pointValue: 1 },
-  { id: "ee10", keyword: "40%", sourceReport: "Manufacturing union organizing increase", pointValue: 2 },
-  { id: "ee11", keyword: "85%", sourceReport: "Conservative timeline success rate", pointValue: 2 },
-  { id: "ee12", keyword: "35%", sourceReport: "Early communication anxiety reduction", pointValue: 2 },
-  { id: "ee13", keyword: "80%", sourceReport: "Internal redeployment with job guarantee", pointValue: 2 },
+  { id: "ee1", keyword: "415,000", sourceReport: "Unfilled manufacturing jobs statistic", pointValue: 3 },
+  { id: "ee2", keyword: "2.1 million", sourceReport: "Projected labor shortage by 2030", pointValue: 2 },
+  { id: "ee3", keyword: "72%", sourceReport: "Gen Z management refusal rate", pointValue: 3 },
+  { id: "ee4", keyword: "MicroPrecision", sourceReport: "Competitor Mexico FDA failure case", pointValue: 3 },
+  { id: "ee5", keyword: "PrecisionFirst", sourceReport: "Workforce investment success story", pointValue: 3 },
+  { id: "ee6", keyword: "reshoring", sourceReport: "Tariff-driven manufacturing trend", pointValue: 2 },
+  { id: "ee7", keyword: "community college", sourceReport: "Workforce pipeline solution", pointValue: 3 },
+  { id: "ee8", keyword: "25%", sourceReport: "Steel/aluminum tariff rate", pointValue: 2 },
+  { id: "ee9", keyword: "$102,000", sourceReport: "Average manufacturing compensation", pointValue: 2 },
+  { id: "ee10", keyword: "26%", sourceReport: "Workforce approaching retirement", pointValue: 2 },
+  { id: "ee11", keyword: "Master Technician", sourceReport: "Alternative career track solution", pointValue: 3 },
+  { id: "ee12", keyword: "Iowa", sourceReport: "Labor shortage geographic hotspot", pointValue: 1 },
+  { id: "ee13", keyword: "FDA", sourceReport: "Medical device compliance requirement", pointValue: 2 },
   { id: "ee14", keyword: "dual career", sourceReport: "Dual career track solution", pointValue: 3 },
-  { id: "ee15", keyword: "15-20%", sourceReport: "Union labor cost increase", pointValue: 2 },
+  { id: "ee15", keyword: "50%", sourceReport: "Copper tariff rate", pointValue: 2 },
 ];
 
 const defaultSimulationConfig: SimulationConfig = {
@@ -983,30 +1011,32 @@ A critical finding: companies that took on significant debt to finance automatio
     sourceCode: "APX",
     category: "company",
     summary: "Internal analysis of Apex Manufacturing's current position, capabilities, and strategic challenges.",
-    content: `Apex Manufacturing Inc. is a mid-sized automotive parts supplier with 2,400 employees across operations, sales, customer service, R&D, and corporate functions. Founded in 1985, the company has built a reputation for quality but faces increasing pressure from competitors embracing automation.
+    content: `Apex Manufacturing Inc. is a precision micro-component manufacturer headquartered in Central Iowa. Founded in 1985, the company specializes in high-tolerance injection-molded plastic and polymer components for medical devices, electronics, and aerospace applications. With 2,400 employees and tolerances measured in microns, Apex has built a reputation as a trusted supplier where failure is not an option.
 
-Current financial position: $125M annual revenue with healthy 18% operating margins. However, growth has stagnated at 3% annually over the past 5 years while competitors average 8%. The company has $15M in available cash and access to a $15M credit line at 6.5% interest.
+Current financial position: $125M annual revenue with 18% operating margins. Growth has stagnated at 3% annually as larger competitors with automation capabilities capture market share. The company has $15M in available cash and access to a $15M credit line at 6.5% interest from First Midwest Bank.
 
-The workforce has 7.2 year average tenure, which is both an asset and challenge. Employee surveys indicate high pride in craftsmanship but growing anxiety about technological change. 42% of employees report concern about AI-related job displacement.
+The workforce challenge is acute. Iowa faces one of the nation's worst manufacturing labor shortages, with 26% of Apex's skilled moldmakers approaching retirement. Average employee tenure of 7.2 years reflects deep institutional knowledge - but also resistance to change. The precision skills required take 5-8 years to develop, and the labor market offers only 3 qualified candidates for every 15 positions posted.
 
-Notably, 28% of the workforce is Gen Z (born 1997-2012), and internal surveys show 72% of this group has no interest in management roles. The company has 8 unfilled manager positions and 5 managers retiring within 3 years.
+The 28% Gen Z portion of the workforce shows no interest in management roles (72% refuse supervisory positions). This creates a leadership pipeline crisis: 8 unfilled supervisor positions and 5 master moldmakers retiring within 3 years.
 
-Union activity: While not currently unionized, informal organizing discussions have been observed in the Operations department, particularly among workers with high AI exposure risk.`,
+Market opportunity: New tariffs on Chinese precision components are driving a reshoring wave. Medical device and aerospace customers are actively seeking domestic suppliers. However, capacity constraints and labor shortages limit Apex's ability to capture this demand without significant investment.
+
+Union activity: The UAW has announced organizing campaigns targeting Midwest precision manufacturers. While Apex is not currently unionized, informal discussions have been observed among production workers concerned about automation and job security.`,
     keyFindings: [
-      "2,400 employees with 7.2 year average tenure - stability but change resistance",
-      "Revenue growth stagnated at 3% vs. 8% industry average",
-      "42% of employees concerned about AI job displacement",
-      "28% Gen Z workforce, 72% of whom refuse management roles",
-      "8 unfilled manager positions, 5 managers retiring in 3 years"
+      "Precision micro-molding specialist serving medical, electronics, aerospace",
+      "Iowa labor shortage: 3 qualified applicants per 15 positions posted",
+      "26% of skilled workforce approaching retirement",
+      "Tariff-driven reshoring creates demand surge - but capacity is constrained",
+      "72% of Gen Z workers refuse management roles - leadership pipeline crisis"
     ],
     dataPoints: [
       { label: "Annual Revenue", value: "$125M", trend: "stable" },
       { label: "Employee Count", value: "2,400", trend: "stable" },
       { label: "Avg Tenure", value: "7.2 yrs", trend: "stable" },
-      { label: "Gen Z Workforce", value: "28%", trend: "up" }
+      { label: "Tolerance Capability", value: "±0.001\"", trend: "stable" }
     ],
     publishedDate: "January 2026",
-    readingTime: 6
+    readingTime: 7
   },
   {
     id: "report-3",
@@ -1074,73 +1104,75 @@ ROI TIMELINES: Typical automation investments break even in 18-24 months. Aggres
   },
   {
     id: "report-5",
-    title: "Competitive Analysis: Auto Parts Sector",
+    title: "Competitive Analysis: Precision Manufacturing Sector",
     sourceCode: "CMP",
     category: "competition",
-    summary: "Strategic assessment of key competitors and their AI transformation initiatives.",
+    summary: "Strategic assessment of key competitors in precision micro-molding and their transformation initiatives.",
     content: `TIER 1 COMPETITORS:
 
-AutoTech Industries: Aggressive automation, taking $20M in debt. Reduced workforce 30% while increasing output 45%. However: union certified, 2 strikes in 18 months, customer satisfaction dropped 15 points, now struggling to hire skilled technicians.
+MicroPrecision Inc.: Aggressive offshoring strategy, moving 30% of production to Mexico to reduce labor costs. Initial savings of 40% on labor. However: FDA audit failures at Mexico facility, quality escapes reaching customers, medical device customers now seeking alternatives. Their loss is Apex's potential gain.
 
-PrecisionParts Co.: Balanced approach, $8M debt. Combined AI deployment with $3M reskilling investment. Maintained workforce size while improving productivity 28%. Employee morale high. Recently won 'Best Employer' award. Won the contract Apex was favored for.
+TechMold Partners: Growth-through-acquisition strategy. Acquired struggling competitor to capture skilled workforce. Result: inherited labor disputes, equipment problems, and cultural conflicts. Now shedding the workers they acquired. Cautionary tale about buying talent vs. building it.
 
 TIER 2 COMPETITORS:
 
-FastParts: Attempted rapid automation without workforce investment. Quality issues led to customer defections. Currently laying off 25% of workforce. May be acquisition target.
+PrecisionFirst: Balanced approach combining automation with workforce investment. Created community college partnership producing 30 technicians annually. Maintained quality while growing 15% per year. Recently won 'Best Employer' in precision manufacturing. The model to emulate.
 
-CraftWorks: Avoided automation entirely, betting on 'craftsmanship' positioning. Losing market share rapidly as price pressure intensifies. Likely to fail within 2 years.
+CraftMold: Avoided all modernization, betting on 'heritage craftsmanship' positioning. Unable to meet medical/aerospace quality documentation requirements. Losing customers to competitors with AI-powered inspection. Likely to fail within 18 months.
 
-STRATEGIC IMPLICATIONS:
+MARKET DYNAMICS:
 
-The competitive landscape rewards balanced approaches. Pure cost-cutting through automation creates short-term gains but long-term vulnerabilities (talent, reputation, quality). Companies maintaining cultural health while modernizing outperform on 5-year returns.
+The reshoring wave is real: 30% of medical device precision components are moving to domestic suppliers. Tariffs on Chinese components (20%) and raw materials (25% steel/aluminum, 50% copper) are reshaping competitive economics.
 
-Bank debt accelerates transformation but amplifies both success and failure. Companies that failed with high debt often cited 'rushing to meet covenant requirements' as a key mistake.`,
+Winners: US-based manufacturers with capacity, quality systems, and workforce. Losers: Offshore producers facing tariffs, and domestic manufacturers who can't staff expansion.
+
+The 415,000 unfilled manufacturing jobs create a structural constraint. Companies investing in workforce development now will capture disproportionate share of reshoring demand.`,
     keyFindings: [
-      "AutoTech: aggressive automation led to union, strikes, reputation damage",
-      "PrecisionParts: balanced approach winning contracts and talent",
-      "FastParts: failed automation, now laying off 25% - acquisition target",
-      "Debt amplifies both success and failure trajectories",
-      "5-year returns favor balanced cultural + technical approach"
+      "MicroPrecision: Mexico offshoring failed FDA audit - customers seeking alternatives",
+      "TechMold: acquisition strategy backfired - inherited problems, shedding workers",
+      "PrecisionFirst: workforce investment + community college model succeeding",
+      "30% of medical precision components reshoring to domestic suppliers",
+      "Labor shortage (415K unfilled jobs) constrains industry capacity"
     ],
     dataPoints: [
-      { label: "AutoTech Workforce Change", value: "-30%", trend: "down" },
-      { label: "PrecisionParts Productivity", value: "+28%", trend: "up" },
-      { label: "FastParts Status", value: "Failing", trend: "down" }
+      { label: "Reshoring Wave", value: "30%", trend: "up" },
+      { label: "Steel Tariff", value: "25%", trend: "up" },
+      { label: "Unfilled Mfg Jobs", value: "415,000", trend: "up" }
     ],
     publishedDate: "January 2026",
-    readingTime: 6
+    readingTime: 7
   },
   {
     id: "report-6",
-    title: "Case Study: TechnoForge Transformation",
+    title: "Case Study: PrecisionFirst Workforce Transformation",
     sourceCode: "TFG",
     category: "case_study",
-    summary: "Detailed examination of a successful AI transformation in the auto parts industry.",
-    content: `TechnoForge, a 1,200-person automotive supplier, began their AI transformation in 2022. Their journey offers valuable lessons about balancing automation, debt, and workforce development.
+    summary: "Detailed examination of a successful workforce development strategy in precision manufacturing.",
+    content: `PrecisionFirst, a 1,200-person precision component manufacturer in Wisconsin, faced the same challenges as Apex: labor shortage, aging workforce, and reshoring opportunity. Their 24-month transformation offers valuable lessons.
 
-PHASE 1 (Months 1-6): Started with $5M debt financing for Operations automation. Critical decision: allocated 25% of budget ($1.25M) to reskilling upfront. CEO held weekly town halls. Union organizing was defused by announcing job guarantee for any worker completing reskilling.
+PHASE 1 (Months 1-6): Rather than chase the same 50 qualified workers everyone else was recruiting, they partnered with a local community college. Investment: $600K for a precision manufacturing program. Critical decision: guaranteed employment at $55K starting salary for all graduates.
 
-PHASE 2 (Months 7-12): Expanded automation while simultaneously creating technical career tracks. 40% of Gen Z workers who refused management roles became 'Automation Specialists' - highly paid individual contributors.
+PHASE 2 (Months 7-12): Created 'Master Technician' career track parallel to management. Senior moldmakers became mentors with 15% pay premium. Gen Z workers who refused management roles found a growth path. Retention improved 40%.
 
-PHASE 3 (Months 13-18): Customer Service automation with guaranteed redeployment. 85% of affected employees moved to new roles. Remaining 15% received enhanced severance (4 weeks per year) and outplacement.
+PHASE 3 (Months 13-18): Deployed AI-powered quality inspection, but positioned it as 'assistant to inspectors' not 'replacement.' Inspectors became 'Quality Engineers' overseeing multiple AI stations. Zero layoffs. Defect rates dropped 60%.
 
-PHASE 4 (Months 19-24): Addressed management pipeline through AI-augmented supervision. Managers using AI tools handled 40% larger teams with same satisfaction scores. Pilot of self-managing teams in R&D showed promise.
+PHASE 4 (Months 19-24): First cohort of community college graduates joined. Mentored by Master Technicians, they reached productivity within 6 months instead of typical 18. Pipeline now produces 30 qualified technicians annually.
 
-RESULTS: 35% productivity increase, 22% revenue growth, employee morale up 8 points from baseline. Debt fully repaid by month 30. Named 'Best Place to Work' in their region.
+RESULTS: 15% annual revenue growth. Quality escapes reduced 60%. Named 'Best Employer' in precision manufacturing. Zero union organizing activity. Competitors now attempting to poach their workers - but retention remains above 90%.
 
-KEY INSIGHT: The CEO later said, 'Our competitors saw automation as a way to cut workers. We saw it as a way to upgrade workers. That mindset made all the difference.'`,
+KEY INSIGHT: CEO said, 'Everyone was fighting over the same tiny pool of experienced workers. We decided to grow the pool instead. It took longer, but now we have a sustainable advantage no competitor can match.'`,
     keyFindings: [
-      "25% of automation budget allocated to reskilling upfront",
-      "Job guarantee defused union organizing threat",
-      "Technical career tracks solved Gen Z management resistance",
-      "AI-augmented management allowed 40% larger team spans",
-      "Final results: +35% productivity, +22% revenue, +8 morale points"
+      "Community college partnership: $600K investment, 30 graduates/year",
+      "Master Technician track solved Gen Z management resistance",
+      "AI inspection positioned as 'assistant' not 'replacement' - zero layoffs",
+      "New graduates productive in 6 months with mentorship (vs. 18 months)",
+      "Results: 15% growth, 60% fewer defects, 90%+ retention"
     ],
     dataPoints: [
-      { label: "Productivity Gain", value: "+35%", trend: "up" },
-      { label: "Revenue Growth", value: "+22%", trend: "up" },
-      { label: "Morale Change", value: "+8 pts", trend: "up" },
-      { label: "Internal Redeployment", value: "85%", trend: "up" }
+      { label: "Revenue Growth", value: "+15%/yr", trend: "up" },
+      { label: "Quality Improvement", value: "-60% defects", trend: "up" },
+      { label: "Retention Rate", value: "90%+", trend: "up" },
+      { label: "Pipeline Output", value: "30/year", trend: "up" }
     ],
     publishedDate: "October 2025",
     readingTime: 10
