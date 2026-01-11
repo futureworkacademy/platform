@@ -92,7 +92,7 @@ export const briefingArticleSchema = z.object({
   content: z.string(),
   source: z.string(),
   insights: z.array(z.string()),
-  category: z.enum(["ai", "trade", "workforce", "technology", "policy", "labor", "finance"]),
+  category: z.enum(["ai", "trade", "workforce", "technology", "policy", "labor", "finance", "logistics", "regulatory"]),
 });
 
 export type BriefingArticle = z.infer<typeof briefingArticleSchema>;
@@ -477,6 +477,26 @@ export const simulationConfigSchema = z.object({
 });
 
 export type SimulationConfig = z.infer<typeof simulationConfigSchema>;
+
+// Platform-wide settings (stored in database, configurable by Super Admin)
+export const platformSettingsSchema = z.object({
+  id: z.string().default("default"),
+  requireEduEmail: z.boolean().default(true),
+  requireTeamCode: z.boolean().default(true),
+  competitionMode: z.enum(["individual", "team"]).default("individual"),
+  totalWeeks: z.number().min(4).max(12).default(8),
+  scoringWeightFinancial: z.number().min(0).max(100).default(50),
+  scoringWeightCultural: z.number().min(0).max(100).default(50),
+  easterEggBonusEnabled: z.boolean().default(true),
+  easterEggBonusPercentage: z.number().min(0).max(20).default(5),
+  updatedAt: z.string(),
+  updatedBy: z.string().optional(),
+});
+
+export type PlatformSettings = z.infer<typeof platformSettingsSchema>;
+
+export const insertPlatformSettingsSchema = platformSettingsSchema.omit({ updatedAt: true });
+export type InsertPlatformSettings = z.infer<typeof insertPlatformSettingsSchema>;
 
 // Easter egg keywords that should be detected in rationales
 export const easterEggSchema = z.object({

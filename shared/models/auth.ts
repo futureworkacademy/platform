@@ -165,3 +165,21 @@ export const educatorInquiries = pgTable("educator_inquiries", {
 
 export type EducatorInquiry = typeof educatorInquiries.$inferSelect;
 export type InsertEducatorInquiry = typeof educatorInquiries.$inferInsert;
+
+// Platform settings - global configuration managed by Super Admin
+export const platformSettings = pgTable("platform_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  requireEduEmail: boolean("require_edu_email").notNull().default(true),
+  requireTeamCode: boolean("require_team_code").notNull().default(true),
+  competitionMode: varchar("competition_mode").notNull().default("individual"), // individual, team
+  totalWeeks: integer("total_weeks").notNull().default(8),
+  scoringWeightFinancial: integer("scoring_weight_financial").notNull().default(50),
+  scoringWeightCultural: integer("scoring_weight_cultural").notNull().default(50),
+  easterEggBonusEnabled: boolean("easter_egg_bonus_enabled").notNull().default(true),
+  easterEggBonusPercentage: integer("easter_egg_bonus_percentage").notNull().default(5),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by"),
+});
+
+export type PlatformSettingsDb = typeof platformSettings.$inferSelect;
+export type InsertPlatformSettingsDb = typeof platformSettings.$inferInsert;

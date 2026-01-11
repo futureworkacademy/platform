@@ -492,6 +492,45 @@ export async function registerRoutes(
     }
   });
 
+  // Platform Settings - GET (any authenticated user can read)
+  app.get("/api/platform-settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const settings = await storage.getPlatformSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch platform settings" });
+    }
+  });
+
+  // Platform Settings - PUT (Super Admin only)
+  app.put("/api/admin/platform-settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (user?.isAdmin !== "true") {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+      
+      const updatedSettings = await storage.updatePlatformSettings(req.body, userId);
+      
+      // Log the activity
+      await storage.logActivity({
+        eventType: "admin_action",
+        userId: userId,
+        userEmail: user?.email || undefined,
+        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined : undefined,
+        details: { 
+          action: "platform_settings_updated",
+          changes: req.body,
+        },
+      });
+      
+      res.json(updatedSettings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update platform settings" });
+    }
+  });
+
   app.get("/api/admin/analytics", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -894,65 +933,111 @@ export async function registerRoutes(
         return res.status(404).json({ error: "User not found" });
       }
 
-      const { teamCode, code, phoneNumber, smsConsent } = req.body;
+      // Get platform settings to check enrollment requirements
+      const platformSettings = await storage.getPlatformSettings();
+
+      const { teamCode, code, organizationId, phoneNumber, smsConsent } = req.body;
       const teamCodeValue = teamCode || code; // Support both field names
       
-      if (!teamCodeValue) {
-        return res.status(400).json({ error: "Team code is required" });
-      }
-
-      // SECURITY: Only allow joining if user has a verified .edu email in their profile
-      // We do NOT accept schoolEmail from request body to prevent bypassing verification
-      if (user.schoolEmailVerified !== "true") {
-        return res.status(400).json({ error: "Please verify your .edu email before joining an organization." });
-      }
+      // Determine the best email to use for notifications
+      const userEmail = user.schoolEmail || user.email || "";
       
-      const userSchoolEmail = user.schoolEmail;
-      if (!userSchoolEmail || !validateEduEmail(userSchoolEmail)) {
-        return res.status(400).json({ error: "A verified .edu email is required. Please verify your email first." });
+      // Check .edu email requirement based on platform settings
+      if (platformSettings.requireEduEmail) {
+        // SECURITY: Only allow joining if user has a verified .edu email in their profile
+        // We do NOT accept schoolEmail from request body to prevent bypassing verification
+        if (user.schoolEmailVerified !== "true") {
+          return res.status(400).json({ error: "Please verify your .edu email before joining an organization." });
+        }
+        
+        if (!user.schoolEmail || !validateEduEmail(user.schoolEmail)) {
+          return res.status(400).json({ error: "A verified .edu email is required. Please verify your email first." });
+        }
       }
 
-      // Validate the team code
-      const result = await organizationStorage.validateInviteCode(teamCodeValue.toUpperCase());
-      if (!result.valid || !result.invite || !result.organization) {
-        return res.status(400).json({ error: result.error || "Invalid team code" });
+      let targetOrgId: string;
+      let targetOrgName: string;
+      let inviteId: string | null = null;
+
+      // Handle organization lookup based on whether team code is required
+      if (platformSettings.requireTeamCode) {
+        // Team code is required - validate and use it to determine organization
+        if (!teamCodeValue) {
+          return res.status(400).json({ error: "Team code is required" });
+        }
+        
+        const result = await organizationStorage.validateInviteCode(teamCodeValue.toUpperCase());
+        if (!result.valid || !result.invite || !result.organization) {
+          return res.status(400).json({ error: result.error || "Invalid team code" });
+        }
+        
+        targetOrgId = result.organization.id;
+        targetOrgName = result.organization.name;
+        inviteId = result.invite.id;
+      } else {
+        // Team code is optional
+        if (teamCodeValue) {
+          // Code provided - validate it
+          const result = await organizationStorage.validateInviteCode(teamCodeValue.toUpperCase());
+          if (!result.valid || !result.invite || !result.organization) {
+            return res.status(400).json({ error: result.error || "Invalid team code" });
+          }
+          
+          targetOrgId = result.organization.id;
+          targetOrgName = result.organization.name;
+          inviteId = result.invite.id;
+        } else if (organizationId) {
+          // No code but organization ID provided (for open enrollment)
+          const org = await organizationStorage.getOrganization(organizationId);
+          if (!org) {
+            return res.status(400).json({ error: "Organization not found" });
+          }
+          
+          targetOrgId = org.id;
+          targetOrgName = org.name;
+        } else {
+          // No code and no organization - cannot proceed
+          return res.status(400).json({ error: "Please provide a team code or select an organization to join" });
+        }
       }
 
       // Check if already a member
-      const existingMember = await organizationStorage.getMember(userId, result.organization.id);
+      const existingMember = await organizationStorage.getMember(userId, targetOrgId);
       if (existingMember) {
         return res.status(400).json({ error: "You are already a member of this organization" });
       }
 
-      // Add user as active student member (auto-approved with valid code)
+      // Add user as active student member (auto-approved with valid code or open enrollment)
       await organizationStorage.addMember({
         userId,
-        organizationId: result.organization.id,
+        organizationId: targetOrgId,
         role: ROLES.STUDENT,
-        status: "active", // Auto-approve when they have a valid code and verified email
+        status: "active",
       });
 
-      // Increment invite usage
-      await organizationStorage.incrementInviteUsage(result.invite.id);
+      // Increment invite usage if we used a code
+      if (inviteId) {
+        await organizationStorage.incrementInviteUsage(inviteId);
+      }
 
       // Note: phoneNumber and smsConsent can be stored if we add user phone field later
       // For now, they're logged but not persisted
 
       // Notify admins via in-app notifications
-      await organizationStorage.notifyAdminsOfSignup(result.organization.id, {
+      await organizationStorage.notifyAdminsOfSignup(targetOrgId, {
         firstName: user.firstName || "",
         lastName: user.lastName || "",
-        email: userSchoolEmail || user.email || "",
+        email: userEmail,
       });
 
       // Also try to send SMS notifications to admins
       try {
         const studentName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "New Student";
         await notifyAdminViaSmsForOrg(
-          result.organization.id,
+          targetOrgId,
           studentName,
-          userSchoolEmail || user.email || "",
-          result.organization.name
+          userEmail,
+          targetOrgName
         );
       } catch (smsError) {
         console.log("[SMS] Non-critical SMS notification failed:", smsError);
@@ -961,7 +1046,7 @@ export async function registerRoutes(
       res.json({ 
         success: true, 
         message: "You have joined the organization successfully!",
-        organizationName: result.organization.name 
+        organizationName: targetOrgName 
       });
     } catch (error) {
       console.error("[Join Org] Error:", error);

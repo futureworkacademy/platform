@@ -24,8 +24,12 @@ import type {
   EasterEgg,
   PlayerDecisionSubmission,
   ActivityLog,
+  PlatformSettings,
 } from "@shared/schema";
 import { defaultCompanyState } from "@shared/schema";
+import { db } from "./db";
+import { platformSettings } from "@shared/models/auth";
+import { eq } from "drizzle-orm";
 
 // Activity log storage
 const activityLogs: ActivityLog[] = [];
@@ -70,6 +74,10 @@ export interface IStorage {
   
   // Educator inquiries
   createEducatorInquiry(inquiry: { name: string; email: string; phone?: string | null; institution?: string | null; inquiryType: string; message: string }): Promise<{ id: string }>;
+  
+  // Platform settings (Super Admin)
+  getPlatformSettings(): Promise<PlatformSettings>;
+  updatePlatformSettings(updates: Partial<PlatformSettings>, updatedBy?: string): Promise<PlatformSettings>;
 }
 
 const globalEvents: GlobalEvent[] = [
@@ -1417,22 +1425,56 @@ export class MemStorage implements IStorage {
   async getLeaderboard(): Promise<LeaderboardEntry[]> {
     const { teamStorage } = await import("./team-storage");
     const teams = await teamStorage.getAllTeams();
+    const settings = await this.getPlatformSettings();
     const entries: LeaderboardEntry[] = [];
     
-    for (const team of teams) {
-      const workforceRatio = team.companyState.employees / 2400;
-      const financialScore = (team.companyState.revenue / 125000000) * workforceRatio * 100;
-      const culturalScore = (team.companyState.morale + (100 - team.companyState.unionSentiment) + team.companyState.workforceAdaptability) / 3;
-      
-      entries.push({
-        teamId: team.id,
-        teamName: team.name,
-        rank: 0,
-        financialScore: Math.round(financialScore),
-        culturalScore: Math.round(culturalScore),
-        combinedScore: Math.round((financialScore + culturalScore) / 2),
-        currentWeek: team.currentWeek,
-      });
+    // Get scoring weights from platform settings
+    const financialWeight = settings.scoringWeightFinancial / 100;
+    const culturalWeight = settings.scoringWeightCultural / 100;
+    
+    if (settings.competitionMode === "team") {
+      // Team mode: Average scores across team members
+      // For now, we still use team-level company state since individual player decisions
+      // aren't yet fully implemented. When individual decisions are tracked,
+      // this will average player performances within each team.
+      for (const team of teams) {
+        const workforceRatio = team.companyState.employees / 2400;
+        const financialScore = (team.companyState.revenue / 125000000) * workforceRatio * 100;
+        const culturalScore = (team.companyState.morale + (100 - team.companyState.unionSentiment) + team.companyState.workforceAdaptability) / 3;
+        
+        // Apply weighted scoring
+        const combinedScore = (financialScore * financialWeight) + (culturalScore * culturalWeight);
+        
+        entries.push({
+          teamId: team.id,
+          teamName: team.name,
+          rank: 0,
+          financialScore: Math.round(financialScore),
+          culturalScore: Math.round(culturalScore),
+          combinedScore: Math.round(combinedScore),
+          currentWeek: team.currentWeek,
+        });
+      }
+    } else {
+      // Individual mode: Each team/player scored separately
+      for (const team of teams) {
+        const workforceRatio = team.companyState.employees / 2400;
+        const financialScore = (team.companyState.revenue / 125000000) * workforceRatio * 100;
+        const culturalScore = (team.companyState.morale + (100 - team.companyState.unionSentiment) + team.companyState.workforceAdaptability) / 3;
+        
+        // Apply weighted scoring
+        const combinedScore = (financialScore * financialWeight) + (culturalScore * culturalWeight);
+        
+        entries.push({
+          teamId: team.id,
+          teamName: team.name,
+          rank: 0,
+          financialScore: Math.round(financialScore),
+          culturalScore: Math.round(culturalScore),
+          combinedScore: Math.round(combinedScore),
+          currentWeek: team.currentWeek,
+        });
+      }
     }
 
     entries.sort((a, b) => b.combinedScore - a.combinedScore);
@@ -1757,6 +1799,96 @@ export class MemStorage implements IStorage {
     }).returning({ id: educatorInquiries.id });
     
     return { id: result.id };
+  }
+
+  // Default platform settings (used when no DB row exists)
+  private defaultPlatformSettings: PlatformSettings = {
+    id: "default",
+    requireEduEmail: true,
+    requireTeamCode: true,
+    competitionMode: "individual",
+    totalWeeks: 8,
+    scoringWeightFinancial: 50,
+    scoringWeightCultural: 50,
+    easterEggBonusEnabled: true,
+    easterEggBonusPercentage: 5,
+    updatedAt: new Date().toISOString(),
+    updatedBy: undefined,
+  };
+
+  async getPlatformSettings(): Promise<PlatformSettings> {
+    try {
+      const [settings] = await db.select().from(platformSettings).where(eq(platformSettings.id, "default"));
+      
+      if (settings) {
+        return {
+          id: settings.id,
+          requireEduEmail: settings.requireEduEmail,
+          requireTeamCode: settings.requireTeamCode,
+          competitionMode: settings.competitionMode as "individual" | "team",
+          totalWeeks: settings.totalWeeks,
+          scoringWeightFinancial: settings.scoringWeightFinancial,
+          scoringWeightCultural: settings.scoringWeightCultural,
+          easterEggBonusEnabled: settings.easterEggBonusEnabled,
+          easterEggBonusPercentage: settings.easterEggBonusPercentage,
+          updatedAt: settings.updatedAt?.toISOString() || new Date().toISOString(),
+          updatedBy: settings.updatedBy || undefined,
+        };
+      }
+      
+      // No settings exist yet, return defaults
+      return { ...this.defaultPlatformSettings };
+    } catch (error) {
+      console.error("Error fetching platform settings:", error);
+      return { ...this.defaultPlatformSettings };
+    }
+  }
+
+  async updatePlatformSettings(updates: Partial<PlatformSettings>, updatedBy?: string): Promise<PlatformSettings> {
+    try {
+      // Check if settings row exists
+      const [existing] = await db.select().from(platformSettings).where(eq(platformSettings.id, "default"));
+      
+      const updateData = {
+        ...(updates.requireEduEmail !== undefined && { requireEduEmail: updates.requireEduEmail }),
+        ...(updates.requireTeamCode !== undefined && { requireTeamCode: updates.requireTeamCode }),
+        ...(updates.competitionMode !== undefined && { competitionMode: updates.competitionMode }),
+        ...(updates.totalWeeks !== undefined && { totalWeeks: updates.totalWeeks }),
+        ...(updates.scoringWeightFinancial !== undefined && { scoringWeightFinancial: updates.scoringWeightFinancial }),
+        ...(updates.scoringWeightCultural !== undefined && { scoringWeightCultural: updates.scoringWeightCultural }),
+        ...(updates.easterEggBonusEnabled !== undefined && { easterEggBonusEnabled: updates.easterEggBonusEnabled }),
+        ...(updates.easterEggBonusPercentage !== undefined && { easterEggBonusPercentage: updates.easterEggBonusPercentage }),
+        updatedAt: new Date(),
+        updatedBy: updatedBy || null,
+      };
+
+      if (existing) {
+        // Update existing row
+        await db.update(platformSettings)
+          .set(updateData)
+          .where(eq(platformSettings.id, "default"));
+      } else {
+        // Insert new row with defaults + updates
+        await db.insert(platformSettings).values({
+          id: "default",
+          requireEduEmail: updates.requireEduEmail ?? true,
+          requireTeamCode: updates.requireTeamCode ?? true,
+          competitionMode: updates.competitionMode ?? "individual",
+          totalWeeks: updates.totalWeeks ?? 8,
+          scoringWeightFinancial: updates.scoringWeightFinancial ?? 50,
+          scoringWeightCultural: updates.scoringWeightCultural ?? 50,
+          easterEggBonusEnabled: updates.easterEggBonusEnabled ?? true,
+          easterEggBonusPercentage: updates.easterEggBonusPercentage ?? 5,
+          updatedAt: new Date(),
+          updatedBy: updatedBy || null,
+        });
+      }
+      
+      return this.getPlatformSettings();
+    } catch (error) {
+      console.error("Error updating platform settings:", error);
+      throw error;
+    }
   }
 }
 

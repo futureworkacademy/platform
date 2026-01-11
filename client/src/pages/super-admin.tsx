@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,9 @@ import {
   Settings,
   RefreshCw,
   Pencil,
-  MessageSquare
+  MessageSquare,
+  Save,
+  Loader2
 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +36,14 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Organization {
   id: string;
@@ -68,6 +78,20 @@ interface RoleInfo {
   isClassAdmin: boolean;
   membershipCount: number;
   memberships: OrganizationMember[];
+}
+
+interface PlatformSettings {
+  id: string;
+  requireEduEmail: boolean;
+  requireTeamCode: boolean;
+  competitionMode: "individual" | "team";
+  totalWeeks: number;
+  scoringWeightFinancial: number;
+  scoringWeightCultural: number;
+  easterEggBonusEnabled: boolean;
+  easterEggBonusPercentage: number;
+  updatedAt: string;
+  updatedBy?: string;
 }
 
 interface UserData {
@@ -109,6 +133,51 @@ export default function SuperAdminPage() {
     queryKey: ["/api/admin/users"],
     enabled: roleInfo?.isSuperAdmin === true,
   });
+
+  // Platform Settings
+  const { data: platformSettings, isLoading: settingsLoading } = useQuery<PlatformSettings>({
+    queryKey: ["/api/platform-settings"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  const [localSettings, setLocalSettings] = useState<Partial<PlatformSettings>>({});
+  const [settingsChanged, setSettingsChanged] = useState(false);
+
+  // Sync local settings when platform settings load
+  const currentSettings = {
+    requireEduEmail: localSettings.requireEduEmail ?? platformSettings?.requireEduEmail ?? true,
+    requireTeamCode: localSettings.requireTeamCode ?? platformSettings?.requireTeamCode ?? true,
+    competitionMode: localSettings.competitionMode ?? platformSettings?.competitionMode ?? "individual",
+    totalWeeks: localSettings.totalWeeks ?? platformSettings?.totalWeeks ?? 8,
+    scoringWeightFinancial: localSettings.scoringWeightFinancial ?? platformSettings?.scoringWeightFinancial ?? 50,
+    scoringWeightCultural: localSettings.scoringWeightCultural ?? platformSettings?.scoringWeightCultural ?? 50,
+    easterEggBonusEnabled: localSettings.easterEggBonusEnabled ?? platformSettings?.easterEggBonusEnabled ?? true,
+    easterEggBonusPercentage: localSettings.easterEggBonusPercentage ?? platformSettings?.easterEggBonusPercentage ?? 5,
+  };
+
+  const updateLocalSetting = <K extends keyof PlatformSettings>(key: K, value: PlatformSettings[K]) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+    setSettingsChanged(true);
+  };
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (settings: Partial<PlatformSettings>) => {
+      return apiRequest("PUT", "/api/admin/platform-settings", settings);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/platform-settings"] });
+      setLocalSettings({});
+      setSettingsChanged(false);
+      toast({ title: "Settings saved successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error saving settings", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleSaveSettings = () => {
+    updateSettingsMutation.mutate(currentSettings);
+  };
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: { name: string; description: string; maxMembers: number; notifyPhone?: string }) => {
@@ -648,37 +717,182 @@ export default function SuperAdminPage() {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Platform Settings</CardTitle>
-                <CardDescription>Global configuration for the simulation platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Require .edu Email</p>
-                      <p className="text-sm text-muted-foreground">Only allow students with verified .edu emails</p>
+            {settingsLoading ? (
+              <Card>
+                <CardContent className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Enrollment Settings</CardTitle>
+                    <CardDescription>Control how students can join the platform</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between" data-testid="setting-require-edu-email">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Require .edu Email</Label>
+                        <p className="text-sm text-muted-foreground">Only allow students with verified .edu emails</p>
+                      </div>
+                      <Switch
+                        checked={currentSettings.requireEduEmail}
+                        onCheckedChange={(checked) => updateLocalSetting("requireEduEmail", checked)}
+                        data-testid="switch-require-edu-email"
+                      />
                     </div>
-                    <Badge variant="default">Enabled</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Team Code Required</p>
-                      <p className="text-sm text-muted-foreground">Students must have a valid team code to join</p>
+                    <div className="flex items-center justify-between" data-testid="setting-require-team-code">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Team Code Required</Label>
+                        <p className="text-sm text-muted-foreground">Students must have a valid team code to join</p>
+                      </div>
+                      <Switch
+                        checked={currentSettings.requireTeamCode}
+                        onCheckedChange={(checked) => updateLocalSetting("requireTeamCode", checked)}
+                        data-testid="switch-require-team-code"
+                      />
                     </div>
-                    <Badge variant="default">Enabled</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Competition Mode</p>
-                      <p className="text-sm text-muted-foreground">Current simulation competition setting</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Competition Settings</CardTitle>
+                    <CardDescription>Configure how teams compete and are scored</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-3" data-testid="setting-competition-mode">
+                      <Label className="text-base">Competition Mode</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Individual: Students scored separately. Team: Team score is average of member scores.
+                      </p>
+                      <Select
+                        value={currentSettings.competitionMode}
+                        onValueChange={(value: "individual" | "team") => updateLocalSetting("competitionMode", value)}
+                      >
+                        <SelectTrigger className="w-[200px]" data-testid="select-competition-mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="individual">Individual</SelectItem>
+                          <SelectItem value="team">Team-based</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Badge variant="secondary">Team-based</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                    <div className="space-y-3" data-testid="setting-total-weeks">
+                      <Label className="text-base">Simulation Duration</Label>
+                      <p className="text-sm text-muted-foreground">Number of weeks in the simulation: {currentSettings.totalWeeks}</p>
+                      <Slider
+                        value={[currentSettings.totalWeeks]}
+                        onValueChange={([value]) => updateLocalSetting("totalWeeks", value)}
+                        min={4}
+                        max={12}
+                        step={1}
+                        className="w-full max-w-md"
+                        data-testid="slider-total-weeks"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground max-w-md">
+                        <span>4 weeks</span>
+                        <span>12 weeks</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3" data-testid="setting-scoring-weights">
+                      <Label className="text-base">Scoring Weights</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Financial: {currentSettings.scoringWeightFinancial}% | Cultural: {currentSettings.scoringWeightCultural}%
+                      </p>
+                      <Slider
+                        value={[currentSettings.scoringWeightFinancial]}
+                        onValueChange={([value]) => {
+                          updateLocalSetting("scoringWeightFinancial", value);
+                          updateLocalSetting("scoringWeightCultural", 100 - value);
+                        }}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="w-full max-w-md"
+                        data-testid="slider-scoring-weights"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground max-w-md">
+                        <span>100% Cultural</span>
+                        <span>Balanced</span>
+                        <span>100% Financial</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Easter Egg Bonus</CardTitle>
+                    <CardDescription>Reward students who reference research in their decisions</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between" data-testid="setting-easter-egg-enabled">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Enable Easter Egg Bonus</Label>
+                        <p className="text-sm text-muted-foreground">Award bonus points for citing research materials</p>
+                      </div>
+                      <Switch
+                        checked={currentSettings.easterEggBonusEnabled}
+                        onCheckedChange={(checked) => updateLocalSetting("easterEggBonusEnabled", checked)}
+                        data-testid="switch-easter-egg-enabled"
+                      />
+                    </div>
+
+                    {currentSettings.easterEggBonusEnabled && (
+                      <div className="space-y-3" data-testid="setting-easter-egg-percentage">
+                        <Label className="text-base">Bonus Percentage</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Maximum bonus: {currentSettings.easterEggBonusPercentage}% of total score
+                        </p>
+                        <Slider
+                          value={[currentSettings.easterEggBonusPercentage]}
+                          onValueChange={([value]) => updateLocalSetting("easterEggBonusPercentage", value)}
+                          min={0}
+                          max={20}
+                          step={1}
+                          className="w-full max-w-md"
+                          data-testid="slider-easter-egg-percentage"
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground max-w-md">
+                          <span>0%</span>
+                          <span>20%</span>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                  <CardFooter className="border-t pt-4">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-sm text-muted-foreground">
+                        {settingsChanged ? (
+                          <span className="text-amber-600">You have unsaved changes</span>
+                        ) : (
+                          platformSettings?.updatedAt && (
+                            <span>Last updated: {new Date(platformSettings.updatedAt).toLocaleDateString()}</span>
+                          )
+                        )}
+                      </div>
+                      <Button 
+                        onClick={handleSaveSettings}
+                        disabled={!settingsChanged || updateSettingsMutation.isPending}
+                        data-testid="button-save-settings"
+                      >
+                        {updateSettingsMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-2" />
+                        )}
+                        Save Settings
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </div>
