@@ -4,6 +4,34 @@ import { isAuthenticated } from "./replitAuth";
 
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
+  // Diagnostic endpoint - shows what the server sees for debugging
+  app.get("/api/auth/debug", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub;
+      const dbUser = await authStorage.getUser(userId);
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        sessionUserId: userId,
+        dbUser: dbUser ? {
+          id: dbUser.id,
+          email: dbUser.email,
+          isAdmin: dbUser.isAdmin,
+          isAdminType: typeof dbUser.isAdmin,
+          teamId: dbUser.teamId,
+        } : null,
+        adminCheck: {
+          equalsTrue: (dbUser?.isAdmin as unknown) === true,
+          equalsStringTrue: dbUser?.isAdmin === 'true',
+          equalsSuperAdmin: dbUser?.isAdmin === 'super_admin',
+          wouldRedirectToAdmin: (dbUser?.isAdmin as unknown) === true || dbUser?.isAdmin === 'true' || dbUser?.isAdmin === 'super_admin',
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get current authenticated user
   // Uses session-stored user (populated at login) with fresh database fallback
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
