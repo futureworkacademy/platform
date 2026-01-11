@@ -18,9 +18,6 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-// Canonical domain for session cookies - must be defined before getSession
-const CANONICAL_DOMAIN = process.env.CANONICAL_DOMAIN || null;
-
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
@@ -31,25 +28,17 @@ export function getSession() {
     tableName: "sessions",
   });
   
-  // Build cookie config - explicitly set domain in production
-  const cookieConfig: session.CookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none" as const,
-    maxAge: sessionTtl,
-  };
-  
-  // Set explicit cookie domain for production to ensure cookies work on custom domain
-  if (CANONICAL_DOMAIN) {
-    cookieConfig.domain = CANONICAL_DOMAIN;
-  }
-  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: true,
     saveUninitialized: true,
-    cookie: cookieConfig,
+    cookie: {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax" as const,
+      maxAge: sessionTtl,
+    },
   });
 }
 
@@ -71,15 +60,6 @@ async function upsertUser(claims: any) {
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
-}
-
-function getCanonicalHostname(req: any): string {
-  // In production, always use the canonical domain if set
-  if (CANONICAL_DOMAIN) {
-    return CANONICAL_DOMAIN;
-  }
-  // Fall back to request hostname for development
-  return req.hostname;
 }
 
 export async function setupAuth(app: Express) {
@@ -125,7 +105,7 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    const hostname = getCanonicalHostname(req);
+    const hostname = req.hostname;
     ensureStrategy(hostname);
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
@@ -134,7 +114,7 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    const hostname = getCanonicalHostname(req);
+    const hostname = req.hostname;
     ensureStrategy(hostname);
     passport.authenticate(`replitauth:${hostname}`, async (err: any, user: any) => {
       if (err) {
