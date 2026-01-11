@@ -18,6 +18,9 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
+// Canonical domain for session cookies - must be defined before getSession
+const CANONICAL_DOMAIN = process.env.CANONICAL_DOMAIN || null;
+
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
@@ -27,17 +30,26 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  
+  // Build cookie config - explicitly set domain in production
+  const cookieConfig: session.CookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none" as const,
+    maxAge: sessionTtl,
+  };
+  
+  // Set explicit cookie domain for production to ensure cookies work on custom domain
+  if (CANONICAL_DOMAIN) {
+    cookieConfig.domain = CANONICAL_DOMAIN;
+  }
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: true,
     saveUninitialized: true,
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: sessionTtl,
-    },
+    cookie: cookieConfig,
   });
 }
 
@@ -60,9 +72,6 @@ async function upsertUser(claims: any) {
     profileImageUrl: claims["profile_image_url"],
   });
 }
-
-// Canonical domain for production - ensures OIDC flow uses consistent hostname
-const CANONICAL_DOMAIN = process.env.CANONICAL_DOMAIN || null;
 
 function getCanonicalHostname(req: any): string {
   // In production, always use the canonical domain if set
