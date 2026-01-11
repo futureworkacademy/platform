@@ -215,9 +215,12 @@ function AppRouter() {
     return <ForEducators />;
   }
 
-  // Super Admin visiting home page - redirect to super admin dashboard
-  if (location === "/" && (user.isAdmin === 'true' || user.isAdmin === 'super_admin')) {
-    return <Redirect to="/super-admin" />;
+  // Super Admin - always redirect to admin dashboard if not already there
+  // This check happens BEFORE the teamId check to ensure admins never see WaitingAssignment
+  if (user.isAdmin === 'true' || user.isAdmin === 'super_admin') {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && !location.startsWith('/class-admin')) {
+      return <Redirect to="/super-admin" />;
+    }
   }
 
   // Non-admin without team goes to waiting assignment
