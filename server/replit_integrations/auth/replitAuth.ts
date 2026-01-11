@@ -115,39 +115,16 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
-    console.log(`[AUTH CALLBACK] Hostname: ${hostname}`);
     ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, async (err: any, user: any) => {
-      if (err) {
-        console.log(`[AUTH CALLBACK] Error:`, err);
-        return res.redirect("/api/login");
-      }
-      if (!user) {
-        console.log(`[AUTH CALLBACK] No user returned from passport`);
+    passport.authenticate(`replitauth:${hostname}`, (err: any, user: any) => {
+      if (err || !user) {
         return res.redirect("/api/login");
       }
       
-      console.log(`[AUTH CALLBACK] User authenticated, sub: ${user.claims?.sub}`);
-      
-      req.logIn(user, async (loginErr) => {
+      req.logIn(user, (loginErr) => {
         if (loginErr) {
-          console.log(`[AUTH CALLBACK] Login error:`, loginErr);
           return res.redirect("/api/login");
         }
-        
-        // Check if user is super admin and redirect accordingly
-        const userId = user.claims?.sub;
-        if (userId) {
-          const dbUser = await authStorage.getUser(userId);
-          console.log(`[AUTH CALLBACK] DB user isAdmin: ${dbUser?.isAdmin}`);
-          if (dbUser?.isAdmin === 'true' || dbUser?.isAdmin === 'super_admin') {
-            console.log(`[AUTH CALLBACK] Redirecting super admin to /super-admin`);
-            return res.redirect("/super-admin");
-          }
-        }
-        
-        // Default redirect for non-admins
-        console.log(`[AUTH CALLBACK] Redirecting to /`);
         return res.redirect("/");
       });
     })(req, res, next);
