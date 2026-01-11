@@ -11,7 +11,7 @@ import {
   User,
   Shield,
 } from "lucide-react";
-import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
 import logoDark from "@assets/fwa_white_logo_on_transparent_1768088341058.png";
 import {
   Sidebar,

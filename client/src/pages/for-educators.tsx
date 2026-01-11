@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
-import logoLight from "@assets/fwalogo-2_1768083577051.png";
+import logoLight from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
 import logoDark from "@assets/fwa_white_logo_on_transparent_1768088341058.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
