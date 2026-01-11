@@ -421,15 +421,12 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
               </div>
               <div className="space-y-2">
                 <Label>Login Email</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={user?.email || ''}
-                    disabled
-                    className="bg-muted"
-                    data-testid="text-login-email"
-                  />
-                  <Badge variant="outline" className="shrink-0">Login</Badge>
-                </div>
+                <Input
+                  value={user?.email || ''}
+                  disabled
+                  className="bg-muted"
+                  data-testid="text-login-email"
+                />
                 <p className="text-xs text-muted-foreground">This is the email you used to sign in.</p>
               </div>
               <Button 
