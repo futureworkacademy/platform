@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award, FileText, Sparkles, Newspaper, Settings, UserCog, ShieldCheck } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
 import logo from "@assets/fwalogo-2_1768083577051.png";
 import { Link } from "wouter";
@@ -177,24 +177,49 @@ export default function ForEducators() {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">Douglas E. Mitchell</h2>
-                  <p className="text-sm text-muted-foreground mb-3">Creator & Lead Developer</p>
+                  <h2 className="text-xl font-semibold">Welcome to my playground</h2>
+                  <p className="text-sm text-muted-foreground mb-3">I'm Doug and I'm humbled that you stopped by.</p>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
-                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia 
-                  deserunt mollit anim id est laborum.
+                  This simulation is designed to challenge students to lead (and follow) effectively through 
+                  tremendous pressure, constant change, and variable macro-economic conditions. Students work 
+                  together in teams and are scored individually on their decisions.
                 </p>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                  Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
-                  laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi 
-                  architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas 
-                  sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione 
-                  voluptatem sequi nesciunt.
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  The simulation has been designed for the modern graduate student and features:
                 </p>
+                <ul className="space-y-2 mb-4">
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Rich background information dossier on the organization, team members, and stakeholders.</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Special "Easter Egg" information items that carry more weight through the simulation.</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Newspaper className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Weekly briefing packages delivered with press releases, interviews, and podcasts with corporate, union, and other factions represented.</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Settings className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Injectable "special situations" to alter the simulation.</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <UserCog className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Professors are assigned a "class admin" role and can create and manage teams of students.</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <ShieldCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>While registration is possible with any email address, access to the system currently requires .edu email.</span>
+                  </li>
+                </ul>
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="font-medium text-sm mb-2">About Me</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    I teach in the Masters of Analytics program at Grand View University and build products that sit at the intersection of Leadership and Analytics.
+                  </p>
+                </div>
                 <div className="clear-both flex items-center gap-3 pt-2">
                   <a 
                     href="mailto:dmitchell@grandview.edu" 
