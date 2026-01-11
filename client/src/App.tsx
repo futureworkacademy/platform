@@ -215,11 +215,12 @@ function AppRouter() {
     return <ForEducators />;
   }
 
-  // Super Admin without team - redirect to super admin dashboard
-  if (!user.teamId && (user.isAdmin === 'true' || user.isAdmin === 'super_admin')) {
+  // Super Admin visiting home page - redirect to super admin dashboard
+  if (location === "/" && (user.isAdmin === 'true' || user.isAdmin === 'super_admin')) {
     return <Redirect to="/super-admin" />;
   }
 
+  // Non-admin without team goes to waiting assignment
   if (!user.teamId) {
     return <WaitingAssignment />;
   }
