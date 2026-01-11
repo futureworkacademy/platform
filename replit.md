@@ -48,6 +48,7 @@ client/
 │   │   ├── leaderboard.tsx      # Competition rankings
 │   │   ├── super-admin.tsx      # Super Admin dashboard
 │   │   ├── class-admin.tsx      # Class Admin/Instructor dashboard
+│   │   ├── educator-inquiries.tsx # Educator lead management
 │   │   └── setup.tsx            # Initial Super Admin setup
 │   ├── lib/
 │   │   ├── theme-provider.tsx
@@ -124,6 +125,9 @@ shared/
 - `POST /api/super-admin/organizations` - Create organization
 - `GET /api/super-admin/users` - List all users
 - `POST /api/super-admin/assign-admin` - Assign admin role
+- `GET /api/super-admin/educator-inquiries` - List educator inquiries
+- `PATCH /api/super-admin/educator-inquiries/:id` - Update inquiry status/notes
+- `GET /api/super-admin/educator-inquiries/export` - Export inquiries as CSV
 
 ### Admin
 - `GET /api/admin/simulation-config` - Get simulation configuration
