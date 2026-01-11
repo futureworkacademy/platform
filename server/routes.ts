@@ -506,10 +506,14 @@ export async function registerRoutes(
   app.put("/api/admin/platform-settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      
+      // Check Super Admin status using organization storage (checks both users table and memberships)
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
         return res.status(403).json({ error: "Super Admin access required" });
       }
+      
+      const user = await authStorage.getUser(userId);
       
       const updatedSettings = await storage.updatePlatformSettings(req.body, userId);
       

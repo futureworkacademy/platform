@@ -64,14 +64,24 @@ function updateUserSession(
 }
 
 async function upsertAndFetchUser(claims: any): Promise<any> {
-  // First upsert the user (creates or updates with OIDC data)
-  await authStorage.upsertUser({
+  // Build user data from OIDC claims
+  const userData: any = {
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
-  });
+  };
+  
+  // Handle is_admin claim if present (for testing and admin provisioning)
+  // This allows OIDC provider to set admin status
+  if (claims["is_admin"]) {
+    userData.isAdmin = claims["is_admin"];
+    console.log(`[AUTH UPSERT] Setting isAdmin from claims: ${claims["is_admin"]}`);
+  }
+  
+  // First upsert the user (creates or updates with OIDC data)
+  await authStorage.upsertUser(userData);
   
   // Then fetch the COMPLETE user record from database (includes isAdmin, teamId, etc.)
   const dbUser = await authStorage.getUser(claims["sub"]);

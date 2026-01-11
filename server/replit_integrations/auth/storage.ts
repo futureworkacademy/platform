@@ -36,16 +36,25 @@ class AuthStorage implements IAuthStorage {
     const existingUser = await this.getUser(userId);
     
     if (existingUser) {
-      // User exists - only update profile fields, preserve isAdmin, teamId, etc.
+      // User exists - update profile fields
+      // Also update isAdmin if provided in userData (allows OIDC to set admin status)
+      const updateData: any = {
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl,
+        updatedAt: new Date(),
+      };
+      
+      // Only update isAdmin if it's explicitly provided (not undefined)
+      if ((userData as any).isAdmin !== undefined) {
+        updateData.isAdmin = (userData as any).isAdmin;
+        console.log(`[AUTH STORAGE] Updating isAdmin to: ${updateData.isAdmin}`);
+      }
+      
       const [user] = await db
         .update(users)
-        .set({
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileImageUrl: userData.profileImageUrl,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(users.id, userId))
         .returning();
       return user;
