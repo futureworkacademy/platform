@@ -7,7 +7,7 @@ import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
 import { users, organizationMembers, ROLES, type Role } from "@shared/models/auth";
 import { teams } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
 import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
@@ -1248,6 +1248,95 @@ export async function registerRoutes(
       res.json(enriched);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  // Get all educator inquiries (Super Admin only)
+  app.get("/api/super-admin/educator-inquiries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { educatorInquiries } = await import("@shared/models/auth");
+      const inquiries = await db.select().from(educatorInquiries).orderBy(sql`created_at DESC`);
+      res.json(inquiries);
+    } catch (error) {
+      console.error("[Educator Inquiries] Error:", error);
+      res.status(500).json({ error: "Failed to fetch educator inquiries" });
+    }
+  });
+
+  // Update educator inquiry status/notes (Super Admin only)
+  app.patch("/api/super-admin/educator-inquiries/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, notes } = req.body;
+      
+      const { educatorInquiries } = await import("@shared/models/auth");
+      const [updated] = await db.update(educatorInquiries)
+        .set({ 
+          status: status || undefined, 
+          notes: notes !== undefined ? notes : undefined,
+          updatedAt: new Date()
+        })
+        .where(eq(educatorInquiries.id, id))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ error: "Inquiry not found" });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("[Educator Inquiries] Update error:", error);
+      res.status(500).json({ error: "Failed to update inquiry" });
+    }
+  });
+
+  // Export educator inquiries as CSV (Super Admin only)
+  app.get("/api/super-admin/educator-inquiries/export", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { educatorInquiries } = await import("@shared/models/auth");
+      const inquiries = await db.select().from(educatorInquiries).orderBy(sql`created_at DESC`);
+      
+      // Generate CSV
+      const headers = ["ID", "Name", "Email", "Phone", "Institution", "Inquiry Type", "Message", "Status", "Notes", "Created At"];
+      const rows = inquiries.map(i => [
+        i.id,
+        i.name,
+        i.email,
+        i.phone || "",
+        i.institution || "",
+        i.inquiryType,
+        `"${(i.message || "").replace(/"/g, '""')}"`,
+        i.status,
+        `"${(i.notes || "").replace(/"/g, '""')}"`,
+        i.createdAt?.toISOString() || ""
+      ]);
+      
+      const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=educator-inquiries.csv");
+      res.send(csv);
+    } catch (error) {
+      console.error("[Educator Inquiries] Export error:", error);
+      res.status(500).json({ error: "Failed to export inquiries" });
     }
   });
 

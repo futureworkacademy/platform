@@ -18,7 +18,8 @@ import {
   UserPlus,
   Settings,
   RefreshCw,
-  Pencil
+  Pencil,
+  MessageSquare
 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -224,7 +225,7 @@ export default function SuperAdminPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
@@ -264,6 +265,21 @@ export default function SuperAdminPage() {
               </div>
             </CardContent>
           </Card>
+          <Link href="/educator-inquiries">
+            <Card className="cursor-pointer hover-elevate transition-all h-full" data-testid="card-educator-inquiries">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-amber-500/10 rounded-lg">
+                    <MessageSquare className="h-6 w-6 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold">Educator Inquiries</p>
+                    <p className="text-sm text-muted-foreground">View & manage leads</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         <Tabs defaultValue="organizations" className="w-full">

@@ -23,6 +23,7 @@ import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
+import EducatorInquiries from "@/pages/educator-inquiries";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -187,6 +188,11 @@ function AppRouter() {
   // Super Admin page - role checked internally
   if (location === "/super-admin") {
     return <SuperAdminPage />;
+  }
+
+  // Educator Inquiries page - role checked internally
+  if (location === "/educator-inquiries") {
+    return <EducatorInquiries />;
   }
 
   // Setup page - for initial platform configuration
