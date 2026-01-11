@@ -23,7 +23,7 @@ import logo from "@assets/fwalogo-2_1768083577051.png";
 
 const challengeSets = [
   [
-    { icon: Bot, title: "Automation Financing", description: "Secure bank debt at 6.5% interest to fund robotics and AI deployment", colorClass: "primary" },
+    { icon: Bot, title: "Automation Financing", description: "Secure bank debt to fund robotics and AI development", colorClass: "primary" },
     { icon: Users, title: "Workforce Displacement", description: "Manage layoffs, reskilling programs, and employee anxiety about job security", colorClass: "destructive" },
     { icon: Shield, title: "Union Relations", description: "Prevent unionization or manage collective bargaining if sentiment reaches 75%", colorClass: "warning" },
     { icon: Target, title: "Gen Z Management", description: "Address leadership pipeline crisis as young workers refuse management roles", colorClass: "accent" },
