@@ -153,8 +153,19 @@ function AuthenticatedApp() {
 }
 
 function AppRouter() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
+
+  // Force fresh data fetch after login (detected by ?fresh= query param)
+  useEffect(() => {
+    if (location.includes('?fresh=')) {
+      // Invalidate all user-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/my-role'] });
+      // Clean up the URL
+      setLocation('/');
+    }
+  }, [location, setLocation]);
 
   if (authLoading) {
     return (
