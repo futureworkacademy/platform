@@ -156,6 +156,9 @@ function AppRouter() {
   const [location] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
 
+  // Debug logging for production auth issues
+  console.log('[AppRouter] location:', location, 'authLoading:', authLoading, 'user:', user ? { id: user.id, isAdmin: user.isAdmin, teamId: user.teamId } : null);
+
   if (authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -217,7 +220,13 @@ function AppRouter() {
 
   // Super Admin visiting home page - redirect to super admin dashboard
   if (location === "/" && (user.isAdmin === 'true' || user.isAdmin === 'super_admin')) {
+    console.log('[AppRouter] Super admin at /, redirecting to /super-admin');
     return <Redirect to="/super-admin" />;
+  }
+  
+  // Log if super admin is NOT being redirected
+  if (user.isAdmin === 'true' || user.isAdmin === 'super_admin') {
+    console.log('[AppRouter] Super admin NOT redirected, location is:', location);
   }
 
   // Non-admin without team goes to waiting assignment
