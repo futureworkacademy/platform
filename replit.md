@@ -44,8 +44,13 @@ I prefer clear and concise communication. When making changes, prioritize the co
 -   **Weekly Intelligence Briefings:** Curated articles with insights.
 -   **AI Deployment Decisions:** Interface for strategic AI integration.
 -   **People Analytics:** Detailed employee sentiment and behavior analysis.
--   **Student Enrollment:** Requires `.edu` email verification and team code entry, with SMS notifications to Class Admins.
+-   **Student Enrollment:** Configurable `.edu` email verification and team code entry, with SMS notifications to Class Admins.
 -   **Admin Dashboards:** Dedicated interfaces for Super Admins (platform-wide) and Class Admins (organization-specific).
+-   **Platform Settings (Super Admin):** Configurable enrollment requirements, competition modes, scoring weights, and bonus settings:
+    - Enrollment: Toggle `.edu` email requirement, team code requirement
+    - Competition: Individual vs team-based scoring, simulation duration (4-12 weeks)
+    - Scoring: Configurable financial/cultural weight balance (0-100%)
+    - Easter Egg Bonus: Toggle and percentage for research citation rewards
 
 ## External Dependencies
 
