@@ -513,6 +513,14 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Super Admin access required" });
       }
       
+      // Validate totalWeeks - currently only 4-8 weeks have authored content
+      if (req.body.totalWeeks !== undefined) {
+        const weeks = Number(req.body.totalWeeks);
+        if (weeks < 4 || weeks > 8) {
+          return res.status(400).json({ error: "Simulation duration must be between 4 and 8 weeks. Additional weeks coming soon." });
+        }
+      }
+      
       const user = await authStorage.getUser(userId);
       
       const updatedSettings = await storage.updatePlatformSettings(req.body, userId);

@@ -788,15 +788,16 @@ export default function SuperAdminPage() {
                         value={[currentSettings.totalWeeks]}
                         onValueChange={([value]) => updateLocalSetting("totalWeeks", value)}
                         min={4}
-                        max={12}
+                        max={8}
                         step={1}
                         className="w-full max-w-md"
                         data-testid="slider-total-weeks"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground max-w-md">
                         <span>4 weeks</span>
-                        <span>12 weeks</span>
+                        <span>8 weeks</span>
                       </div>
+                      <p className="text-xs text-muted-foreground italic">Additional weeks (9-12) coming soon</p>
                     </div>
 
                     <div className="space-y-3" data-testid="setting-scoring-weights">
