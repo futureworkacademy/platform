@@ -217,7 +217,10 @@ function AppRouter() {
 
   // Super Admin - always redirect to admin dashboard if not already there
   // This check happens BEFORE the teamId check to ensure admins never see WaitingAssignment
-  if (user.isAdmin === 'true' || user.isAdmin === 'super_admin') {
+  // Handle both boolean true AND string 'true'/'super_admin' for robustness (runtime type may differ)
+  const adminValue = user.isAdmin as unknown;
+  const isAdmin = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
+  if (isAdmin) {
     if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && !location.startsWith('/class-admin')) {
       return <Redirect to="/super-admin" />;
     }

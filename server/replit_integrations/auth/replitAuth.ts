@@ -171,11 +171,15 @@ export async function setupAuth(app: Express) {
           }
         }
         
-        console.log(`[AUTH CALLBACK] hostname=${hostname}, userId=${dbUser?.id || userId}, isAdmin=${dbUser?.isAdmin}`);
+        console.log(`[AUTH CALLBACK] hostname=${hostname}, userId=${dbUser?.id || userId}, isAdmin=${dbUser?.isAdmin}, isAdminType=${typeof dbUser?.isAdmin}`);
         
-        // Redirect admins directly to /super-admin (defensive check)
-        if (dbUser && (dbUser.isAdmin === 'true' || dbUser.isAdmin === 'super_admin')) {
-          console.log(`[AUTH CALLBACK] Admin detected, redirecting to /super-admin`);
+        // Redirect admins directly to /super-admin
+        // Handle both boolean true AND string 'true'/'super_admin' for robustness
+        const isAdminValue = dbUser?.isAdmin;
+        const isAdmin = isAdminValue === true || isAdminValue === 'true' || isAdminValue === 'super_admin';
+        
+        if (dbUser && isAdmin) {
+          console.log(`[AUTH CALLBACK] Admin detected (isAdmin=${isAdminValue}), redirecting to /super-admin`);
           return res.redirect('/super-admin');
         }
         

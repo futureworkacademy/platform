@@ -27,8 +27,11 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
   const [, setLocation] = useLocation();
   
   // Redirect super admins to their dashboard
+  // Handle both boolean true AND string 'true'/'super_admin' for robustness (runtime type may differ)
   useEffect(() => {
-    if (user?.isAdmin === 'true' || user?.isAdmin === 'super_admin') {
+    const adminValue = user?.isAdmin as unknown;
+    const isAdmin = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
+    if (isAdmin) {
       setLocation('/super-admin');
     }
   }, [user, setLocation]);
