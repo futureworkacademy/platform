@@ -119,6 +119,7 @@ export default function SuperAdminPage() {
   const [editNotifyPhone, setEditNotifyPhone] = useState("");
   const [editNotifyOnSignup, setEditNotifyOnSignup] = useState(true);
   const [editStatus, setEditStatus] = useState("active");
+  const [activeTab, setActiveTab] = useState("organizations");
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -129,13 +130,13 @@ export default function SuperAdminPage() {
     enabled: roleInfo?.isSuperAdmin === true,
   });
 
-  const { data: allUsers = [] } = useQuery<UserData[]>({
+  const { data: allUsers = [], refetch: refetchUsers } = useQuery<UserData[]>({
     queryKey: ["/api/admin/users"],
     enabled: roleInfo?.isSuperAdmin === true,
   });
 
   // Platform Settings
-  const { data: platformSettings, isLoading: settingsLoading } = useQuery<PlatformSettings>({
+  const { data: platformSettings, isLoading: settingsLoading, refetch: refetchSettings } = useQuery<PlatformSettings>({
     queryKey: ["/api/platform-settings"],
     enabled: roleInfo?.isSuperAdmin === true,
   });
@@ -177,6 +178,28 @@ export default function SuperAdminPage() {
 
   const handleSaveSettings = () => {
     updateSettingsMutation.mutate(currentSettings);
+  };
+
+  const handleRefresh = () => {
+    switch (activeTab) {
+      case "organizations":
+        refetchOrgs();
+        toast({ title: "Organizations refreshed" });
+        break;
+      case "settings":
+        refetchSettings();
+        setLocalSettings({});
+        setSettingsChanged(false);
+        toast({ title: "Settings refreshed" });
+        break;
+      case "promote":
+        refetchOrgs();
+        refetchUsers();
+        toast({ title: "Data refreshed" });
+        break;
+      default:
+        refetchOrgs();
+    }
   };
 
   const createOrgMutation = useMutation({
@@ -281,7 +304,7 @@ export default function SuperAdminPage() {
             <p className="text-muted-foreground">Platform-wide management and organization control</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => refetchOrgs()} data-testid="button-refresh">
+            <Button variant="outline" onClick={handleRefresh} data-testid="button-refresh">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
@@ -351,7 +374,7 @@ export default function SuperAdminPage() {
           </Link>
         </div>
 
-        <Tabs defaultValue="organizations" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="organizations" data-testid="tab-organizations">
               <Building2 className="mr-2 h-4 w-4" />
