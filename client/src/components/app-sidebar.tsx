@@ -11,8 +11,7 @@ import {
   User,
   Shield,
 } from "lucide-react";
-import logoLight from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
-import logoDark from "@assets/fwa_white_logo_on_transparent_1768088341058.png";
+import logo from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
 import {
   Sidebar,
   SidebarContent,
@@ -96,18 +95,14 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/">
-          <img 
-            src={logoLight} 
-            alt="Future Work Academy" 
-            className="h-10 w-auto cursor-pointer dark:hidden"
-            data-testid="img-sidebar-logo-light"
-          />
-          <img 
-            src={logoDark} 
-            alt="Future Work Academy" 
-            className="h-10 w-auto cursor-pointer hidden dark:block"
-            data-testid="img-sidebar-logo-dark"
-          />
+          <div className="bg-slate-800/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5">
+            <img 
+              src={logo} 
+              alt="Future Work Academy" 
+              className="h-10 w-auto cursor-pointer"
+              data-testid="img-sidebar-logo"
+            />
+          </div>
         </Link>
       </SidebarHeader>
 

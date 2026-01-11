@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
-import logoLight from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
-import logoDark from "@assets/fwa_white_logo_on_transparent_1768088341058.png";
+import logo from "@assets/fwa_white_logo_on_transparent_1768089767023.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -92,18 +91,14 @@ export default function ForEducators() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link href="/">
-              <img 
-                src={logoLight} 
-                alt="Future Work Academy" 
-                className="h-12 w-auto cursor-pointer dark:hidden"
-                data-testid="img-header-logo-light"
-              />
-              <img 
-                src={logoDark} 
-                alt="Future Work Academy" 
-                className="h-12 w-auto cursor-pointer hidden dark:block"
-                data-testid="img-header-logo-dark"
-              />
+              <div className="bg-slate-800/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5">
+                <img 
+                  src={logo} 
+                  alt="Future Work Academy" 
+                  className="h-12 w-auto cursor-pointer"
+                  data-testid="img-header-logo"
+                />
+              </div>
             </Link>
             <ThemeToggle />
           </div>
@@ -137,18 +132,14 @@ export default function ForEducators() {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Link href="/">
-            <img 
-              src={logoLight} 
-              alt="Future Work Academy" 
-              className="h-12 w-auto cursor-pointer dark:hidden"
-              data-testid="img-header-logo-light"
-            />
-            <img 
-              src={logoDark} 
-              alt="Future Work Academy" 
-              className="h-12 w-auto cursor-pointer hidden dark:block"
-              data-testid="img-header-logo-dark"
-            />
+            <div className="bg-slate-800/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-md px-3 py-1.5">
+              <img 
+                src={logo} 
+                alt="Future Work Academy" 
+                className="h-12 w-auto cursor-pointer"
+                data-testid="img-header-logo"
+              />
+            </div>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/">
