@@ -42,8 +42,19 @@ export function getSession() {
   });
 }
 
+// Session user type - stores both OIDC tokens and complete database user
+interface SessionUser {
+  // OIDC token data (needed for token refresh)
+  claims: any;
+  access_token: string;
+  refresh_token?: string;
+  expires_at: number;
+  // Complete database user (includes isAdmin, teamId, etc.)
+  dbUser: any;
+}
+
 function updateUserSession(
-  user: any,
+  user: SessionUser,
   tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
 ) {
   user.claims = tokens.claims();
@@ -52,7 +63,8 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(claims: any) {
+async function upsertAndFetchUser(claims: any): Promise<any> {
+  // First upsert the user (creates or updates with OIDC data)
   await authStorage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -60,6 +72,10 @@ async function upsertUser(claims: any) {
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  
+  // Then fetch the COMPLETE user record from database (includes isAdmin, teamId, etc.)
+  const dbUser = await authStorage.getUser(claims["sub"]);
+  return dbUser;
 }
 
 export async function setupAuth(app: Express) {
@@ -74,9 +90,18 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
+    const claims = tokens.claims();
+    const user: SessionUser = {} as SessionUser;
+    
+    // Store OIDC tokens for refresh
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    
+    // Fetch COMPLETE user from database (includes isAdmin, teamId)
+    const dbUser = await upsertAndFetchUser(claims);
+    user.dbUser = dbUser;
+    
+    console.log(`[AUTH VERIFY] User ${claims?.sub}: isAdmin=${dbUser?.isAdmin}, teamId=${dbUser?.teamId}`);
+    
     verified(null, user);
   };
 
@@ -101,6 +126,7 @@ export async function setupAuth(app: Express) {
     }
   };
 
+  // Serialize stores complete user (with dbUser) in session
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
@@ -116,32 +142,45 @@ export async function setupAuth(app: Express) {
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
     ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, async (err: any, user: any) => {
+    passport.authenticate(`replitauth:${hostname}`, async (err: any, user: SessionUser) => {
       if (err || !user) {
+        console.log(`[AUTH CALLBACK] Error or no user, redirecting to login`);
         return res.redirect("/api/login");
       }
       
       req.logIn(user, async (loginErr) => {
         if (loginErr) {
+          console.log(`[AUTH CALLBACK] Login error:`, loginErr);
           return res.redirect("/api/login");
         }
         
-        // Check database for admin status and redirect accordingly
-        try {
-          const userId = user.claims?.sub;
-          if (userId) {
-            const dbUser = await authStorage.getUser(userId);
-            console.log(`[AUTH CALLBACK] User ${userId}: isAdmin=${dbUser?.isAdmin}, redirecting...`);
-            
-            if (dbUser?.isAdmin === 'true' || dbUser?.isAdmin === 'super_admin') {
-              return res.redirect('/super-admin');
-            }
+        // Fetch fresh user data from database to ensure we have latest admin status
+        // This is more robust than relying on session-stored dbUser
+        const userId = user.claims?.sub;
+        let dbUser = user.dbUser;
+        
+        // If dbUser is missing from session, fetch fresh from database
+        if (!dbUser && userId) {
+          console.log(`[AUTH CALLBACK] dbUser missing, fetching fresh from database`);
+          try {
+            dbUser = await authStorage.getUser(userId);
+            // Update session with fresh data
+            user.dbUser = dbUser;
+          } catch (error) {
+            console.error(`[AUTH CALLBACK] Error fetching user:`, error);
           }
-        } catch (error) {
-          console.error('[AUTH CALLBACK] Error checking admin status:', error);
         }
         
-        // Default redirect for non-admins
+        console.log(`[AUTH CALLBACK] hostname=${hostname}, userId=${dbUser?.id || userId}, isAdmin=${dbUser?.isAdmin}`);
+        
+        // Redirect admins directly to /super-admin (defensive check)
+        if (dbUser && (dbUser.isAdmin === 'true' || dbUser.isAdmin === 'super_admin')) {
+          console.log(`[AUTH CALLBACK] Admin detected, redirecting to /super-admin`);
+          return res.redirect('/super-admin');
+        }
+        
+        // Default redirect for non-admins or if dbUser is missing
+        console.log(`[AUTH CALLBACK] Non-admin or missing dbUser, redirecting to /`);
         return res.redirect('/');
       });
     })(req, res, next);

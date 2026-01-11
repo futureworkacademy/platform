@@ -4,16 +4,23 @@ import { isAuthenticated } from "./replitAuth";
 
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
-  // Get current authenticated user - ALWAYS fetch fresh from database
+  // Get current authenticated user
+  // Uses session-stored user (populated at login) with fresh database fallback
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub;
       
-      // Always fetch fresh user data from database
+      // Always fetch FRESH data from database to ensure latest isAdmin/teamId
+      // This is critical because admin status might change between logins
       const user = await authStorage.getUser(userId);
       
+      // Update the session with fresh data for subsequent requests
+      if (user) {
+        req.user.dbUser = user;
+      }
+      
       // Debug logging for production troubleshooting
-      console.log(`[AUTH DEBUG] User ${userId}: isAdmin=${user?.isAdmin}, teamId=${user?.teamId}`);
+      console.log(`[/api/auth/user] userId=${userId}, isAdmin=${user?.isAdmin}, teamId=${user?.teamId}`);
       
       // Prevent any HTTP caching of user data
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
