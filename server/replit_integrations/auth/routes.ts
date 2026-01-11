@@ -4,6 +4,36 @@ import { isAuthenticated } from "./replitAuth";
 
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
+  // Public diagnostic - no auth required, shows session state
+  app.get("/api/auth/session-check", async (req: any, res) => {
+    const userId = req.user?.claims?.sub;
+    const isAuth = req.isAuthenticated?.() || false;
+    let dbUser = null;
+    
+    if (userId) {
+      try {
+        dbUser = await authStorage.getUser(userId);
+      } catch (e) {}
+    }
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      hasSession: !!req.session,
+      sessionId: req.session?.id?.substring(0, 8) + '...',
+      isAuthenticated: isAuth,
+      hasUser: !!req.user,
+      userId: userId || null,
+      dbUser: dbUser ? {
+        id: dbUser.id,
+        email: dbUser.email,
+        isAdmin: dbUser.isAdmin,
+        teamId: dbUser.teamId,
+      } : null,
+      cookies: Object.keys(req.cookies || {}),
+      hostname: req.hostname,
+    });
+  });
+
   // Diagnostic endpoint - shows what the server sees for debugging
   app.get("/api/auth/debug", isAuthenticated, async (req: any, res) => {
     try {
