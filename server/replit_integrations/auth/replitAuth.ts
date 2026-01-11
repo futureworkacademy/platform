@@ -61,6 +61,18 @@ async function upsertUser(claims: any) {
   });
 }
 
+// Canonical domain for production - ensures OIDC flow uses consistent hostname
+const CANONICAL_DOMAIN = process.env.CANONICAL_DOMAIN || null;
+
+function getCanonicalHostname(req: any): string {
+  // In production, always use the canonical domain if set
+  if (CANONICAL_DOMAIN) {
+    return CANONICAL_DOMAIN;
+  }
+  // Fall back to request hostname for development
+  return req.hostname;
+}
+
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -104,7 +116,7 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    const hostname = req.hostname;
+    const hostname = getCanonicalHostname(req);
     ensureStrategy(hostname);
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
@@ -113,7 +125,7 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    const hostname = req.hostname;
+    const hostname = getCanonicalHostname(req);
     ensureStrategy(hostname);
     passport.authenticate(`replitauth:${hostname}`, async (err: any, user: any) => {
       if (err) {
