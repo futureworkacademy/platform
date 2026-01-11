@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,13 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  // Redirect super admins to their dashboard
+  useEffect(() => {
+    if (user?.isAdmin === 'true' || user?.isAdmin === 'super_admin') {
+      setLocation('/super-admin');
+    }
+  }, [user, setLocation]);
   
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
