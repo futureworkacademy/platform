@@ -126,7 +126,15 @@ Make sure to use this email address (${data.toEmail}) when signing in.
     console.log(`Invitation email sent to ${data.toEmail}`);
     return true;
   } catch (error: any) {
+    // Log full SendGrid error details for debugging
     console.error(`Failed to send invitation email to ${data.toEmail}:`, error.message);
+    if (error.response) {
+      console.error('SendGrid Response Status:', error.response.statusCode || error.code);
+      console.error('SendGrid Response Body:', JSON.stringify(error.response.body, null, 2));
+    }
+    if (error.code) {
+      console.error('SendGrid Error Code:', error.code);
+    }
     return false;
   }
 }

@@ -2011,6 +2011,103 @@ export async function registerRoutes(
     }
   });
 
+  // Test SendGrid configuration (Super Admin only)
+  app.get("/api/admin/test-sendgrid", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      // Get SendGrid configuration
+      const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+      const xReplitToken = process.env.REPL_IDENTITY 
+        ? 'repl ' + process.env.REPL_IDENTITY 
+        : process.env.WEB_REPL_RENEWAL 
+        ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+        : null;
+
+      if (!hostname || !xReplitToken) {
+        return res.status(500).json({ 
+          error: "Replit connector environment not available",
+          hasHostname: !!hostname,
+          hasToken: !!xReplitToken
+        });
+      }
+
+      const connectionSettings = await fetch(
+        'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+        {
+          headers: {
+            'Accept': 'application/json',
+            'X_REPLIT_TOKEN': xReplitToken
+          }
+        }
+      ).then(r => r.json());
+
+      if (!connectionSettings.items || connectionSettings.items.length === 0) {
+        return res.json({
+          status: "not_configured",
+          message: "SendGrid integration not connected. Go to Integrations and connect SendGrid.",
+          raw: connectionSettings
+        });
+      }
+
+      const settings = connectionSettings.items[0].settings;
+      const hasApiKey = !!settings?.api_key;
+      const fromEmail = settings?.from_email || "NOT SET";
+
+      // Try sending a test email to the admin
+      const adminUser = await db.select().from(users).where(eq(users.id, adminUserId));
+      const testEmail = adminUser[0]?.email;
+
+      if (!testEmail) {
+        return res.json({
+          status: "configured",
+          hasApiKey,
+          fromEmail,
+          message: "SendGrid configured but no admin email to test with"
+        });
+      }
+
+      // Actually try to send a test email
+      const sgMail = (await import('@sendgrid/mail')).default;
+      sgMail.setApiKey(settings.api_key);
+
+      try {
+        await sgMail.send({
+          to: testEmail,
+          from: fromEmail,
+          subject: 'SendGrid Test - Future of Work',
+          text: 'This is a test email to verify SendGrid configuration.',
+          html: '<p>This is a test email to verify SendGrid configuration.</p>'
+        });
+
+        res.json({
+          status: "success",
+          message: `Test email sent successfully to ${testEmail}`,
+          fromEmail,
+          hasApiKey: true
+        });
+      } catch (sendError: any) {
+        res.json({
+          status: "send_failed",
+          message: sendError.message,
+          fromEmail,
+          hasApiKey: true,
+          errorCode: sendError.code,
+          responseStatus: sendError.response?.statusCode,
+          responseBody: sendError.response?.body
+        });
+      }
+    } catch (error: any) {
+      console.error("SendGrid test error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Update member role (Class Admin)
   app.patch("/api/class-admin/organizations/:orgId/members/:memberId/role", isAuthenticated, async (req: any, res) => {
     try {
