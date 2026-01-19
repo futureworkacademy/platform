@@ -1,0 +1,160 @@
+// SendGrid Email Service - using Replit SendGrid integration
+import sgMail from '@sendgrid/mail';
+
+let connectionSettings: any;
+
+async function getCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
+
+  if (!xReplitToken) {
+    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  }
+
+  connectionSettings = await fetch(
+    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+    {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    }
+  ).then(res => res.json()).then(data => data.items?.[0]);
+
+  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
+    throw new Error('SendGrid not connected');
+  }
+  return { apiKey: connectionSettings.settings.api_key, email: connectionSettings.settings.from_email };
+}
+
+async function getUncachableSendGridClient() {
+  const { apiKey, email } = await getCredentials();
+  sgMail.setApiKey(apiKey);
+  return {
+    client: sgMail,
+    fromEmail: email
+  };
+}
+
+export interface InvitationEmailData {
+  toEmail: string;
+  studentName: string;
+  className: string;
+  instructorName: string;
+  loginUrl: string;
+}
+
+export async function sendInvitationEmail(data: InvitationEmailData): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableSendGridClient();
+    
+    const msg = {
+      to: data.toEmail,
+      from: fromEmail,
+      subject: `You've been added to ${data.className} - The Future of Work Simulation`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">The Future of Work</h1>
+              <p style="color: #94a3b8; margin: 10px 0 0 0; font-size: 14px;">Business Simulation Game</p>
+            </div>
+            
+            <div style="padding: 30px;">
+              <h2 style="color: #1a1f36; margin-top: 0;">Welcome, ${data.studentName || 'Student'}!</h2>
+              
+              <p style="color: #475569; line-height: 1.6;">
+                You've been added to <strong>${data.className}</strong> by ${data.instructorName}.
+              </p>
+              
+              <p style="color: #475569; line-height: 1.6;">
+                In this simulation, you'll step into the role of an executive at Apex Manufacturing, 
+                navigating the challenges of AI adoption, workforce management, and strategic decision-making.
+              </p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${data.loginUrl}" 
+                   style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                          text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                  Start the Simulation
+                </a>
+              </div>
+              
+              <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+                Click the button above to log in and begin. Make sure to use this email address 
+                (<strong>${data.toEmail}</strong>) when signing in.
+              </p>
+            </div>
+            
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                The Future of Work - A Business Simulation for Tomorrow's Leaders
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+Welcome to The Future of Work Simulation!
+
+Hi ${data.studentName || 'Student'},
+
+You've been added to ${data.className} by ${data.instructorName}.
+
+In this simulation, you'll step into the role of an executive at Apex Manufacturing, navigating the challenges of AI adoption, workforce management, and strategic decision-making.
+
+To get started, visit: ${data.loginUrl}
+
+Make sure to use this email address (${data.toEmail}) when signing in.
+
+- The Future of Work Team
+      `.trim()
+    };
+
+    await client.send(msg);
+    console.log(`Invitation email sent to ${data.toEmail}`);
+    return true;
+  } catch (error: any) {
+    console.error(`Failed to send invitation email to ${data.toEmail}:`, error.message);
+    return false;
+  }
+}
+
+export async function sendBulkInvitations(
+  students: Array<{ email: string; name?: string }>,
+  className: string,
+  instructorName: string,
+  loginUrl: string
+): Promise<{ sent: number; failed: number; errors: string[] }> {
+  const results = { sent: 0, failed: 0, errors: [] as string[] };
+  
+  for (const student of students) {
+    const success = await sendInvitationEmail({
+      toEmail: student.email,
+      studentName: student.name || '',
+      className,
+      instructorName,
+      loginUrl
+    });
+    
+    if (success) {
+      results.sent++;
+    } else {
+      results.failed++;
+      results.errors.push(`Failed to send to ${student.email}`);
+    }
+  }
+  
+  return results;
+}
