@@ -75,6 +75,12 @@ class OrganizationStorage {
     return member;
   }
 
+  async getMemberById(memberId: string): Promise<OrganizationMember | undefined> {
+    const [member] = await db.select().from(organizationMembers)
+      .where(eq(organizationMembers.id, memberId));
+    return member;
+  }
+
   async getMembersByOrganization(organizationId: string): Promise<OrganizationMember[]> {
     return db.select().from(organizationMembers)
       .where(eq(organizationMembers.organizationId, organizationId));

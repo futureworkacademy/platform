@@ -1895,6 +1895,63 @@ export async function registerRoutes(
     }
   });
 
+  // Send invitation email to a single member
+  app.post("/api/class-admin/organizations/:orgId/members/:memberId/send-invite", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId, memberId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Get the member and their user info
+      const member = await organizationStorage.getMemberById(memberId);
+      if (!member || member.organizationId !== orgId) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      const [memberUser] = await db.select().from(users).where(eq(users.id, member.userId));
+      if (!memberUser || !memberUser.email) {
+        return res.status(400).json({ error: "Member has no email address" });
+      }
+
+      // Get organization and admin info for invitation email
+      const org = await organizationStorage.getOrganization(orgId);
+      const [adminUser] = await db.select().from(users).where(eq(users.id, adminUserId));
+      const instructorName = adminUser ? 
+        [adminUser.firstName, adminUser.lastName].filter(Boolean).join(' ') || 'Your Instructor' : 
+        'Your Instructor';
+      const className = org?.name || 'The Future of Work Simulation';
+      const loginUrl = process.env.REPLIT_DOMAINS ? 
+        `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
+        'https://futureworkacademy.com';
+
+      const studentName = [memberUser.firstName, memberUser.lastName].filter(Boolean).join(' ') || '';
+
+      const sent = await sendInvitationEmail({
+        toEmail: memberUser.email,
+        studentName,
+        className,
+        instructorName,
+        loginUrl,
+      });
+
+      if (sent) {
+        res.json({ success: true, message: "Invitation email sent successfully" });
+      } else {
+        res.status(500).json({ error: "Failed to send invitation email" });
+      }
+    } catch (error) {
+      console.error("Error sending invitation email:", error);
+      res.status(500).json({ error: "Failed to send invitation email" });
+    }
+  });
+
   // Update member role (Class Admin)
   app.patch("/api/class-admin/organizations/:orgId/members/:memberId/role", isAuthenticated, async (req: any, res) => {
     try {

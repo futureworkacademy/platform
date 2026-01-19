@@ -189,6 +189,18 @@ export default function ClassAdminPage() {
     },
   });
 
+  const sendInviteMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/members/${memberId}/send-invite`, {});
+    },
+    onSuccess: () => {
+      toast({ title: "Invitation sent", description: "Email invitation sent successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to send invitation", description: error.message, variant: "destructive" });
+    },
+  });
+
   const addMemberMutation = useMutation({
     mutationFn: async (data: { email: string; role: string }) => {
       return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/add-member`, data);
@@ -776,6 +788,16 @@ export default function ClassAdminPage() {
                                   </SelectContent>
                                 </Select>
                               )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => sendInviteMutation.mutate(member.id)}
+                                disabled={sendInviteMutation.isPending}
+                                title="Send invitation email"
+                                data-testid={`button-send-invite-${member.id}`}
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
