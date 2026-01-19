@@ -66,8 +66,7 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
         <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">The Future of Work</h1>
-              <p style="color: #94a3b8; margin: 10px 0 0 0; font-size: 14px;">Business Simulation Game</p>
+              <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
             </div>
             
             <div style="padding: 30px;">
@@ -195,8 +194,8 @@ export async function sendReminderEmail(data: ReminderEmailData): Promise<boolea
         <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">The Future of Work</h1>
-              <p style="color: #94a3b8; margin: 10px 0 0 0; font-size: 14px;">${data.className}</p>
+              <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
+              <p style="color: #94a3b8; margin: 12px 0 0 0; font-size: 14px;">${data.className}</p>
             </div>
             
             <div style="padding: 30px;">
