@@ -205,6 +205,11 @@ function AppRouter() {
     return <ClassAdminPage />;
   }
 
+  // Profile page - accessible to all logged-in users including admins
+  if (location === "/profile") {
+    return <Profile />;
+  }
+
   // Feedback page accessible to any logged-in user
   if (location === "/feedback") {
     return <Feedback />;
@@ -221,7 +226,7 @@ function AppRouter() {
   const adminValue = user.isAdmin as unknown;
   const isAdmin = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
   if (isAdmin) {
-    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && !location.startsWith('/class-admin')) {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && !location.startsWith('/class-admin')) {
       return <Redirect to="/super-admin" />;
     }
   }

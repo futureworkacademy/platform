@@ -16,6 +16,7 @@ import {
   Key, 
   Copy, 
   UserPlus,
+  UserCheck,
   Settings,
   RefreshCw,
   Pencil,
@@ -308,6 +309,12 @@ export default function SuperAdminPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
+            <Link href="/profile">
+              <Button variant="outline" data-testid="button-profile">
+                <UserCheck className="mr-2 h-4 w-4" />
+                Profile
+              </Button>
+            </Link>
             <Link href="/">
               <Button variant="outline" data-testid="button-back">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -439,7 +446,7 @@ export default function SuperAdminPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="org-phone">SMS Notification Phone (optional)</Label>
+                      <Label htmlFor="org-phone">Admin Phone for Signup Alerts (optional)</Label>
                       <Input
                         id="org-phone"
                         type="tel"
@@ -508,7 +515,7 @@ export default function SuperAdminPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-phone">SMS Notification Phone</Label>
+                      <Label htmlFor="edit-phone">Admin Phone for Signup Alerts</Label>
                       <Input
                         id="edit-phone"
                         type="tel"

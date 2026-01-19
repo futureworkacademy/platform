@@ -14,6 +14,7 @@ export interface ProfileUpdate {
   schoolEmailVerified?: string;
   verificationCode?: string | null;
   verificationCodeExpires?: Date | null;
+  notifyPhone?: string;
 }
 
 // Interface for auth storage operations

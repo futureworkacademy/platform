@@ -1755,6 +1755,104 @@ export async function registerRoutes(
     }
   });
 
+  // Bulk import students from CSV (Class Admin)
+  app.post("/api/class-admin/organizations/:orgId/bulk-import", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { students } = req.body;
+      
+      if (!Array.isArray(students) || students.length === 0) {
+        return res.status(400).json({ error: "No students provided" });
+      }
+
+      // Limit bulk import to 500 students at a time
+      if (students.length > 500) {
+        return res.status(400).json({ error: "Maximum 500 students per import. Please split into multiple batches." });
+      }
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [] as string[],
+      };
+
+      for (const student of students) {
+        const { email, name, studentId, classLevel } = student;
+        
+        if (!email) {
+          results.failed++;
+          results.errors.push(`Missing email for student`);
+          continue;
+        }
+
+        try {
+          // Find user by email
+          const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase().trim()));
+          
+          if (!user) {
+            // User doesn't exist - create a placeholder record for them
+            // They'll complete their profile when they log in
+            const nameParts = (name || '').split(' ').filter(Boolean);
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            const [newUser] = await db.insert(users).values({
+              email: email.toLowerCase().trim(),
+              firstName: firstName || null,
+              lastName: lastName || null,
+              isAdmin: 'false',
+            }).returning();
+
+            // Add to organization
+            await organizationStorage.addMember({
+              userId: newUser.id,
+              organizationId: orgId,
+              role: "STUDENT" as Role,
+              status: "active",
+            });
+            
+            results.success++;
+          } else {
+            // Check if already a member
+            const existingMember = await organizationStorage.getMember(user.id, orgId);
+            if (existingMember) {
+              results.failed++;
+              results.errors.push(`${email}: Already a member`);
+              continue;
+            }
+
+            // Add as member
+            await organizationStorage.addMember({
+              userId: user.id,
+              organizationId: orgId,
+              role: "STUDENT" as Role,
+              status: "active",
+            });
+            
+            results.success++;
+          }
+        } catch (studentError: any) {
+          results.failed++;
+          results.errors.push(`${email}: ${studentError.message || 'Failed to import'}`);
+        }
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Error bulk importing students:", error);
+      res.status(500).json({ error: "Failed to bulk import students" });
+    }
+  });
+
   // Update member role (Class Admin)
   app.patch("/api/class-admin/organizations/:orgId/members/:memberId/role", isAuthenticated, async (req: any, res) => {
     try {

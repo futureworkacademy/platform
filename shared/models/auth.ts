@@ -49,6 +49,7 @@ export const users = pgTable("users", {
   schoolEmailVerified: varchar("school_email_verified").default("false"),
   verificationCode: varchar("verification_code"),
   verificationCodeExpires: timestamp("verification_code_expires"),
+  notifyPhone: varchar("notify_phone"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

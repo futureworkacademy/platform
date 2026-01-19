@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,8 +16,13 @@ import {
   UserCheck,
   UserMinus,
   RefreshCw,
-  GraduationCap
+  GraduationCap,
+  Upload,
+  FileSpreadsheet,
+  AlertCircle,
+  CheckCircle
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useSearch, useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -94,6 +99,13 @@ export default function ClassAdminPage() {
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState("STUDENT");
+  
+  // CSV Bulk Import state
+  const [bulkImportDialogOpen, setBulkImportDialogOpen] = useState(false);
+  const [csvData, setCsvData] = useState<Array<{name: string; studentId: string; classLevel: string; email: string}>>([]);
+  const [csvError, setCsvError] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<{success: number; failed: number; errors: string[]} | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -189,6 +201,93 @@ export default function ClassAdminPage() {
     },
   });
 
+  const bulkImportMutation = useMutation({
+    mutationFn: async (students: Array<{name: string; studentId: string; classLevel: string; email: string}>) => {
+      const response = await apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/bulk-import`, { students });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"] });
+      setImportResult(data);
+      if (data.success > 0) {
+        toast({ title: `Successfully imported ${data.success} students` });
+      }
+    },
+    onError: (error: any) => {
+      toast({ title: "Error importing students", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setCsvError(null);
+    setImportResult(null);
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          setCsvError("CSV file must have a header row and at least one data row");
+          return;
+        }
+
+        // Parse header - support various column names
+        const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+        
+        // Find column indices (flexible matching)
+        const nameIdx = header.findIndex(h => h.includes('name') && !h.includes('email'));
+        const idIdx = header.findIndex(h => h.includes('id') || h.includes('student'));
+        const levelIdx = header.findIndex(h => h.includes('level') || h.includes('class') || h.includes('year'));
+        const emailIdx = header.findIndex(h => h.includes('email') || h.includes('mail'));
+
+        if (emailIdx === -1) {
+          setCsvError("CSV must contain an 'email' column");
+          return;
+        }
+
+        const parsed = lines.slice(1).map((line, idx) => {
+          const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+          return {
+            name: nameIdx >= 0 ? values[nameIdx] || '' : '',
+            studentId: idIdx >= 0 ? values[idIdx] || '' : '',
+            classLevel: levelIdx >= 0 ? values[levelIdx] || '' : '',
+            email: values[emailIdx] || '',
+          };
+        }).filter(row => row.email); // Filter out rows without email
+
+        if (parsed.length === 0) {
+          setCsvError("No valid student records found in CSV");
+          return;
+        }
+
+        setCsvData(parsed);
+      } catch (err) {
+        setCsvError("Failed to parse CSV file. Please check the format.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = () => {
+    if (csvData.length > 0) {
+      bulkImportMutation.mutate(csvData);
+    }
+  };
+
+  const resetBulkImport = () => {
+    setCsvData([]);
+    setCsvError(null);
+    setImportResult(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const currentOrg = myOrganizations.find(org => org.id === selectedOrgId);
   const pendingMembers = members.filter(m => m.status === "pending");
   const activeMembers = members.filter(m => m.status === "active");
@@ -230,12 +329,20 @@ export default function ClassAdminPage() {
               </h1>
               <p className="text-muted-foreground">Select an organization to manage</p>
             </div>
-            <Link href="/">
-              <Button variant="outline" data-testid="button-back">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/profile">
+                <Button variant="outline" data-testid="button-profile">
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  Profile
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" data-testid="button-back">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-4">
@@ -307,6 +414,12 @@ export default function ClassAdminPage() {
                 Switch Org
               </Button>
             )}
+            <Link href="/profile">
+              <Button variant="outline" data-testid="button-profile">
+                <UserCheck className="mr-2 h-4 w-4" />
+                Profile
+              </Button>
+            </Link>
             <Link href="/">
               <Button variant="outline" data-testid="button-back">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -370,18 +483,140 @@ export default function ClassAdminPage() {
           <TabsContent value="members" className="space-y-4">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <CardTitle>Class Members</CardTitle>
                     <CardDescription>All active members in this class</CardDescription>
                   </div>
-                  <Dialog open={addMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button data-testid="button-add-member">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Member
-                      </Button>
-                    </DialogTrigger>
+                  <div className="flex gap-2">
+                    <Dialog open={bulkImportDialogOpen} onOpenChange={(open) => {
+                      setBulkImportDialogOpen(open);
+                      if (!open) resetBulkImport();
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" data-testid="button-bulk-import">
+                          <Upload className="mr-2 h-4 w-4" />
+                          Bulk Import
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Bulk Import Students</DialogTitle>
+                          <DialogDescription>
+                            Upload a CSV file with student information. Required column: email.
+                            Optional columns: student name, student ID, class level.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label>CSV File</Label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileUpload}
+                                data-testid="input-csv-file"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Expected columns: Student Name, Student ID, Class Level, Email
+                            </p>
+                          </div>
+
+                          {csvError && (
+                            <Alert variant="destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>{csvError}</AlertDescription>
+                            </Alert>
+                          )}
+
+                          {csvData.length > 0 && !importResult && (
+                            <div className="space-y-2">
+                              <Label>Preview ({csvData.length} students)</Label>
+                              <div className="max-h-48 overflow-auto border rounded-md">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>Name</TableHead>
+                                      <TableHead>Email</TableHead>
+                                      <TableHead>Student ID</TableHead>
+                                      <TableHead>Level</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {csvData.slice(0, 10).map((row, idx) => (
+                                      <TableRow key={idx}>
+                                        <TableCell>{row.name || '-'}</TableCell>
+                                        <TableCell>{row.email}</TableCell>
+                                        <TableCell>{row.studentId || '-'}</TableCell>
+                                        <TableCell>{row.classLevel || '-'}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                    {csvData.length > 10 && (
+                                      <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                          ... and {csvData.length - 10} more
+                                        </TableCell>
+                                      </TableRow>
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </div>
+                          )}
+
+                          {importResult && (
+                            <div className="space-y-2">
+                              <Alert variant={importResult.failed > 0 ? "destructive" : "default"}>
+                                <CheckCircle className="h-4 w-4" />
+                                <AlertDescription>
+                                  Import complete: {importResult.success} successful, {importResult.failed} failed
+                                </AlertDescription>
+                              </Alert>
+                              {importResult.errors.length > 0 && (
+                                <div className="text-sm text-destructive space-y-1">
+                                  {importResult.errors.slice(0, 5).map((err, idx) => (
+                                    <p key={idx}>{err}</p>
+                                  ))}
+                                  {importResult.errors.length > 5 && (
+                                    <p>... and {importResult.errors.length - 5} more errors</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setBulkImportDialogOpen(false);
+                              resetBulkImport();
+                            }}
+                            data-testid="button-cancel-bulk-import"
+                          >
+                            {importResult ? 'Close' : 'Cancel'}
+                          </Button>
+                          {!importResult && (
+                            <Button
+                              onClick={handleBulkImport}
+                              disabled={csvData.length === 0 || bulkImportMutation.isPending}
+                              data-testid="button-submit-bulk-import"
+                            >
+                              {bulkImportMutation.isPending ? "Importing..." : `Import ${csvData.length} Students`}
+                            </Button>
+                          )}
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    <Dialog open={addMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button data-testid="button-add-member">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Member
+                        </Button>
+                      </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Add Member</DialogTitle>
@@ -435,6 +670,7 @@ export default function ClassAdminPage() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
