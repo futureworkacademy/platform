@@ -166,3 +166,90 @@ export async function sendBulkInvitations(
   
   return results;
 }
+
+export interface ReminderEmailData {
+  toEmail: string;
+  studentName: string;
+  className: string;
+  subject: string;
+  message: string;
+}
+
+export async function sendReminderEmail(data: ReminderEmailData): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableSendGridClient();
+    
+    const formattedMessage = data.message.replace(/\n/g, '<br>');
+    
+    const msg = {
+      to: data.toEmail,
+      from: fromEmail,
+      subject: `${data.subject} - ${data.className}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">The Future of Work</h1>
+              <p style="color: #94a3b8; margin: 10px 0 0 0; font-size: 14px;">${data.className}</p>
+            </div>
+            
+            <div style="padding: 30px;">
+              <h2 style="color: #1a1f36; margin-top: 0;">${data.subject}</h2>
+              
+              <p style="color: #475569; line-height: 1.6;">
+                Hi ${data.studentName},
+              </p>
+              
+              <div style="color: #475569; line-height: 1.8;">
+                ${formattedMessage}
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://futureworkacademy.com" 
+                   style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                          text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                  Go to Dashboard
+                </a>
+              </div>
+            </div>
+            
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                The Future of Work - A Business Simulation for Tomorrow's Leaders
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+${data.subject}
+
+Hi ${data.studentName},
+
+${data.message}
+
+Visit your dashboard: https://futureworkacademy.com
+
+- The Future of Work Team
+      `.trim()
+    };
+
+    await client.send(msg);
+    console.log(`Reminder email sent to ${data.toEmail}`);
+    return true;
+  } catch (error: any) {
+    console.error(`Failed to send reminder email to ${data.toEmail}:`, error.message);
+    if (error.response) {
+      console.error('SendGrid Response Status:', error.response.statusCode || error.code);
+      console.error('SendGrid Response Body:', JSON.stringify(error.response.body, null, 2));
+    }
+    return false;
+  }
+}

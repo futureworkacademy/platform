@@ -2270,7 +2270,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const { orgId } = req.params;
-      const { totalWeeks, startDate, endDate } = req.body;
+      const { totalWeeks, startDate, endDate, feedbackFormUrl } = req.body;
 
       // Check permissions
       const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
@@ -2285,8 +2285,10 @@ export async function registerRoutes(
         .where(eq(simulations.organizationId, orgId));
 
       if (existing) {
-        // Can only update if in setup status
-        if (existing.status !== SIMULATION_STATUS.SETUP) {
+        // feedbackFormUrl can be updated at any time, other settings only in setup
+        const isOnlyFeedbackUpdate = feedbackFormUrl !== undefined && !totalWeeks && !startDate && !endDate;
+        
+        if (!isOnlyFeedbackUpdate && existing.status !== SIMULATION_STATUS.SETUP) {
           return res.status(400).json({ error: "Cannot modify simulation settings after it has started" });
         }
 
@@ -2295,6 +2297,7 @@ export async function registerRoutes(
             totalWeeks: totalWeeks || existing.totalWeeks,
             startDate: startDate ? new Date(startDate) : existing.startDate,
             endDate: endDate ? new Date(endDate) : existing.endDate,
+            feedbackFormUrl: feedbackFormUrl !== undefined ? feedbackFormUrl : existing.feedbackFormUrl,
             updatedAt: new Date(),
           })
           .where(eq(simulations.id, existing.id))
@@ -2309,6 +2312,7 @@ export async function registerRoutes(
         totalWeeks: totalWeeks || 8,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
+        feedbackFormUrl: feedbackFormUrl || null,
         status: SIMULATION_STATUS.SETUP,
         currentWeek: 0,
       }).returning();
@@ -2506,7 +2510,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const { orgId } = req.params;
-      const { title, message, audience, teamId, scheduledFor, relativeToWeek } = req.body;
+      const { title, message, audience, teamId, scheduledFor, relativeToWeek, templateType, sendSms } = req.body;
 
       // Check permissions
       const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
@@ -2533,6 +2537,8 @@ export async function registerRoutes(
         teamId: teamId || null,
         scheduledFor: new Date(scheduledFor),
         relativeToWeek: relativeToWeek || null,
+        templateType: templateType || "custom",
+        sendSms: sendSms || false,
         status: "pending",
         createdBy: userId,
       }).returning();

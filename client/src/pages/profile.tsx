@@ -15,7 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell } from "lucide-react";
+import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell, MessageSquare } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -34,6 +35,7 @@ interface Profile {
   teamId: string | null;
   isAdmin: string | null;
   notifyPhone: string | null;
+  smsEnabled: boolean | null;
 }
 
 interface RoleInfo {
@@ -68,6 +70,7 @@ export default function Profile() {
       institution: "",
       department: "",
       notifyPhone: "",
+      smsEnabled: true,
     },
     values: profile ? {
       firstName: profile.firstName || "",
@@ -77,6 +80,7 @@ export default function Profile() {
       institution: profile.institution || "",
       department: profile.department || "",
       notifyPhone: profile.notifyPhone || "",
+      smsEnabled: profile.smsEnabled ?? true,
     } : undefined,
   });
 
@@ -309,6 +313,52 @@ export default function Profile() {
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                <MessageSquare className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Communication Preferences</CardTitle>
+                <p className="text-sm text-muted-foreground">Manage how you receive notifications</p>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="smsEnabled"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">SMS Notifications</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Receive important reminders and alerts via text message
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        data-testid="switch-sms-enabled"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <div className="rounded-lg border p-4 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Email Notifications</p>
+                    <p className="text-sm text-muted-foreground">
+                      Always enabled - this is our primary way to reach you
+                    </p>
+                  </div>
+                  <Switch checked={true} disabled data-testid="switch-email-enabled" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {(roleInfo?.isClassAdmin || roleInfo?.isSuperAdmin) && (
             <Card>
               <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
@@ -316,7 +366,7 @@ export default function Profile() {
                   <Bell className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-base">Notification Settings</CardTitle>
+                  <CardTitle className="text-base">Instructor Notifications</CardTitle>
                   <p className="text-sm text-muted-foreground">Receive SMS alerts when students enroll</p>
                 </div>
               </CardHeader>

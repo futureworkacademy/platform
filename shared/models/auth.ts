@@ -50,6 +50,7 @@ export const users = pgTable("users", {
   verificationCode: varchar("verification_code"),
   verificationCodeExpires: timestamp("verification_code_expires"),
   notifyPhone: varchar("notify_phone"),
+  smsEnabled: boolean("sms_enabled").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -210,12 +211,24 @@ export const simulations = pgTable("simulations", {
   startedBy: varchar("started_by"),
   completedAt: timestamp("completed_at"),
   completedBy: varchar("completed_by"),
+  feedbackFormUrl: text("feedback_form_url"), // Google Form embed URL for post-simulation survey
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type Simulation = typeof simulations.$inferSelect;
 export type InsertSimulation = typeof simulations.$inferInsert;
+
+// Reminder template types
+export const REMINDER_TEMPLATES = {
+  WELCOME: "welcome",
+  NO_SUBMISSION_WARNING: "no_submission_warning",
+  SCORE_UPDATE: "score_update",
+  THANK_YOU: "thank_you",
+  CUSTOM: "custom",
+} as const;
+
+export type ReminderTemplateType = typeof REMINDER_TEMPLATES[keyof typeof REMINDER_TEMPLATES];
 
 // Scheduled reminders - email queue for simulation notifications
 export const scheduledReminders = pgTable("scheduled_reminders", {
@@ -224,10 +237,12 @@ export const scheduledReminders = pgTable("scheduled_reminders", {
   simulationId: varchar("simulation_id"),
   title: varchar("title").notNull(),
   message: text("message").notNull(),
-  audience: varchar("audience").notNull().default("all_students"), // all_students, instructors, specific_team
+  audience: varchar("audience").notNull().default("all_students"), // all_students, instructors, specific_team, no_submission
   teamId: varchar("team_id"), // If audience is specific_team
   scheduledFor: timestamp("scheduled_for").notNull(),
   relativeToWeek: integer("relative_to_week"), // Optional: which simulation week this relates to
+  templateType: varchar("template_type").default("custom"), // welcome, no_submission_warning, score_update, thank_you, custom
+  sendSms: boolean("send_sms").default(false), // Whether to also send SMS
   status: varchar("status").notNull().default("pending"), // pending, sent, failed, cancelled
   sentAt: timestamp("sent_at"),
   sendCount: integer("send_count").default(0),

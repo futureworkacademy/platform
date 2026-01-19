@@ -606,6 +606,7 @@ export const profileUpdateSchema = z.object({
   department: z.string().optional(),
   profileImageUrl: z.string().optional(),
   notifyPhone: z.string().optional(),
+  smsEnabled: z.boolean().optional(),
 });
 
 export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;

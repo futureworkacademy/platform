@@ -105,6 +105,7 @@ interface Simulation {
   endDate: string | null;
   startedAt?: string | null;
   completedAt?: string | null;
+  feedbackFormUrl?: string | null;
 }
 
 interface ScheduledReminder {
@@ -116,11 +117,66 @@ interface ScheduledReminder {
   teamId?: string | null;
   scheduledFor: string;
   relativeToWeek?: number | null;
+  templateType?: string;
+  sendSms?: boolean;
   status: string;
   sentAt?: string | null;
   sendCount?: number;
   failCount?: number;
 }
+
+const REMINDER_TEMPLATE_PRESETS = {
+  welcome: {
+    title: "Welcome to the Simulation!",
+    message: `Welcome to The Future of Work Simulation!
+
+You've been enrolled in an exciting business simulation where you'll make strategic decisions about AI adoption, workforce management, and organizational culture.
+
+Here's what to expect:
+- Weekly decision rounds with your team
+- Real-time metrics and performance tracking  
+- Competition with other teams in your class
+
+Log in now to explore your company dashboard and meet your team!`,
+    audience: "all_students",
+  },
+  no_submission_warning: {
+    title: "Reminder: Decisions Due Soon",
+    message: `This is a friendly reminder that you haven't submitted your decisions for the current week yet.
+
+Please log in and submit your team's decisions before the deadline to avoid missing this round.
+
+Your participation matters for your team's success!`,
+    audience: "no_submission",
+  },
+  score_update: {
+    title: "Weekly Score Update",
+    message: `The results are in! 
+
+Check your dashboard to see how your team performed this week:
+- Review your financial metrics
+- Check your cultural health scores
+- See how you rank on the leaderboard
+
+Great work so far - keep making strategic decisions!`,
+    audience: "all_students",
+  },
+  thank_you: {
+    title: "Thank You for Participating!",
+    message: `Congratulations on completing The Future of Work Simulation!
+
+Over the past weeks, you've navigated complex decisions about:
+- AI and automation adoption
+- Workforce reskilling and development
+- Organizational culture and employee morale
+- Competitive strategy
+
+We hope you've gained valuable insights into the challenges leaders face in the modern workplace. Your final results are available on your dashboard.
+
+Thank you for your engagement and participation!`,
+    audience: "all_students",
+  },
+};
 
 export default function ClassAdminPage() {
   const { toast } = useToast();
@@ -258,7 +314,7 @@ export default function ClassAdminPage() {
   });
 
   const updateSimulationMutation = useMutation({
-    mutationFn: async (data: { totalWeeks?: number; startDate?: string; endDate?: string }) => {
+    mutationFn: async (data: { totalWeeks?: number; startDate?: string; endDate?: string; feedbackFormUrl?: string }) => {
       return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation`, data);
     },
     onSuccess: () => {
@@ -310,7 +366,14 @@ export default function ClassAdminPage() {
   });
 
   const createReminderMutation = useMutation({
-    mutationFn: async (data: { title: string; message: string; scheduledFor: string; audience?: string }) => {
+    mutationFn: async (data: { 
+      title: string; 
+      message: string; 
+      scheduledFor: string; 
+      audience?: string;
+      templateType?: string;
+      sendSms?: boolean;
+    }) => {
       return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/reminders`, data);
     },
     onSuccess: () => {
@@ -1275,78 +1338,269 @@ export default function ClassAdminPage() {
                     Scheduled Reminders
                   </CardTitle>
                   <CardDescription>
-                    Queue up email reminders for your students
+                    Queue up email and SMS reminders for your students
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full" data-testid="button-add-reminder">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Schedule New Reminder
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Schedule a Reminder</DialogTitle>
-                        <DialogDescription>
-                          Create an email reminder for your students
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.currentTarget);
-                        createReminderMutation.mutate({
-                          title: formData.get("title") as string,
-                          message: formData.get("message") as string,
-                          scheduledFor: formData.get("scheduledFor") as string,
-                          audience: "all_students",
-                        });
-                        (e.target as HTMLFormElement).reset();
-                      }} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="reminder-title">Title</Label>
-                          <Input
-                            id="reminder-title"
-                            name="title"
-                            placeholder="e.g., Weekly Submission Reminder"
-                            required
-                            data-testid="input-reminder-title"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="reminder-message">Message</Label>
-                          <textarea
-                            id="reminder-message"
-                            name="message"
-                            placeholder="e.g., Simulation inputs are due by 11:59PM tonight..."
-                            required
-                            className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-input bg-background"
-                            data-testid="input-reminder-message"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="reminder-date">Send Date & Time</Label>
-                          <Input
-                            id="reminder-date"
-                            name="scheduledFor"
-                            type="datetime-local"
-                            required
-                            data-testid="input-reminder-date"
-                          />
-                        </div>
-                        <DialogFooter>
-                          <Button 
-                            type="submit" 
-                            disabled={createReminderMutation.isPending}
-                            data-testid="button-submit-reminder"
-                          >
-                            Schedule Reminder
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wide">Quick Add Templates</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="justify-start" data-testid="button-template-welcome">
+                            <Play className="mr-2 h-3 w-3" />
+                            Welcome
                           </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Welcome Reminder</DialogTitle>
+                            <DialogDescription>Send when the simulation starts</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            createReminderMutation.mutate({
+                              title: REMINDER_TEMPLATE_PRESETS.welcome.title,
+                              message: REMINDER_TEMPLATE_PRESETS.welcome.message,
+                              scheduledFor: formData.get("scheduledFor") as string,
+                              audience: "all_students",
+                              templateType: "welcome",
+                              sendSms: formData.get("sendSms") === "on",
+                            });
+                          }} className="space-y-4">
+                            <div className="p-3 bg-muted rounded-md">
+                              <p className="font-medium text-sm">{REMINDER_TEMPLATE_PRESETS.welcome.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line line-clamp-4">{REMINDER_TEMPLATE_PRESETS.welcome.message}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Send Date & Time</Label>
+                              <Input name="scheduledFor" type="datetime-local" required data-testid="input-welcome-date" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="welcome-sms" name="sendSms" data-testid="checkbox-welcome-sms" />
+                              <Label htmlFor="welcome-sms" className="text-sm">Also send SMS to students who opted in</Label>
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit" disabled={createReminderMutation.isPending} data-testid="button-submit-welcome">Schedule</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="justify-start" data-testid="button-template-warning">
+                            <AlertCircle className="mr-2 h-3 w-3" />
+                            48hr Warning
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>No Submission Warning</DialogTitle>
+                            <DialogDescription>Send 48 hours before deadline to students who haven't submitted</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            createReminderMutation.mutate({
+                              title: REMINDER_TEMPLATE_PRESETS.no_submission_warning.title,
+                              message: REMINDER_TEMPLATE_PRESETS.no_submission_warning.message,
+                              scheduledFor: formData.get("scheduledFor") as string,
+                              audience: "no_submission",
+                              templateType: "no_submission_warning",
+                              sendSms: formData.get("sendSms") === "on",
+                            });
+                          }} className="space-y-4">
+                            <div className="p-3 bg-muted rounded-md">
+                              <p className="font-medium text-sm">{REMINDER_TEMPLATE_PRESETS.no_submission_warning.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{REMINDER_TEMPLATE_PRESETS.no_submission_warning.message}</p>
+                            </div>
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription className="text-xs">
+                                This will only send to students who haven't submitted decisions for the current week.
+                              </AlertDescription>
+                            </Alert>
+                            <div className="space-y-2">
+                              <Label>Send Date & Time (48 hours before deadline)</Label>
+                              <Input name="scheduledFor" type="datetime-local" required data-testid="input-warning-date" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="warning-sms" name="sendSms" data-testid="checkbox-warning-sms" />
+                              <Label htmlFor="warning-sms" className="text-sm">Also send SMS to students who opted in</Label>
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit" disabled={createReminderMutation.isPending} data-testid="button-submit-warning">Schedule</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="justify-start" data-testid="button-template-score">
+                            <CheckCircle className="mr-2 h-3 w-3" />
+                            Score Update
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Score Update</DialogTitle>
+                            <DialogDescription>Send 24 hours after submission deadline</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            createReminderMutation.mutate({
+                              title: REMINDER_TEMPLATE_PRESETS.score_update.title,
+                              message: REMINDER_TEMPLATE_PRESETS.score_update.message,
+                              scheduledFor: formData.get("scheduledFor") as string,
+                              audience: "all_students",
+                              templateType: "score_update",
+                              sendSms: formData.get("sendSms") === "on",
+                            });
+                          }} className="space-y-4">
+                            <div className="p-3 bg-muted rounded-md">
+                              <p className="font-medium text-sm">{REMINDER_TEMPLATE_PRESETS.score_update.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{REMINDER_TEMPLATE_PRESETS.score_update.message}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Send Date & Time (24 hours after deadline)</Label>
+                              <Input name="scheduledFor" type="datetime-local" required data-testid="input-score-date" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="score-sms" name="sendSms" data-testid="checkbox-score-sms" />
+                              <Label htmlFor="score-sms" className="text-sm">Also send SMS to students who opted in</Label>
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit" disabled={createReminderMutation.isPending} data-testid="button-submit-score">Schedule</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="justify-start" data-testid="button-template-thankyou">
+                            <Mail className="mr-2 h-3 w-3" />
+                            Thank You
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Thank You Message</DialogTitle>
+                            <DialogDescription>Send 24 hours after simulation ends</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            createReminderMutation.mutate({
+                              title: REMINDER_TEMPLATE_PRESETS.thank_you.title,
+                              message: REMINDER_TEMPLATE_PRESETS.thank_you.message,
+                              scheduledFor: formData.get("scheduledFor") as string,
+                              audience: "all_students",
+                              templateType: "thank_you",
+                              sendSms: formData.get("sendSms") === "on",
+                            });
+                          }} className="space-y-4">
+                            <div className="p-3 bg-muted rounded-md">
+                              <p className="font-medium text-sm">{REMINDER_TEMPLATE_PRESETS.thank_you.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line line-clamp-4">{REMINDER_TEMPLATE_PRESETS.thank_you.message}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Send Date & Time (24 hours after completion)</Label>
+                              <Input name="scheduledFor" type="datetime-local" required data-testid="input-thankyou-date" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="thankyou-sms" name="sendSms" data-testid="checkbox-thankyou-sms" />
+                              <Label htmlFor="thankyou-sms" className="text-sm">Also send SMS to students who opted in</Label>
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit" disabled={createReminderMutation.isPending} data-testid="button-submit-thankyou">Schedule</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full" data-testid="button-add-reminder">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Custom Reminder
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Schedule a Custom Reminder</DialogTitle>
+                          <DialogDescription>
+                            Create a custom email reminder for your students
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          const formData = new FormData(e.currentTarget);
+                          createReminderMutation.mutate({
+                            title: formData.get("title") as string,
+                            message: formData.get("message") as string,
+                            scheduledFor: formData.get("scheduledFor") as string,
+                            audience: "all_students",
+                            templateType: "custom",
+                            sendSms: formData.get("sendSms") === "on",
+                          });
+                          (e.target as HTMLFormElement).reset();
+                        }} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="reminder-title">Title</Label>
+                            <Input
+                              id="reminder-title"
+                              name="title"
+                              placeholder="e.g., Weekly Submission Reminder"
+                              required
+                              data-testid="input-reminder-title"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="reminder-message">Message</Label>
+                            <textarea
+                              id="reminder-message"
+                              name="message"
+                              placeholder="e.g., Simulation inputs are due by 11:59PM tonight..."
+                              required
+                              className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-input bg-background"
+                              data-testid="input-reminder-message"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="reminder-date">Send Date & Time</Label>
+                            <Input
+                              id="reminder-date"
+                              name="scheduledFor"
+                              type="datetime-local"
+                              required
+                              data-testid="input-reminder-date"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="custom-sms" name="sendSms" data-testid="checkbox-custom-sms" />
+                            <Label htmlFor="custom-sms" className="text-sm">Also send SMS to students who opted in</Label>
+                          </div>
+                          <DialogFooter>
+                            <Button 
+                              type="submit" 
+                              disabled={createReminderMutation.isPending}
+                              data-testid="button-submit-reminder"
+                            >
+                              Schedule Reminder
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
 
                   {reminders.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">
@@ -1361,7 +1615,15 @@ export default function ClassAdminPage() {
                           data-testid={`reminder-${reminder.id}`}
                         >
                           <div className="flex-1">
-                            <p className="font-medium text-sm">{reminder.title}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm">{reminder.title}</p>
+                              {reminder.sendSms && (
+                                <Badge variant="outline" className="text-xs">+SMS</Badge>
+                              )}
+                              {reminder.audience === "no_submission" && (
+                                <Badge variant="secondary" className="text-xs">Conditional</Badge>
+                              )}
+                            </div>
                             <p className="text-xs text-muted-foreground">
                               {new Date(reminder.scheduledFor).toLocaleString()}
                             </p>
@@ -1394,6 +1656,61 @@ export default function ClassAdminPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Post-Simulation Feedback Survey
+                </CardTitle>
+                <CardDescription>
+                  Embed a Google Form to collect student feedback after the simulation ends
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    Create your Google Form, then copy the embed URL. For best results, set your form width to <strong>max 640px</strong>. Height can be 600-800px for typical surveys.
+                  </AlertDescription>
+                </Alert>
+                <div className="space-y-2">
+                  <Label htmlFor="feedbackFormUrl">Google Form Embed URL</Label>
+                  <Input
+                    id="feedbackFormUrl"
+                    type="url"
+                    placeholder="https://docs.google.com/forms/d/e/.../viewform?embedded=true"
+                    defaultValue={simulation?.feedbackFormUrl || ""}
+                    onBlur={(e) => {
+                      if (e.target.value !== simulation?.feedbackFormUrl) {
+                        updateSimulationMutation.mutate({ feedbackFormUrl: e.target.value });
+                      }
+                    }}
+                    data-testid="input-feedback-form-url"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    In Google Forms: Click "Send" → Embed icon (&lt;/&gt;) → Copy the src URL from the iframe code
+                  </p>
+                </div>
+                {simulation?.feedbackFormUrl && (
+                  <div className="border rounded-md overflow-hidden">
+                    <iframe
+                      src={simulation.feedbackFormUrl}
+                      width="100%"
+                      height="400"
+                      frameBorder="0"
+                      marginHeight={0}
+                      marginWidth={0}
+                      className="bg-background"
+                      title="Feedback Survey Preview"
+                      data-testid="iframe-feedback-preview"
+                    >
+                      Loading...
+                    </iframe>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

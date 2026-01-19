@@ -137,3 +137,32 @@ export async function isTwilioConfigured(): Promise<boolean> {
     return false;
   }
 }
+
+// Send custom SMS message for reminders
+export async function sendCustomSms(
+  toPhoneNumber: string,
+  message: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const client = await getTwilioClient();
+    const fromNumber = await getTwilioFromPhoneNumber();
+
+    if (!fromNumber) {
+      return { success: false, error: 'No Twilio phone number configured' };
+    }
+
+    const truncatedMessage = message.length > 1600 ? message.substring(0, 1597) + '...' : message;
+
+    const result = await client.messages.create({
+      body: `[Future of Work] ${truncatedMessage}`,
+      from: fromNumber,
+      to: toPhoneNumber
+    });
+
+    console.log(`[Twilio] SMS sent: ${result.sid}`);
+    return { success: true, messageId: result.sid };
+  } catch (error: any) {
+    console.error('[Twilio] Failed to send SMS:', error.message);
+    return { success: false, error: error.message };
+  }
+}
