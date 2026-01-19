@@ -66,6 +66,7 @@ export interface IStorage {
   getAdminAnalytics(): Promise<AdminAnalytics>;
   getEasterEggs(): Promise<EasterEgg[]>;
   detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]>;
+  evaluateRationaleWithLLM(rationale: string, decisionContext: string, weekNumber: number): Promise<{ score: number; evidenceUsed: string[]; reasoning: string; quality: string }>;
   
   // Activity logging
   logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog>;
@@ -1704,6 +1705,31 @@ export class MemStorage implements IStorage {
     }
     
     return found;
+  }
+
+  async evaluateRationaleWithLLM(
+    rationale: string,
+    decisionContext: string,
+    weekNumber: number
+  ): Promise<{ score: number; evidenceUsed: string[]; reasoning: string; quality: string }> {
+    try {
+      const { evaluateRationale, calculateEasterEggBonus } = await import("./services/llm-evaluation");
+      const evaluation = await evaluateRationale(rationale, decisionContext, weekNumber);
+      return {
+        score: evaluation.researchQualityScore,
+        evidenceUsed: evaluation.evidenceUsed,
+        reasoning: evaluation.reasoning,
+        quality: evaluation.overallQuality,
+      };
+    } catch (error) {
+      console.error("[Storage] LLM evaluation failed:", error);
+      return {
+        score: 0,
+        evidenceUsed: [],
+        reasoning: "Evaluation unavailable",
+        quality: "poor",
+      };
+    }
   }
 
   async logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog> {

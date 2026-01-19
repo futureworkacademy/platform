@@ -430,11 +430,20 @@ export async function registerRoutes(
       const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
       const weekNumber = team?.currentWeek || 1;
       
-      const easterEggsFound = await storage.detectEasterEggs(rationale, weekNumber);
+      // Get decision context for LLM evaluation
+      const decisions = await storage.getEnhancedDecisions(weekNumber);
+      const decision = decisions.find(d => d.id === decisionId);
+      const decisionContext = decision ? `${decision.title}: ${decision.description}` : "Business decision";
+      
+      // Use LLM evaluation for rationale quality (semantic understanding)
+      const llmEvaluation = await storage.evaluateRationaleWithLLM(rationale, decisionContext, weekNumber);
+      
+      // Also run keyword detection as a backup metric
+      const keywordMatches = await storage.detectEasterEggs(rationale, weekNumber);
       
       const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
       
-      // Log activity
+      // Log activity with both evaluation methods
       await storage.logActivity({
         eventType: "enhanced_decision_submitted",
         userId: userId,
@@ -446,17 +455,28 @@ export async function registerRoutes(
         details: { 
           decisionId, 
           wordCount,
-          easterEggsFound: easterEggsFound.length,
+          llmQualityScore: llmEvaluation.score,
+          llmQuality: llmEvaluation.quality,
+          evidenceUsed: llmEvaluation.evidenceUsed.length,
+          keywordMatches: keywordMatches.length,
           attributeKeys: Object.keys(attributeValues),
         },
       });
       
+      // Generate feedback message based on LLM evaluation (don't reveal scoring details)
+      let feedbackMessage: string | undefined;
+      if (llmEvaluation.quality === "excellent") {
+        feedbackMessage = "Excellent analysis! Your research application is outstanding.";
+      } else if (llmEvaluation.quality === "good") {
+        feedbackMessage = "Good work! Your reasoning demonstrates solid understanding.";
+      } else if (llmEvaluation.quality === "adequate") {
+        feedbackMessage = "Decision recorded. Consider diving deeper into the research materials.";
+      }
+      
       res.json({ 
         submission,
-        easterEggsFound: easterEggsFound.length,
-        message: easterEggsFound.length > 0 
-          ? `Your research is showing! Detected ${easterEggsFound.length} relevant insights.`
-          : undefined
+        qualityFeedback: feedbackMessage,
+        researchScore: llmEvaluation.score,
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to submit enhanced decision" });

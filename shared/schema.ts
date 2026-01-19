@@ -613,3 +613,6 @@ export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
 
 // Export auth models from Replit Auth integration
 export * from "./models/auth";
+
+// Export chat models for AI integrations
+export * from "./models/chat";
