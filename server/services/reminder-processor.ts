@@ -69,11 +69,12 @@ async function getStudentsForReminder(
       .where(eq(teams.organizationId, organizationId));
     
     // Filter teams that haven't submitted for the CURRENT simulation week
+    // Decision records are stored in decisionRecords array with weekNumber field
     const teamsWithNoDecisions = orgTeams.filter(team => {
-      const decisions = team.decisions as any[] || [];
-      // Check if there's a submitted decision for the current simulation week
-      const hasCurrentWeekDecision = decisions.some(
-        (d: any) => d.week === currentSimulationWeek && d.submitted === true
+      const decisionRecords = team.decisionRecords as Array<{ weekNumber: number; decisionId: string }> || [];
+      // Check if there's any decision record for the current simulation week
+      const hasCurrentWeekDecision = decisionRecords.some(
+        (record) => record.weekNumber === currentSimulationWeek
       );
       return !hasCurrentWeekDecision;
     });
