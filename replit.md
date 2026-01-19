@@ -46,6 +46,8 @@ I prefer clear and concise communication. When making changes, prioritize the co
 -   **People Analytics:** Detailed employee sentiment and behavior analysis.
 -   **Student Enrollment:** Configurable `.edu` email verification and team code entry, with SMS notifications to Class Admins.
 -   **Admin Dashboards:** Dedicated interfaces for Super Admins (platform-wide) and Class Admins (organization-specific).
+-   **Instructor Notification Settings:** Admin users can set their phone number for SMS alerts when students enroll.
+-   **CSV Bulk Import:** Class Admins can import up to 500 students at a time via CSV upload (email, firstName, lastName).
 -   **Platform Settings (Super Admin):** Configurable enrollment requirements, competition modes, scoring weights, and bonus settings:
     - Enrollment: Toggle `.edu` email requirement, team code requirement
     - Competition: Individual vs team-based scoring, simulation duration (4-12 weeks)
