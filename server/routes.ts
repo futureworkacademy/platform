@@ -12,6 +12,7 @@ import { institutions } from "@shared/institutions";
 import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
 import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
+import { sendInvitationEmail } from "./services/email";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -1760,7 +1761,7 @@ export async function registerRoutes(
     try {
       const adminUserId = req.user?.claims?.sub;
       const { orgId } = req.params;
-      const { students } = req.body;
+      const { students, sendInvites = true } = req.body;
       
       if (!Array.isArray(students) || students.length === 0) {
         return res.status(400).json({ error: "No students provided" });
@@ -1779,11 +1780,27 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Admin access required" });
       }
 
+      // Get organization and admin info for invitation emails
+      const org = await organizationStorage.getOrganization(orgId);
+      const [adminUser] = await db.select().from(users).where(eq(users.id, adminUserId));
+      const instructorName = adminUser ? 
+        [adminUser.firstName, adminUser.lastName].filter(Boolean).join(' ') || 'Your Instructor' : 
+        'Your Instructor';
+      const className = org?.name || 'The Future of Work Simulation';
+      const loginUrl = process.env.REPLIT_DOMAINS ? 
+        `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 
+        'https://futureworkacademy.com';
+
       const results = {
         success: 0,
         failed: 0,
         errors: [] as string[],
+        emailsSent: 0,
+        emailsFailed: 0,
       };
+
+      // Track newly added students for sending invitations
+      const newlyAddedStudents: Array<{ email: string; name: string }> = [];
 
       for (const student of students) {
         const { email, name, studentId, classLevel } = student;
@@ -1821,6 +1838,7 @@ export async function registerRoutes(
             });
             
             results.success++;
+            newlyAddedStudents.push({ email: email.toLowerCase().trim(), name: name || '' });
           } else {
             // Check if already a member
             const existingMember = await organizationStorage.getMember(user.id, orgId);
@@ -1839,10 +1857,34 @@ export async function registerRoutes(
             });
             
             results.success++;
+            newlyAddedStudents.push({ email: email.toLowerCase().trim(), name: name || '' });
           }
         } catch (studentError: any) {
           results.failed++;
           results.errors.push(`${email}: ${studentError.message || 'Failed to import'}`);
+        }
+      }
+
+      // Send invitation emails if enabled
+      if (sendInvites && newlyAddedStudents.length > 0) {
+        for (const student of newlyAddedStudents) {
+          try {
+            const sent = await sendInvitationEmail({
+              toEmail: student.email,
+              studentName: student.name,
+              className,
+              instructorName,
+              loginUrl,
+            });
+            if (sent) {
+              results.emailsSent++;
+            } else {
+              results.emailsFailed++;
+            }
+          } catch (emailError) {
+            results.emailsFailed++;
+            console.error(`Failed to send email to ${student.email}:`, emailError);
+          }
         }
       }
 

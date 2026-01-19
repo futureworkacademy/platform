@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -20,7 +21,9 @@ import {
   Upload,
   FileSpreadsheet,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Mail,
+  Send
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useSearch, useLocation } from "wouter";
@@ -104,7 +107,8 @@ export default function ClassAdminPage() {
   const [bulkImportDialogOpen, setBulkImportDialogOpen] = useState(false);
   const [csvData, setCsvData] = useState<Array<{name: string; studentId: string; classLevel: string; email: string}>>([]);
   const [csvError, setCsvError] = useState<string | null>(null);
-  const [importResult, setImportResult] = useState<{success: number; failed: number; errors: string[]} | null>(null);
+  const [importResult, setImportResult] = useState<{success: number; failed: number; errors: string[]; emailsSent?: number; emailsFailed?: number} | null>(null);
+  const [sendInvites, setSendInvites] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
@@ -202,15 +206,16 @@ export default function ClassAdminPage() {
   });
 
   const bulkImportMutation = useMutation({
-    mutationFn: async (students: Array<{name: string; studentId: string; classLevel: string; email: string}>) => {
-      const response = await apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/bulk-import`, { students });
+    mutationFn: async (payload: { students: Array<{name: string; studentId: string; classLevel: string; email: string}>; sendInvites: boolean }) => {
+      const response = await apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/bulk-import`, payload);
       return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"] });
       setImportResult(data);
       if (data.success > 0) {
-        toast({ title: `Successfully imported ${data.success} students` });
+        const emailMsg = data.emailsSent > 0 ? ` and sent ${data.emailsSent} invitation emails` : '';
+        toast({ title: `Successfully imported ${data.success} students${emailMsg}` });
       }
     },
     onError: (error: any) => {
@@ -290,7 +295,7 @@ export default function ClassAdminPage() {
 
   const handleBulkImport = () => {
     if (csvData.length > 0) {
-      bulkImportMutation.mutate(csvData);
+      bulkImportMutation.mutate({ students: csvData, sendInvites });
     }
   };
 
@@ -298,6 +303,7 @@ export default function ClassAdminPage() {
     setCsvData([]);
     setCsvError(null);
     setImportResult(null);
+    setSendInvites(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -581,12 +587,36 @@ export default function ClassAdminPage() {
                             </div>
                           )}
 
+                          {csvData.length > 0 && !importResult && (
+                            <div className="flex items-center space-x-2 pt-2 border-t">
+                              <Checkbox 
+                                id="send-invites" 
+                                checked={sendInvites}
+                                onCheckedChange={(checked) => setSendInvites(checked === true)}
+                                data-testid="checkbox-send-invites"
+                              />
+                              <Label htmlFor="send-invites" className="text-sm flex items-center gap-2 cursor-pointer">
+                                <Mail className="h-4 w-4" />
+                                Send invitation emails to students
+                              </Label>
+                            </div>
+                          )}
+
                           {importResult && (
                             <div className="space-y-2">
                               <Alert variant={importResult.failed > 0 ? "destructive" : "default"}>
                                 <CheckCircle className="h-4 w-4" />
                                 <AlertDescription>
                                   Import complete: {importResult.success} successful, {importResult.failed} failed
+                                  {(importResult.emailsSent !== undefined && importResult.emailsSent > 0) && (
+                                    <span className="block mt-1">
+                                      <Mail className="h-3 w-3 inline mr-1" />
+                                      {importResult.emailsSent} invitation emails sent
+                                      {importResult.emailsFailed !== undefined && importResult.emailsFailed > 0 && 
+                                        `, ${importResult.emailsFailed} failed`
+                                      }
+                                    </span>
+                                  )}
                                 </AlertDescription>
                               </Alert>
                               {importResult.errors.length > 0 && (
