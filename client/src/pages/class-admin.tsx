@@ -239,11 +239,26 @@ export default function ClassAdminPage() {
         // Parse header - support various column names
         const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
         
-        // Find column indices (flexible matching)
-        const nameIdx = header.findIndex(h => h.includes('name') && !h.includes('email'));
-        const idIdx = header.findIndex(h => h.includes('id') || h.includes('student'));
-        const levelIdx = header.findIndex(h => h.includes('level') || h.includes('class') || h.includes('year'));
-        const emailIdx = header.findIndex(h => h.includes('email') || h.includes('mail'));
+        // Find column indices (flexible matching - order matters for specificity)
+        // Email - most specific, find first
+        const emailIdx = header.findIndex(h => h.includes('email') || h.includes('e-mail'));
+        
+        // Student ID - look for "id" but not in "email"
+        const idIdx = header.findIndex(h => 
+          (h.includes('student id') || h.includes('studentid') || 
+           (h.includes('id') && !h.includes('email')))
+        );
+        
+        // Class Level - look for level/class/year but not in other matches
+        const levelIdx = header.findIndex(h => 
+          (h.includes('level') || h.includes('class level') || 
+           (h.includes('class') && !h.includes('id')))
+        );
+        
+        // Name - look for "name" but exclude email and id columns
+        const nameIdx = header.findIndex((h, idx) => 
+          h.includes('name') && idx !== emailIdx && idx !== idIdx
+        );
 
         if (emailIdx === -1) {
           setCsvError("CSV must contain an 'email' column");
