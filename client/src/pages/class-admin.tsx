@@ -23,7 +23,13 @@ import {
   AlertCircle,
   CheckCircle,
   Mail,
-  Send
+  Send,
+  Calendar,
+  Play,
+  Pause,
+  Clock,
+  Bell,
+  RotateCw
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useSearch, useLocation } from "wouter";
@@ -89,6 +95,33 @@ interface RoleInfo {
   memberships: OrganizationMember[];
 }
 
+interface Simulation {
+  id?: string;
+  organizationId: string;
+  status: string;
+  totalWeeks: number;
+  currentWeek: number;
+  startDate: string | null;
+  endDate: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+interface ScheduledReminder {
+  id: string;
+  organizationId: string;
+  title: string;
+  message: string;
+  audience: string;
+  teamId?: string | null;
+  scheduledFor: string;
+  relativeToWeek?: number | null;
+  status: string;
+  sentAt?: string | null;
+  sendCount?: number;
+  failCount?: number;
+}
+
 export default function ClassAdminPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -127,6 +160,16 @@ export default function ClassAdminPage() {
 
   const { data: teams = [], isLoading: teamsLoading, refetch: refetchTeams } = useQuery<Team[]>({
     queryKey: ["/api/class-admin/organizations", selectedOrgId, "teams"],
+    enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
+  });
+
+  const { data: simulation, refetch: refetchSimulation } = useQuery<Simulation>({
+    queryKey: ["/api/class-admin/organizations", selectedOrgId, "simulation"],
+    enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
+  });
+
+  const { data: reminders = [], refetch: refetchReminders } = useQuery<ScheduledReminder[]>({
+    queryKey: ["/api/class-admin/organizations", selectedOrgId, "reminders"],
     enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
   });
 
@@ -198,6 +241,97 @@ export default function ClassAdminPage() {
     },
     onError: (error: any) => {
       toast({ title: "Failed to send invitation", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const reactivateMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/members/${memberId}/reactivate`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"] });
+      toast({ title: "Member reactivated" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to reactivate member", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateSimulationMutation = useMutation({
+    mutationFn: async (data: { totalWeeks?: number; startDate?: string; endDate?: string }) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "simulation"] });
+      toast({ title: "Simulation settings saved" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to save simulation settings", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const startSimulationMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation/start`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "simulation"] });
+      toast({ title: "Simulation started!", description: "Week 1 has begun" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to start simulation", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const advanceWeekMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation/advance-week`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "simulation"] });
+      toast({ title: "Week advanced" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to advance week", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const completeSimulationMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation/complete`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "simulation"] });
+      toast({ title: "Simulation completed" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to complete simulation", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createReminderMutation = useMutation({
+    mutationFn: async (data: { title: string; message: string; scheduledFor: string; audience?: string }) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/reminders`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "reminders"] });
+      toast({ title: "Reminder scheduled" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to schedule reminder", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const cancelReminderMutation = useMutation({
+    mutationFn: async (reminderId: string) => {
+      return apiRequest("DELETE", `/api/class-admin/organizations/${selectedOrgId}/reminders/${reminderId}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "reminders"] });
+      toast({ title: "Reminder cancelled" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to cancel reminder", description: error.message, variant: "destructive" });
     },
   });
 
@@ -324,6 +458,7 @@ export default function ClassAdminPage() {
   const currentOrg = myOrganizations.find(org => org.id === selectedOrgId);
   const pendingMembers = members.filter(m => m.status === "pending");
   const activeMembers = members.filter(m => m.status === "active");
+  const deactivatedMembers = members.filter(m => m.status === "deactivated");
   const studentMembers = activeMembers.filter(m => m.role === "STUDENT");
 
   if (roleLoading) {
@@ -498,7 +633,7 @@ export default function ClassAdminPage() {
         </div>
 
         <Tabs defaultValue="members" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="members" data-testid="tab-members">
               <Users className="mr-2 h-4 w-4" />
               Members ({members.length})
@@ -510,6 +645,10 @@ export default function ClassAdminPage() {
             <TabsTrigger value="pending" data-testid="tab-pending">
               <UserCheck className="mr-2 h-4 w-4" />
               Pending ({pendingMembers.length})
+            </TabsTrigger>
+            <TabsTrigger value="simulation" data-testid="tab-simulation">
+              <Calendar className="mr-2 h-4 w-4" />
+              Simulation
             </TabsTrigger>
           </TabsList>
 
@@ -814,6 +953,51 @@ export default function ClassAdminPage() {
                     </TableBody>
                   </Table>
                 )}
+
+                {deactivatedMembers.length > 0 && (
+                  <div className="mt-6 pt-4 border-t">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                      Deactivated Members ({deactivatedMembers.length})
+                    </h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {deactivatedMembers.map((member) => (
+                          <TableRow key={member.id} className="opacity-60" data-testid={`row-deactivated-${member.id}`}>
+                            <TableCell>
+                              {member.user?.firstName} {member.user?.lastName}
+                            </TableCell>
+                            <TableCell>{member.user?.email || member.user?.schoolEmail}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {member.role === "CLASS_ADMIN" ? "Instructor" : "Student"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => reactivateMemberMutation.mutate(member.id)}
+                                disabled={reactivateMemberMutation.isPending}
+                                data-testid={`button-reactivate-${member.id}`}
+                              >
+                                <RotateCw className="mr-1 h-3 w-3" />
+                                Reactivate
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -963,6 +1147,253 @@ export default function ClassAdminPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="simulation" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Simulation Status
+                  </CardTitle>
+                  <CardDescription>
+                    Configure and control your simulation lifecycle
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status:</span>
+                    <Badge variant={
+                      simulation?.status === "active" ? "default" :
+                      simulation?.status === "completed" ? "secondary" :
+                      "outline"
+                    }>
+                      {simulation?.status === "setup" ? "Setting Up" :
+                       simulation?.status === "active" ? "Active" :
+                       simulation?.status === "paused" ? "Paused" :
+                       simulation?.status === "completed" ? "Completed" :
+                       "Not Started"}
+                    </Badge>
+                  </div>
+                  
+                  {simulation?.status === "active" && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Current Week:</span>
+                      <span className="text-lg font-bold">
+                        Week {simulation.currentWeek} of {simulation.totalWeeks}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="totalWeeks">Total Weeks</Label>
+                    <Select 
+                      value={simulation?.totalWeeks?.toString() || "8"}
+                      onValueChange={(value) => updateSimulationMutation.mutate({ totalWeeks: parseInt(value) })}
+                      disabled={simulation?.status === "active" || simulation?.status === "completed"}
+                    >
+                      <SelectTrigger id="totalWeeks" data-testid="select-total-weeks">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[4, 5, 6, 7, 8, 9, 10, 11, 12].map((weeks) => (
+                          <SelectItem key={weeks} value={weeks.toString()}>
+                            {weeks} weeks
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={simulation?.startDate ? String(simulation.startDate).slice(0, 10) : ""}
+                      onChange={(e) => updateSimulationMutation.mutate({ startDate: e.target.value })}
+                      disabled={simulation?.status === "active" || simulation?.status === "completed"}
+                      data-testid="input-start-date"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">End Date</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={simulation?.endDate ? String(simulation.endDate).slice(0, 10) : ""}
+                      onChange={(e) => updateSimulationMutation.mutate({ endDate: e.target.value })}
+                      disabled={simulation?.status === "active" || simulation?.status === "completed"}
+                      data-testid="input-end-date"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    {(!simulation?.status || simulation?.status === "setup") && (
+                      <Button 
+                        onClick={() => startSimulationMutation.mutate()}
+                        disabled={startSimulationMutation.isPending || !simulation?.startDate}
+                        className="flex-1"
+                        data-testid="button-start-simulation"
+                      >
+                        <Play className="mr-2 h-4 w-4" />
+                        Start Simulation
+                      </Button>
+                    )}
+                    
+                    {simulation?.status === "active" && (
+                      <>
+                        <Button 
+                          onClick={() => advanceWeekMutation.mutate()}
+                          disabled={advanceWeekMutation.isPending}
+                          variant="outline"
+                          data-testid="button-advance-week"
+                        >
+                          <RotateCw className="mr-2 h-4 w-4" />
+                          Advance Week
+                        </Button>
+                        <Button 
+                          onClick={() => completeSimulationMutation.mutate()}
+                          disabled={completeSimulationMutation.isPending}
+                          variant="secondary"
+                          data-testid="button-complete-simulation"
+                        >
+                          Complete
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="h-5 w-5" />
+                    Scheduled Reminders
+                  </CardTitle>
+                  <CardDescription>
+                    Queue up email reminders for your students
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full" data-testid="button-add-reminder">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Schedule New Reminder
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Schedule a Reminder</DialogTitle>
+                        <DialogDescription>
+                          Create an email reminder for your students
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        createReminderMutation.mutate({
+                          title: formData.get("title") as string,
+                          message: formData.get("message") as string,
+                          scheduledFor: formData.get("scheduledFor") as string,
+                          audience: "all_students",
+                        });
+                        (e.target as HTMLFormElement).reset();
+                      }} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="reminder-title">Title</Label>
+                          <Input
+                            id="reminder-title"
+                            name="title"
+                            placeholder="e.g., Weekly Submission Reminder"
+                            required
+                            data-testid="input-reminder-title"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="reminder-message">Message</Label>
+                          <textarea
+                            id="reminder-message"
+                            name="message"
+                            placeholder="e.g., Simulation inputs are due by 11:59PM tonight..."
+                            required
+                            className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-input bg-background"
+                            data-testid="input-reminder-message"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="reminder-date">Send Date & Time</Label>
+                          <Input
+                            id="reminder-date"
+                            name="scheduledFor"
+                            type="datetime-local"
+                            required
+                            data-testid="input-reminder-date"
+                          />
+                        </div>
+                        <DialogFooter>
+                          <Button 
+                            type="submit" 
+                            disabled={createReminderMutation.isPending}
+                            data-testid="button-submit-reminder"
+                          >
+                            Schedule Reminder
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+
+                  {reminders.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No reminders scheduled yet
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {reminders.map((reminder) => (
+                        <div 
+                          key={reminder.id} 
+                          className="flex items-center justify-between p-3 border rounded-md"
+                          data-testid={`reminder-${reminder.id}`}
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{reminder.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(reminder.scheduledFor).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={
+                              reminder.status === "sent" ? "default" :
+                              reminder.status === "pending" ? "secondary" :
+                              reminder.status === "failed" ? "destructive" :
+                              "outline"
+                            }>
+                              {reminder.status}
+                            </Badge>
+                            {reminder.status === "pending" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => cancelReminderMutation.mutate(reminder.id)}
+                                disabled={cancelReminderMutation.isPending}
+                                data-testid={`button-cancel-reminder-${reminder.id}`}
+                              >
+                                <UserMinus className="h-4 w-4 text-destructive" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

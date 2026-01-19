@@ -5,7 +5,7 @@ import { insertDecisionSchema, insertTeamSchema } from "@shared/schema";
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizationMembers, ROLES, type Role } from "@shared/models/auth";
+import { users, organizationMembers, simulations, scheduledReminders, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -1694,12 +1694,71 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Admin access required" });
       }
 
-      // Remove the member
-      await db.delete(organizationMembers).where(eq(organizationMembers.id, memberId));
+      // Soft-delete: deactivate the member instead of deleting
+      const member = await organizationStorage.getMemberById(memberId);
+      if (!member || member.organizationId !== orgId) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      // Update member status to deactivated
+      await db.update(organizationMembers)
+        .set({ 
+          status: "deactivated",
+          deactivatedAt: new Date(),
+          deactivatedBy: adminUserId,
+        })
+        .where(eq(organizationMembers.id, memberId));
+
+      // Remove from team if assigned
+      if (member.userId) {
+        await db.update(users)
+          .set({ teamId: null })
+          .where(eq(users.id, member.userId));
+      }
 
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to remove member" });
+      console.error("Error deactivating member:", error);
+      res.status(500).json({ error: "Failed to deactivate member" });
+    }
+  });
+
+  // Reactivate a deactivated member
+  app.post("/api/class-admin/organizations/:orgId/members/:memberId/reactivate", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { orgId, memberId } = req.params;
+      
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const member = await organizationStorage.getMemberById(memberId);
+      if (!member || member.organizationId !== orgId) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      if (member.status !== "deactivated") {
+        return res.status(400).json({ error: "Member is not deactivated" });
+      }
+
+      // Reactivate the member
+      await db.update(organizationMembers)
+        .set({ 
+          status: "active",
+          deactivatedAt: null,
+          deactivatedBy: null,
+        })
+        .where(eq(organizationMembers.id, memberId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error reactivating member:", error);
+      res.status(500).json({ error: "Failed to reactivate member" });
     }
   });
 
@@ -2068,6 +2127,405 @@ export async function registerRoutes(
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch role information" });
+    }
+  });
+
+  // ==================== SIMULATION LIFECYCLE ROUTES ====================
+
+  // Get simulation for an organization
+  app.get("/api/class-admin/organizations/:orgId/simulation", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const [simulation] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      if (!simulation) {
+        // Return default setup state if no simulation exists yet
+        return res.json({
+          organizationId: orgId,
+          status: SIMULATION_STATUS.SETUP,
+          totalWeeks: 8,
+          currentWeek: 0,
+          startDate: null,
+          endDate: null,
+        });
+      }
+
+      res.json(simulation);
+    } catch (error) {
+      console.error("Error fetching simulation:", error);
+      res.status(500).json({ error: "Failed to fetch simulation" });
+    }
+  });
+
+  // Create or update simulation settings
+  app.post("/api/class-admin/organizations/:orgId/simulation", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { totalWeeks, startDate, endDate } = req.body;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Check if simulation already exists
+      const [existing] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      if (existing) {
+        // Can only update if in setup status
+        if (existing.status !== SIMULATION_STATUS.SETUP) {
+          return res.status(400).json({ error: "Cannot modify simulation settings after it has started" });
+        }
+
+        const [updated] = await db.update(simulations)
+          .set({
+            totalWeeks: totalWeeks || existing.totalWeeks,
+            startDate: startDate ? new Date(startDate) : existing.startDate,
+            endDate: endDate ? new Date(endDate) : existing.endDate,
+            updatedAt: new Date(),
+          })
+          .where(eq(simulations.id, existing.id))
+          .returning();
+
+        return res.json(updated);
+      }
+
+      // Create new simulation
+      const [simulation] = await db.insert(simulations).values({
+        organizationId: orgId,
+        totalWeeks: totalWeeks || 8,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        status: SIMULATION_STATUS.SETUP,
+        currentWeek: 0,
+      }).returning();
+
+      res.json(simulation);
+    } catch (error) {
+      console.error("Error creating/updating simulation:", error);
+      res.status(500).json({ error: "Failed to save simulation settings" });
+    }
+  });
+
+  // Start the simulation
+  app.post("/api/class-admin/organizations/:orgId/simulation/start", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Get or create simulation
+      let [simulation] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      if (!simulation) {
+        // Create default simulation if it doesn't exist
+        [simulation] = await db.insert(simulations).values({
+          organizationId: orgId,
+          status: SIMULATION_STATUS.SETUP,
+          totalWeeks: 8,
+          currentWeek: 0,
+        }).returning();
+      }
+
+      if (simulation.status === SIMULATION_STATUS.ACTIVE) {
+        return res.status(400).json({ error: "Simulation is already active" });
+      }
+
+      if (simulation.status === SIMULATION_STATUS.COMPLETED) {
+        return res.status(400).json({ error: "Simulation has already completed" });
+      }
+
+      // Validate that we have required settings
+      if (!simulation.startDate) {
+        return res.status(400).json({ error: "Please set a start date before starting the simulation" });
+      }
+
+      // Start the simulation
+      const [updated] = await db.update(simulations)
+        .set({
+          status: SIMULATION_STATUS.ACTIVE,
+          currentWeek: 1,
+          startedAt: new Date(),
+          startedBy: userId,
+          updatedAt: new Date(),
+        })
+        .where(eq(simulations.id, simulation.id))
+        .returning();
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error starting simulation:", error);
+      res.status(500).json({ error: "Failed to start simulation" });
+    }
+  });
+
+  // Advance simulation week
+  app.post("/api/class-admin/organizations/:orgId/simulation/advance-week", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const [simulation] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      if (!simulation) {
+        return res.status(404).json({ error: "Simulation not found" });
+      }
+
+      if (simulation.status !== SIMULATION_STATUS.ACTIVE) {
+        return res.status(400).json({ error: "Simulation must be active to advance weeks" });
+      }
+
+      const newWeek = simulation.currentWeek + 1;
+      
+      // Check if simulation should complete
+      if (newWeek > simulation.totalWeeks) {
+        const [completed] = await db.update(simulations)
+          .set({
+            status: SIMULATION_STATUS.COMPLETED,
+            completedAt: new Date(),
+            completedBy: userId,
+            updatedAt: new Date(),
+          })
+          .where(eq(simulations.id, simulation.id))
+          .returning();
+
+        return res.json({ ...completed, message: "Simulation completed" });
+      }
+
+      const [updated] = await db.update(simulations)
+        .set({
+          currentWeek: newWeek,
+          updatedAt: new Date(),
+        })
+        .where(eq(simulations.id, simulation.id))
+        .returning();
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error advancing simulation week:", error);
+      res.status(500).json({ error: "Failed to advance simulation week" });
+    }
+  });
+
+  // Complete the simulation
+  app.post("/api/class-admin/organizations/:orgId/simulation/complete", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const [simulation] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      if (!simulation) {
+        return res.status(404).json({ error: "Simulation not found" });
+      }
+
+      const [completed] = await db.update(simulations)
+        .set({
+          status: SIMULATION_STATUS.COMPLETED,
+          completedAt: new Date(),
+          completedBy: userId,
+          updatedAt: new Date(),
+        })
+        .where(eq(simulations.id, simulation.id))
+        .returning();
+
+      res.json(completed);
+    } catch (error) {
+      console.error("Error completing simulation:", error);
+      res.status(500).json({ error: "Failed to complete simulation" });
+    }
+  });
+
+  // ==================== SCHEDULED REMINDERS ROUTES ====================
+
+  // Get scheduled reminders for an organization
+  app.get("/api/class-admin/organizations/:orgId/reminders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const reminders = await db.select().from(scheduledReminders)
+        .where(eq(scheduledReminders.organizationId, orgId));
+
+      res.json(reminders);
+    } catch (error) {
+      console.error("Error fetching reminders:", error);
+      res.status(500).json({ error: "Failed to fetch reminders" });
+    }
+  });
+
+  // Create a scheduled reminder
+  app.post("/api/class-admin/organizations/:orgId/reminders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { title, message, audience, teamId, scheduledFor, relativeToWeek } = req.body;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      if (!title || !message || !scheduledFor) {
+        return res.status(400).json({ error: "Title, message, and scheduled time are required" });
+      }
+
+      // Get simulation ID if exists
+      const [simulation] = await db.select().from(simulations)
+        .where(eq(simulations.organizationId, orgId));
+
+      const [reminder] = await db.insert(scheduledReminders).values({
+        organizationId: orgId,
+        simulationId: simulation?.id || null,
+        title,
+        message,
+        audience: audience || "all_students",
+        teamId: teamId || null,
+        scheduledFor: new Date(scheduledFor),
+        relativeToWeek: relativeToWeek || null,
+        status: "pending",
+        createdBy: userId,
+      }).returning();
+
+      res.json(reminder);
+    } catch (error) {
+      console.error("Error creating reminder:", error);
+      res.status(500).json({ error: "Failed to create reminder" });
+    }
+  });
+
+  // Update a scheduled reminder
+  app.patch("/api/class-admin/organizations/:orgId/reminders/:reminderId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId, reminderId } = req.params;
+      const { title, message, audience, teamId, scheduledFor, relativeToWeek } = req.body;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const [existing] = await db.select().from(scheduledReminders)
+        .where(eq(scheduledReminders.id, reminderId));
+
+      if (!existing || existing.organizationId !== orgId) {
+        return res.status(404).json({ error: "Reminder not found" });
+      }
+
+      if (existing.status === "sent") {
+        return res.status(400).json({ error: "Cannot modify a sent reminder" });
+      }
+
+      const [updated] = await db.update(scheduledReminders)
+        .set({
+          title: title || existing.title,
+          message: message || existing.message,
+          audience: audience || existing.audience,
+          teamId: teamId !== undefined ? teamId : existing.teamId,
+          scheduledFor: scheduledFor ? new Date(scheduledFor) : existing.scheduledFor,
+          relativeToWeek: relativeToWeek !== undefined ? relativeToWeek : existing.relativeToWeek,
+          updatedAt: new Date(),
+        })
+        .where(eq(scheduledReminders.id, reminderId))
+        .returning();
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating reminder:", error);
+      res.status(500).json({ error: "Failed to update reminder" });
+    }
+  });
+
+  // Cancel a scheduled reminder
+  app.delete("/api/class-admin/organizations/:orgId/reminders/:reminderId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId, reminderId } = req.params;
+
+      // Check permissions
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const [existing] = await db.select().from(scheduledReminders)
+        .where(eq(scheduledReminders.id, reminderId));
+
+      if (!existing || existing.organizationId !== orgId) {
+        return res.status(404).json({ error: "Reminder not found" });
+      }
+
+      if (existing.status === "sent") {
+        return res.status(400).json({ error: "Cannot cancel a sent reminder" });
+      }
+
+      await db.update(scheduledReminders)
+        .set({ status: "cancelled", updatedAt: new Date() })
+        .where(eq(scheduledReminders.id, reminderId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error cancelling reminder:", error);
+      res.status(500).json({ error: "Failed to cancel reminder" });
     }
   });
 

@@ -107,10 +107,12 @@ export const organizationMembers = pgTable("organization_members", {
   userId: varchar("user_id").notNull(),
   organizationId: varchar("organization_id").notNull(),
   role: varchar("role").notNull().default("student"), // super_admin, class_admin, student
-  status: varchar("status").notNull().default("pending"), // pending, active, suspended
+  status: varchar("status").notNull().default("pending"), // pending, active, suspended, deactivated
   joinedAt: timestamp("joined_at").defaultNow(),
   approvedBy: varchar("approved_by"),
   approvedAt: timestamp("approved_at"),
+  deactivatedAt: timestamp("deactivated_at"),
+  deactivatedBy: varchar("deactivated_by"),
 });
 
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
@@ -184,3 +186,56 @@ export const platformSettings = pgTable("platform_settings", {
 
 export type PlatformSettingsDb = typeof platformSettings.$inferSelect;
 export type InsertPlatformSettingsDb = typeof platformSettings.$inferInsert;
+
+// Simulation status enum
+export const SIMULATION_STATUS = {
+  SETUP: "setup",
+  ACTIVE: "active",
+  PAUSED: "paused",
+  COMPLETED: "completed",
+} as const;
+
+export type SimulationStatus = typeof SIMULATION_STATUS[keyof typeof SIMULATION_STATUS];
+
+// Simulations - tracks the lifecycle of each class simulation
+export const simulations = pgTable("simulations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull().unique(),
+  status: varchar("status").notNull().default("setup"), // setup, active, paused, completed
+  totalWeeks: integer("total_weeks").notNull().default(8),
+  currentWeek: integer("current_week").notNull().default(0),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  startedAt: timestamp("started_at"),
+  startedBy: varchar("started_by"),
+  completedAt: timestamp("completed_at"),
+  completedBy: varchar("completed_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Simulation = typeof simulations.$inferSelect;
+export type InsertSimulation = typeof simulations.$inferInsert;
+
+// Scheduled reminders - email queue for simulation notifications
+export const scheduledReminders = pgTable("scheduled_reminders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull(),
+  simulationId: varchar("simulation_id"),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  audience: varchar("audience").notNull().default("all_students"), // all_students, instructors, specific_team
+  teamId: varchar("team_id"), // If audience is specific_team
+  scheduledFor: timestamp("scheduled_for").notNull(),
+  relativeToWeek: integer("relative_to_week"), // Optional: which simulation week this relates to
+  status: varchar("status").notNull().default("pending"), // pending, sent, failed, cancelled
+  sentAt: timestamp("sent_at"),
+  sendCount: integer("send_count").default(0),
+  failCount: integer("fail_count").default(0),
+  createdBy: varchar("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type ScheduledReminder = typeof scheduledReminders.$inferSelect;
+export type InsertScheduledReminder = typeof scheduledReminders.$inferInsert;
