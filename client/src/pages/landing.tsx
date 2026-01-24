@@ -68,7 +68,7 @@ export default function Landing() {
               className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
             >
-              For Educators
+              Educator Inquiry
             </a>
             <ThemeToggle />
             <a href="/api/login">
