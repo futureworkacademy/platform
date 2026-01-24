@@ -451,6 +451,34 @@ export default function ClassAdminPage() {
         // Also handle the common UTF-8 BOM sequence
         text = text.replace(/^\uFEFF/, '');
         
+        // Parse CSV line respecting quoted fields (handles commas inside quotes)
+        const parseCSVLine = (line: string): string[] => {
+          const result: string[] = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+              // Handle escaped quotes (double quotes inside quoted field)
+              if (inQuotes && line[i + 1] === '"') {
+                current += '"';
+                i++; // Skip next quote
+              } else {
+                inQuotes = !inQuotes;
+              }
+            } else if (char === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          result.push(current.trim()); // Push last field
+          return result;
+        };
+        
         const lines = text.split('\n').filter(line => line.trim());
         
         if (lines.length < 2) {
@@ -459,7 +487,8 @@ export default function ClassAdminPage() {
         }
 
         // Parse header - support various column names, strip any remaining special chars
-        const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, '').replace(/[^\x20-\x7E]/g, ''));
+        const headerFields = parseCSVLine(lines[0]);
+        const header = headerFields.map(h => h.toLowerCase().replace(/[^\x20-\x7E]/g, ''));
         
         // Find column indices (flexible matching - order matters for specificity)
         // Email - most specific, find first
@@ -487,8 +516,8 @@ export default function ClassAdminPage() {
           return;
         }
 
-        const parsed = lines.slice(1).map((line, idx) => {
-          const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const parsed = lines.slice(1).map((line) => {
+          const values = parseCSVLine(line);
           return {
             name: nameIdx >= 0 ? values[nameIdx] || '' : '',
             studentId: idIdx >= 0 ? values[idIdx] || '' : '',
@@ -746,8 +775,8 @@ export default function ClassAdminPage() {
                         <DialogHeader>
                           <DialogTitle>Bulk Import Students</DialogTitle>
                           <DialogDescription>
-                            Upload a CSV file with student information. Required column: email.
-                            Optional columns: student name, student ID, class level.
+                            Upload a CSV file exported from your student registration system.
+                            Required: email column. Optional: name, student ID, class level.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -763,7 +792,7 @@ export default function ClassAdminPage() {
                               />
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              Expected columns: Student Name, Student ID, Class Level, Email
+                              Supported columns: Student Name, Student ID, Class Level, Preferred Email
                             </p>
                           </div>
 
