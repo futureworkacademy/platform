@@ -244,6 +244,7 @@ export type SimulationStatus = typeof SIMULATION_STATUS[keyof typeof SIMULATION_
 export const simulations = pgTable("simulations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: varchar("organization_id").notNull().unique(),
+  moduleId: varchar("module_id"), // Links to simulation_modules - which scenario to use
   status: varchar("status").notNull().default("setup"), // setup, active, paused, completed
   totalWeeks: integer("total_weeks").notNull().default(8),
   currentWeek: integer("current_week").notNull().default(0),
@@ -296,3 +297,51 @@ export const scheduledReminders = pgTable("scheduled_reminders", {
 
 export type ScheduledReminder = typeof scheduledReminders.$inferSelect;
 export type InsertScheduledReminder = typeof scheduledReminders.$inferInsert;
+
+// Simulation Modules - different simulation scenarios (AI, Supply Chain, etc.)
+export const simulationModules = pgTable("simulation_modules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // e.g., "AI Workplace Transformation", "Supply Chain Disruption"
+  description: text("description"),
+  slug: varchar("slug").notNull().unique(), // URL-friendly identifier
+  isDefault: boolean("is_default").notNull().default(false), // One module is the default
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SimulationModule = typeof simulationModules.$inferSelect;
+export type InsertSimulationModule = typeof simulationModules.$inferInsert;
+
+// Content types for simulation content items
+export const CONTENT_TYPES = {
+  TEXT: "text",
+  VIDEO: "video", // YouTube, Vimeo embed
+  GOOGLE_DOC: "google_doc", // Google Docs/Slides embed
+  LINK: "link", // External resource link
+  FILE: "file", // Uploaded file (future)
+} as const;
+
+export type ContentType = typeof CONTENT_TYPES[keyof typeof CONTENT_TYPES];
+
+// Simulation Content - per-week content items for each module
+export const simulationContent = pgTable("simulation_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").notNull(), // Which simulation module this belongs to
+  weekNumber: integer("week_number").notNull(), // Which week (1-12)
+  title: varchar("title").notNull(),
+  contentType: varchar("content_type").notNull().default("text"), // text, video, google_doc, link
+  content: text("content"), // Rich text content OR embed URL depending on type
+  embedUrl: text("embed_url"), // For video/google doc embeds
+  resourceUrl: text("resource_url"), // For external links
+  thumbnailUrl: text("thumbnail_url"), // Optional preview image
+  order: integer("order").notNull().default(0), // Sort order within the week
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: varchar("created_by"),
+  updatedBy: varchar("updated_by"),
+});
+
+export type SimulationContentDb = typeof simulationContent.$inferSelect;
+export type InsertSimulationContentDb = typeof simulationContent.$inferInsert;

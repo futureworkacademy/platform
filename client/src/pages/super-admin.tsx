@@ -126,6 +126,30 @@ interface AllMemberData {
   hasAccount: boolean;
 }
 
+// Unified person data from the new people API
+interface UnifiedPerson {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'super_admin' | 'class_admin' | 'student';
+  status: 'active' | 'pending' | 'invited' | 'never_invited';
+  hasAccount: boolean;
+  organizationId: string | null;
+  organizationName: string | null;
+  organizationCode: string | null;
+  teamId: string | null;
+  teamName: string | null;
+  memberId: string | null;
+  joinedAt: string | null;
+  allMemberships: Array<{
+    organizationId: string;
+    organizationName: string;
+    role: string;
+    status: string;
+  }>;
+}
+
 export default function SuperAdminPage() {
   const { toast } = useToast();
   const [newOrgName, setNewOrgName] = useState("");
@@ -159,11 +183,30 @@ export default function SuperAdminPage() {
     enabled: roleInfo?.isSuperAdmin === true,
   });
 
-  // All organization members (including bulk imported students)
+  // All organization members (including bulk imported students) - legacy
   const { data: allMembers = [], refetch: refetchMembers } = useQuery<AllMemberData[]>({
     queryKey: ["/api/super-admin/all-members"],
     enabled: roleInfo?.isSuperAdmin === true,
   });
+
+  // Unified people data - new combined view
+  const { data: allPeople = [], isLoading: peopleLoading, refetch: refetchPeople } = useQuery<UnifiedPerson[]>({
+    queryKey: ["/api/super-admin/people"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  // People tab state
+  const [peopleSearch, setPeopleSearch] = useState("");
+  const [peopleStatusFilter, setPeopleStatusFilter] = useState<string>("all");
+  const [peopleRoleFilter, setPeopleRoleFilter] = useState<string>("all");
+  const [peopleOrgFilter, setPeopleOrgFilter] = useState<string>("all");
+  const [resendingFor, setResendingFor] = useState<string | null>(null);
+  const [resendChannel, setResendChannel] = useState<"email" | "sms" | "both">("email");
+  
+  // Promote dialog state
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
+  const [promotingPerson, setPromotingPerson] = useState<UnifiedPerson | null>(null);
+  const [promoteTargetOrgId, setPromoteTargetOrgId] = useState<string>("");
 
   // Platform Settings
   const { data: platformSettings, isLoading: settingsLoading, refetch: refetchSettings } = useQuery<PlatformSettings>({
@@ -259,21 +302,27 @@ export default function SuperAdminPage() {
         refetchOrgs();
         toast({ title: "Organizations refreshed" });
         break;
-      case "users":
-        refetchUsers();
-        refetchMembers();
-        toast({ title: "User data refreshed" });
+      case "people":
+        refetchPeople();
+        toast({ title: "People data refreshed" });
+        break;
+      case "content":
+        // Future: refresh content data when implemented
+        toast({ title: "Content refreshed" });
+        break;
+      case "simulation":
+        // Future: refresh simulation data when implemented
+        toast({ title: "Simulation data refreshed" });
+        break;
+      case "activity":
+        // Future: refresh activity logs when implemented
+        toast({ title: "Activity logs refreshed" });
         break;
       case "settings":
         refetchSettings();
         setLocalSettings({});
         setSettingsChanged(false);
         toast({ title: "Settings refreshed" });
-        break;
-      case "promote":
-        refetchOrgs();
-        refetchUsers();
-        toast({ title: "Data refreshed" });
         break;
       default:
         refetchOrgs();
@@ -305,8 +354,12 @@ export default function SuperAdminPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
       setPromoteEmail("");
       setSelectedOrgId("");
+      setPromoteDialogOpen(false);
+      setPromotingPerson(null);
+      setPromoteTargetOrgId("");
       toast({ title: "User promoted to Class Admin" });
     },
     onError: (error: any) => {
@@ -333,19 +386,23 @@ export default function SuperAdminPage() {
   // Resend invitation email to organization member
   const [sendingInviteFor, setSendingInviteFor] = useState<string | null>(null);
   const resendInviteMutation = useMutation({
-    mutationFn: async ({ organizationId, memberId }: { organizationId: string; memberId: string }) => {
+    mutationFn: async ({ organizationId, memberId, personId }: { organizationId: string; memberId: string; personId: string }) => {
       setSendingInviteFor(memberId);
+      setResendingFor(personId); // Use person.id for People tab loading state
       const response = await apiRequest("POST", `/api/class-admin/organizations/${organizationId}/members/${memberId}/send-invite`, {});
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/all-members"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
       toast({ title: "Invitation email sent successfully" });
       setSendingInviteFor(null);
+      setResendingFor(null);
     },
     onError: (error: any) => {
       toast({ title: "Failed to send invite", description: error.message, variant: "destructive" });
       setSendingInviteFor(null);
+      setResendingFor(null);
     },
   });
 
@@ -478,18 +535,26 @@ export default function SuperAdminPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="organizations" data-testid="tab-organizations">
               <Building2 className="mr-2 h-4 w-4" />
               Organizations
             </TabsTrigger>
-            <TabsTrigger value="users" data-testid="tab-users">
+            <TabsTrigger value="people" data-testid="tab-people">
               <Users className="mr-2 h-4 w-4" />
-              User Management
+              People
             </TabsTrigger>
-            <TabsTrigger value="promote" data-testid="tab-promote">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Promote Admins
+            <TabsTrigger value="content" data-testid="tab-content">
+              <Pencil className="mr-2 h-4 w-4" />
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="simulation" data-testid="tab-simulation">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Simulation
+            </TabsTrigger>
+            <TabsTrigger value="activity" data-testid="tab-activity">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Activity
             </TabsTrigger>
             <TabsTrigger value="settings" data-testid="tab-settings">
               <Settings className="mr-2 h-4 w-4" />
@@ -762,7 +827,287 @@ export default function SuperAdminPage() {
             )}
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-4">
+          {/* New unified People tab */}
+          <TabsContent value="people" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">People Management</h2>
+              <Button variant="outline" onClick={() => refetchPeople()} data-testid="button-refresh-people">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="people-search">Search</Label>
+                    <Input
+                      id="people-search"
+                      placeholder="Search by name or email..."
+                      value={peopleSearch}
+                      onChange={(e) => setPeopleSearch(e.target.value)}
+                      data-testid="input-people-search"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select value={peopleStatusFilter} onValueChange={setPeopleStatusFilter}>
+                      <SelectTrigger data-testid="select-people-status">
+                        <SelectValue placeholder="All Statuses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="invited">Invited</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Select value={peopleRoleFilter} onValueChange={setPeopleRoleFilter}>
+                      <SelectTrigger data-testid="select-people-role">
+                        <SelectValue placeholder="All Roles" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Roles</SelectItem>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                        <SelectItem value="class_admin">Class Admin</SelectItem>
+                        <SelectItem value="student">Student</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Organization</Label>
+                    <Select value={peopleOrgFilter} onValueChange={setPeopleOrgFilter}>
+                      <SelectTrigger data-testid="select-people-org">
+                        <SelectValue placeholder="All Organizations" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Organizations</SelectItem>
+                        <SelectItem value="none">No Organization</SelectItem>
+                        {organizations.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* People Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Users</CardTitle>
+                <CardDescription>
+                  Unified view of all platform users showing account status, role, organization, and team assignment.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {peopleLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Name</th>
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Email</th>
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Status</th>
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Role</th>
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Organization</th>
+                          <th className="text-left py-3 px-2 font-medium text-muted-foreground">Team</th>
+                          <th className="text-right py-3 px-2 font-medium text-muted-foreground">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allPeople
+                          .filter((person) => {
+                            // Search filter
+                            if (peopleSearch) {
+                              const searchLower = peopleSearch.toLowerCase();
+                              const nameMatch = `${person.firstName} ${person.lastName}`.toLowerCase().includes(searchLower);
+                              const emailMatch = person.email.toLowerCase().includes(searchLower);
+                              if (!nameMatch && !emailMatch) return false;
+                            }
+                            // Status filter
+                            if (peopleStatusFilter !== "all" && person.status !== peopleStatusFilter) return false;
+                            // Role filter
+                            if (peopleRoleFilter !== "all" && person.role !== peopleRoleFilter) return false;
+                            // Org filter
+                            if (peopleOrgFilter === "none" && person.organizationId) return false;
+                            if (peopleOrgFilter !== "all" && peopleOrgFilter !== "none" && person.organizationId !== peopleOrgFilter) return false;
+                            return true;
+                          })
+                          .map((person) => (
+                            <tr key={person.id} className="border-b hover:bg-muted/50" data-testid={`row-person-${person.id}`}>
+                              <td className="py-3 px-2">
+                                <p className="font-medium">
+                                  {person.firstName || person.lastName 
+                                    ? `${person.firstName} ${person.lastName}`.trim() 
+                                    : "—"}
+                                </p>
+                              </td>
+                              <td className="py-3 px-2">
+                                <p className="text-sm text-muted-foreground">{person.email || "No email"}</p>
+                              </td>
+                              <td className="py-3 px-2">
+                                <Badge 
+                                  variant={person.status === "active" ? "default" : "secondary"}
+                                  className={
+                                    person.status === "active" ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                                    person.status === "pending" ? "bg-amber-500/10 text-amber-600 border-amber-500/20" :
+                                    person.status === "invited" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" :
+                                    ""
+                                  }
+                                  data-testid={`badge-status-${person.id}`}
+                                >
+                                  {person.status === "active" && "Active"}
+                                  {person.status === "pending" && "Pending"}
+                                  {person.status === "invited" && "Invited"}
+                                  {person.status === "never_invited" && "Not Invited"}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-2">
+                                <Badge 
+                                  variant="outline"
+                                  className={
+                                    person.role === "super_admin" ? "border-purple-500/50 text-purple-600" :
+                                    person.role === "class_admin" ? "border-blue-500/50 text-blue-600" :
+                                    ""
+                                  }
+                                  data-testid={`badge-role-${person.id}`}
+                                >
+                                  {person.role === "super_admin" && "Super Admin"}
+                                  {person.role === "class_admin" && "Class Admin"}
+                                  {person.role === "student" && "Student"}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-2">
+                                <p className="text-sm">{person.organizationName || "—"}</p>
+                              </td>
+                              <td className="py-3 px-2">
+                                <p className="text-sm">{person.teamName || "—"}</p>
+                              </td>
+                              <td className="py-3 px-2 text-right">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" data-testid={`button-actions-${person.id}`}>
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    {person.memberId && (
+                                      <DropdownMenuItem 
+                                        onClick={() => {
+                                          resendInviteMutation.mutate({ 
+                                            organizationId: person.organizationId!, 
+                                            memberId: person.memberId!,
+                                            personId: person.id
+                                          });
+                                        }}
+                                        disabled={resendingFor === person.id}
+                                        data-testid={`button-resend-${person.id}`}
+                                      >
+                                        {resendingFor === person.id ? (
+                                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        ) : (
+                                          <Mail className="h-4 w-4 mr-2" />
+                                        )}
+                                        {resendingFor === person.id ? "Sending..." : "Resend Invite"}
+                                      </DropdownMenuItem>
+                                    )}
+                                    {person.role === "student" && person.hasAccount && (
+                                      <DropdownMenuItem 
+                                        onClick={() => {
+                                          setPromotingPerson(person);
+                                          setPromoteTargetOrgId(person.organizationId || "");
+                                          setPromoteDialogOpen(true);
+                                        }}
+                                        data-testid={`button-promote-${person.id}`}
+                                      >
+                                        <UserPlus className="h-4 w-4 mr-2" />
+                                        Promote to Admin
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                    {allPeople.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">No users found.</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Placeholder Content tab - will be expanded later */}
+          <TabsContent value="content" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Management</CardTitle>
+                <CardDescription>Manage About page, email templates, and simulation content.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">About Page</Label>
+                    <p className="text-sm text-muted-foreground">Edit your profile photo and bio</p>
+                  </div>
+                  <Link href="/about">
+                    <Button variant="outline" data-testid="button-edit-about-content">
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit About Page
+                    </Button>
+                  </Link>
+                </div>
+                <Separator />
+                <div className="space-y-0.5">
+                  <Label className="text-base">Simulation Content</Label>
+                  <p className="text-sm text-muted-foreground">Weekly briefings, videos, and resources - coming soon</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Placeholder Simulation tab - will be expanded later */}
+          <TabsContent value="simulation" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Simulation Control</CardTitle>
+                <CardDescription>Manage simulation lifecycle and game mechanics.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Simulation controls will be migrated here from the old settings.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Placeholder Activity tab - will be expanded later */}
+          <TabsContent value="activity" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Log</CardTitle>
+                <CardDescription>Track user actions and system events.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Activity logs will be migrated here from the old settings.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Legacy users tab - keeping for now but hidden */}
+          <TabsContent value="users" className="space-y-4 hidden">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">User Management</h2>
               <Button variant="outline" onClick={() => { refetchUsers(); refetchMembers(); }} data-testid="button-refresh-users">
@@ -840,7 +1185,8 @@ export default function SuperAdminPage() {
                                 <DropdownMenuItem 
                                   onClick={() => resendInviteMutation.mutate({ 
                                     organizationId: member.organizationId, 
-                                    memberId: member.id 
+                                    memberId: member.id,
+                                    personId: member.userId || member.id
                                   })}
                                   disabled={sendingInviteFor === member.id}
                                   data-testid={`button-resend-invite-${member.id}`}
@@ -1269,6 +1615,65 @@ export default function SuperAdminPage() {
                   <Save className="h-4 w-4 mr-2" />
                   Save Template
                 </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Promote User Dialog for People Tab */}
+      <Dialog open={promoteDialogOpen} onOpenChange={(open) => {
+        setPromoteDialogOpen(open);
+        if (!open) {
+          setPromotingPerson(null);
+          setPromoteTargetOrgId("");
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Promote to Class Admin</DialogTitle>
+            <DialogDescription>
+              Promote {promotingPerson?.firstName} {promotingPerson?.lastName} ({promotingPerson?.email}) to Class Admin for an organization.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Select Organization</Label>
+              <Select value={promoteTargetOrgId} onValueChange={setPromoteTargetOrgId}>
+                <SelectTrigger data-testid="select-promote-org">
+                  <SelectValue placeholder="Select an organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPromoteDialogOpen(false)} data-testid="button-cancel-promote">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (promotingPerson && promoteTargetOrgId) {
+                  promoteToClassAdminMutation.mutate({ 
+                    userId: promotingPerson.id, 
+                    organizationId: promoteTargetOrgId 
+                  });
+                }
+              }}
+              disabled={!promoteTargetOrgId || promoteToClassAdminMutation.isPending}
+              data-testid="button-confirm-promote"
+            >
+              {promoteToClassAdminMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Promoting...
+                </>
+              ) : (
+                "Promote to Class Admin"
               )}
             </Button>
           </DialogFooter>

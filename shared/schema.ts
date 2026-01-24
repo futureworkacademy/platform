@@ -611,6 +611,59 @@ export const profileUpdateSchema = z.object({
 
 export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
 
+// Simulation Module schema - different simulation scenarios
+export const simulationModuleSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  slug: z.string(),
+  isDefault: z.boolean(),
+  isActive: z.boolean(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+
+export type SimulationModuleType = z.infer<typeof simulationModuleSchema>;
+
+export const insertSimulationModuleSchema = simulationModuleSchema.omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+export type InsertSimulationModule = z.infer<typeof insertSimulationModuleSchema>;
+
+// Content types enum
+export const contentTypeEnum = z.enum(["text", "video", "google_doc", "link", "file"]);
+export type ContentTypeEnum = z.infer<typeof contentTypeEnum>;
+
+// Simulation Content schema - per-week content items
+export const simulationContentSchema = z.object({
+  id: z.string(),
+  moduleId: z.string(),
+  weekNumber: z.number(),
+  title: z.string(),
+  contentType: contentTypeEnum,
+  content: z.string().nullable(),
+  embedUrl: z.string().nullable(),
+  resourceUrl: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  order: z.number(),
+  isActive: z.boolean(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+  createdBy: z.string().nullable(),
+  updatedBy: z.string().nullable(),
+});
+
+export type SimulationContentType = z.infer<typeof simulationContentSchema>;
+
+export const insertSimulationContentSchema = simulationContentSchema.omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+export type InsertSimulationContent = z.infer<typeof insertSimulationContentSchema>;
+
 // Export auth models from Replit Auth integration
 export * from "./models/auth";
 

@@ -1415,6 +1415,151 @@ export async function registerRoutes(
     }
   });
 
+  // Unified People API - combines all users, organization members, and team info (Super Admin only)
+  app.get("/api/super-admin/people", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      // Get all users with their team info
+      const allUsers = await db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        teamId: users.teamId,
+        isAdmin: users.isAdmin,
+        createdAt: users.createdAt,
+      }).from(users)
+        .where(sql`${users.isTestStudent} = false OR ${users.isTestStudent} IS NULL`);
+
+      // Get all organization members with org info
+      const allOrgMembers = await db.select({
+        id: organizationMembers.id,
+        memberId: organizationMembers.id,
+        userId: organizationMembers.userId,
+        organizationId: organizationMembers.organizationId,
+        role: organizationMembers.role,
+        memberStatus: organizationMembers.status,
+        joinedAt: organizationMembers.joinedAt,
+        orgName: organizations.name,
+        orgCode: organizations.code,
+      }).from(organizationMembers)
+        .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
+        .where(sql`${organizationMembers.status} != 'deactivated'`);
+
+      // Get all teams for team name lookup
+      const allTeams = await db.select({
+        id: teams.id,
+        name: teams.name,
+        organizationId: teams.organizationId,
+      }).from(teams);
+
+      // Create lookup maps
+      const teamMap = new Map(allTeams.map(t => [t.id, t]));
+      const userOrgMap = new Map<string, typeof allOrgMembers[0][]>();
+      
+      // Group org members by userId
+      for (const member of allOrgMembers) {
+        const existing = userOrgMap.get(member.userId) || [];
+        existing.push(member);
+        userOrgMap.set(member.userId, existing);
+      }
+
+      // Build unified people list
+      const people = allUsers.map(user => {
+        const orgMemberships = userOrgMap.get(user.id) || [];
+        const primaryMembership = orgMemberships[0]; // Take first org membership
+        const team = user.teamId ? teamMap.get(user.teamId) : null;
+        
+        // Determine role
+        let role: 'super_admin' | 'class_admin' | 'student' = 'student';
+        if (user.isAdmin === 'super_admin' || user.isAdmin === 'true') {
+          role = 'super_admin';
+        } else if (user.isAdmin === 'class_admin') {
+          role = 'class_admin';
+        } else if (primaryMembership?.role === 'class_admin') {
+          role = 'class_admin';
+        }
+
+        // Determine status
+        let status: 'active' | 'pending' | 'invited' | 'never_invited' = 'active';
+        if (primaryMembership) {
+          if (primaryMembership.memberStatus === 'pending') {
+            status = 'pending';
+          } else if (primaryMembership.memberStatus === 'active') {
+            status = 'active';
+          }
+        }
+
+        return {
+          id: user.id,
+          email: user.email || '',
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          role,
+          status,
+          hasAccount: true,
+          organizationId: primaryMembership?.organizationId || null,
+          organizationName: primaryMembership?.orgName || null,
+          organizationCode: primaryMembership?.orgCode || null,
+          teamId: user.teamId || null,
+          teamName: team?.name || null,
+          memberId: primaryMembership?.memberId || null,
+          joinedAt: primaryMembership?.joinedAt || user.createdAt,
+          allMemberships: orgMemberships.map(m => ({
+            organizationId: m.organizationId,
+            organizationName: m.orgName,
+            role: m.role,
+            status: m.memberStatus,
+          })),
+        };
+      });
+
+      // Also find org members without user accounts (invited but not registered)
+      const userIds = new Set(allUsers.map(u => u.id));
+      const pendingMembers = allOrgMembers
+        .filter(m => !userIds.has(m.userId))
+        .map(member => ({
+          id: member.userId, // Use the placeholder userId
+          email: '', // No email since no user account
+          firstName: '',
+          lastName: '',
+          role: member.role as 'super_admin' | 'class_admin' | 'student',
+          status: 'invited' as const,
+          hasAccount: false,
+          organizationId: member.organizationId,
+          organizationName: member.orgName,
+          organizationCode: member.orgCode,
+          teamId: null,
+          teamName: null,
+          memberId: member.memberId,
+          joinedAt: member.joinedAt,
+          allMemberships: [{
+            organizationId: member.organizationId,
+            organizationName: member.orgName,
+            role: member.role,
+            status: member.memberStatus,
+          }],
+        }));
+
+      // Combine and sort by name
+      const allPeople = [...people, ...pendingMembers].sort((a, b) => {
+        const nameA = `${a.lastName} ${a.firstName}`.toLowerCase();
+        const nameB = `${b.lastName} ${b.firstName}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      res.json(allPeople);
+    } catch (error) {
+      console.error("Error fetching unified people:", error);
+      res.status(500).json({ error: "Failed to fetch people data" });
+    }
+  });
+
   // Get all educator inquiries (Super Admin only)
   app.get("/api/super-admin/educator-inquiries", isAuthenticated, async (req: any, res) => {
     try {

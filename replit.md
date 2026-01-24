@@ -61,6 +61,22 @@ I prefer clear and concise communication. When making changes, prioritize the co
     - Admin dashboard shows "Preview as Student" button
     - Student dashboard shows preview mode banner with exit/reset controls
     - Reset functionality clears test data back to initial state (week 1)
+-   **Super Admin Dashboard Redesign (6-Tab Structure):**
+    - Organizations: Create/edit organizations, view member counts
+    - People: Unified view of all users with search, filters (status/role/org), inline actions (resend invite, promote)
+    - Content: About page editing, simulation content management (placeholder for future expansion)
+    - Simulation: Simulation lifecycle controls (placeholder for future expansion)
+    - Activity: Activity logs (placeholder for future expansion)
+    - Settings: Platform-wide configuration
+-   **Multi-Scenario Module Support:**
+    - `simulationModules` table for different simulation themes (AI Workplace, Supply Chain, etc.)
+    - `simulationContent` table for per-week content items (briefings, videos, resources)
+    - Default "AI Workplace Transformation" module created automatically
+    - Future extensibility for selling different modules to different institutions
+-   **Unified People API (`/api/super-admin/people`):**
+    - Merges users, organization memberships, and team assignments
+    - Returns computed status (active/pending/invited), role, org info, team info per person
+    - Supports the new People tab with efficient unified querying
 
 ## External Dependencies
 
