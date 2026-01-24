@@ -56,6 +56,11 @@ I prefer clear and concise communication. When making changes, prioritize the co
     - Competition: Individual vs team-based scoring, simulation duration (4-12 weeks)
     - Scoring: Configurable financial/cultural weight balance (0-100%)
     - Easter Egg Bonus: Toggle and percentage for research citation rewards
+-   **Preview as Student (Instructor Mode):** Blackboard-style preview feature allowing Class Admins to test the simulation as a student:
+    - Creates an org-scoped test student and team per admin per organization
+    - Admin dashboard shows "Preview as Student" button
+    - Student dashboard shows preview mode banner with exit/reset controls
+    - Reset functionality clears test data back to initial state (week 1)
 
 ## External Dependencies
 
