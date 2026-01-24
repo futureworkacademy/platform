@@ -1371,6 +1371,50 @@ export async function registerRoutes(
     }
   });
 
+  // Get all organization members across all orgs (Super Admin only) - includes invited/imported students
+  app.get("/api/super-admin/all-members", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      // Get all organization members with their org and user info
+      const allMembers = await db.select({
+        id: organizationMembers.id,
+        organizationId: organizationMembers.organizationId,
+        userId: organizationMembers.userId,
+        role: organizationMembers.role,
+        status: organizationMembers.status,
+        joinedAt: organizationMembers.joinedAt,
+        orgName: organizations.name,
+        userEmail: users.email,
+        userFirstName: users.firstName,
+        userLastName: users.lastName,
+      }).from(organizationMembers)
+        .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
+        .leftJoin(users, eq(organizationMembers.userId, users.id));
+
+      // Enrich with account status
+      const enrichedMembers = allMembers.map((member) => {
+        const hasAccount = !!(member.userEmail);
+        return {
+          ...member,
+          hasAccount,
+          email: member.userEmail || 'No email on file',
+          firstName: member.userFirstName || 'Unknown',
+          lastName: member.userLastName || '',
+        };
+      });
+
+      res.json(enrichedMembers);
+    } catch (error) {
+      console.error("Error fetching all members:", error);
+      res.status(500).json({ error: "Failed to fetch organization members" });
+    }
+  });
+
   // Get all educator inquiries (Super Admin only)
   app.get("/api/super-admin/educator-inquiries", isAuthenticated, async (req: any, res) => {
     try {

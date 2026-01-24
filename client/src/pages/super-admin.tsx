@@ -104,6 +104,20 @@ interface UserData {
   isAdmin: string;
 }
 
+interface AllMemberData {
+  id: string;
+  organizationId: string;
+  userId: string;
+  role: string;
+  status: string;
+  joinedAt: string;
+  orgName: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  hasAccount: boolean;
+}
+
 export default function SuperAdminPage() {
   const { toast } = useToast();
   const [newOrgName, setNewOrgName] = useState("");
@@ -134,6 +148,12 @@ export default function SuperAdminPage() {
 
   const { data: allUsers = [], refetch: refetchUsers } = useQuery<UserData[]>({
     queryKey: ["/api/admin/users"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  // All organization members (including bulk imported students)
+  const { data: allMembers = [], refetch: refetchMembers } = useQuery<AllMemberData[]>({
+    queryKey: ["/api/super-admin/all-members"],
     enabled: roleInfo?.isSuperAdmin === true,
   });
 
@@ -230,6 +250,11 @@ export default function SuperAdminPage() {
       case "organizations":
         refetchOrgs();
         toast({ title: "Organizations refreshed" });
+        break;
+      case "users":
+        refetchUsers();
+        refetchMembers();
+        toast({ title: "User data refreshed" });
         break;
       case "settings":
         refetchSettings();
@@ -426,10 +451,14 @@ export default function SuperAdminPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="organizations" data-testid="tab-organizations">
               <Building2 className="mr-2 h-4 w-4" />
               Organizations
+            </TabsTrigger>
+            <TabsTrigger value="users" data-testid="tab-users">
+              <Users className="mr-2 h-4 w-4" />
+              User Management
             </TabsTrigger>
             <TabsTrigger value="promote" data-testid="tab-promote">
               <UserPlus className="mr-2 h-4 w-4" />
@@ -706,6 +735,84 @@ export default function SuperAdminPage() {
             )}
           </TabsContent>
 
+          <TabsContent value="users" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">User Management</h2>
+              <Button variant="outline" onClick={() => { refetchUsers(); refetchMembers(); }} data-testid="button-refresh-users">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Registered Platform Users</CardTitle>
+                <CardDescription>
+                  Users who have created accounts via Replit Auth. Note: Replit sends its own verification emails to new users - those are separate from our SendGrid invitation emails.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {allUsers.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">No users registered yet.</p>
+                  ) : (
+                    <div className="divide-y">
+                      {allUsers.map((user) => (
+                        <div key={user.id} className="flex items-center justify-between py-2" data-testid={`row-user-${user.id}`}>
+                          <div>
+                            <p className="font-medium">{user.firstName} {user.lastName}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                          <Badge variant={user.isAdmin === "true" || user.isAdmin === "super_admin" ? "default" : "secondary"}>
+                            {user.isAdmin === "super_admin" ? "Super Admin" : user.isAdmin === "true" ? "Admin" : "User"}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Organization Members</CardTitle>
+                <CardDescription>
+                  All students added to organizations (via enrollment or bulk import). Shows account status and organization assignment.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {allMembers.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">No organization members yet.</p>
+                  ) : (
+                    <div className="divide-y">
+                      {allMembers.map((member) => (
+                        <div key={member.id} className="flex items-center justify-between py-3" data-testid={`row-member-${member.id}`}>
+                          <div className="flex-1">
+                            <p className="font-medium">{member.firstName} {member.lastName}</p>
+                            <p className="text-sm text-muted-foreground">{member.email}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {member.orgName} • Joined {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : 'N/A'}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 items-center">
+                            <Badge variant={member.hasAccount ? "default" : "outline"}>
+                              {member.hasAccount ? "Has Account" : "Invited Only"}
+                            </Badge>
+                            <Badge variant={member.status === "active" ? "default" : "secondary"}>
+                              {member.role}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="promote" className="space-y-4">
             <Card>
               <CardHeader>
@@ -758,34 +865,6 @@ export default function SuperAdminPage() {
                   <UserPlus className="mr-2 h-4 w-4" />
                   {promoteToClassAdminMutation.isPending ? "Promoting..." : "Promote to Class Admin"}
                 </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>All Users</CardTitle>
-                <CardDescription>View all registered users on the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {allUsers.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-4">No users registered yet.</p>
-                  ) : (
-                    <div className="divide-y">
-                      {allUsers.map((user) => (
-                        <div key={user.id} className="flex items-center justify-between py-2" data-testid={`row-user-${user.id}`}>
-                          <div>
-                            <p className="font-medium">{user.firstName} {user.lastName}</p>
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                          </div>
-                          <Badge variant={user.isAdmin === "true" ? "default" : "secondary"}>
-                            {user.isAdmin === "true" ? "Admin" : "User"}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
