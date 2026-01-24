@@ -6,9 +6,9 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
 import { teams } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
 import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
@@ -2922,6 +2922,54 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error resetting test data:", error);
       res.status(500).json({ error: "Failed to reset test data" });
+    }
+  });
+
+  // ==================== ABOUT PAGE ROUTES ====================
+
+  // Get about page content (public)
+  app.get("/api/about", async (req: any, res) => {
+    try {
+      const [content] = await db.select().from(aboutPageContent).limit(1);
+      res.json(content || { photoUrl: null, content: null });
+    } catch (error) {
+      console.error("Error fetching about page content:", error);
+      res.status(500).json({ error: "Failed to fetch about page content" });
+    }
+  });
+
+  // Update about page content (super admin only)
+  app.put("/api/about", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { photoUrl, content } = req.body;
+
+      // Check if record exists
+      const [existing] = await db.select().from(aboutPageContent).limit(1);
+      
+      if (existing) {
+        await db.update(aboutPageContent)
+          .set({ photoUrl, content, updatedAt: new Date(), updatedBy: userId })
+          .where(eq(aboutPageContent.id, existing.id));
+      } else {
+        await db.insert(aboutPageContent).values({
+          photoUrl,
+          content,
+          updatedBy: userId,
+        });
+      }
+
+      const [updated] = await db.select().from(aboutPageContent).limit(1);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating about page content:", error);
+      res.status(500).json({ error: "Failed to update about page content" });
     }
   });
 

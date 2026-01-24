@@ -1,73 +1,246 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Info, BookOpen, Target, Users } from "lucide-react";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { ArrowLeft, Edit2, Save, X } from "lucide-react";
+import { Link } from "wouter";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import logoImg from "@assets/fwalogo-2_1768083577051.png";
+
+interface AboutContent {
+  id?: string;
+  photoUrl: string | null;
+  content: string | null;
+}
+
+interface UserRole {
+  isSuperAdmin?: boolean;
+}
 
 export default function About() {
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [content, setContent] = useState("");
+
+  const { data: aboutContent, isLoading } = useQuery<AboutContent>({
+    queryKey: ["/api/about"],
+  });
+
+  const { data: userRole } = useQuery<UserRole>({
+    queryKey: ["/api/my-role"],
+  });
+
+  const isSuperAdmin = userRole?.isSuperAdmin === true;
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: { photoUrl: string; content: string }) => {
+      return apiRequest("PUT", "/api/about", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/about"] });
+      toast({ title: "About page updated" });
+      setIsEditing(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error updating about page", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const startEditing = () => {
+    setPhotoUrl(aboutContent?.photoUrl || "");
+    setContent(aboutContent?.content || "");
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setPhotoUrl("");
+    setContent("");
+  };
+
+  const saveChanges = () => {
+    updateMutation.mutate({ photoUrl, content });
+  };
+
+  const renderContent = (htmlContent: string | null) => {
+    if (!htmlContent) return null;
+    return <div className="prose prose-neutral dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+  };
+
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold" data-testid="text-about-title">About The Future of Work</h1>
-        <p className="text-muted-foreground">
-          Understanding the business simulation experience
-        </p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link href="/">
+            <img 
+              src={logoImg} 
+              alt="Future Work Academy" 
+              className="h-12 w-auto cursor-pointer"
+              data-testid="img-header-logo"
+            />
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Button variant="ghost" size="sm" data-testid="button-back-home">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-              <Target className="h-5 w-5 text-primary" />
+      <main className="container mx-auto max-w-4xl px-4 py-12">
+        {isLoading ? (
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              <Skeleton className="w-48 h-48 rounded-full shrink-0" />
+              <div className="flex-1 space-y-4">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
             </div>
-            <CardTitle className="text-lg">Simulation Objectives</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground" data-testid="text-about-objectives">
-              Content coming soon. This section will detail the learning objectives and goals of the business simulation.
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        ) : isEditing ? (
+          <Card>
+            <CardContent className="pt-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Edit About Page</h2>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={cancelEditing}
+                    data-testid="button-cancel-edit"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={saveChanges}
+                    disabled={updateMutation.isPending}
+                    data-testid="button-save-about"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-              <BookOpen className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-lg">How It Works</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground" data-testid="text-about-how-it-works">
-              Content coming soon. This section will explain the mechanics of the 8-week simulation experience.
-            </p>
-          </CardContent>
-        </Card>
+              <div className="space-y-2">
+                <Label htmlFor="photoUrl">Profile Photo URL</Label>
+                <Input
+                  id="photoUrl"
+                  placeholder="https://example.com/your-photo.jpg"
+                  value={photoUrl}
+                  onChange={(e) => setPhotoUrl(e.target.value)}
+                  data-testid="input-photo-url"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Enter a URL to your profile photo. For best results, use a square image.
+                </p>
+              </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-lg">Team Dynamics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground" data-testid="text-about-team">
-              Content coming soon. This section will cover team roles, collaboration expectations, and scoring.
-            </p>
-          </CardContent>
-        </Card>
+              <div className="space-y-2">
+                <Label htmlFor="content">About Content (HTML)</Label>
+                <Textarea
+                  id="content"
+                  placeholder="<h2>About Me</h2>
+<p>Write your bio here...</p>
+<p>You can use HTML tags like &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, etc.</p>"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="min-h-[300px] font-mono text-sm"
+                  data-testid="textarea-about-content"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Use HTML to format your content. Common tags: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;
+                </p>
+              </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-              <Info className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-lg">Additional Resources</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground" data-testid="text-about-resources">
-              Content coming soon. This section will provide links to supplementary materials and references.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+              {content && (
+                <div className="space-y-2">
+                  <Label>Preview</Label>
+                  <div className="border rounded-md p-4 bg-card">
+                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                      {photoUrl && (
+                        <Avatar className="w-32 h-32 shrink-0">
+                          <AvatarImage src={photoUrl} alt="Profile" />
+                          <AvatarFallback className="text-2xl">?</AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div className="flex-1">
+                        {renderContent(content)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-8">
+            {isSuperAdmin && (
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={startEditing}
+                  data-testid="button-edit-about"
+                >
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Edit Page
+                </Button>
+              </div>
+            )}
+
+            {aboutContent?.photoUrl || aboutContent?.content ? (
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                {aboutContent.photoUrl && (
+                  <Avatar className="w-48 h-48 shrink-0 border-4 border-primary/10">
+                    <AvatarImage 
+                      src={aboutContent.photoUrl} 
+                      alt="Profile" 
+                      className="object-cover"
+                      data-testid="img-about-photo"
+                    />
+                    <AvatarFallback className="text-4xl">?</AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1" data-testid="text-about-content">
+                  {renderContent(aboutContent.content)}
+                </div>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground" data-testid="text-about-empty">
+                    No content has been added to this page yet.
+                  </p>
+                  {isSuperAdmin && (
+                    <Button 
+                      className="mt-4" 
+                      onClick={startEditing}
+                      data-testid="button-add-content"
+                    >
+                      Add Content
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

@@ -64,6 +64,13 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <a 
+              href="/about"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
+              data-testid="link-about"
+            >
+              About
+            </a>
+            <a 
               href="/for-educators"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
@@ -86,7 +93,7 @@ export default function Landing() {
           <div className="container mx-auto max-w-4xl text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               <Zap className="h-3 w-3" />
-              Business Simulation Game
+              Advanced AI Business Simulation
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground whitespace-nowrap">
               Are you Ready to Navigate the AI Revolution?

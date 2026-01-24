@@ -193,6 +193,18 @@ export const platformSettings = pgTable("platform_settings", {
 export type PlatformSettingsDb = typeof platformSettings.$inferSelect;
 export type InsertPlatformSettingsDb = typeof platformSettings.$inferInsert;
 
+// About page content - editable by super admins
+export const aboutPageContent = pgTable("about_page_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  photoUrl: text("photo_url"),
+  content: text("content"), // HTML or markdown content
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by"),
+});
+
+export type AboutPageContentDb = typeof aboutPageContent.$inferSelect;
+export type InsertAboutPageContentDb = typeof aboutPageContent.$inferInsert;
+
 // Simulation status enum
 export const SIMULATION_STATUS = {
   SETUP: "setup",
