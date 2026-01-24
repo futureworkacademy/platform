@@ -209,12 +209,12 @@ export default function ClassAdminPage() {
     enabled: roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true,
   });
 
-  const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery<OrganizationMember[]>({
+  const { data: members = [], isLoading: membersLoading, isFetching: membersFetching, refetch: refetchMembers } = useQuery<OrganizationMember[]>({
     queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"],
     enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
   });
 
-  const { data: teams = [], isLoading: teamsLoading, refetch: refetchTeams } = useQuery<Team[]>({
+  const { data: teams = [], isLoading: teamsLoading, isFetching: teamsFetching, refetch: refetchTeams } = useQuery<Team[]>({
     queryKey: ["/api/class-admin/organizations", selectedOrgId, "teams"],
     enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
   });
@@ -673,9 +673,9 @@ export default function ClassAdminPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { refetchMembers(); refetchTeams(); }} data-testid="button-refresh">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+            <Button variant="outline" onClick={() => { refetchMembers(); refetchTeams(); }} disabled={membersFetching || teamsFetching} data-testid="button-refresh">
+              <RefreshCw className={`mr-2 h-4 w-4 ${membersFetching || teamsFetching ? 'animate-spin' : ''}`} />
+              {membersFetching || teamsFetching ? 'Refreshing...' : 'Refresh'}
             </Button>
             {myOrganizations.length > 1 && (
               <Button variant="outline" onClick={() => setLocation("/class-admin")} data-testid="button-switch-org">
