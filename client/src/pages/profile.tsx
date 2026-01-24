@@ -374,23 +374,51 @@ export default function Profile() {
                 <FormField
                   control={form.control}
                   name="notifyPhone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone for Signup Alerts</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="tel"
-                          placeholder="+1234567890" 
-                          {...field} 
-                          data-testid="input-notify-phone" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-xs text-muted-foreground">
-                        You'll receive an SMS when a student joins your class
-                      </p>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const formatPhoneNumber = (value: string) => {
+                      // Strip all non-digit characters
+                      const digits = value.replace(/\D/g, '');
+                      
+                      // If starts with 1 and has 11 digits, it's US format with country code
+                      if (digits.startsWith('1') && digits.length === 11) {
+                        return `+${digits}`;
+                      }
+                      // If exactly 10 digits, add +1 prefix
+                      if (digits.length === 10) {
+                        return `+1${digits}`;
+                      }
+                      // If starts with +, preserve it
+                      if (value.startsWith('+')) {
+                        return `+${digits}`;
+                      }
+                      return value;
+                    };
+
+                    const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+                      const formatted = formatPhoneNumber(e.target.value);
+                      field.onChange(formatted);
+                      field.onBlur();
+                    };
+
+                    return (
+                      <FormItem>
+                        <FormLabel>Phone for Signup Alerts</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="tel"
+                            placeholder="(515) 306-9319" 
+                            {...field}
+                            onBlur={handlePhoneBlur}
+                            data-testid="input-notify-phone" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">
+                          Enter your 10-digit phone number (e.g., 5153069319). The +1 country code will be added automatically.
+                        </p>
+                      </FormItem>
+                    );
+                  }}
                 />
               </CardContent>
             </Card>

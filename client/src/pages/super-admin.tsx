@@ -38,6 +38,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -140,6 +141,49 @@ export default function SuperAdminPage() {
   const { data: platformSettings, isLoading: settingsLoading, refetch: refetchSettings } = useQuery<PlatformSettings>({
     queryKey: ["/api/platform-settings"],
     enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  // Email Templates
+  const { data: emailTemplates, isLoading: emailTemplatesLoading, refetch: refetchEmailTemplates } = useQuery<any[]>({
+    queryKey: ["/api/email-templates"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  const [showEmailTemplateDialog, setShowEmailTemplateDialog] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [editTemplateForm, setEditTemplateForm] = useState({
+    name: "",
+    subject: "",
+    htmlContent: "",
+    textContent: "",
+  });
+
+  const updateEmailTemplateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      return apiRequest("PUT", `/api/email-templates/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/email-templates"] });
+      setShowEmailTemplateDialog(false);
+      setEditingTemplate(null);
+      toast({ title: "Email template updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error updating template", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const resetEmailTemplatesMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/email-templates/reset", {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/email-templates"] });
+      toast({ title: "Email templates reset to defaults" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error resetting templates", description: error.message, variant: "destructive" });
+    },
   });
 
   const [localSettings, setLocalSettings] = useState<Partial<PlatformSettings>>({});
@@ -859,20 +903,82 @@ export default function SuperAdminPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Content Management</CardTitle>
-                    <CardDescription>Manage public-facing content on the site</CardDescription>
+                    <CardDescription>Manage public-facing content and email templates</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label className="text-base">About Page</Label>
                         <p className="text-sm text-muted-foreground">Edit your profile photo and bio on the About page</p>
                       </div>
-                      <a href="/about">
+                      <Link href="/about">
                         <Button variant="outline" data-testid="button-edit-about-page">
                           <Pencil className="h-4 w-4 mr-2" />
                           Edit About Page
                         </Button>
-                      </a>
+                      </Link>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label className="text-base">Email Templates</Label>
+                          <p className="text-sm text-muted-foreground">Customize email content sent to students</p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => resetEmailTemplatesMutation.mutate()}
+                          disabled={resetEmailTemplatesMutation.isPending}
+                          data-testid="button-reset-email-templates"
+                        >
+                          <RefreshCw className={`h-4 w-4 mr-2 ${resetEmailTemplatesMutation.isPending ? 'animate-spin' : ''}`} />
+                          Reset to Defaults
+                        </Button>
+                      </div>
+                      
+                      {emailTemplatesLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : emailTemplates && emailTemplates.length > 0 ? (
+                        <div className="space-y-3">
+                          {emailTemplates.map((template: any) => (
+                            <div 
+                              key={template.id} 
+                              className="flex items-center justify-between p-3 border rounded-md hover-elevate"
+                              data-testid={`email-template-${template.templateType}`}
+                            >
+                              <div className="space-y-0.5">
+                                <p className="font-medium">{template.name}</p>
+                                <p className="text-sm text-muted-foreground">{template.subject}</p>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  setEditingTemplate(template);
+                                  setEditTemplateForm({
+                                    name: template.name,
+                                    subject: template.subject,
+                                    htmlContent: template.htmlContent,
+                                    textContent: template.textContent,
+                                  });
+                                  setShowEmailTemplateDialog(true);
+                                }}
+                                data-testid={`button-edit-template-${template.templateType}`}
+                              >
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground py-4 text-center">No email templates found</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -948,6 +1054,96 @@ export default function SuperAdminPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Email Template Edit Dialog */}
+      <Dialog open={showEmailTemplateDialog} onOpenChange={setShowEmailTemplateDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Email Template</DialogTitle>
+            <DialogDescription>
+              Customize the email content. Use placeholders like {"{{studentName}}"}, {"{{className}}"}, {"{{instructorName}}"}, {"{{loginUrl}}"}, {"{{toEmail}}"}, {"{{subject}}"}, {"{{message}}"} which will be replaced with actual values when sending.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Template Name</Label>
+              <Input
+                value={editTemplateForm.name}
+                onChange={(e) => setEditTemplateForm({ ...editTemplateForm, name: e.target.value })}
+                placeholder="Template name"
+                data-testid="input-template-name"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Subject Line</Label>
+              <Input
+                value={editTemplateForm.subject}
+                onChange={(e) => setEditTemplateForm({ ...editTemplateForm, subject: e.target.value })}
+                placeholder="Email subject"
+                data-testid="input-template-subject"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>HTML Content</Label>
+              <Textarea
+                value={editTemplateForm.htmlContent}
+                onChange={(e) => setEditTemplateForm({ ...editTemplateForm, htmlContent: e.target.value })}
+                placeholder="HTML email body"
+                className="min-h-[200px] font-mono text-sm"
+                data-testid="textarea-template-html"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Plain Text Content</Label>
+              <Textarea
+                value={editTemplateForm.textContent}
+                onChange={(e) => setEditTemplateForm({ ...editTemplateForm, textContent: e.target.value })}
+                placeholder="Plain text email body"
+                className="min-h-[100px]"
+                data-testid="textarea-template-text"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2 flex-wrap">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowEmailTemplateDialog(false)}
+              data-testid="button-cancel-template"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editingTemplate) {
+                  updateEmailTemplateMutation.mutate({
+                    id: editingTemplate.id,
+                    data: editTemplateForm,
+                  });
+                }
+              }}
+              disabled={updateEmailTemplateMutation.isPending}
+              data-testid="button-save-template"
+            >
+              {updateEmailTemplateMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Template
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

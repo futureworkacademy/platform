@@ -205,6 +205,31 @@ export const aboutPageContent = pgTable("about_page_content", {
 export type AboutPageContentDb = typeof aboutPageContent.$inferSelect;
 export type InsertAboutPageContentDb = typeof aboutPageContent.$inferInsert;
 
+// Email templates - editable by super admins
+export const EMAIL_TEMPLATE_TYPES = {
+  INVITATION: "invitation",
+  REMINDER: "reminder",
+  WELCOME: "welcome",
+  SIMULATION_START: "simulation_start",
+} as const;
+
+export type EmailTemplateType = typeof EMAIL_TEMPLATE_TYPES[keyof typeof EMAIL_TEMPLATE_TYPES];
+
+export const emailTemplates = pgTable("email_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateType: varchar("template_type").notNull().unique(), // invitation, reminder, welcome, simulation_start
+  name: varchar("name").notNull(), // Display name
+  subject: text("subject").notNull(), // Email subject line
+  htmlContent: text("html_content").notNull(), // HTML body with placeholders like {{studentName}}, {{className}}
+  textContent: text("text_content").notNull(), // Plain text version
+  isActive: boolean("is_active").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by"),
+});
+
+export type EmailTemplateDb = typeof emailTemplates.$inferSelect;
+export type InsertEmailTemplateDb = typeof emailTemplates.$inferInsert;
+
 // Simulation status enum
 export const SIMULATION_STATUS = {
   SETUP: "setup",

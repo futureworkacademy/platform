@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -3084,6 +3084,366 @@ export async function registerRoutes(
       console.error("[SMS] Error sending notification:", error);
     }
   }
+
+  // ==================== EMAIL TEMPLATE ROUTES ====================
+  
+  // Default email templates for initialization
+  const defaultEmailTemplates = [
+    {
+      templateType: EMAIL_TEMPLATE_TYPES.INVITATION,
+      name: "Student Invitation",
+      subject: "You've been added to {{className}} - The Future of Work Simulation",
+      htmlContent: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+      <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
+    </div>
+    
+    <div style="padding: 30px;">
+      <h2 style="color: #1a1f36; margin-top: 0;">Welcome, {{studentName}}!</h2>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        You've been added to <strong>{{className}}</strong> by {{instructorName}}.
+      </p>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        In this simulation, you'll step into the role of an executive at Apex Manufacturing, 
+        navigating the challenges of AI adoption, workforce management, and strategic decision-making.
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{loginUrl}}" 
+           style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                  text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+          Start the Simulation
+        </a>
+      </div>
+      
+      <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+        Click the button above to log in and begin. Make sure to use this email address 
+        (<strong>{{toEmail}}</strong>) when signing in.
+      </p>
+    </div>
+    
+    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+        The Future of Work - A Business Simulation for Tomorrow's Leaders
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+      textContent: `Welcome to The Future of Work Simulation!
+
+Hi {{studentName}},
+
+You've been added to {{className}} by {{instructorName}}.
+
+In this simulation, you'll step into the role of an executive at Apex Manufacturing, navigating the challenges of AI adoption, workforce management, and strategic decision-making.
+
+To get started, visit: {{loginUrl}}
+
+Make sure to use this email address ({{toEmail}}) when signing in.
+
+- The Future of Work Team`,
+    },
+    {
+      templateType: EMAIL_TEMPLATE_TYPES.REMINDER,
+      name: "Scheduled Reminder",
+      subject: "{{subject}} - {{className}}",
+      htmlContent: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+      <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
+      <p style="color: #94a3b8; margin: 12px 0 0 0; font-size: 14px;">{{className}}</p>
+    </div>
+    
+    <div style="padding: 30px;">
+      <h2 style="color: #1a1f36; margin-top: 0;">{{subject}}</h2>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Hi {{studentName}},
+      </p>
+      
+      <div style="color: #475569; line-height: 1.8;">
+        {{message}}
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://futureworkacademy.com" 
+           style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                  text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+          Go to Dashboard
+        </a>
+      </div>
+    </div>
+    
+    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+        The Future of Work - A Business Simulation for Tomorrow's Leaders
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+      textContent: `{{subject}}
+
+Hi {{studentName}},
+
+{{message}}
+
+Visit your dashboard: https://futureworkacademy.com
+
+- The Future of Work Team`,
+    },
+    {
+      templateType: EMAIL_TEMPLATE_TYPES.WELCOME,
+      name: "Welcome Email",
+      subject: "Welcome to The Future of Work Simulation!",
+      htmlContent: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+      <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
+    </div>
+    
+    <div style="padding: 30px;">
+      <h2 style="color: #1a1f36; margin-top: 0;">Welcome, {{studentName}}!</h2>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Thank you for joining The Future of Work simulation. We're excited to have you on board!
+      </p>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Over the coming weeks, you'll experience the challenges and opportunities of leading a company through digital transformation.
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://futureworkacademy.com" 
+           style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                  text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+          Access Your Dashboard
+        </a>
+      </div>
+    </div>
+    
+    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+        The Future of Work - A Business Simulation for Tomorrow's Leaders
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+      textContent: `Welcome to The Future of Work Simulation!
+
+Hi {{studentName}},
+
+Thank you for joining The Future of Work simulation. We're excited to have you on board!
+
+Over the coming weeks, you'll experience the challenges and opportunities of leading a company through digital transformation.
+
+Access your dashboard at: https://futureworkacademy.com
+
+- The Future of Work Team`,
+    },
+    {
+      templateType: EMAIL_TEMPLATE_TYPES.SIMULATION_START,
+      name: "Simulation Started",
+      subject: "The Simulation Has Begun! - {{className}}",
+      htmlContent: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f8; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #1a1f36 0%, #2d3555 100%); padding: 30px; text-align: center;">
+      <img src="https://futureworkacademy.com/logo.png" alt="Future Work Academy" style="max-width: 220px; height: auto;" />
+      <p style="color: #94a3b8; margin: 12px 0 0 0; font-size: 14px;">{{className}}</p>
+    </div>
+    
+    <div style="padding: 30px;">
+      <h2 style="color: #1a1f36; margin-top: 0;">The Simulation Has Started!</h2>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Hi {{studentName}},
+      </p>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Your instructor has started the simulation. It's time to make your first decisions as an executive at Apex Manufacturing!
+      </p>
+      
+      <p style="color: #475569; line-height: 1.6;">
+        Log in now to review your weekly intelligence briefing and begin making strategic decisions.
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://futureworkacademy.com" 
+           style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
+                  text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+          Start Making Decisions
+        </a>
+      </div>
+    </div>
+    
+    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+        The Future of Work - A Business Simulation for Tomorrow's Leaders
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+      textContent: `The Simulation Has Started!
+
+Hi {{studentName}},
+
+Your instructor has started the simulation for {{className}}. It's time to make your first decisions as an executive at Apex Manufacturing!
+
+Log in now to review your weekly intelligence briefing and begin making strategic decisions.
+
+Access your dashboard at: https://futureworkacademy.com
+
+- The Future of Work Team`,
+    },
+  ];
+
+  // Get all email templates
+  app.get("/api/email-templates", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      let templates = await db.select().from(emailTemplates);
+      
+      // If no templates exist, initialize with defaults
+      if (templates.length === 0) {
+        for (const template of defaultEmailTemplates) {
+          await db.insert(emailTemplates).values({
+            ...template,
+            updatedBy: userId,
+          });
+        }
+        templates = await db.select().from(emailTemplates);
+      }
+
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching email templates:", error);
+      res.status(500).json({ error: "Failed to fetch email templates" });
+    }
+  });
+
+  // Update an email template
+  const updateEmailTemplateSchema = z.object({
+    name: z.string().min(1).max(200),
+    subject: z.string().min(1).max(500),
+    htmlContent: z.string().min(1),
+    textContent: z.string().min(1),
+    isActive: z.boolean().optional(),
+  });
+
+  app.put("/api/email-templates/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { id } = req.params;
+      const parseResult = updateEmailTemplateSchema.safeParse(req.body);
+      
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid template data", details: parseResult.error.errors });
+      }
+
+      const { name, subject, htmlContent, textContent, isActive } = parseResult.data;
+
+      // Sanitize HTML content
+      const sanitizedHtml = sanitizeHtml(htmlContent, {
+        allowedTags: ['html', 'head', 'body', 'meta', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'b', 'i', 'u', 'ul', 'ol', 'li', 'a', 'img', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'style', 'span'],
+        allowedAttributes: {
+          '*': ['style', 'class'],
+          'a': ['href', 'target', 'rel'],
+          'img': ['src', 'alt', 'width', 'height'],
+          'meta': ['charset', 'name', 'content'],
+        },
+        allowedSchemes: ['http', 'https', 'mailto'],
+      });
+
+      await db.update(emailTemplates)
+        .set({
+          name,
+          subject,
+          htmlContent: sanitizedHtml,
+          textContent,
+          isActive: isActive ?? true,
+          updatedAt: new Date(),
+          updatedBy: userId,
+        })
+        .where(eq(emailTemplates.id, id));
+
+      const [updated] = await db.select().from(emailTemplates).where(eq(emailTemplates.id, id));
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating email template:", error);
+      res.status(500).json({ error: "Failed to update email template" });
+    }
+  });
+
+  // Reset email templates to defaults
+  app.post("/api/email-templates/reset", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      // Delete all existing templates
+      await db.delete(emailTemplates);
+      
+      // Insert default templates
+      for (const template of defaultEmailTemplates) {
+        await db.insert(emailTemplates).values({
+          ...template,
+          updatedBy: userId,
+        });
+      }
+
+      const templates = await db.select().from(emailTemplates);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error resetting email templates:", error);
+      res.status(500).json({ error: "Failed to reset email templates" });
+    }
+  });
 
   return httpServer;
 }
