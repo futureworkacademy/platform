@@ -1,11 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { MetricCard } from "@/components/metric-card";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DollarSign,
   Users,
@@ -21,12 +24,60 @@ import {
   UserCheck,
   Building2,
   BookOpen,
+  Eye,
+  X,
+  RotateCw,
 } from "lucide-react";
 import type { Team } from "@shared/schema";
 
 export default function Dashboard() {
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  
   const { data: team, isLoading, error } = useQuery<Team>({
     queryKey: ["/api/team"],
+  });
+
+  // Check if current user is an admin in preview mode
+  const { data: userInfo } = useQuery<{ 
+    inStudentPreview?: boolean;
+    isClassAdmin?: boolean;
+    isSuperAdmin?: boolean;
+    previewModeOrgId?: string | null;
+    organizations?: Array<{ id: string; name: string }>;
+  }>({
+    queryKey: ["/api/my-role"],
+  });
+
+  const isInPreviewMode = userInfo?.inStudentPreview === true;
+  // Use the specific org being previewed (not just first org)
+  const adminOrgId = userInfo?.previewModeOrgId || userInfo?.organizations?.[0]?.id;
+
+  const exitPreviewModeMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${adminOrgId}/preview-mode/exit`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      toast({ title: "Exited preview mode", description: "Returning to admin view" });
+      setLocation("/class-admin");
+    },
+    onError: (error: any) => {
+      toast({ title: "Error exiting preview mode", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const resetTestDataMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${adminOrgId}/preview-mode/reset`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+      toast({ title: "Test data reset", description: "The simulation has been reset to week 1" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error resetting test data", description: error.message, variant: "destructive" });
+    },
   });
 
   if (isLoading) {
@@ -75,6 +126,39 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6" data-testid="dashboard-page">
+      {/* Preview Mode Banner */}
+      {isInPreviewMode && (
+        <Alert className="bg-amber-500/10 border-amber-500" data-testid="preview-mode-banner">
+          <Eye className="h-4 w-4 text-amber-500" />
+          <AlertDescription className="flex items-center justify-between gap-4 flex-wrap">
+            <span className="text-amber-600 dark:text-amber-400 font-medium">
+              You are viewing the simulation as a test student. Actions you take here won't affect real students.
+            </span>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => resetTestDataMutation.mutate()}
+                disabled={resetTestDataMutation.isPending}
+                data-testid="button-reset-test-data"
+              >
+                <RotateCw className={`mr-1 h-3 w-3 ${resetTestDataMutation.isPending ? 'animate-spin' : ''}`} />
+                Reset Progress
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={() => exitPreviewModeMutation.mutate()}
+                disabled={exitPreviewModeMutation.isPending}
+                data-testid="button-exit-preview"
+              >
+                <X className="mr-1 h-3 w-3" />
+                Exit Preview
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Executive Dashboard</h1>

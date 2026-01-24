@@ -51,6 +51,11 @@ export const users = pgTable("users", {
   verificationCodeExpires: timestamp("verification_code_expires"),
   notifyPhone: varchar("notify_phone"),
   smsEnabled: boolean("sms_enabled").default(true),
+  isTestStudent: boolean("is_test_student").default(false),
+  testStudentOwnerId: varchar("test_student_owner_id"),
+  testStudentOwnerOrgId: varchar("test_student_owner_org_id"),
+  inStudentPreview: boolean("in_student_preview").default(false),
+  previewModeOrgId: varchar("preview_mode_org_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

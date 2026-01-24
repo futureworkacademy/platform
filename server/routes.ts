@@ -1,11 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { randomUUID } from "crypto";
 import { storage } from "./storage";
-import { insertDecisionSchema, insertTeamSchema } from "@shared/schema";
+import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@shared/schema";
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizationMembers, simulations, scheduledReminders, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -2234,11 +2235,30 @@ export async function registerRoutes(
       const memberships = await organizationStorage.getMembershipsByUser(userId);
       const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
       const isClassAdmin = await organizationStorage.isClassAdmin(userId);
+      
+      // Get user's preview mode status
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      const inStudentPreview = user?.inStudentPreview || false;
+      const previewModeOrgId = user?.previewModeOrgId || null;
+
+      // Get organizations where user is admin (for preview mode exit)
+      const adminOrgs: Array<{ id: string; name: string }> = [];
+      for (const membership of memberships) {
+        if (membership.role === ROLES.CLASS_ADMIN || membership.role === ROLES.SUPER_ADMIN) {
+          const [org] = await db.select().from(organizations).where(eq(organizations.id, membership.organizationId));
+          if (org) {
+            adminOrgs.push({ id: org.id, name: org.name });
+          }
+        }
+      }
 
       res.json({
         role,
         isSuperAdmin,
         isClassAdmin,
+        inStudentPreview,
+        previewModeOrgId,
+        organizations: adminOrgs,
         membershipCount: memberships.length,
         memberships,
       });
@@ -2649,6 +2669,259 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error cancelling reminder:", error);
       res.status(500).json({ error: "Failed to cancel reminder" });
+    }
+  });
+
+  // ==================== STUDENT PREVIEW MODE ROUTES ====================
+
+  // Get preview mode status
+  app.get("/api/class-admin/organizations/:orgId/preview-mode", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Get current user to check preview mode status
+      const [adminUser] = await db.select().from(users).where(eq(users.id, userId));
+      
+      // Check if test student exists for this admin AND this specific org
+      const [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, orgId)
+        ));
+      
+      // Get test team if exists (also verify it belongs to this org)
+      let testTeam = null;
+      if (testStudent?.teamId) {
+        const [team] = await db.select().from(teams)
+          .where(and(
+            eq(teams.id, testStudent.teamId),
+            eq(teams.organizationId, orgId)
+          ));
+        testTeam = team;
+      }
+
+      res.json({
+        inPreviewMode: adminUser?.inStudentPreview || false,
+        testStudent: testStudent ? {
+          id: testStudent.id,
+          email: testStudent.email,
+          firstName: testStudent.firstName,
+          lastName: testStudent.lastName,
+          teamId: testStudent.teamId,
+        } : null,
+        testTeam: testTeam ? {
+          id: testTeam.id,
+          name: testTeam.name,
+          currentWeek: testTeam.currentWeek,
+        } : null,
+      });
+    } catch (error) {
+      console.error("Error getting preview mode status:", error);
+      res.status(500).json({ error: "Failed to get preview mode status" });
+    }
+  });
+
+  // Enter student preview mode
+  app.post("/api/class-admin/organizations/:orgId/preview-mode/enter", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Get admin user info
+      const [adminUser] = await db.select().from(users).where(eq(users.id, userId));
+      if (!adminUser) {
+        return res.status(404).json({ error: "Admin user not found" });
+      }
+
+      // Check if test student already exists for this admin AND this specific org
+      let [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, orgId)
+        ));
+
+      // Create test student if doesn't exist for this admin + org combination
+      if (!testStudent) {
+        const testStudentId = randomUUID();
+        const testEmail = `test-student-${userId.substring(0, 8)}-${orgId.substring(0, 6)}@preview.local`;
+        
+        await db.insert(users).values({
+          id: testStudentId,
+          email: testEmail,
+          firstName: "Test",
+          lastName: "Student (Preview)",
+          isAdmin: "false",
+          isTestStudent: true,
+          testStudentOwnerId: userId,
+          testStudentOwnerOrgId: orgId,
+          institution: adminUser.institution,
+        });
+
+        [testStudent] = await db.select().from(users).where(eq(users.id, testStudentId));
+      }
+
+      // Check if test team exists, create if not
+      let testTeam = null;
+      if (testStudent.teamId) {
+        const [existing] = await db.select().from(teams).where(eq(teams.id, testStudent.teamId));
+        testTeam = existing;
+      }
+
+      if (!testTeam) {
+        // Get org info for team naming
+        const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+        const teamName = `[Preview] Test Team - ${org?.name || 'Admin'}`;
+        
+        const testTeamId = randomUUID();
+        await db.insert(teams).values({
+          id: testTeamId,
+          name: teamName,
+          organizationId: orgId,
+          members: [testStudent.id],
+          companyState: defaultCompanyState,
+          currentWeek: 1,
+          totalWeeks: 8,
+          setupComplete: true,
+          researchComplete: false,
+        });
+
+        // Assign test student to team
+        await db.update(users)
+          .set({ teamId: testTeamId, updatedAt: new Date() })
+          .where(eq(users.id, testStudent.id));
+
+        [testTeam] = await db.select().from(teams).where(eq(teams.id, testTeamId));
+      }
+
+      // Also add test student to organization members if not already (check BOTH userId AND orgId)
+      const [existingMember] = await db.select().from(organizationMembers)
+        .where(and(
+          eq(organizationMembers.userId, testStudent.id),
+          eq(organizationMembers.organizationId, orgId)
+        ));
+      
+      if (!existingMember) {
+        await db.insert(organizationMembers).values({
+          id: randomUUID(),
+          userId: testStudent.id,
+          organizationId: orgId,
+          role: "student",
+          status: "active",
+          joinedAt: new Date(),
+        });
+      }
+
+      // Set admin into preview mode and track which org they are previewing
+      await db.update(users)
+        .set({ inStudentPreview: true, previewModeOrgId: orgId, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+
+      res.json({
+        success: true,
+        testStudent: {
+          id: testStudent.id,
+          email: testStudent.email,
+          firstName: testStudent.firstName,
+          lastName: testStudent.lastName,
+          teamId: testTeam?.id,
+        },
+        testTeam: {
+          id: testTeam?.id,
+          name: testTeam?.name,
+          currentWeek: testTeam?.currentWeek,
+        },
+      });
+    } catch (error) {
+      console.error("Error entering preview mode:", error);
+      res.status(500).json({ error: "Failed to enter preview mode" });
+    }
+  });
+
+  // Exit student preview mode
+  app.post("/api/class-admin/organizations/:orgId/preview-mode/exit", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Set admin out of preview mode and clear the org being previewed
+      await db.update(users)
+        .set({ inStudentPreview: false, previewModeOrgId: null, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error exiting preview mode:", error);
+      res.status(500).json({ error: "Failed to exit preview mode" });
+    }
+  });
+
+  // Reset test student data
+  app.post("/api/class-admin/organizations/:orgId/preview-mode/reset", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Find test student scoped to this admin AND this org
+      const [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, orgId)
+        ));
+
+      if (!testStudent) {
+        return res.status(404).json({ error: "No test student found for this organization" });
+      }
+
+      // Reset the test team's game state
+      if (testStudent.teamId) {
+        await db.update(teams)
+          .set({
+            currentWeek: 1,
+            companyState: defaultCompanyState,
+            decisions: [],
+            decisionRecords: [],
+            weeklyHistory: [],
+            viewedReportIds: [],
+            setupComplete: true,
+            researchComplete: false,
+            updatedAt: new Date(),
+          })
+          .where(eq(teams.id, testStudent.teamId));
+      }
+
+      res.json({ success: true, message: "Test data has been reset to initial state" });
+    } catch (error) {
+      console.error("Error resetting test data:", error);
+      res.status(500).json({ error: "Failed to reset test data" });
     }
   });
 

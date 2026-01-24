@@ -29,7 +29,10 @@ import {
   Pause,
   Clock,
   Bell,
-  RotateCw
+  RotateCw,
+  Eye,
+  X,
+  Trash2
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useSearch, useLocation } from "wouter";
@@ -227,6 +230,57 @@ export default function ClassAdminPage() {
   const { data: reminders = [], refetch: refetchReminders } = useQuery<ScheduledReminder[]>({
     queryKey: ["/api/class-admin/organizations", selectedOrgId, "reminders"],
     enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
+  });
+
+  // Preview mode (Blackboard-style student preview)
+  const { data: previewModeStatus, refetch: refetchPreviewMode } = useQuery<{
+    inPreviewMode: boolean;
+    testStudent: { id: string; email: string; firstName: string; lastName: string; teamId: string } | null;
+    testTeam: { id: string; name: string; currentWeek: number } | null;
+  }>({
+    queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"],
+    enabled: !!selectedOrgId && (roleInfo?.isClassAdmin === true || roleInfo?.isSuperAdmin === true),
+  });
+
+  const enterPreviewModeMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/enter`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
+      toast({ title: "Preview mode activated", description: "You are now viewing the simulation as a test student" });
+      // Navigate to student dashboard
+      setLocation("/dashboard");
+    },
+    onError: (error: any) => {
+      toast({ title: "Error entering preview mode", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const exitPreviewModeMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/exit`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
+      toast({ title: "Exited preview mode", description: "You are back to admin view" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error exiting preview mode", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const resetTestDataMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/reset`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
+      toast({ title: "Test data reset", description: "The test student's simulation has been reset to week 1" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error resetting test data", description: error.message, variant: "destructive" });
+    },
   });
 
   const createTeamMutation = useMutation({
@@ -672,7 +726,15 @@ export default function ClassAdminPage() {
               Manage students and teams for this class
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              onClick={() => enterPreviewModeMutation.mutate()} 
+              disabled={enterPreviewModeMutation.isPending}
+              data-testid="button-preview-student"
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              {enterPreviewModeMutation.isPending ? 'Entering...' : 'Preview as Student'}
+            </Button>
             <Button variant="outline" onClick={() => { refetchMembers(); refetchTeams(); }} disabled={membersFetching || teamsFetching} data-testid="button-refresh">
               <RefreshCw className={`mr-2 h-4 w-4 ${membersFetching || teamsFetching ? 'animate-spin' : ''}`} />
               {membersFetching || teamsFetching ? 'Refreshing...' : 'Refresh'}
