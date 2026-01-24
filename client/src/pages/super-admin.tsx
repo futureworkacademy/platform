@@ -858,6 +858,27 @@ export default function SuperAdminPage() {
 
                 <Card>
                   <CardHeader>
+                    <CardTitle>Content Management</CardTitle>
+                    <CardDescription>Manage public-facing content on the site</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">About Page</Label>
+                        <p className="text-sm text-muted-foreground">Edit your profile photo and bio on the About page</p>
+                      </div>
+                      <a href="/about">
+                        <Button variant="outline" data-testid="button-edit-about-page">
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit About Page
+                        </Button>
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
                     <CardTitle>Easter Egg Bonus</CardTitle>
                     <CardDescription>Reward students who reference research in their decisions</CardDescription>
                   </CardHeader>
