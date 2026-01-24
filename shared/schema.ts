@@ -237,7 +237,7 @@ export type Team = z.infer<typeof teamSchema>;
 
 export const insertTeamSchema = z.object({
   name: z.string().min(1, "Team name is required").max(50, "Team name too long"),
-  members: z.array(z.string().min(1)).min(1, "At least one member is required").max(6, "Maximum 6 team members"),
+  members: z.array(z.string().min(1)).max(6, "Maximum 6 team members").default([]),
   totalWeeks: z.number().min(4).max(12).default(8),
   organizationId: z.string().optional(),
 });
