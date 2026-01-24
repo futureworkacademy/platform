@@ -22,7 +22,9 @@ import {
   Pencil,
   MessageSquare,
   Save,
-  Loader2
+  Loader2,
+  Mail,
+  MoreHorizontal
 } from "lucide-react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,6 +48,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Organization {
   id: string;
@@ -319,6 +327,25 @@ export default function SuperAdminPage() {
     },
     onError: (error: any) => {
       toast({ title: "Error updating organization", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Resend invitation email to organization member
+  const [sendingInviteFor, setSendingInviteFor] = useState<string | null>(null);
+  const resendInviteMutation = useMutation({
+    mutationFn: async ({ organizationId, memberId }: { organizationId: string; memberId: string }) => {
+      setSendingInviteFor(memberId);
+      const response = await apiRequest("POST", `/api/class-admin/organizations/${organizationId}/members/${memberId}/send-invite`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/all-members"] });
+      toast({ title: "Invitation email sent successfully" });
+      setSendingInviteFor(null);
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to send invite", description: error.message, variant: "destructive" });
+      setSendingInviteFor(null);
     },
   });
 
@@ -788,21 +815,45 @@ export default function SuperAdminPage() {
                   ) : (
                     <div className="divide-y">
                       {allMembers.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between py-3" data-testid={`row-member-${member.id}`}>
-                          <div className="flex-1">
+                        <div key={member.id} className="flex items-center justify-between py-3 gap-4" data-testid={`row-member-${member.id}`}>
+                          <div className="flex-1 min-w-0">
                             <p className="font-medium">{member.firstName} {member.lastName}</p>
-                            <p className="text-sm text-muted-foreground">{member.email}</p>
+                            <p className="text-sm text-muted-foreground truncate">{member.email}</p>
                             <p className="text-xs text-muted-foreground">
                               {member.orgName} • Joined {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : 'N/A'}
                             </p>
                           </div>
-                          <div className="flex gap-2 items-center">
+                          <div className="flex gap-2 items-center flex-shrink-0">
                             <Badge variant={member.hasAccount ? "default" : "outline"}>
                               {member.hasAccount ? "Has Account" : "Invited Only"}
                             </Badge>
                             <Badge variant={member.status === "active" ? "default" : "secondary"}>
                               {member.role}
                             </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" data-testid={`button-member-actions-${member.id}`}>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem 
+                                  onClick={() => resendInviteMutation.mutate({ 
+                                    organizationId: member.organizationId, 
+                                    memberId: member.id 
+                                  })}
+                                  disabled={sendingInviteFor === member.id}
+                                  data-testid={`button-resend-invite-${member.id}`}
+                                >
+                                  {sendingInviteFor === member.id ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <Mail className="h-4 w-4 mr-2" />
+                                  )}
+                                  {sendingInviteFor === member.id ? "Sending..." : "Resend Invite Email"}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       ))}
