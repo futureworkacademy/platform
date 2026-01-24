@@ -433,7 +433,7 @@ export async function registerRoutes(
       // Get decision context for LLM evaluation
       const decisions = await storage.getEnhancedDecisions(weekNumber);
       const decision = decisions.find(d => d.id === decisionId);
-      const decisionContext = decision ? `${decision.title}: ${decision.description}` : "Business decision";
+      const decisionContext = decision ? `${decision.title}: ${decision.context}` : "Business decision";
       
       // Use LLM evaluation for rationale quality (semantic understanding)
       const llmEvaluation = await storage.evaluateRationaleWithLLM(rationale, decisionContext, weekNumber);

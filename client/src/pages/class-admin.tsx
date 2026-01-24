@@ -442,7 +442,15 @@ export default function ClassAdminPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const text = e.target?.result as string;
+        let text = e.target?.result as string;
+        
+        // Remove BOM (Byte Order Mark) that Excel/some systems add to UTF-8 files
+        if (text.charCodeAt(0) === 0xFEFF) {
+          text = text.slice(1);
+        }
+        // Also handle the common UTF-8 BOM sequence
+        text = text.replace(/^\uFEFF/, '');
+        
         const lines = text.split('\n').filter(line => line.trim());
         
         if (lines.length < 2) {
@@ -450,8 +458,8 @@ export default function ClassAdminPage() {
           return;
         }
 
-        // Parse header - support various column names
-        const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+        // Parse header - support various column names, strip any remaining special chars
+        const header = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, '').replace(/[^\x20-\x7E]/g, ''));
         
         // Find column indices (flexible matching - order matters for specificity)
         // Email - most specific, find first
