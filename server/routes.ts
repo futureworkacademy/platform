@@ -14,6 +14,7 @@ import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
 import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
 import { sendInvitationEmail } from "./services/email";
+import sanitizeHtml from "sanitize-html";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -2939,6 +2940,11 @@ export async function registerRoutes(
   });
 
   // Update about page content (super admin only)
+  const aboutContentSchema = z.object({
+    photoUrl: z.string().url().max(2000).nullable().optional(),
+    content: z.string().max(50000).nullable().optional(),
+  });
+
   app.put("/api/about", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -2948,19 +2954,34 @@ export async function registerRoutes(
         return res.status(403).json({ error: "Super Admin access required" });
       }
 
-      const { photoUrl, content } = req.body;
+      // Validate request body
+      const validation = aboutContentSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid input", details: validation.error.issues });
+      }
+
+      const { photoUrl, content } = validation.data;
+
+      // Sanitize HTML content to prevent XSS
+      const sanitizedContent = content ? sanitizeHtml(content, {
+        allowedTags: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'b', 'i', 'u', 'ul', 'ol', 'li', 'a', 'blockquote', 'hr'],
+        allowedAttributes: {
+          'a': ['href', 'target', 'rel'],
+        },
+        allowedSchemes: ['http', 'https', 'mailto'],
+      }) : null;
 
       // Check if record exists
       const [existing] = await db.select().from(aboutPageContent).limit(1);
       
       if (existing) {
         await db.update(aboutPageContent)
-          .set({ photoUrl, content, updatedAt: new Date(), updatedBy: userId })
+          .set({ photoUrl: photoUrl || null, content: sanitizedContent, updatedAt: new Date(), updatedBy: userId })
           .where(eq(aboutPageContent.id, existing.id));
       } else {
         await db.insert(aboutPageContent).values({
-          photoUrl,
-          content,
+          photoUrl: photoUrl || null,
+          content: sanitizedContent,
           updatedBy: userId,
         });
       }
