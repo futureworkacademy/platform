@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { organizationStorage } from "./organization-storage";
 import { ROLES, Role } from "@shared/models/auth";
+import { demoService } from "./demo-service";
 
 // Extended request type with role info
 export interface AuthRequest extends Request {
@@ -8,6 +9,8 @@ export interface AuthRequest extends Request {
   isSuperAdmin?: boolean;
   isClassAdmin?: boolean;
   organizationIds?: string[];
+  isEvaluator?: boolean;
+  allowedDemoOrgIds?: string[];
 }
 
 // Check if user is authenticated
@@ -131,4 +134,63 @@ export function generateTeamCode(length: number = 6): string {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
+}
+
+// Load demo access info for a user
+export async function loadDemoAccess(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.isAuthenticated() || !req.user) {
+    return next();
+  }
+
+  try {
+    const userId = (req.user as any).claims?.sub || (req.user as any).id;
+    if (!userId) return next();
+    
+    const isEvaluator = await demoService.isEvaluator(userId);
+    req.isEvaluator = isEvaluator;
+    
+    if (isEvaluator) {
+      req.allowedDemoOrgIds = await demoService.getUserAllowedOrganizations(userId);
+    }
+    
+    next();
+  } catch (error) {
+    console.error("Error loading demo access:", error);
+    next();
+  }
+}
+
+// Middleware to check if evaluator can access a specific organization
+export function checkDemoOrgAccess(orgIdParam: string = "orgId") {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const userId = (req.user as any).claims?.sub || (req.user as any).id;
+      const orgId = req.params[orgIdParam] || req.body.organizationId || req.query.organizationId;
+      
+      if (!orgId) {
+        return next();
+      }
+      
+      const isEvaluator = await demoService.isEvaluator(userId);
+      
+      if (isEvaluator) {
+        const isDemo = await demoService.isDemoOrganization(orgId);
+        if (!isDemo) {
+          return res.status(403).json({ 
+            error: "Demo accounts can only access demo organizations",
+            isDemoRestricted: true
+          });
+        }
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Error checking demo org access:", error);
+      res.status(500).json({ error: "Access check failed" });
+    }
+  };
 }
