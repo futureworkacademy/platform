@@ -37,6 +37,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
 -   **Simulation Loop:** Dashboard -> Briefing -> Decisions -> Analytics -> Leaderboard.
 -   **Game Mechanics:** Dual scoring (Financial & Cultural), global events, resource allocation (AI deployment, lobbying, reskilling).
 -   **Enhanced Decision System:** Multi-attribute decisions for strategic areas like Automation, Talent Development, and Union Relations.
+-   **LLM-Powered Grading:** OpenAI-based semantic evaluation for essay responses with transparent rubric-based scoring.
 -   **Activity Logging:** Tracks key user and game actions, exportable to CSV/JSON.
 
 **Feature Specifications:**
@@ -84,12 +85,21 @@ I prefer clear and concise communication. When making changes, prioritize the co
     - Merges users, organization memberships, and team assignments
     - Returns computed status (active/pending/invited/deactivated), role, org info, team info per person
     - Supports the new People tab with efficient unified querying
+-   **Week Results & Feedback System:**
+    - Week Results page (/week-results) displays detailed performance feedback after completing a week
+    - LLM-evaluated essay scores with transparent 4-criteria rubric (Evidence Quality, Reasoning Coherence, Trade-off Analysis, Stakeholder Consideration - 25pts each)
+    - Shows strengths, areas for improvement, and overall performance summary
+    - Top Answers section displays anonymized exemplary responses from cohort
+    - Automatic redirect to Week Results after completing week decisions
+    - SendGrid email notifications sent when week advances with results available
 
 ## External Dependencies
 
 -   **Authentication:** Replit OIDC Auth
 -   **Database:** PostgreSQL
 -   **SMS Notifications:** Twilio
+-   **Email Notifications:** SendGrid
+-   **AI/LLM Integration:** OpenAI (GPT-4o-mini for essay evaluation)
 -   **UI Components:** Shadcn/UI, Radix UI
 -   **Charting Library:** Recharts
 -   **Frontend Framework:** React
