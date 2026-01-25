@@ -63,11 +63,18 @@ I prefer clear and concise communication. When making changes, prioritize the co
     - Reset functionality clears test data back to initial state (week 1)
 -   **Super Admin Dashboard Redesign (6-Tab Structure):**
     - Organizations: Create/edit organizations, view member counts
-    - People: Unified view of all users with search, filters (status/role/org), inline actions (resend invite, promote)
+    - People: Unified view of all users with search, filters (status/role/org/deactivated), comprehensive CRUD actions
     - Content: About page editing, simulation content management (placeholder for future expansion)
     - Simulation: Simulation lifecycle controls (placeholder for future expansion)
     - Activity: Activity logs (placeholder for future expansion)
     - Settings: Platform-wide configuration
+-   **People Tab CRUD Actions (Super Admin):**
+    - Profile pictures: Avatar display with fallback initials, editable URL
+    - Edit Details: Modify first name, last name, email, and profile image URL
+    - Change Team: Reassign users to different teams within their organization
+    - Deactivate: Soft-delete org members (removes from team, preserves data)
+    - Reactivate: Restore deactivated members to active status
+    - Remove from Org: Permanently delete organization membership
 -   **Multi-Scenario Module Support:**
     - `simulationModules` table for different simulation themes (AI Workplace, Supply Chain, etc.)
     - `simulationContent` table for per-week content items (briefings, videos, resources)
@@ -75,7 +82,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
     - Future extensibility for selling different modules to different institutions
 -   **Unified People API (`/api/super-admin/people`):**
     - Merges users, organization memberships, and team assignments
-    - Returns computed status (active/pending/invited), role, org info, team info per person
+    - Returns computed status (active/pending/invited/deactivated), role, org info, team info per person
     - Supports the new People tab with efficient unified querying
 
 ## External Dependencies
