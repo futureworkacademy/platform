@@ -264,6 +264,82 @@ export async function registerRoutes(
     }
   });
 
+  // Content view tracking endpoints
+  // Zod schema for content view recording
+  const recordContentViewSchema = z.object({
+    contentType: z.enum(['research_report', 'briefing_section', 'simulation_content']),
+    contentId: z.string().min(1),
+    weekNumber: z.number().int().min(1).max(12).optional(),
+    timeSpentSeconds: z.number().int().min(0).optional(),
+  });
+
+  app.post("/api/content-views", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      
+      const parseResult = recordContentViewSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid request", details: parseResult.error.flatten() });
+      }
+      
+      const { contentType, contentId, weekNumber, timeSpentSeconds } = parseResult.data;
+      
+      const view = await storage.recordContentView({
+        userId,
+        teamId: user?.teamId || null,
+        contentType,
+        contentId,
+        weekNumber,
+        timeSpentSeconds
+      });
+      
+      res.json({ success: true, view });
+    } catch (error) {
+      console.error("Error recording content view:", error);
+      res.status(500).json({ error: "Failed to record content view" });
+    }
+  });
+
+  app.get("/api/content-views", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      const { contentType, weekNumber } = req.query;
+      
+      const views = await storage.getContentViews(
+        userId,
+        user?.teamId || undefined,
+        contentType as string | undefined,
+        weekNumber ? parseInt(weekNumber as string, 10) : undefined
+      );
+      
+      res.json(views);
+    } catch (error) {
+      console.error("Error fetching content views:", error);
+      res.status(500).json({ error: "Failed to fetch content views" });
+    }
+  });
+
+  app.get("/api/content-views/progress", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      const { weekNumber } = req.query;
+      
+      const progress = await storage.getContentViewProgress(
+        userId,
+        user?.teamId || undefined,
+        weekNumber ? parseInt(weekNumber as string, 10) : undefined
+      );
+      
+      res.json(progress);
+    } catch (error) {
+      console.error("Error fetching content view progress:", error);
+      res.status(500).json({ error: "Failed to fetch content view progress" });
+    }
+  });
+
   app.get("/api/leaderboard", isAuthenticated, async (req: any, res) => {
     try {
       const leaderboard = await storage.getLeaderboard();

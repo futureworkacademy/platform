@@ -795,6 +795,41 @@ export const insertSimulationContentSchema = simulationContentSchema.omit({
 });
 export type InsertSimulationContent = z.infer<typeof insertSimulationContentSchema>;
 
+// Content view tracking schema
+export const contentViewSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  teamId: z.string().nullable(),
+  contentType: z.enum(['research_report', 'briefing_section', 'simulation_content']),
+  contentId: z.string(),
+  weekNumber: z.number().nullable(),
+  viewedAt: z.string(),
+  timeSpentSeconds: z.number().nullable(),
+});
+export type ContentView = z.infer<typeof contentViewSchema>;
+
+export const insertContentViewSchema = contentViewSchema.omit({ id: true, viewedAt: true });
+export type InsertContentView = z.infer<typeof insertContentViewSchema>;
+
+export const contentViewProgressSchema = z.object({
+  briefing: z.object({
+    viewed: z.number(),
+    total: z.number(),
+    percentage: z.number(),
+  }),
+  research: z.object({
+    viewed: z.number(),
+    total: z.number(),
+    percentage: z.number(),
+  }),
+  overall: z.object({
+    viewed: z.number(),
+    total: z.number(),
+    percentage: z.number(),
+  }),
+});
+export type ContentViewProgress = z.infer<typeof contentViewProgressSchema>;
+
 // Export auth models from Replit Auth integration
 export * from "./models/auth";
 

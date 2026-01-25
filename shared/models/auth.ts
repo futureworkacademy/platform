@@ -345,3 +345,18 @@ export const simulationContent = pgTable("simulation_content", {
 
 export type SimulationContentDb = typeof simulationContent.$inferSelect;
 export type InsertSimulationContentDb = typeof simulationContent.$inferInsert;
+
+// Content views tracking - records which content items users have viewed
+export const contentViews = pgTable("content_views", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  teamId: varchar("team_id"),
+  contentType: varchar("content_type").notNull(), // 'research_report', 'briefing_section', 'simulation_content'
+  contentId: varchar("content_id").notNull(), // ID of the specific content item
+  weekNumber: integer("week_number"), // Which week the view occurred (for briefing content)
+  viewedAt: timestamp("viewed_at").defaultNow(),
+  timeSpentSeconds: integer("time_spent_seconds"), // Optional: how long they spent viewing
+});
+
+export type ContentViewDb = typeof contentViews.$inferSelect;
+export type InsertContentViewDb = typeof contentViews.$inferInsert;

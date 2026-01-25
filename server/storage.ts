@@ -1,4 +1,13 @@
 import { randomUUID } from "crypto";
+
+// Calculate reading time based on word count (200 words per minute average)
+export function calculateReadingTime(text: string): number {
+  const wordsPerMinute = 200;
+  const wordCount = text.trim().split(/\s+/).length;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return Math.max(1, minutes); // Minimum 1 minute
+}
+
 import type {
   Team,
   InsertTeam,
@@ -25,6 +34,9 @@ import type {
   PlayerDecisionSubmission,
   ActivityLog,
   PlatformSettings,
+  ContentView,
+  InsertContentView,
+  ContentViewProgress,
 } from "@shared/schema";
 import { defaultCompanyState } from "@shared/schema";
 import { db } from "./db";
@@ -67,6 +79,11 @@ export interface IStorage {
   getEasterEggs(): Promise<EasterEgg[]>;
   detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]>;
   evaluateRationaleWithLLM(rationale: string, decisionContext: string, weekNumber: number): Promise<{ score: number; evidenceUsed: string[]; reasoning: string; quality: string }>;
+  
+  // Content view tracking
+  recordContentView(view: Omit<InsertContentView, 'timeSpentSeconds'> & { timeSpentSeconds?: number | null }): Promise<ContentView>;
+  getContentViews(userId: string, teamId?: string, contentType?: string, weekNumber?: number): Promise<ContentView[]>;
+  getContentViewProgress(userId: string, teamId?: string, weekNumber?: number): Promise<ContentViewProgress>;
   
   // Activity logging
   logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog>;
@@ -1338,7 +1355,20 @@ export class MemStorage implements IStorage {
   }
 
   async getResearchReports(): Promise<ResearchReport[]> {
-    return researchReports;
+    // Calculate reading time dynamically based on content length
+    return researchReports.map(report => {
+      // Combine all text content for accurate word count
+      const fullText = [
+        report.summary,
+        report.content,
+        ...report.keyFindings
+      ].join(' ');
+      
+      return {
+        ...report,
+        readingTime: calculateReadingTime(fullText)
+      };
+    });
   }
 
   async getHistoricalData(): Promise<HistoricalData[]> {
@@ -1347,6 +1377,117 @@ export class MemStorage implements IStorage {
 
   async getWorkforceDemographics(): Promise<WorkforceDemographics> {
     return workforceDemographics;
+  }
+
+  // Content view tracking methods
+  async recordContentView(view: Omit<InsertContentView, 'timeSpentSeconds'> & { timeSpentSeconds?: number | null }): Promise<ContentView> {
+    const { contentViews } = await import("@shared/models/auth");
+    const result = await db.insert(contentViews).values({
+      userId: view.userId,
+      teamId: view.teamId,
+      contentType: view.contentType,
+      contentId: view.contentId,
+      weekNumber: view.weekNumber,
+      timeSpentSeconds: view.timeSpentSeconds ?? null,
+    }).returning();
+    const row = result[0];
+    return {
+      id: row.id,
+      userId: row.userId,
+      teamId: row.teamId,
+      contentType: row.contentType as 'research_report' | 'briefing_section' | 'simulation_content',
+      contentId: row.contentId,
+      weekNumber: row.weekNumber,
+      viewedAt: row.viewedAt.toISOString(),
+      timeSpentSeconds: row.timeSpentSeconds,
+    };
+  }
+
+  async getContentViews(userId: string, teamId?: string, contentType?: string, weekNumber?: number): Promise<ContentView[]> {
+    const { contentViews } = await import("@shared/models/auth");
+    const { eq, and } = await import("drizzle-orm");
+    
+    let conditions = [eq(contentViews.userId, userId)];
+    if (contentType) {
+      conditions.push(eq(contentViews.contentType, contentType));
+    }
+    if (weekNumber !== undefined) {
+      conditions.push(eq(contentViews.weekNumber, weekNumber));
+    }
+    
+    const rows = await db.select().from(contentViews).where(and(...conditions));
+    return rows.map(row => ({
+      id: row.id,
+      userId: row.userId,
+      teamId: row.teamId,
+      contentType: row.contentType as 'research_report' | 'briefing_section' | 'simulation_content',
+      contentId: row.contentId,
+      weekNumber: row.weekNumber,
+      viewedAt: row.viewedAt.toISOString(),
+      timeSpentSeconds: row.timeSpentSeconds,
+    }));
+  }
+
+  async getContentViewProgress(userId: string, teamId?: string, weekNumber?: number): Promise<ContentViewProgress> {
+    const { contentViews } = await import("@shared/models/auth");
+    const { eq, and } = await import("drizzle-orm");
+    
+    // Get all views for this user
+    const allViews = await db.select().from(contentViews).where(eq(contentViews.userId, userId));
+    
+    // Research progress - get total from research reports data
+    // Note: Research reports include industry, workforce, financials, market, technology, regulatory
+    const researchReportCategories = ['industry', 'workforce', 'financials', 'market', 'technology', 'regulatory'];
+    const researchTotal = researchReportCategories.length;
+    const researchViews = allViews.filter(v => v.contentType === 'research_report');
+    const uniqueResearchIds = [...new Set(researchViews.map(v => v.contentId))];
+    const researchViewed = Math.min(uniqueResearchIds.length, researchTotal);
+    
+    // Briefing progress - each week has 4 sections:
+    // 1. sitrep (Situation Report)
+    // 2. pressures (Stakeholder Pressures)  
+    // 3. keyquestion (Key Question)
+    // 4. scenario (Main scenario - auto-recorded on page load)
+    const sectionsPerWeek = 4;
+    const briefingViews = allViews.filter(v => 
+      v.contentType === 'briefing_section' && 
+      (weekNumber === undefined || v.weekNumber === weekNumber)
+    );
+    const uniqueBriefingIds = [...new Set(briefingViews.map(v => v.contentId))];
+    
+    // Get simulation config for dynamic week count (defaults to 8 if not available)
+    let totalSimulationWeeks = 8;
+    if (teamId) {
+      const team = await this.getTeam(teamId);
+      if (team?.totalWeeks) {
+        totalSimulationWeeks = team.totalWeeks;
+      }
+    }
+    
+    const briefingTotal = weekNumber !== undefined ? sectionsPerWeek : (sectionsPerWeek * totalSimulationWeeks);
+    const briefingViewed = Math.min(uniqueBriefingIds.length, briefingTotal);
+    
+    // Overall combines both
+    const overallTotal = researchTotal + briefingTotal;
+    const overallViewed = researchViewed + briefingViewed;
+    
+    return {
+      briefing: {
+        viewed: briefingViewed,
+        total: briefingTotal,
+        percentage: briefingTotal > 0 ? Math.round((briefingViewed / briefingTotal) * 100) : 0
+      },
+      research: {
+        viewed: researchViewed,
+        total: researchTotal,
+        percentage: researchTotal > 0 ? Math.round((researchViewed / researchTotal) * 100) : 0
+      },
+      overall: {
+        viewed: overallViewed,
+        total: overallTotal,
+        percentage: overallTotal > 0 ? Math.round((overallViewed / overallTotal) * 100) : 0
+      }
+    };
   }
 
   async updateTeam(id: string, updates: Partial<Team>): Promise<Team | undefined> {

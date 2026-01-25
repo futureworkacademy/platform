@@ -27,6 +27,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface LeaderboardEntry {
   rank: number;
@@ -212,7 +217,19 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
             <span className="text-sm font-medium text-sidebar-foreground" data-testid="text-team-name">{teamName}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Progress</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-muted-foreground cursor-help underline decoration-dotted">
+                  Simulation Week
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[200px]">
+                <p className="text-xs">
+                  This shows which week of the {totalWeeks}-week simulation you're currently in. 
+                  Each week brings new scenarios and decisions.
+                </p>
+              </TooltipContent>
+            </Tooltip>
             <Badge variant="secondary" className="text-xs" data-testid="badge-week-progress">
               Week {currentWeek} of {totalWeeks}
             </Badge>
