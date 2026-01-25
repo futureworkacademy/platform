@@ -1098,13 +1098,13 @@ export default function SuperAdminPage() {
                               <td className="py-3 px-2">
                                 <Badge 
                                   variant={person.status === "active" ? "default" : "secondary"}
-                                  className={
+                                  className={`min-w-[5.5rem] justify-center ${
                                     person.status === "active" ? "bg-green-500/10 text-green-600 border-green-500/20" :
                                     person.status === "pending" ? "bg-amber-500/10 text-amber-600 border-amber-500/20" :
                                     person.status === "invited" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" :
                                     person.status === "deactivated" ? "bg-red-500/10 text-red-600 border-red-500/20" :
                                     ""
-                                  }
+                                  }`}
                                   data-testid={`badge-status-${person.id}`}
                                 >
                                   {person.status === "active" && "Active"}
@@ -1117,11 +1117,11 @@ export default function SuperAdminPage() {
                               <td className="py-3 px-2">
                                 <Badge 
                                   variant="outline"
-                                  className={
+                                  className={`min-w-[5.5rem] justify-center ${
                                     person.role === "super_admin" ? "border-purple-500/50 text-purple-600" :
                                     person.role === "class_admin" ? "border-blue-500/50 text-blue-600" :
                                     ""
-                                  }
+                                  }`}
                                   data-testid={`badge-role-${person.id}`}
                                 >
                                   {person.role === "super_admin" && "Super Admin"}
