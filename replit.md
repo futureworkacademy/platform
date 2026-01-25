@@ -46,8 +46,16 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - `attached_assets/logo-icon-light.png` - Square icon, white on black (for dark backgrounds)
 - `attached_assets/logo-horizontal-dark.png` - Full lockup, navy on white (presentations, headers)
 - `attached_assets/logo-horizontal-light.png` - Full lockup, white on black (dark mode, slides)
+- `attached_assets/logo-dark.svg` - SVG icon, navy on transparent (scalable)
+- `attached_assets/logo-light.svg` - SVG icon, white on transparent (scalable)
 - `client/public/logo.png` - Primary web app logo (copy of icon-dark)
 - `client/public/favicon.png` - Browser tab icon
+
+**Current Logo Sizes in Web App:**
+- Header logos (landing, academia, for-educators): h-14 (56px)
+- Secondary page headers (about, privacy): h-12 (48px)
+- Sidebar collapsed: h-10 (40px)
+- Favicon: 32px
 
 ## System Architecture
 

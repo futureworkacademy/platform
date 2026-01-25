@@ -118,6 +118,15 @@
 - Modify colors outside the approved palette
 - Add effects (shadows, glows, outlines)
 
+### Current Web App Logo Sizes
+
+| Location | Tailwind Class | Pixel Height |
+|----------|----------------|--------------|
+| Main page headers (landing, academia) | h-14 | 56px |
+| Secondary page headers (about, privacy) | h-12 | 48px |
+| Sidebar (collapsed state) | h-10 | 40px |
+| Favicon | - | 32px |
+
 ---
 
 ## 6. Visual Style
