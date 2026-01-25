@@ -39,6 +39,18 @@ const DOC_FILES: Record<string, { path: string; title: string }> = {
   game_design: {
     path: 'docs/GAME_DESIGN.md',
     title: 'Future Work Academy - Game Design Document'
+  },
+  iowa_grant_proposal: {
+    path: 'docs/IOWA_GRANT_PROPOSAL_OUTLINE.md',
+    title: 'Future Work Academy - Iowa Grant Proposal Outline'
+  },
+  iowa_manufacturing_module: {
+    path: 'docs/IOWA_MANUFACTURING_MODULE_CONCEPT.md',
+    title: 'Future Work Academy - Iowa Manufacturing Module Concept'
+  },
+  iowa_community_college: {
+    path: 'docs/IOWA_COMMUNITY_COLLEGE_ONEPAGER.md',
+    title: 'Future Work Academy - Iowa Community College One-Pager'
   }
 };
 
