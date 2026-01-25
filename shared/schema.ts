@@ -901,6 +901,16 @@ export const characterProfileSchema = z.object({
   voiceId: z.string().nullable(), // External voice ID if using voice synthesis
   // Content generation prompts
   speakingStyleExamples: z.array(z.string()).nullable(), // Example quotes for AI reference
+  // Quantifiable traits for simulation mechanics (1-10 scale)
+  influence: z.number().min(1).max(10).default(5), // How much sway they have over decisions
+  hostility: z.number().min(1).max(10).default(5), // How antagonistic they are
+  flexibility: z.number().min(1).max(10).default(5), // How open they are to change
+  riskTolerance: z.number().min(1).max(10).default(5), // How comfortable with uncertainty
+  // Categories this character impacts (used for decision difficulty modifiers)
+  impactCategories: z.array(z.enum([
+    "labor", "finance", "technology", "culture", "operations", 
+    "strategy", "legal", "marketing", "executive", "external"
+  ])).nullable(), // Which decision categories this character affects
   // Metadata
   isActive: z.boolean().default(true),
   sortOrder: z.number().default(0),

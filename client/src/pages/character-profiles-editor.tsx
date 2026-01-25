@@ -14,10 +14,12 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ArrowLeft, Plus, Pencil, Trash2, Loader2, Save, UserCircle, 
   Wand2, Building, Briefcase, MessageSquare, Heart, AlertCircle,
-  Users, Mic, Sparkles, Image, RefreshCw
+  Users, Mic, Sparkles, Image, RefreshCw, Gauge, Zap, Target
 } from "lucide-react";
 
 interface SimulationModule {
@@ -47,11 +49,29 @@ interface CharacterProfile {
   voiceDescription: string | null;
   voiceId: string | null;
   speakingStyleExamples: string[] | null;
+  influence: number;
+  hostility: number;
+  flexibility: number;
+  riskTolerance: number;
+  impactCategories: string[] | null;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
 }
+
+const IMPACT_CATEGORIES = [
+  { id: "labor", label: "Labor & Workforce" },
+  { id: "finance", label: "Finance & Budget" },
+  { id: "technology", label: "Technology & AI" },
+  { id: "culture", label: "Culture & Values" },
+  { id: "operations", label: "Operations" },
+  { id: "strategy", label: "Strategy" },
+  { id: "legal", label: "Legal & Compliance" },
+  { id: "marketing", label: "Marketing" },
+  { id: "executive", label: "Executive Decisions" },
+  { id: "external", label: "External Relations" },
+];
 
 const CHARACTER_ROLES = [
   "CEO",
@@ -92,6 +112,11 @@ export default function CharacterProfilesEditor() {
     motivations: "",
     fears: "",
     voiceDescription: "",
+    influence: 5,
+    hostility: 5,
+    flexibility: 5,
+    riskTolerance: 5,
+    impactCategories: [] as string[],
     isActive: true,
     sortOrder: 0,
   });
@@ -183,6 +208,11 @@ export default function CharacterProfilesEditor() {
       motivations: "",
       fears: "",
       voiceDescription: "",
+      influence: 5,
+      hostility: 5,
+      flexibility: 5,
+      riskTolerance: 5,
+      impactCategories: [],
       isActive: true,
       sortOrder: 0,
     });
@@ -201,6 +231,11 @@ export default function CharacterProfilesEditor() {
       motivations: profile.motivations || "",
       fears: profile.fears || "",
       voiceDescription: profile.voiceDescription || "",
+      influence: profile.influence ?? 5,
+      hostility: profile.hostility ?? 5,
+      flexibility: profile.flexibility ?? 5,
+      riskTolerance: profile.riskTolerance ?? 5,
+      impactCategories: profile.impactCategories ?? [],
       isActive: profile.isActive,
       sortOrder: profile.sortOrder,
     });
@@ -335,6 +370,21 @@ export default function CharacterProfilesEditor() {
                       {profile.personality}
                     </p>
                   )}
+                  
+                  <div className="flex flex-wrap gap-1 mb-3 text-xs">
+                    <Badge variant="outline" className="text-[10px] px-1.5">
+                      Inf: {profile.influence ?? 5}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] px-1.5">
+                      Hos: {profile.hostility ?? 5}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] px-1.5">
+                      Flex: {profile.flexibility ?? 5}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] px-1.5">
+                      Risk: {profile.riskTolerance ?? 5}
+                    </Badge>
+                  </div>
                   
                   <div className="flex items-center gap-2">
                     <Button 
@@ -540,6 +590,122 @@ export default function CharacterProfilesEditor() {
                   data-testid="input-voice-description"
                 />
               </div>
+              
+              <Separator />
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Simulation Mechanics</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  These traits determine how this character impacts decision difficulty, AI grading, and advisor recommendations.
+                </p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label htmlFor="influence">Influence</Label>
+                      <span className="text-sm font-medium">{profileForm.influence}/10</span>
+                    </div>
+                    <Slider
+                      id="influence"
+                      value={[profileForm.influence]}
+                      onValueChange={(v) => setProfileForm(f => ({ ...f, influence: v[0] }))}
+                      min={1}
+                      max={10}
+                      step={1}
+                      data-testid="slider-influence"
+                    />
+                    <p className="text-xs text-muted-foreground">How much sway over decisions</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label htmlFor="hostility">Hostility</Label>
+                      <span className="text-sm font-medium">{profileForm.hostility}/10</span>
+                    </div>
+                    <Slider
+                      id="hostility"
+                      value={[profileForm.hostility]}
+                      onValueChange={(v) => setProfileForm(f => ({ ...f, hostility: v[0] }))}
+                      min={1}
+                      max={10}
+                      step={1}
+                      data-testid="slider-hostility"
+                    />
+                    <p className="text-xs text-muted-foreground">How antagonistic to changes</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label htmlFor="flexibility">Flexibility</Label>
+                      <span className="text-sm font-medium">{profileForm.flexibility}/10</span>
+                    </div>
+                    <Slider
+                      id="flexibility"
+                      value={[profileForm.flexibility]}
+                      onValueChange={(v) => setProfileForm(f => ({ ...f, flexibility: v[0] }))}
+                      min={1}
+                      max={10}
+                      step={1}
+                      data-testid="slider-flexibility"
+                    />
+                    <p className="text-xs text-muted-foreground">How open to new approaches</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label htmlFor="riskTolerance">Risk Tolerance</Label>
+                      <span className="text-sm font-medium">{profileForm.riskTolerance}/10</span>
+                    </div>
+                    <Slider
+                      id="riskTolerance"
+                      value={[profileForm.riskTolerance]}
+                      onValueChange={(v) => setProfileForm(f => ({ ...f, riskTolerance: v[0] }))}
+                      min={1}
+                      max={10}
+                      step={1}
+                      data-testid="slider-risk-tolerance"
+                    />
+                    <p className="text-xs text-muted-foreground">Comfort with uncertainty</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Impact Categories
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Select which decision categories this character affects
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {IMPACT_CATEGORIES.map((cat) => (
+                      <div key={cat.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`cat-${cat.id}`}
+                          checked={profileForm.impactCategories.includes(cat.id)}
+                          onCheckedChange={(checked) => {
+                            setProfileForm(f => ({
+                              ...f,
+                              impactCategories: checked
+                                ? [...f.impactCategories, cat.id]
+                                : f.impactCategories.filter(c => c !== cat.id)
+                            }));
+                          }}
+                          data-testid={`checkbox-category-${cat.id}`}
+                        />
+                        <Label htmlFor={`cat-${cat.id}`} className="text-sm cursor-pointer">
+                          {cat.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <Separator />
               
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">

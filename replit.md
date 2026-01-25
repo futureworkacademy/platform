@@ -39,8 +39,14 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Intel Engagement Bonus:** Students who engage with optional Industry Intelligence articles receive a bonus multiplier on their research score (1.0x base, +0.15x per article viewed, max 1.5x).
 - **Navigation Breadcrumbs:** Research, Briefing, and Decisions pages feature breadcrumb navigation for intuitive back-and-forth movement.
 - **Character Profiles System:** 17 predefined stakeholder roles (CEO, CFO, Union Leader, etc.) with AI-generated headshots via OpenAI gpt-image-1 model, rich bios including personality traits, motivations, fears, and communication styles, plus relationship mapping between characters.
+- **Character-Driven Simulation Engine:** Quantifiable character traits (influence, hostility, flexibility, riskTolerance on 1-10 scale) plus impact categories (labor, finance, technology, culture, operations, strategy, legal, marketing, executive, external) that mechanically affect simulation outcomes:
+  - **Decision Difficulty Modifiers:** High-hostility + high-influence characters make related decisions harder (0.5x-2.0x difficulty multiplier)
+  - **LLM Grading Context Injection:** Top 5 influential stakeholders' perspectives are automatically injected into essay grading prompts for "Stakeholder Consideration" scoring
+  - **Phone-a-Friend Stakeholder Warnings:** Advisor AI responses include warnings about resistant/hostile stakeholders in their specialty area
+  - **Voicemail Trigger Sensitivity:** Character hostility/influence boost voicemail trigger probability
+  - **Admin Trait Editor:** Visual sliders and category checkboxes at `/admin/character-profiles` for editing traits with live preview of impact calculations
 - **Triggered Voicemail Notifications:** Context-sensitive audio messages from simulation characters triggered by 6 event types (time_window, decision_made, content_viewed, week_started, score_threshold, random) with customizable urgency levels and cooldown periods.
-- **Phone-a-Friend Advisor System:** 9 specialized advisors (Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics) provide AI-generated contextual guidance using GPT-4o-mini. Students have 3 lifetime uses per simulation.
+- **Phone-a-Friend Advisor System:** 9 specialized advisors (Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics) provide AI-generated contextual guidance using GPT-4o-mini with stakeholder awareness. Students have 3 lifetime uses per simulation.
 - **Multimedia Content Support:** Video and audio content in briefings with full transcripts, dynamic reading/viewing time estimates, media engagement tracking (started, completed, resume position), and Intel classification for bonus eligibility.
 - **SVG Logo System:** Dual-variant SVG logos with transparent backgrounds (logo-dark.svg for light backgrounds, logo-light.svg for dark sidebar).
 

@@ -768,6 +768,21 @@ export async function registerRoutes(
       // Evaluate essay/text attributes with rubric-based LLM scoring
       const { evaluateTextResponse } = await import("./services/llm-evaluation");
       const { defaultRubricCriteria } = await import("@shared/schema");
+      const { calculateSimulationImpact } = await import("./character-impact-engine");
+      
+      // Get character profiles for stakeholder context in essay grading
+      const allCharacters = await storage.getCharacterProfiles();
+      const characterTraits = allCharacters.map((c: any) => ({
+        name: c.name,
+        role: c.role,
+        influence: c.influence ?? 5,
+        hostility: c.hostility ?? 5,
+        flexibility: c.flexibility ?? 5,
+        riskTolerance: c.riskTolerance ?? 5,
+        impactCategories: c.impactCategories ?? [],
+      }));
+      const simulationImpact = calculateSimulationImpact(characterTraits);
+      const stakeholderContext = simulationImpact.llmGradingContext;
       
       const llmEvaluations: any[] = [];
       let totalLLMScore = 0;
@@ -792,11 +807,13 @@ export async function registerRoutes(
             // Use custom rubric or default
             const rubricCriteria = attr.rubricCriteria || defaultRubricCriteria;
             
+            // Pass stakeholder context to LLM for essay grading
             const evaluation = await evaluateTextResponse(
               plainText,
               `${decision.title}: ${decision.context}\nAttribute: ${attr.label} - ${attr.description}`,
               rubricCriteria,
-              weekNumber
+              weekNumber,
+              stakeholderContext
             );
             
             llmEvaluations.push({
@@ -821,6 +838,22 @@ export async function registerRoutes(
       
       // Calculate overall LLM score (weighted average)
       const overallLLMScore = totalMaxScore > 0 ? Math.round(totalLLMScore / (totalMaxScore / 100)) : 0;
+      
+      // Get decision difficulty modifier based on character traits
+      // Map decision category to impact categories for modifier calculation
+      const { getDecisionDifficultyModifier } = await import("./character-impact-engine");
+      type ImpactCat = "labor" | "finance" | "technology" | "culture" | "operations" | "strategy" | "legal" | "marketing" | "executive" | "external";
+      const categoryMapping: Record<string, ImpactCat[]> = {
+        "reskilling": ["labor", "culture"],
+        "automation_financing": ["finance", "technology"],
+        "workforce_displacement": ["labor", "operations"],
+        "union_relations": ["labor", "legal"],
+        "management_pipeline": ["executive", "culture"],
+        "organizational_change": ["culture", "operations"],
+        "strategic_investment": ["strategy", "finance"],
+      };
+      const decisionCategories = decision?.category ? (categoryMapping[decision.category] || []) : [];
+      const difficultyModifier = getDecisionDifficultyModifier(simulationImpact, decisionCategories);
       
       const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
       
@@ -850,6 +883,7 @@ export async function registerRoutes(
           keywordMatches: keywordMatches.length,
           viewedContentMatches: easterEggResult.viewedContentMatches.length,
           viewBonusMultiplier: easterEggResult.viewBonusMultiplier,
+          stakeholderDifficultyModifier: difficultyModifier,
           attributeKeys: Object.keys(attributeValues),
           essayEvaluationsCount: llmEvaluations.length,
           overallLLMScore,
@@ -867,7 +901,10 @@ export async function registerRoutes(
       }
       
       // Apply view bonus multiplier to research score (rewards intel engagement)
-      const adjustedResearchScore = Math.round(llmEvaluation.score * easterEggResult.viewBonusMultiplier);
+      // Also apply difficulty modifier - harder decisions (modifier > 1) give bonus points for success
+      // Easier decisions (modifier < 1) slightly reduce points as they require less stakeholder consideration
+      const stakeholderDifficultyBonus = difficultyModifier > 1 ? 1 + ((difficultyModifier - 1) * 0.5) : difficultyModifier;
+      const adjustedResearchScore = Math.round(llmEvaluation.score * easterEggResult.viewBonusMultiplier * stakeholderDifficultyBonus);
       
       res.json({ 
         submission: enrichedSubmission,
@@ -875,6 +912,8 @@ export async function registerRoutes(
         researchScore: adjustedResearchScore,
         baseResearchScore: llmEvaluation.score,
         viewBonusMultiplier: easterEggResult.viewBonusMultiplier,
+        stakeholderDifficultyModifier: difficultyModifier,
+        stakeholderDifficultyBonus,
         viewedIntelCount: easterEggResult.viewedContentMatches.length,
         llmEvaluations,
         overallLLMScore,
@@ -5165,6 +5204,22 @@ Access your dashboard at: https://futureworkacademy.com
       
       const { advisor, character } = advisorData;
       
+      // Get all character profiles to provide stakeholder context
+      const allCharacters = await storage.getCharacterProfiles();
+      const { getPhoneAFriendContext } = await import("./character-impact-engine");
+      const stakeholderContext = getPhoneAFriendContext(
+        allCharacters.map((c: any) => ({
+          name: c.name,
+          role: c.role,
+          influence: c.influence ?? 5,
+          hostility: c.hostility ?? 5,
+          flexibility: c.flexibility ?? 5,
+          riskTolerance: c.riskTolerance ?? 5,
+          impactCategories: c.impactCategories ?? [],
+        })),
+        advisor.specialty
+      );
+      
       // Generate AI advice using OpenAI
       const OpenAI = (await import("openai")).default;
       const openai = new OpenAI();
@@ -5181,7 +5236,9 @@ You are advising a graduate business student in a simulation about AI adoption a
 The current week is Week ${weekNumber} of an 8-week simulation.
 ${context ? `Current context: ${context}` : ''}
 
-Provide thoughtful, personalized advice in your character's voice. Keep your response under 300 words but make it substantive and actionable.`;
+${stakeholderContext ? `STAKEHOLDER DYNAMICS TO CONSIDER:\n${stakeholderContext}` : ''}
+
+Provide thoughtful, personalized advice in your character's voice. Keep your response under 300 words but make it substantive and actionable. When relevant, warn about stakeholders who may resist or support the decision.`;
 
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",

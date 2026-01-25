@@ -2364,6 +2364,12 @@ export class MemStorage implements IStorage {
     voiceDescription?: string;
     voiceId?: string;
     speakingStyleExamples?: string[];
+    // Quantifiable traits for simulation mechanics
+    influence?: number;
+    hostility?: number;
+    flexibility?: number;
+    riskTolerance?: number;
+    impactCategories?: string[];
     isActive?: boolean;
     sortOrder?: number;
     createdBy?: string;
@@ -2388,6 +2394,12 @@ export class MemStorage implements IStorage {
       voiceDescription: data.voiceDescription || null,
       voiceId: data.voiceId || null,
       speakingStyleExamples: data.speakingStyleExamples || null,
+      // Quantifiable traits (default to 5 if not provided)
+      influence: data.influence ?? 5,
+      hostility: data.hostility ?? 5,
+      flexibility: data.flexibility ?? 5,
+      riskTolerance: data.riskTolerance ?? 5,
+      impactCategories: data.impactCategories || null,
       isActive: data.isActive ?? true,
       sortOrder: data.sortOrder ?? 0,
       createdBy: data.createdBy || null,
@@ -2413,6 +2425,12 @@ export class MemStorage implements IStorage {
     voiceDescription?: string;
     voiceId?: string;
     speakingStyleExamples?: string[];
+    // Quantifiable traits for simulation mechanics
+    influence?: number;
+    hostility?: number;
+    flexibility?: number;
+    riskTolerance?: number;
+    impactCategories?: string[];
     isActive?: boolean;
     sortOrder?: number;
   }>): Promise<any | null> {

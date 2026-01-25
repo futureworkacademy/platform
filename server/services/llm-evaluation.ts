@@ -133,7 +133,8 @@ export async function evaluateTextResponse(
   response: string,
   promptContext: string,
   rubricCriteria: RubricCriterionInput[],
-  weekNumber: number
+  weekNumber: number,
+  stakeholderContext?: string
 ): Promise<RubricEvaluationResult> {
   try {
     const criteriaPrompt = rubricCriteria.map(c => 
@@ -157,7 +158,9 @@ Key topics students should understand:
 - Case studies of success and failure in manufacturing AI adoption
 - Workforce solutions (reskilling, dual career tracks, worker councils)
 - Union dynamics and employee relations
-- Financial trade-offs of automation investments`,
+- Financial trade-offs of automation investments
+
+${stakeholderContext || ''}`,
         },
         {
           role: "user",

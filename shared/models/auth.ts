@@ -418,6 +418,13 @@ export const characterProfiles = pgTable("character_profiles", {
   voiceId: varchar("voice_id"), // External voice ID if using voice synthesis
   // Content generation prompts
   speakingStyleExamples: jsonb("speaking_style_examples"), // Array of example quotes
+  // Quantifiable traits for simulation mechanics (1-10 scale)
+  influence: integer("influence").default(5), // How much sway they have over decisions
+  hostility: integer("hostility").default(5), // How antagonistic they are
+  flexibility: integer("flexibility").default(5), // How open they are to change
+  riskTolerance: integer("risk_tolerance").default(5), // How comfortable with uncertainty
+  // Categories this character impacts (used for decision difficulty modifiers)
+  impactCategories: jsonb("impact_categories"), // Array of category strings: ["labor", "finance", "technology", "culture"]
   // Metadata
   isActive: boolean("is_active").default(true),
   sortOrder: integer("sort_order").default(0),
