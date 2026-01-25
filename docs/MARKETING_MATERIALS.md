@@ -1,6 +1,6 @@
 # Future Work Academy - Marketing Materials
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** January 2026
 
 > **Note:** Additional visual diagrams (system architecture, data models, notification flows) available in [APPENDIX_DIAGRAMS.md](./APPENDIX_DIAGRAMS.md)
@@ -48,6 +48,14 @@ An 8-week immersive business simulation where students step into the role of exe
 
 - **Google Docs Integration**: Business documentation syncs automatically to Google Docs for easy sharing with stakeholders
 
+- **Living Character Ecosystem**: Meet 17 distinct AI-powered stakeholders - from the visionary CEO to the skeptical Union Leader - each with unique personalities, motivations, and AI-generated professional headshots that bring the simulation to life
+
+- **Triggered Voicemail Notifications**: Receive unexpected "voicemails" from simulation characters at critical moments - when you cross a performance threshold, make a controversial decision, or miss a deadline. These audio messages create authentic pressure and emotional stakes
+
+- **Phone-a-Friend Advisor System**: Stuck on a tough decision? Use one of your three "lifelines" to consult with specialized advisors (Finance, HR, Legal, Technology, Ethics, and more). Each advisor provides AI-generated contextual guidance tailored to your specific situation
+
+- **Rich Media Content**: Weekly briefings include video and audio content with full transcripts, dynamic reading/viewing time estimates, and engagement tracking across all media types
+
 ---
 
 ### The Weekly Workflow
@@ -74,6 +82,64 @@ flowchart LR
 4. **Track Progress** - Dashboard updates with new metrics, rank changes, and competitive standings
 
 5. **Iterate** - Apply lessons learned to the next week's challenges
+
+---
+
+### Meet the Cast: AI-Powered Characters That Feel Real
+
+The simulation features 17 distinct stakeholder characters, each with:
+
+- **AI-Generated Professional Headshots**: Unique, consistent visual identities created by advanced AI
+- **Rich Backstories**: Career history, personality traits, communication styles, and hidden motivations
+- **Dynamic Relationships**: Characters reference each other, creating a believable organizational ecosystem
+- **Authentic Communication**: Each character has a distinct voice - from the data-driven CFO to the passionate Union Representative
+
+**Character Roles Include:**
+- C-Suite Executives (CEO, CFO, COO, CTO, CHRO)
+- Department Heads and Middle Managers
+- Union Leadership and Employee Representatives
+- External Stakeholders (Board Members, Investors, Regulators)
+- Subject Matter Experts and Consultants
+
+---
+
+### Triggered Voicemails: Pressure When It Matters
+
+Experience the urgency of real leadership through our triggered voicemail system:
+
+- **Context-Sensitive Timing**: Voicemails arrive based on your decisions, performance thresholds, or simulation events
+- **Character-Specific Messages**: Each voicemail comes from a specific stakeholder with their unique perspective
+- **Urgency Levels**: From routine check-ins to urgent escalations that demand immediate attention
+- **Emotional Stakes**: Audio messages create psychological pressure that text alone cannot replicate
+
+**Trigger Examples:**
+- The CEO calls when your financial score drops below target
+- The Union Leader leaves a pointed message after layoff decisions
+- The Board Chair reaches out when your cultural health score is concerning
+- Random "pulse check" calls that keep you on your toes
+
+---
+
+### Phone-a-Friend: Expert Advice When You Need It Most
+
+Stuck on a critical decision? Our advisor system provides on-demand AI-powered guidance:
+
+**9 Specialized Advisors:**
+- **Finance Advisor**: Capital allocation, ROI analysis, debt management
+- **HR Advisor**: Workforce planning, employee relations, reskilling strategies
+- **Operations Advisor**: Process optimization, automation implementation
+- **Legal Advisor**: Compliance, liability, contractual considerations
+- **Union Relations Advisor**: Collective bargaining, labor relations
+- **Technology Advisor**: AI/automation technical feasibility and risks
+- **Marketing Advisor**: Brand impact, stakeholder communication
+- **Strategy Advisor**: Competitive positioning, long-term planning
+- **Ethics Advisor**: Moral implications, stakeholder fairness
+
+**How It Works:**
+1. Click "Phone-a-Friend" during any decision
+2. Select your advisor specialty
+3. Receive AI-generated contextual advice tailored to your specific situation
+4. Each student gets 3 lifeline uses per simulation - use them wisely!
 
 ---
 
@@ -141,6 +207,12 @@ A: The simulation tracks individual progress. Students can catch up, though comp
 **Q: Is the AI grading fair?**
 A: The transparent rubric ensures students know exactly how they are evaluated. LLM scoring focuses on reasoning quality, not keyword matching. Every criterion is visible before, during, and after submission.
 
+**Q: What are the character profiles and voicemails?**
+A: The simulation features 17 distinct AI-powered stakeholder characters (CEO, CFO, Union Leader, etc.) with unique personalities and AI-generated professional headshots. These characters send "triggered voicemails" at critical moments - when students cross performance thresholds, make controversial decisions, or need a nudge. The audio messages create authentic emotional stakes and pressure.
+
+**Q: How does Phone-a-Friend work?**
+A: Students get 3 "lifeline" uses per simulation. When stuck on a tough decision, they can consult one of 9 specialized advisors (Finance, HR, Legal, Technology, Ethics, etc.). Each advisor provides AI-generated contextual guidance tailored to the student's specific situation and decision context.
+
 **Q: What analytics do I get as an instructor?**
 A: Comprehensive activity logs, participation tracking, score distributions, and exportable reports (CSV/JSON) for integration with your LMS. You will also receive real-time SMS notifications when students enroll and automated email summaries of weekly results.
 
@@ -197,6 +269,14 @@ A multi-scenario simulation platform where students take on leadership roles, ma
 - **Intuitive Navigation**: Breadcrumb navigation helps students move seamlessly through weekly content
 
 - **Content Analytics**: Track which materials students engage with across sessions
+
+- **Character-Driven Narratives**: AI-powered stakeholder characters with unique personalities, AI-generated headshots, and authentic communication styles
+
+- **Triggered Notifications**: Context-sensitive voicemails from simulation characters create emotional stakes and authentic pressure
+
+- **Expert Advisor System**: "Phone-a-Friend" lifelines connect students with specialized AI advisors (Finance, Legal, HR, Ethics, Technology, and more) for on-demand guidance
+
+- **Multimedia Briefings**: Video and audio content with transcripts, dynamic viewing time estimates, and engagement tracking
 
 ---
 
@@ -331,6 +411,8 @@ LENGTH: [One-pager / Full brochure / Email pitch]
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | January 2026 | Initial marketing materials |
+| 1.1 | January 2026 | Added Sandbox Mode, content engagement, navigation improvements |
+| 1.2 | January 2026 | Added Character Profiles with AI headshots, Triggered Voicemails, Phone-a-Friend advisor system, multimedia content support |
 
 ---
 

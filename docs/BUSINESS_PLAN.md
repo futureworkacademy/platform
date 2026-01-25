@@ -1,7 +1,7 @@
 # Future Work Academy - Business Plan
 
 **Prepared by:** The Mitchell Group, LLC  
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** January 2026
 
 ---
@@ -15,6 +15,9 @@ Future Work Academy provides an immersive, AI-powered business simulation platfo
 - Transparent AI grading with visible rubrics eliminates "black box" concerns
 - Multi-tenant architecture supports individual instructors and institutional deployments
 - Sandbox Mode allows instructors to preview the complete student experience
+- Immersive character ecosystem with AI-generated stakeholder profiles brings the simulation to life
+- Triggered voicemail notifications create authentic pressure and emotional engagement
+- Phone-a-Friend advisor system provides on-demand AI-powered expert guidance
 
 **Target Market:** MBA programs, MS in Analytics, Executive Education, and undergraduate business programs at accredited institutions.
 

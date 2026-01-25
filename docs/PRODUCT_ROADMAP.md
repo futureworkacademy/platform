@@ -1,6 +1,6 @@
 # Future Work Academy - Product Roadmap
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** January 2026
 
 ---
@@ -11,7 +11,7 @@ Future Work Academy will become the leading platform for AI-powered business sim
 
 ---
 
-## Current Capabilities (v1.1) - January 2026
+## Current Capabilities (v1.2) - January 2026
 
 ### Core Simulation Engine
 - 8-week immersive business simulation with weekly decision cycles
@@ -52,6 +52,36 @@ Future Work Academy will become the leading platform for AI-powered business sim
 - SMS alerts via Twilio for enrollment notifications
 - Email automation via SendGrid
 - Configurable notification preferences
+
+### Character Profiles & Immersive Storytelling
+- 17 predefined stakeholder roles (CEO, CFO, Union Leader, HR Director, etc.)
+- AI-generated professional headshots using OpenAI image generation
+- Rich character bios with personality traits, motivations, fears, and communication styles
+- Character relationship mapping for authentic organizational dynamics
+- Module-specific or global character assignments
+- Admin character profile editor for full CRUD management
+
+### Triggered Voicemail System
+- Context-sensitive audio notifications from simulation characters
+- 6 trigger types: time_window, decision_made, content_viewed, week_started, score_threshold, random
+- Character-specific voicemails with customizable urgency levels (low, medium, high, critical)
+- Audio file management with transcript support
+- Cooldown periods to prevent notification fatigue
+
+### Phone-a-Friend Advisor System
+- 9 specialized advisor categories: Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics
+- 3-use lifetime limit per student per simulation (creates strategic decision-making)
+- AI-generated contextual advice using GPT-4o-mini
+- Advisor availability tracking with cooldown periods
+- Rich advisor personas with expertise areas and communication styles
+
+### Multimedia Content Support
+- Video and audio content embedding in weekly briefings
+- Full transcript support for accessibility
+- Dynamic reading/viewing time estimates based on content type
+- Media engagement tracking (started, completed, resume position)
+- Intel classification for multimedia content (bonus multiplier eligibility)
+- AI-powered content consistency review
 
 ### Platform Administration
 - Super Admin dashboard for global settings
@@ -282,6 +312,7 @@ This roadmap is a living document informed by:
 |---------|------|---------|
 | 1.0 | January 2026 | Initial roadmap document |
 | 1.1 | January 2026 | Added Content Engagement Enhancements section, updated current capabilities |
+| 1.2 | January 2026 | Added Character Profiles with AI headshots, Triggered Voicemails, Phone-a-Friend advisor system, multimedia content support - major immersion update |
 
 ---
 

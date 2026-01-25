@@ -38,6 +38,11 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Content View Tracking:** Records when students view research reports, briefing sections, and intel articles for cross-session persistence and engagement analytics.
 - **Intel Engagement Bonus:** Students who engage with optional Industry Intelligence articles receive a bonus multiplier on their research score (1.0x base, +0.15x per article viewed, max 1.5x).
 - **Navigation Breadcrumbs:** Research, Briefing, and Decisions pages feature breadcrumb navigation for intuitive back-and-forth movement.
+- **Character Profiles System:** 17 predefined stakeholder roles (CEO, CFO, Union Leader, etc.) with AI-generated headshots via OpenAI gpt-image-1 model, rich bios including personality traits, motivations, fears, and communication styles, plus relationship mapping between characters.
+- **Triggered Voicemail Notifications:** Context-sensitive audio messages from simulation characters triggered by 6 event types (time_window, decision_made, content_viewed, week_started, score_threshold, random) with customizable urgency levels and cooldown periods.
+- **Phone-a-Friend Advisor System:** 9 specialized advisors (Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics) provide AI-generated contextual guidance using GPT-4o-mini. Students have 3 lifetime uses per simulation.
+- **Multimedia Content Support:** Video and audio content in briefings with full transcripts, dynamic reading/viewing time estimates, media engagement tracking (started, completed, resume position), and Intel classification for bonus eligibility.
+- **SVG Logo System:** Dual-variant SVG logos with transparent backgrounds (logo-dark.svg for light backgrounds, logo-light.svg for dark sidebar).
 
 ## External Dependencies
 
@@ -45,7 +50,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Database:** PostgreSQL
 - **SMS Notifications:** Twilio
 - **Email Notifications:** SendGrid
-- **AI/LLM Integration:** OpenAI (GPT-4o-mini)
+- **AI/LLM Integration:** OpenAI (GPT-4o-mini for text, gpt-image-1 for headshot generation)
 - **UI Components:** Shadcn/UI, Radix UI
 - **Charting Library:** Recharts
 - **Frontend Framework:** React
