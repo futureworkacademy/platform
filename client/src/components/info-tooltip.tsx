@@ -57,6 +57,7 @@ export const TOOLTIP_CONTENT = {
   morale: "Employee satisfaction (0-100). Falls below 30% triggers mass resignation crisis. Affected by layoffs, communication, and reskilling investment.",
   managementBench: "Pipeline health for future managers (0-100). Decreases when Gen Z workers refuse management roles or experienced managers retire.",
   reskillingProgress: "Workforce training completion (0-100). Higher progress improves adaptability and reduces anxiety about automation.",
+  researchProgress: "Track your reading progress through intelligence reports. Complete 50% to unlock the simulation. Progress saves across sessions.",
   easterEggBonus: "Hidden bonus points awarded for exceptional stakeholder consideration or creative problem-solving approaches.",
   weeklyDecisionWeight: "Decisions later in the simulation carry more weight as consequences compound over time.",
   contentViewTracking: "Your reading progress is tracked across sessions. You can resume where you left off."

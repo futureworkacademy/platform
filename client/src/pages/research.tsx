@@ -283,7 +283,7 @@ END OF RESEARCH MATERIALS
               <div className="text-right">
                 <p className="flex items-center justify-end gap-1 text-sm text-muted-foreground">
                   Research Progress
-                  <InfoTooltip content={TOOLTIP_CONTENT.reskillingProgress} iconSize={12} side="left" />
+                  <InfoTooltip content={TOOLTIP_CONTENT.researchProgress} iconSize={12} side="left" />
                 </p>
                 <div className="flex items-center gap-2">
                   <Progress value={researchProgress} className="w-32 h-2" />
