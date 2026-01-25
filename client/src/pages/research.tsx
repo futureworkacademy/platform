@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,8 @@ import {
   ArrowRight,
   AlertTriangle,
   FlaskConical,
+  Home,
+  Newspaper,
 } from "lucide-react";
 import type { Team, ResearchReport, HistoricalData, WorkforceDemographics } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -252,6 +254,20 @@ END OF RESEARCH MATERIALS
       )}
       <div className={`border-b bg-card ${inSandboxMode ? 'border-amber-500/50' : ''}`}>
         <div className="container mx-auto px-6 py-4">
+          {/* Navigation breadcrumbs */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <Link href="/dashboard" className="hover:text-foreground transition-colors flex items-center gap-1">
+              <Home className="w-3 h-3" />
+              Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-foreground font-medium">Research Center</span>
+            <span>/</span>
+            <Link href="/briefing" className="hover:text-foreground transition-colors flex items-center gap-1">
+              <Newspaper className="w-3 h-3" />
+              Intelligence Briefing
+            </Link>
+          </div>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -270,18 +286,20 @@ END OF RESEARCH MATERIALS
                   <span className="text-sm font-mono">{Math.round(researchProgress)}%</span>
                 </div>
               </div>
-              <Button 
-                onClick={() => completeResearchMutation.mutate()}
-                disabled={!canProceed || completeResearchMutation.isPending}
-                data-testid="button-start-simulation"
-              >
-                {completeResearchMutation.isPending ? "Starting..." : (
-                  <>
-                    Begin Simulation
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
+              {!inSandboxMode && (
+                <Button 
+                  onClick={() => completeResearchMutation.mutate()}
+                  disabled={!canProceed || completeResearchMutation.isPending}
+                  data-testid="button-start-simulation"
+                >
+                  {completeResearchMutation.isPending ? "Starting..." : (
+                    <>
+                      Begin Simulation
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>

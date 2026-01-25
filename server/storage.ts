@@ -78,6 +78,11 @@ export interface IStorage {
   getAdminAnalytics(): Promise<AdminAnalytics>;
   getEasterEggs(): Promise<EasterEgg[]>;
   detectEasterEggs(rationale: string, weekNumber: number): Promise<string[]>;
+  detectEasterEggsWithViewBonus(rationale: string, weekNumber: number, userId: string, teamId?: string): Promise<{
+    foundIds: string[];
+    viewedContentMatches: string[];
+    viewBonusMultiplier: number;
+  }>;
   evaluateRationaleWithLLM(rationale: string, decisionContext: string, weekNumber: number): Promise<{ score: number; evidenceUsed: string[]; reasoning: string; quality: string }>;
   
   // Content view tracking
@@ -1879,6 +1884,74 @@ export class MemStorage implements IStorage {
     }
     
     return found;
+  }
+
+  async detectEasterEggsWithViewBonus(
+    rationale: string, 
+    weekNumber: number, 
+    userId: string, 
+    teamId?: string
+  ): Promise<{
+    foundIds: string[];
+    viewedContentMatches: string[];
+    viewBonusMultiplier: number;
+  }> {
+    const foundIds: string[] = [];
+    const viewedContentMatches: string[] = [];
+    const lowerRationale = rationale.toLowerCase();
+    
+    // First detect all easter eggs in the rationale
+    for (const egg of easterEggs) {
+      if (egg.weekNumber === undefined || egg.weekNumber === weekNumber) {
+        if (lowerRationale.includes(egg.keyword.toLowerCase())) {
+          foundIds.push(egg.id);
+        }
+      }
+    }
+    
+    // Get the user's content views for this week (optional intel items)
+    const contentViews = await this.getContentViews(userId, teamId, undefined, weekNumber);
+    
+    // Map content view IDs to their content identifiers
+    const viewedContentIds = new Set(contentViews.map(v => v.contentId.toLowerCase()));
+    
+    // Check which easter eggs match content the user actually viewed
+    // This includes matching sourceReport keywords against content view contentIds
+    for (const eggId of foundIds) {
+      const egg = easterEggs.find(e => e.id === eggId);
+      if (egg) {
+        // Check if any viewed content relates to this easter egg's source
+        const sourceKeywords = egg.sourceReport.toLowerCase().split(/\s+/);
+        const viewedIdArray = Array.from(viewedContentIds);
+        for (const viewedId of viewedIdArray) {
+          // Match if the viewed content ID contains keywords from the easter egg source
+          const matches = sourceKeywords.some(keyword => 
+            keyword.length > 3 && viewedId.includes(keyword)
+          );
+          if (matches) {
+            viewedContentMatches.push(eggId);
+            break;
+          }
+        }
+      }
+    }
+    
+    // Also check for research_report and simulation_content views which indicate engagement with intel items
+    const intelViews = contentViews.filter(v => 
+      v.contentType === 'research_report' || 
+      v.contentType === 'simulation_content'
+    );
+    
+    // Calculate bonus multiplier: more views = higher multiplier (max 1.5x)
+    // Base multiplier is 1.0, add 0.1 for each unique intel item viewed, cap at 1.5
+    const uniqueIntelViewed = new Set(intelViews.map(v => v.contentId)).size;
+    const viewBonusMultiplier = Math.min(1.5, 1.0 + (uniqueIntelViewed * 0.1));
+    
+    return {
+      foundIds,
+      viewedContentMatches,
+      viewBonusMultiplier,
+    };
   }
 
   async evaluateRationaleWithLLM(

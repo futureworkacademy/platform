@@ -534,8 +534,14 @@ export async function registerRoutes(
       // Use LLM evaluation for rationale quality (semantic understanding)
       const llmEvaluation = await storage.evaluateRationaleWithLLM(rationale, decisionContext, weekNumber);
       
-      // Also run keyword detection as a backup metric
-      const keywordMatches = await storage.detectEasterEggs(rationale, weekNumber);
+      // Enhanced easter egg detection with view bonus (rewards students who engage with optional intel)
+      const easterEggResult = await storage.detectEasterEggsWithViewBonus(
+        rationale, 
+        weekNumber, 
+        userId, 
+        user?.teamId || undefined
+      );
+      const keywordMatches = easterEggResult.foundIds;
       
       // Evaluate essay/text attributes with rubric-based LLM scoring
       const { evaluateTextResponse } = await import("./services/llm-evaluation");
@@ -604,7 +610,7 @@ export async function registerRoutes(
         evaluationStatus: llmEvaluations.length > 0 ? "completed" : "pending",
       };
       
-      // Log activity with both evaluation methods
+      // Log activity with both evaluation methods and view bonus data
       await storage.logActivity({
         eventType: "enhanced_decision_submitted",
         userId: userId,
@@ -620,6 +626,8 @@ export async function registerRoutes(
           llmQuality: llmEvaluation.quality,
           evidenceUsed: llmEvaluation.evidenceUsed.length,
           keywordMatches: keywordMatches.length,
+          viewedContentMatches: easterEggResult.viewedContentMatches.length,
+          viewBonusMultiplier: easterEggResult.viewBonusMultiplier,
           attributeKeys: Object.keys(attributeValues),
           essayEvaluationsCount: llmEvaluations.length,
           overallLLMScore,

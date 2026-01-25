@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import {
   CheckCircle2,
   ArrowRight,
@@ -34,6 +34,8 @@ import {
   BookOpen,
   FileText,
   Brain,
+  Home,
+  Newspaper,
 } from "lucide-react";
 import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport, RubricCriterion } from "@shared/schema";
 import { defaultRubricCriteria } from "@shared/schema";
@@ -868,6 +870,26 @@ export default function Decisions() {
   return (
     <ScrollArea className="h-full">
       <div className="p-6 space-y-6 max-w-4xl mx-auto" data-testid="decisions-page">
+        {/* Navigation breadcrumbs */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/dashboard" className="hover:text-foreground transition-colors flex items-center gap-1">
+            <Home className="w-3 h-3" />
+            Dashboard
+          </Link>
+          <span>/</span>
+          <Link href="/research" className="hover:text-foreground transition-colors flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
+            Research
+          </Link>
+          <span>/</span>
+          <Link href="/briefing" className="hover:text-foreground transition-colors flex items-center gap-1">
+            <Newspaper className="w-3 h-3" />
+            Briefing
+          </Link>
+          <span>/</span>
+          <span className="text-foreground font-medium">Decisions</span>
+        </div>
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-2 mb-1">
