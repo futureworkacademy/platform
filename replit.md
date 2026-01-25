@@ -128,6 +128,10 @@ Business and marketing documentation is maintained in the `docs/` folder:
 - **docs/PRODUCT_ROADMAP.md** - Detailed product roadmap with near-term, mid-term, and long-term features
 - **docs/MARKETING_MATERIALS.md** - Marketing content for MBA programs and generic academia
 - **docs/SECURITY_COMPLIANCE.md** - Security architecture, FERPA compliance, data handling, incident response
+- **docs/BRAND_STANDARDS.md** - Complete brand guidelines (colors, typography, logo usage, tone)
+- **docs/AI_TRANSPARENCY.md** - All AI/LLM prompts documented for audit readiness
+- **docs/APPENDIX_DIAGRAMS.md** - 10 Mermaid diagrams for visual documentation
+- **docs/GAME_DESIGN.md** - Complete simulation mechanics (variables, scenarios, scoring, stakeholders)
 
 ### Google Docs Integration
 

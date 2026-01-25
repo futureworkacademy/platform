@@ -35,6 +35,10 @@ const DOC_FILES: Record<string, { path: string; title: string }> = {
   security_compliance: {
     path: 'docs/SECURITY_COMPLIANCE.md',
     title: 'Future Work Academy - Security & Compliance'
+  },
+  game_design: {
+    path: 'docs/GAME_DESIGN.md',
+    title: 'Future Work Academy - Game Design Document'
   }
 };
 
