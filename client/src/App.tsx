@@ -210,6 +210,10 @@ function AppRouter() {
     if (location === "/academia") {
       return <Academia />;
     }
+    // Allow About page without authentication
+    if (location === "/about") {
+      return <About />;
+    }
     // Allow Privacy Policy page without authentication
     if (location === "/privacy") {
       return <Privacy />;
