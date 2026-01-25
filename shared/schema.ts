@@ -369,21 +369,74 @@ export const gameSessionSchema = z.object({
 
 export type GameSession = z.infer<typeof gameSessionSchema>;
 
+// LLM Evaluation Rubric - criteria for scoring text responses
+export const rubricCriterionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  maxPoints: z.number().default(25),
+  evaluationGuidelines: z.string(), // Instructions for the LLM
+});
+
+export type RubricCriterion = z.infer<typeof rubricCriterionSchema>;
+
+// Default rubric criteria for text evaluation
+export const defaultRubricCriteria: RubricCriterion[] = [
+  {
+    id: "evidence",
+    name: "Evidence Quality",
+    description: "References course materials, research, data, or stakeholder perspectives to support arguments.",
+    maxPoints: 25,
+    evaluationGuidelines: "Award higher scores for specific citations, data points, or direct references to provided materials. Deduct points for unsupported claims or vague generalizations.",
+  },
+  {
+    id: "coherence",
+    name: "Reasoning Coherence",
+    description: "Presents a logical, well-structured argument with clear connections between premises and conclusions.",
+    maxPoints: 25,
+    evaluationGuidelines: "Award higher scores for clear logical flow, well-organized paragraphs, and explicit reasoning chains. Deduct for contradictions, jumps in logic, or unclear connections.",
+  },
+  {
+    id: "tradeoffs",
+    name: "Trade-off Analysis",
+    description: "Acknowledges risks, limitations, and alternative approaches. Shows awareness of what could go wrong.",
+    maxPoints: 25,
+    evaluationGuidelines: "Award higher scores for explicit discussion of downsides, contingency plans, and consideration of opposing viewpoints. Deduct for one-sided arguments or ignoring obvious risks.",
+  },
+  {
+    id: "stakeholders",
+    name: "Stakeholder Consideration",
+    description: "Demonstrates empathy for multiple perspectives including employees, shareholders, unions, and management.",
+    maxPoints: 25,
+    evaluationGuidelines: "Award higher scores for addressing how decisions affect different groups, showing empathy, and balancing competing interests. Deduct for ignoring major stakeholder groups.",
+  },
+];
+
 // Enhanced decision attribute - a single configurable dimension of a decision
 export const decisionAttributeSchema = z.object({
   id: z.string(),
-  type: z.enum(["slider", "budget", "select", "toggle"]),
+  type: z.enum(["slider", "budget", "select", "toggle", "text", "essay"]), // Added text and essay types
   label: z.string(),
   description: z.string(),
+  // For slider/budget
   min: z.number().optional(),
   max: z.number().optional(),
   step: z.number().optional(),
   defaultValue: z.number().optional(),
+  // For select
   options: z.array(z.object({
     id: z.string(),
     label: z.string(),
     description: z.string().optional(),
   })).optional(),
+  // For text/essay (LLM evaluated)
+  minWords: z.number().optional(), // Minimum word count
+  maxWords: z.number().optional(), // Maximum word count
+  placeholder: z.string().optional(),
+  rubricCriteria: z.array(rubricCriterionSchema).optional(), // Custom rubric for this field (uses default if not specified)
+  llmWeight: z.number().optional(), // Weight of this field's LLM score in overall decision score (0-100)
+  richText: z.boolean().optional(), // Whether to use rich text editor
+  // Impact formula for structured types
   impactFormula: z.object({
     morale: z.number().optional(),
     revenue: z.number().optional(),
@@ -396,6 +449,32 @@ export const decisionAttributeSchema = z.object({
 });
 
 export type DecisionAttribute = z.infer<typeof decisionAttributeSchema>;
+
+// LLM evaluation result for a single criterion
+export const rubricScoreSchema = z.object({
+  criterionId: z.string(),
+  criterionName: z.string(),
+  score: z.number(), // Points awarded
+  maxPoints: z.number(),
+  feedback: z.string(), // LLM explanation for the score
+});
+
+export type RubricScore = z.infer<typeof rubricScoreSchema>;
+
+// Complete LLM evaluation for a text response
+export const llmEvaluationSchema = z.object({
+  attributeId: z.string(),
+  rubricScores: z.array(rubricScoreSchema),
+  totalScore: z.number(), // Sum of all criterion scores
+  maxPossibleScore: z.number(), // Sum of all maxPoints
+  percentageScore: z.number(), // 0-100
+  overallFeedback: z.string(), // Summary feedback from LLM
+  strengths: z.array(z.string()), // Key strengths identified
+  areasForImprovement: z.array(z.string()), // Suggestions
+  evaluatedAt: z.string(),
+});
+
+export type LLMEvaluation = z.infer<typeof llmEvaluationSchema>;
 
 // Enhanced decision template with multiple attributes
 export const enhancedDecisionSchema = z.object({
@@ -436,14 +515,15 @@ export const enhancedDecisionSchema = z.object({
 
 export type EnhancedDecision = z.infer<typeof enhancedDecisionSchema>;
 
-// Player's submitted decision with attribute values
+// Player's submitted decision with attribute values and LLM evaluations
 export const playerDecisionSubmissionSchema = z.object({
   id: z.string(),
-  odecisionId: z.string(),
+  decisionId: z.string(), // Fixed typo from 'odecisionId'
   playerId: z.string(),
+  teamId: z.string().optional(),
   weekNumber: z.number(),
   attributeValues: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
-  rationale: z.string(),
+  rationale: z.string(), // Legacy field for backward compatibility
   timestamp: z.string(),
   computedImpact: z.object({
     morale: z.number().optional(),
@@ -453,9 +533,60 @@ export const playerDecisionSubmissionSchema = z.object({
     managementBench: z.number().optional(),
     cost: z.number().optional(),
   }).optional(),
+  // LLM evaluation results for text/essay attributes
+  llmEvaluations: z.array(llmEvaluationSchema).optional(),
+  // Overall LLM score (weighted average of all text evaluations)
+  overallLLMScore: z.number().optional(), // 0-100
+  // Whether evaluations are complete
+  evaluationStatus: z.enum(["pending", "evaluating", "completed", "failed"]).optional(),
 });
 
 export type PlayerDecisionSubmission = z.infer<typeof playerDecisionSubmissionSchema>;
+
+// Week results summary for a team - shown after week advances
+export const weekResultsSchema = z.object({
+  teamId: z.string(),
+  weekNumber: z.number(),
+  // Score changes
+  previousFinancialScore: z.number(),
+  newFinancialScore: z.number(),
+  previousCulturalScore: z.number(),
+  newCulturalScore: z.number(),
+  previousCombinedScore: z.number(),
+  newCombinedScore: z.number(),
+  // Rank changes
+  previousRank: z.number(),
+  newRank: z.number(),
+  totalTeams: z.number(),
+  // Their submissions with evaluations
+  submissions: z.array(playerDecisionSubmissionSchema),
+  // Key events/outcomes from their decisions
+  outcomes: z.array(z.object({
+    title: z.string(),
+    description: z.string(),
+    impact: z.enum(["positive", "negative", "neutral"]),
+  })),
+  // Flag for whether user has viewed results
+  viewed: z.boolean().default(false),
+  // Timestamp when results became available
+  availableAt: z.string(),
+});
+
+export type WeekResults = z.infer<typeof weekResultsSchema>;
+
+// Top scoring answer (anonymized) for display
+export const topAnswerSchema = z.object({
+  weekNumber: z.number(),
+  decisionId: z.string(),
+  attributeId: z.string(),
+  responseExcerpt: z.string(), // First 500 chars or so
+  llmScore: z.number(),
+  rubricScores: z.array(rubricScoreSchema),
+  overallFeedback: z.string(),
+  // Anonymized - no team/player info
+});
+
+export type TopAnswer = z.infer<typeof topAnswerSchema>;
 
 // Simulation configuration - admin settings
 export const simulationConfigSchema = z.object({
