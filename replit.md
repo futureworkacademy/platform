@@ -6,6 +6,41 @@ This web-based business simulation game is designed for graduate students to mak
 ## User Preferences
 I prefer clear and concise communication. When making changes, prioritize the core logic and critical features. I value iterative development and expect to be consulted before major architectural shifts or significant feature additions. Do not make changes to files related to authentication without explicit approval.
 
+## Brand Guidelines
+
+**Target Audience:** C-suite executives, educational administrators, MBA program directors, business school deans
+**Presentation Context:** Executive boardrooms, academic committee meetings, investor pitches
+
+**Brand Tone:**
+- Authoritative but not academic - We prepare leaders, not lecture students
+- Forward-thinking - AI transformation is opportunity, not threat
+- Sophisticated - Bloomberg Terminal aesthetic, not classroom chalkboard
+- Confident - Battle-tested simulation platform, not experimental prototype
+
+**Visual Style:**
+- Sharp, clean lines with geometric precision
+- Navy blue (#1e3a5f) as primary brand color - conveys trust and authority
+- Growth green (#22c55e) as accent - signals progress and positive outcomes
+- Minimal ornamentation - every element earns its place
+- Premium feel - think financial services, management consulting
+
+**Brand Story:**
+"The Future of Work Academy doesn't teach theory - it builds decision-making muscle. Our simulation puts future leaders in the hot seat, forcing real-time choices about AI adoption, workforce transformation, and stakeholder management. When they graduate, they've already made the hard calls."
+
+**Logo Requirements:**
+- Must be legible at 32px (favicon) and 400px (presentation header)
+- Works on both light and dark backgrounds
+- Conveys: Leadership, Technology, Transformation, Education
+- Avoid: Cartoonish elements, clip-art aesthetics, overly academic symbols
+
+**Logo Assets:**
+- `attached_assets/logo-icon-dark.png` - Square icon, navy on white (for light backgrounds)
+- `attached_assets/logo-icon-light.png` - Square icon, white on black (for dark backgrounds)
+- `attached_assets/logo-horizontal-dark.png` - Full lockup, navy on white (presentations, headers)
+- `attached_assets/logo-horizontal-light.png` - Full lockup, white on black (dark mode, slides)
+- `client/public/logo.png` - Primary web app logo (copy of icon-dark)
+- `client/public/favicon.png` - Browser tab icon
+
 ## System Architecture
 
 **UI/UX Decisions:**
