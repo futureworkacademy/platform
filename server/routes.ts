@@ -4292,6 +4292,12 @@ Access your dashboard at: https://futureworkacademy.com
       res.json(docs);
     } catch (error: any) {
       console.error("Error listing Google Docs:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured. Please connect Google Docs in the Replit integrations panel." });
+      }
+      if (error.code === 403 || error.message?.includes("Insufficient Permission")) {
+        return res.status(403).json({ error: "Google Docs integration requires additional permissions. Please reconnect the integration with Drive access." });
+      }
       res.status(500).json({ error: "Failed to list documents" });
     }
   });
@@ -4335,6 +4341,12 @@ Access your dashboard at: https://futureworkacademy.com
       });
     } catch (error: any) {
       console.error("Error syncing to Google Docs:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured. Please connect Google Docs in the Replit integrations panel." });
+      }
+      if (error.code === 403 || error.message?.includes("Insufficient Permission")) {
+        return res.status(403).json({ error: "Google Docs integration requires additional permissions. Please reconnect the integration." });
+      }
       res.status(500).json({ error: "Failed to sync document to Google Docs" });
     }
   });
@@ -4378,6 +4390,12 @@ Access your dashboard at: https://futureworkacademy.com
       res.json({ results });
     } catch (error: any) {
       console.error("Error syncing all documents to Google Docs:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured. Please connect Google Docs in the Replit integrations panel." });
+      }
+      if (error.code === 403 || error.message?.includes("Insufficient Permission")) {
+        return res.status(403).json({ error: "Google Docs integration requires additional permissions. Please reconnect the integration." });
+      }
       res.status(500).json({ error: error.message || "Failed to sync documents" });
     }
   });

@@ -83,7 +83,7 @@ A: Absolutely. Our Sandbox Mode lets you experience the full student journey - j
 A: Yes. Class Admins can configure simulation duration (4-12 weeks), scoring weights (financial vs. cultural emphasis), and enrollment requirements (including optional .edu email verification).
 
 **Q: Can I add my own content or scenarios?**
-A: Currently, instructors can choose from our pre-built simulation modules and configure settings to match their curriculum. Full custom content authoring (your own briefings, decision prompts, and scenarios) is on our roadmap, and we are actively looking to develop this capability with the right university partners. If you are interested in co-developing custom content for your program, reach out to discuss a partnership.
+A: Yes! Our AI-powered Simulation Content Editor allows Super Admins to create and manage custom simulation modules with weekly briefings, research reports, and decision scenarios. The editor includes AI enhancement tools to improve clarity, expand details, simplify content, add data points, or generate new scenarios - making content creation fast and professional.
 
 **Q: How are teams formed?**
 A: You can assign teams manually, allow self-selection, or use individual mode. CSV bulk import supports up to 500 students at once, with automatic email invitations.
