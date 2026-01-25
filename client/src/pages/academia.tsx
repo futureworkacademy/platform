@@ -543,6 +543,43 @@ ${message || 'None provided'}
             </div>
           </div>
         </section>
+
+        <section className="py-8 px-4 bg-muted/20 border-t" id="references">
+          <div className="container mx-auto max-w-4xl">
+            <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wide">
+              Academic Methodology & Research Library
+            </h3>
+            <div className="space-y-2 text-[10px] leading-relaxed text-muted-foreground" style={{ fontSize: '10px' }}>
+              <p className="pl-6 -indent-6">
+                <sup>1</sup> Hay, G., & Heracleous, L. (2009). Bridging the scholar-practitioner divide. <em>The Journal of Applied Behavioral Science</em>.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>2</sup> Ungureanu, P., & Bertolotti, F. (2022). Dynamic stereotyping across occupations. <em>The Journal of Applied Behavioral Science</em>.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>3</sup> United Nations Development Programme Eurasia Regional Hub. (2025). <em>Listening to 200 young people about work</em>. UNDP.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>4</sup> Argyris, C. (2009). <em>Actionable knowledge</em>. In H. Tsoukas & C. Knudsen (Eds.), The Oxford handbook of organization theory. Oxford University Press.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>5</sup> United Nations Development Programme. (2025). <em>Future of Work Academy: Green & digital transitions</em>. UNDP.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>6</sup> Future Work Academy. (2026). <em>AI transparency & prompt documentation</em> [Internal technical audit]. FWA.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>7</sup> Future Work Academy. (2026). <em>The future of work: Game design document</em> [Simulation mechanics]. FWA.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>8</sup> Future Work Academy. (2026). <em>FWA business plan</em> [Instructor tools]. FWA.
+              </p>
+              <p className="pl-6 -indent-6">
+                <sup>9</sup> Future Work Academy. (2026). <em>FWA security & compliance documentation</em> [FERPA/SOC2]. FWA.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
       <AppFooter />
