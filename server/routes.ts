@@ -335,6 +335,18 @@ export async function registerRoutes(
         details: { previousWeek, newWeek: updatedTeam.currentWeek },
       });
       
+      // Send email notification about new week results (async, non-blocking)
+      if (user.email) {
+        const { sendWeekResultsEmail } = await import("./services/email");
+        sendWeekResultsEmail({
+          toEmail: user.email,
+          studentName: [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Student',
+          className: updatedTeam.name,
+          weekNumber: previousWeek,
+          nextWeekNumber: updatedTeam.currentWeek,
+        }).catch(err => console.error("Failed to send week results email:", err));
+      }
+      
       res.json(updatedTeam);
     } catch (error) {
       res.status(500).json({ error: "Failed to advance week" });
@@ -552,6 +564,68 @@ export async function registerRoutes(
     } catch (error) {
       console.error("[Submit Decision] Error:", error);
       res.status(500).json({ error: "Failed to submit enhanced decision" });
+    }
+  });
+
+  app.get("/api/week-results/:weekNumber", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const weekNumber = parseInt(req.params.weekNumber) || 0;
+      if (weekNumber < 1) {
+        return res.status(400).json({ error: "Invalid week number" });
+      }
+      
+      const user = await authStorage.getUser(userId);
+      const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
+      
+      if (!team) {
+        return res.status(404).json({ error: "Team not found" });
+      }
+      
+      const playerDecisions = await storage.getPlayerDecisions(userId);
+      const weekDecisions = playerDecisions.filter(d => d.weekNumber === weekNumber);
+      const enhancedDecisions = await storage.getEnhancedDecisions(weekNumber);
+      
+      const decisionsWithDetails = weekDecisions.map(submission => {
+        const decision = enhancedDecisions.find(d => d.id === submission.decisionId);
+        return {
+          id: submission.id,
+          decisionId: submission.decisionId,
+          title: decision?.title || "Unknown Decision",
+          category: decision?.category || "general",
+          submittedAt: submission.timestamp,
+          attributeValues: submission.attributeValues,
+          llmEvaluations: submission.llmEvaluations || [],
+          overallLLMScore: submission.overallLLMScore || 0,
+        };
+      });
+      
+      const leaderboard = await storage.getLeaderboard();
+      const currentTeamRank = leaderboard.findIndex(t => t.id === team.id) + 1;
+      
+      const mockFinancialScore = Math.min(100, 50 + Math.floor(Math.random() * 30));
+      const mockCulturalScore = Math.min(100, 50 + Math.floor(Math.random() * 30));
+      
+      const results = {
+        weekNumber,
+        financialScore: mockFinancialScore,
+        culturalScore: mockCulturalScore,
+        combinedScore: Math.round((mockFinancialScore + mockCulturalScore) / 2),
+        previousRank: currentTeamRank + Math.floor(Math.random() * 3) - 1,
+        currentRank: currentTeamRank || 1,
+        rankChange: Math.floor(Math.random() * 3) - 1,
+        decisions: decisionsWithDetails,
+        topAnswers: [],
+      };
+      
+      res.json(results);
+    } catch (error) {
+      console.error("[Week Results] Error:", error);
+      res.status(500).json({ error: "Failed to fetch week results" });
     }
   });
 

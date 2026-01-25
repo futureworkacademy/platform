@@ -19,6 +19,7 @@ import Briefing from "@/pages/briefing";
 import Decisions from "@/pages/decisions";
 import Analytics from "@/pages/analytics";
 import Leaderboard from "@/pages/leaderboard";
+import WeekResults from "@/pages/week-results";
 import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
@@ -106,6 +107,7 @@ function GameLayout() {
               <Route path="/decisions" component={Decisions} />
               <Route path="/analytics" component={Analytics} />
               <Route path="/leaderboard" component={Leaderboard} />
+              <Route path="/week-results" component={WeekResults} />
               <Route path="/about" component={About} />
               <Route path="/profile" component={Profile} />
               <Route component={NotFound} />

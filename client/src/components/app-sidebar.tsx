@@ -10,6 +10,7 @@ import {
   Medal,
   User,
   Shield,
+  ClipboardCheck,
 } from "lucide-react";
 import logo from "@assets/fwalogo-2_1768083577051.png";
 import {
@@ -57,6 +58,11 @@ const navigationItems = [
     title: "People Analytics",
     url: "/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "Week Results",
+    url: "/week-results",
+    icon: ClipboardCheck,
   },
   {
     title: "Leaderboard",

@@ -794,9 +794,9 @@ export default function Decisions() {
       queryClient.invalidateQueries({ queryKey: ["/api/briefing"] });
       toast({
         title: "Week Complete",
-        description: "Advancing to the next week...",
+        description: "View your results and feedback...",
       });
-      navigate("/");
+      navigate("/week-results");
     },
     onError: () => {
       toast({
