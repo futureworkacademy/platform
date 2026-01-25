@@ -2258,6 +2258,11 @@ export class MemStorage implements IStorage {
     order?: number;
     isActive?: boolean;
     createdBy?: string;
+    mediaUrl?: string;
+    mediaDurationSeconds?: number;
+    transcript?: string;
+    category?: string;
+    isIntelContent?: boolean;
   }): Promise<any> {
     const { db } = await import("./db");
     const { simulationContent } = await import("@shared/models/auth");
@@ -2274,6 +2279,11 @@ export class MemStorage implements IStorage {
       order: data.order ?? 0,
       isActive: data.isActive ?? true,
       createdBy: data.createdBy || null,
+      mediaUrl: data.mediaUrl || null,
+      mediaDurationSeconds: data.mediaDurationSeconds || null,
+      transcript: data.transcript || null,
+      category: data.category || null,
+      isIntelContent: data.isIntelContent ?? false,
     }).returning();
     
     return item;
@@ -2289,6 +2299,11 @@ export class MemStorage implements IStorage {
     order?: number;
     isActive?: boolean;
     updatedBy?: string;
+    mediaUrl?: string;
+    mediaDurationSeconds?: number;
+    transcript?: string;
+    category?: string;
+    isIntelContent?: boolean;
   }>): Promise<any | null> {
     const { db } = await import("./db");
     const { simulationContent } = await import("@shared/models/auth");

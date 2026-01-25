@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -15,6 +15,7 @@ import { validateEduEmail, generateTeamCode } from "./auth-middleware";
 import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
 import { sendInvitationEmail } from "./services/email";
 import sanitizeHtml from "sanitize-html";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 function isAdminUser(user: { isAdmin?: string | boolean | null } | null | undefined): boolean {
   if (!user) return false;
@@ -22,10 +23,76 @@ function isAdminUser(user: { isAdmin?: string | boolean | null } | null | undefi
   return adminValue === true || adminValue === "true" || adminValue === "super_admin";
 }
 
+// Helper function to extract themes from scenario content
+function extractThemes(scenario: { title: string; narrative: string; keyQuestion: string }): string[] {
+  const themes: string[] = [];
+  const text = `${scenario.title} ${scenario.narrative} ${scenario.keyQuestion}`.toLowerCase();
+  
+  const themeKeywords: Record<string, string[]> = {
+    "automation": ["automation", "automate", "robot", "ai-powered", "machine learning"],
+    "workforce transformation": ["workforce", "workers", "employees", "labor", "hiring", "training"],
+    "union relations": ["union", "uaw", "collective bargaining", "organizing"],
+    "financial pressure": ["debt", "credit", "loan", "margin", "cost", "budget"],
+    "supply chain": ["supply chain", "tariff", "domestic", "procurement", "logistics"],
+    "quality management": ["quality", "fda", "inspection", "defect", "audit"],
+    "talent development": ["talent", "training", "reskilling", "pipeline", "community college"],
+    "competitive strategy": ["competitor", "market share", "reshoring", "capacity"],
+    "leadership": ["board", "management", "decision", "strategic"],
+    "stakeholder management": ["stakeholder", "perspective", "communication", "transparency"],
+  };
+  
+  for (const [theme, keywords] of Object.entries(themeKeywords)) {
+    if (keywords.some(kw => text.includes(kw))) {
+      themes.push(theme);
+    }
+  }
+  
+  return themes;
+}
+
+// Helper function to infer character traits based on role
+function inferCharacterTraits(role: string): string[] {
+  const roleTraits: Record<string, string[]> = {
+    "Board of Directors": ["strategic thinker", "shareholder-focused", "long-term oriented", "demanding"],
+    "CFO": ["analytical", "risk-aware", "numbers-driven", "pragmatic"],
+    "HR Director": ["people-focused", "empathetic", "process-oriented", "communication-skilled"],
+    "Operations Manager": ["practical", "detail-oriented", "efficiency-focused", "hands-on"],
+    "General Counsel": ["cautious", "risk-averse", "legally precise", "protective"],
+    "UAW Organizer": ["worker advocate", "passionate", "strategic", "persuasive"],
+    "Master Moldmaker": ["experienced", "traditional", "craft-proud", "skeptical of change"],
+    "Lead Moldmaker": ["skilled", "respected", "quality-focused", "concerned about legacy"],
+    "Board Member": ["results-oriented", "impatient", "competitive", "decisive"],
+    "Community College Dean": ["educational", "community-focused", "collaborative", "optimistic"],
+    "Sales VP": ["ambitious", "customer-focused", "growth-oriented", "aggressive"],
+    "QA Manager": ["detail-oriented", "process-driven", "under pressure", "systematic"],
+    "Procurement Director": ["analytical", "negotiation-skilled", "supply-chain expert", "cautious"],
+    "Logistics Manager": ["operations-focused", "efficiency-driven", "problem-solver", "practical"],
+  };
+  
+  // Try exact match first
+  if (roleTraits[role]) {
+    return roleTraits[role];
+  }
+  
+  // Try partial match
+  const roleLower = role.toLowerCase();
+  for (const [key, traits] of Object.entries(roleTraits)) {
+    if (roleLower.includes(key.toLowerCase()) || key.toLowerCase().includes(roleLower)) {
+      return traits;
+    }
+  }
+  
+  // Default traits
+  return ["professional", "stakeholder", "perspective-driven"];
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Register object storage routes for media uploads
+  registerObjectStorageRoutes(app);
   
   app.get("/api/institutions", (_req, res) => {
     res.json(institutions);
@@ -337,6 +404,161 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching content view progress:", error);
       res.status(500).json({ error: "Failed to fetch content view progress" });
+    }
+  });
+
+  // Media engagement tracking endpoints for video/audio content
+  const mediaEngagementUpdateSchema = z.object({
+    contentId: z.string().min(1),
+    weekNumber: z.number().int().min(1).max(12).optional(),
+    started: z.boolean().optional(),
+    percentWatched: z.number().int().min(0).max(100).optional(),
+    lastPositionSeconds: z.number().int().min(0).optional(),
+    totalWatchTimeSeconds: z.number().int().min(0).optional(),
+  });
+
+  // Get media engagement for current user
+  app.get("/api/media-engagement", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      const { contentId, weekNumber } = req.query;
+      
+      const query = db.select().from(mediaEngagement).where(
+        and(
+          eq(mediaEngagement.userId, userId),
+          contentId ? eq(mediaEngagement.contentId, contentId as string) : undefined,
+          weekNumber ? eq(mediaEngagement.weekNumber, parseInt(weekNumber as string, 10)) : undefined
+        )
+      );
+      
+      const results = await query;
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching media engagement:", error);
+      res.status(500).json({ error: "Failed to fetch media engagement" });
+    }
+  });
+
+  // Update media engagement (upsert - create or update)
+  app.post("/api/media-engagement", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      
+      const parseResult = mediaEngagementUpdateSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid request", details: parseResult.error.flatten() });
+      }
+      
+      const { contentId, weekNumber, started, percentWatched, lastPositionSeconds, totalWatchTimeSeconds } = parseResult.data;
+      
+      // Check if engagement record exists
+      const existing = await db.select().from(mediaEngagement).where(
+        and(
+          eq(mediaEngagement.userId, userId),
+          eq(mediaEngagement.contentId, contentId)
+        )
+      );
+      
+      const isCompleted = percentWatched !== undefined && percentWatched >= 75;
+      
+      if (existing.length > 0) {
+        // Update existing record
+        const [updated] = await db.update(mediaEngagement)
+          .set({
+            started: started ?? existing[0].started,
+            percentWatched: percentWatched !== undefined ? Math.max(percentWatched, existing[0].percentWatched || 0) : existing[0].percentWatched,
+            lastPositionSeconds: lastPositionSeconds ?? existing[0].lastPositionSeconds,
+            totalWatchTimeSeconds: totalWatchTimeSeconds !== undefined 
+              ? (existing[0].totalWatchTimeSeconds || 0) + totalWatchTimeSeconds 
+              : existing[0].totalWatchTimeSeconds,
+            completed: isCompleted || existing[0].completed,
+            completedAt: isCompleted && !existing[0].completed ? new Date() : existing[0].completedAt,
+            updatedAt: new Date(),
+          })
+          .where(eq(mediaEngagement.id, existing[0].id))
+          .returning();
+        
+        res.json({ success: true, engagement: updated });
+      } else {
+        // Create new record
+        const [created] = await db.insert(mediaEngagement)
+          .values({
+            id: randomUUID(),
+            userId,
+            teamId: user?.teamId || null,
+            contentId,
+            weekNumber: weekNumber ?? null,
+            started: started ?? false,
+            percentWatched: percentWatched ?? 0,
+            lastPositionSeconds: lastPositionSeconds ?? 0,
+            totalWatchTimeSeconds: totalWatchTimeSeconds ?? 0,
+            completed: isCompleted,
+            completedAt: isCompleted ? new Date() : null,
+          })
+          .returning();
+        
+        res.json({ success: true, engagement: created });
+      }
+    } catch (error) {
+      console.error("Error updating media engagement:", error);
+      res.status(500).json({ error: "Failed to update media engagement" });
+    }
+  });
+
+  // Get Intel bonus calculation including media engagement
+  app.get("/api/intel-bonus", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      const { weekNumber } = req.query;
+      
+      // Get all Intel content for this week
+      const intelContent = await db.select().from(simulationContent).where(
+        and(
+          eq(simulationContent.isIntelContent, true),
+          weekNumber ? eq(simulationContent.weekNumber, parseInt(weekNumber as string, 10)) : undefined,
+          eq(simulationContent.isActive, true)
+        )
+      );
+      
+      // Get user's completed engagements
+      const completedEngagements = await db.select().from(mediaEngagement).where(
+        and(
+          eq(mediaEngagement.userId, userId),
+          eq(mediaEngagement.completed, true)
+        )
+      );
+      
+      const completedContentIds = new Set(completedEngagements.map(e => e.contentId));
+      
+      // Calculate engagement counts
+      const totalIntelItems = intelContent.length;
+      const engagedItems = intelContent.filter(c => completedContentIds.has(c.id)).length;
+      
+      // Calculate bonus multiplier: 1.0x base + 0.15x per article, max 1.5x
+      const baseMultiplier = 1.0;
+      const bonusPerItem = 0.15;
+      const maxMultiplier = 1.5;
+      const rawMultiplier = baseMultiplier + (engagedItems * bonusPerItem);
+      const multiplier = Math.min(rawMultiplier, maxMultiplier);
+      
+      res.json({
+        totalIntelItems,
+        engagedItems,
+        multiplier,
+        completedContentIds: Array.from(completedContentIds),
+        intelContent: intelContent.map(c => ({
+          id: c.id,
+          title: c.title,
+          contentType: c.contentType,
+          completed: completedContentIds.has(c.id),
+        })),
+      });
+    } catch (error) {
+      console.error("Error calculating Intel bonus:", error);
+      res.status(500).json({ error: "Failed to calculate Intel bonus" });
     }
   });
 
@@ -912,13 +1134,18 @@ export async function registerRoutes(
     moduleId: z.string().min(1, "Module ID is required"),
     weekNumber: z.number().int().min(1).max(12),
     title: z.string().min(1, "Title is required"),
-    contentType: z.enum(["text", "video", "google_doc", "link"]),
+    contentType: z.enum(["text", "video", "audio", "google_doc", "link", "media"]),
     content: z.string().optional(),
     embedUrl: z.string().optional(),
     resourceUrl: z.string().optional(),
     thumbnailUrl: z.string().optional(),
     order: z.number().int().optional(),
     isActive: z.boolean().optional(),
+    mediaUrl: z.string().optional(),
+    mediaDurationSeconds: z.number().int().optional(),
+    transcript: z.string().optional(),
+    category: z.string().optional(),
+    isIntelContent: z.boolean().optional(),
   });
 
   const contentEnhancementSchema = z.object({
@@ -1126,6 +1353,240 @@ export async function registerRoutes(
     } catch (error) {
       console.error("AI enhancement error:", error);
       res.status(500).json({ error: "Failed to enhance content" });
+    }
+  });
+
+  // ===== Content Brief Generator for AI Media Creation =====
+  // Exports week context, characters, tone guidelines for external AI tools (Gemini, etc.)
+  app.get("/api/admin/content-brief/:weekNumber", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const weekNumber = parseInt(req.params.weekNumber, 10);
+      if (isNaN(weekNumber) || weekNumber < 1 || weekNumber > 12) {
+        return res.status(400).json({ error: "Invalid week number (1-12)" });
+      }
+      
+      // Get the weekly scenario and decisions
+      const scenario = await storage.getWeeklyScenario(weekNumber);
+      const decisions = await storage.getWeeklyDecisions(weekNumber);
+      
+      if (!scenario) {
+        return res.status(404).json({ error: `No scenario found for week ${weekNumber}` });
+      }
+      
+      // Build character profiles from stakeholder perspectives
+      const characters = new Map<string, { role: string; quotes: string[]; stances: string[] }>();
+      
+      // Add characters from scenario pressures
+      for (const pressure of scenario.pressures) {
+        const existing = characters.get(pressure.source);
+        if (existing) {
+          existing.quotes.push(pressure.message);
+        } else {
+          characters.set(pressure.source, {
+            role: pressure.source,
+            quotes: [pressure.message],
+            stances: [],
+          });
+        }
+      }
+      
+      // Add characters from decision stakeholder perspectives
+      for (const decision of decisions) {
+        for (const perspective of decision.stakeholderPerspectives) {
+          const existing = characters.get(perspective.role);
+          if (existing) {
+            existing.quotes.push(perspective.quote);
+            existing.stances.push(perspective.stance);
+          } else {
+            characters.set(perspective.role, {
+              role: perspective.role,
+              quotes: [perspective.quote],
+              stances: [perspective.stance],
+            });
+          }
+        }
+      }
+      
+      // Build the content brief
+      const contentBrief = {
+        meta: {
+          weekNumber,
+          generatedAt: new Date().toISOString(),
+          simulationName: "Future of Work: AI Workplace Transformation",
+          company: "Apex Manufacturing",
+          industry: "Precision Micro-Molding",
+          location: "Iowa, USA",
+        },
+        scenario: {
+          title: scenario.title,
+          narrative: scenario.narrative,
+          keyQuestion: scenario.keyQuestion,
+          themes: extractThemes(scenario),
+        },
+        stakeholders: Array.from(characters.values()).map(char => ({
+          role: char.role,
+          characterTraits: inferCharacterTraits(char.role),
+          quotes: char.quotes,
+          stances: [...new Set(char.stances)],
+        })),
+        decisions: decisions.map(d => ({
+          id: d.id,
+          title: d.title,
+          category: d.category,
+          context: d.context,
+          options: d.options.map(opt => ({
+            id: opt.id,
+            label: opt.label,
+            description: opt.description,
+            risks: opt.risks,
+          })),
+        })),
+        toneGuidelines: {
+          overall: "Professional yet accessible for graduate business students",
+          urgency: scenario.pressures.some(p => p.urgency === "critical") ? "high" : "moderate",
+          complexity: "Nuanced - multiple valid perspectives with tradeoffs",
+          emotionalRange: ["tension", "opportunity", "uncertainty", "determination"],
+        },
+        contentSuggestions: {
+          videoIdeas: [
+            `CEO video message about ${scenario.title.toLowerCase()}`,
+            `Panel discussion with ${Array.from(characters.keys()).slice(0, 3).join(", ")}`,
+            `Documentary-style overview of the week's challenges`,
+          ],
+          audioIdeas: [
+            `Podcast episode: "What's at stake in Week ${weekNumber}"`,
+            `Interview with key stakeholder about their perspective`,
+            `Audio briefing summarizing the scenario`,
+          ],
+        },
+        exportFormat: "Use this brief to create consistent AI-generated content. Characters should speak authentically to their roles. Maintain tension between competing priorities.",
+      };
+      
+      res.json(contentBrief);
+    } catch (error) {
+      console.error("Content brief generation error:", error);
+      res.status(500).json({ error: "Failed to generate content brief" });
+    }
+  });
+
+  // ===== AI Consistency Review for Uploaded Media Transcripts =====
+  // Reviews transcript against existing simulation content for alignment
+  const transcriptReviewSchema = z.object({
+    transcript: z.string().min(50, "Transcript must be at least 50 characters"),
+    weekNumber: z.number().int().min(1).max(12),
+    contentType: z.enum(["video", "audio", "media"]),
+    title: z.string().min(1),
+  });
+
+  app.post("/api/admin/transcript-review", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const parsed = transcriptReviewSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid request", details: parsed.error.errors });
+      }
+      
+      const { transcript, weekNumber, contentType, title } = parsed.data;
+      
+      // Get the scenario and existing content for context
+      const scenario = await storage.getWeeklyScenario(weekNumber);
+      const decisions = await storage.getWeeklyDecisions(weekNumber);
+      
+      if (!scenario) {
+        return res.status(404).json({ error: `No scenario found for week ${weekNumber}` });
+      }
+      
+      // Build context from existing content
+      const existingContext = {
+        scenario: {
+          title: scenario.title,
+          narrative: scenario.narrative,
+          keyQuestion: scenario.keyQuestion,
+          pressures: scenario.pressures,
+        },
+        stakeholders: decisions.flatMap(d => d.stakeholderPerspectives),
+        decisionCategories: decisions.map(d => d.category),
+      };
+      
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI();
+      
+      const systemPrompt = `You are a content consistency reviewer for a business simulation about AI adoption and workforce transformation at Apex Manufacturing. 
+
+Your job is to review a transcript for a ${contentType} asset and check it against the existing simulation content to ensure:
+1. CHARACTER CONSISTENCY: Any stakeholder mentions align with established personalities and stances
+2. TERMINOLOGY ALIGNMENT: Industry terms, company details, and technical language match existing content
+3. TONE CONSISTENCY: The urgency, professionalism, and emotional register match the week's narrative
+4. TIMELINE ALIGNMENT: Any dates, timeframes, or sequences mentioned are consistent
+5. FACTUAL ACCURACY: Numbers, statistics, and claims align with established simulation data
+
+Provide a structured review with:
+- OVERALL_SCORE: 1-10 (10 = perfectly aligned)
+- ISSUES: Array of specific problems found (empty if none)
+- WARNINGS: Array of potential concerns that aren't critical
+- SUGGESTIONS: Array of improvement recommendations
+- CHARACTER_NOTES: Any character consistency observations
+- APPROVED: boolean - true if ready to publish, false if needs revision`;
+
+      const userPrompt = `Review this transcript for "${title}" (Week ${weekNumber} ${contentType}):
+
+---TRANSCRIPT---
+${transcript}
+---END TRANSCRIPT---
+
+---EXISTING SIMULATION CONTEXT---
+${JSON.stringify(existingContext, null, 2)}
+---END CONTEXT---
+
+Provide your consistency review in JSON format.`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 1500,
+        response_format: { type: "json_object" },
+      });
+      
+      const reviewText = completion.choices[0]?.message?.content || "{}";
+      let review;
+      try {
+        review = JSON.parse(reviewText);
+      } catch {
+        review = { 
+          OVERALL_SCORE: 5, 
+          ISSUES: ["Unable to parse review"], 
+          WARNINGS: [], 
+          SUGGESTIONS: [], 
+          APPROVED: false,
+          rawResponse: reviewText 
+        };
+      }
+      
+      res.json({ 
+        review, 
+        weekNumber,
+        contentType,
+        title,
+        usage: completion.usage,
+      });
+    } catch (error) {
+      console.error("Transcript review error:", error);
+      res.status(500).json({ error: "Failed to review transcript" });
     }
   });
 

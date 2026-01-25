@@ -763,9 +763,16 @@ export const insertSimulationModuleSchema = simulationModuleSchema.omit({
 });
 export type InsertSimulationModule = z.infer<typeof insertSimulationModuleSchema>;
 
-// Content types enum
-export const contentTypeEnum = z.enum(["text", "video", "google_doc", "link", "file"]);
+// Content types enum - includes uploaded media (video/audio)
+export const contentTypeEnum = z.enum(["text", "video", "audio", "google_doc", "link", "file", "media"]);
 export type ContentTypeEnum = z.infer<typeof contentTypeEnum>;
+
+// Timestamp entry for synced transcript display
+export const transcriptTimestampSchema = z.object({
+  time: z.number(), // Seconds into the media
+  text: z.string(), // Transcript segment at that time
+});
+export type TranscriptTimestamp = z.infer<typeof transcriptTimestampSchema>;
 
 // Simulation Content schema - per-week content items
 export const simulationContentSchema = z.object({
@@ -780,6 +787,14 @@ export const simulationContentSchema = z.object({
   thumbnailUrl: z.string().nullable(),
   order: z.number(),
   isActive: z.boolean(),
+  // Media-specific fields for uploaded video/audio content
+  mediaUrl: z.string().nullable(), // Object storage path for uploaded media
+  mediaDurationSeconds: z.number().nullable(), // Duration for progress tracking
+  transcript: z.string().nullable(), // Full transcript for accessibility & LLM reference
+  transcriptTimestamps: z.array(transcriptTimestampSchema).nullable(), // For synced display
+  // Category for intel content
+  category: z.string().nullable(),
+  isIntelContent: z.boolean().default(false), // Whether this counts for Intel Bonus
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
   createdBy: z.string().nullable(),
@@ -794,6 +809,34 @@ export const insertSimulationContentSchema = simulationContentSchema.omit({
   updatedAt: true 
 });
 export type InsertSimulationContent = z.infer<typeof insertSimulationContentSchema>;
+
+// Media engagement tracking - detailed progress for video/audio content
+export const mediaEngagementSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  teamId: z.string().nullable(),
+  contentId: z.string(), // simulation_content ID
+  weekNumber: z.number().nullable(),
+  // Engagement milestones
+  started: z.boolean().default(false), // User clicked play
+  percentWatched: z.number().default(0), // 0-100
+  completed: z.boolean().default(false), // 75%+ watched = completed
+  // Detailed progress data
+  lastPositionSeconds: z.number().default(0), // Resume position
+  totalWatchTimeSeconds: z.number().default(0), // Accumulated watch time
+  completedAt: z.string().nullable(), // When they reached 75%+
+  // Timestamps
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type MediaEngagement = z.infer<typeof mediaEngagementSchema>;
+
+export const insertMediaEngagementSchema = mediaEngagementSchema.omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+export type InsertMediaEngagement = z.infer<typeof insertMediaEngagementSchema>;
 
 // Content view tracking schema
 export const contentViewSchema = z.object({

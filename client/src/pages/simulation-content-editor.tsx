@@ -17,8 +17,11 @@ import { Link, useLocation } from "wouter";
 import { 
   ArrowLeft, Plus, Pencil, Trash2, FileText, Video, ExternalLink, 
   Loader2, Sparkles, RefreshCw, Save, ChevronDown, ChevronUp,
-  Wand2, BookOpen, Target, BarChart3
+  Wand2, BookOpen, Target, BarChart3, Upload, Headphones, FileCheck,
+  Eye, CheckCircle, AlertTriangle
 } from "lucide-react";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { useUpload } from "@/hooks/use-upload";
 
 interface SimulationModule {
   id: string;
@@ -43,6 +46,12 @@ interface SimulationContent {
   thumbnailUrl: string | null;
   order: number;
   isActive: boolean;
+  mediaUrl: string | null;
+  mediaDurationSeconds: number | null;
+  transcript: string | null;
+  transcriptTimestamps: { time: number; text: string }[] | null;
+  category: string | null;
+  isIntelContent: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,8 +59,19 @@ interface SimulationContent {
 const CONTENT_TYPES = [
   { value: "text", label: "Text/Rich Content", icon: FileText },
   { value: "video", label: "Video Embed", icon: Video },
+  { value: "audio", label: "Audio Embed", icon: Headphones },
   { value: "google_doc", label: "Google Doc Embed", icon: BookOpen },
   { value: "link", label: "External Link", icon: ExternalLink },
+  { value: "media", label: "Uploaded Media (Video/Audio)", icon: Upload },
+];
+
+const INTEL_CATEGORIES = [
+  { value: "industry", label: "Industry Intelligence" },
+  { value: "company", label: "Company Analysis" },
+  { value: "workforce", label: "Workforce Trends" },
+  { value: "technology", label: "Technology" },
+  { value: "competition", label: "Competitive Analysis" },
+  { value: "case_study", label: "Case Study" },
 ];
 
 const ENHANCEMENT_TYPES = [
@@ -94,6 +114,26 @@ export default function SimulationContentEditor() {
     thumbnailUrl: "",
     order: 0,
     isActive: true,
+    mediaUrl: "",
+    mediaDurationSeconds: 0,
+    transcript: "",
+    category: "",
+    isIntelContent: false,
+  });
+  
+  const [transcriptReviewResult, setTranscriptReviewResult] = useState<{
+    review: { OVERALL_SCORE: number; ISSUES: string[]; WARNINGS: string[]; SUGGESTIONS: string[]; APPROVED: boolean };
+  } | null>(null);
+  const [isReviewingTranscript, setIsReviewingTranscript] = useState(false);
+  
+  const { uploadFile, isUploading } = useUpload({
+    onSuccess: (response) => {
+      setContentForm((prev) => ({ ...prev, mediaUrl: response.objectPath }));
+      toast({ title: "Media file uploaded successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+    },
   });
 
   const { data: modules = [], isLoading: modulesLoading } = useQuery<SimulationModule[]>({
@@ -219,7 +259,56 @@ export default function SimulationContentEditor() {
   };
 
   const resetContentForm = () => {
-    setContentForm({ title: "", contentType: "text", content: "", embedUrl: "", resourceUrl: "", thumbnailUrl: "", order: 0, isActive: true });
+    setContentForm({ 
+      title: "", 
+      contentType: "text", 
+      content: "", 
+      embedUrl: "", 
+      resourceUrl: "", 
+      thumbnailUrl: "", 
+      order: 0, 
+      isActive: true,
+      mediaUrl: "",
+      mediaDurationSeconds: 0,
+      transcript: "",
+      category: "",
+      isIntelContent: false,
+    });
+    setTranscriptReviewResult(null);
+  };
+  
+  const handleReviewTranscript = async () => {
+    if (!contentForm.transcript || contentForm.transcript.length < 50) {
+      toast({ title: "Transcript too short", description: "Please enter at least 50 characters", variant: "destructive" });
+      return;
+    }
+    
+    if (!selectedModule) {
+      toast({ title: "Select a module first", variant: "destructive" });
+      return;
+    }
+    
+    setIsReviewingTranscript(true);
+    try {
+      const res = await apiRequest("POST", "/api/admin/transcript-review", {
+        transcript: contentForm.transcript,
+        moduleId: selectedModule,
+        weekNumber: selectedWeek,
+        contentType: contentForm.contentType,
+        title: contentForm.title,
+      });
+      const result = await res.json();
+      setTranscriptReviewResult(result);
+      if (result.review.APPROVED) {
+        toast({ title: "Transcript approved", description: `Score: ${result.review.OVERALL_SCORE}/10` });
+      } else {
+        toast({ title: "Transcript needs revision", description: `Score: ${result.review.OVERALL_SCORE}/10`, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Review failed", variant: "destructive" });
+    } finally {
+      setIsReviewingTranscript(false);
+    }
   };
 
   const handleEditModule = (module: SimulationModule) => {
@@ -245,7 +334,13 @@ export default function SimulationContentEditor() {
       thumbnailUrl: content.thumbnailUrl || "",
       order: content.order,
       isActive: content.isActive,
+      mediaUrl: content.mediaUrl || "",
+      mediaDurationSeconds: content.mediaDurationSeconds || 0,
+      transcript: content.transcript || "",
+      category: content.category || "",
+      isIntelContent: content.isIntelContent || false,
     });
+    setTranscriptReviewResult(null);
     setShowContentDialog(true);
   };
 
@@ -447,12 +542,19 @@ export default function SimulationContentEditor() {
                               <TypeIcon className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-medium truncate">{item.title}</h4>
                                 {!item.isActive && <Badge variant="outline">Draft</Badge>}
+                                {item.isIntelContent && <Badge variant="secondary">Intel</Badge>}
+                                {(item.contentType === "media" || item.contentType === "audio") && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {item.mediaUrl ? "Uploaded" : "Media"}
+                                  </Badge>
+                                )}
                               </div>
                               <p className="text-sm text-muted-foreground">
                                 {CONTENT_TYPES.find((t) => t.value === item.contentType)?.label} · Order: {item.order}
+                                {item.mediaDurationSeconds ? ` · ${Math.floor(item.mediaDurationSeconds / 60)}m ${item.mediaDurationSeconds % 60}s` : ""}
                               </p>
                               {item.content && (
                                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.content}</p>
@@ -669,6 +771,187 @@ export default function SimulationContentEditor() {
                   />
                 </div>
               )}
+
+              {(contentForm.contentType === "media" || contentForm.contentType === "audio") && (
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    <span className="font-medium">Media Upload</span>
+                  </div>
+                  
+                  <div>
+                    <Label>Media URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={contentForm.mediaUrl}
+                        onChange={(e) => setContentForm((prev) => ({ ...prev, mediaUrl: e.target.value }))}
+                        placeholder="Upload or paste URL"
+                        disabled={isUploading}
+                        data-testid="input-media-url"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={async () => {
+                          const input = document.createElement("input");
+                          input.type = "file";
+                          input.accept = contentForm.contentType === "audio" ? "audio/*" : "video/*,audio/*";
+                          input.onchange = async (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (!file) return;
+                            
+                            const maxSizeMB = 500;
+                            if (file.size > maxSizeMB * 1024 * 1024) {
+                              toast({ title: "File too large", description: `Maximum file size is ${maxSizeMB}MB`, variant: "destructive" });
+                              return;
+                            }
+                            
+                            const validVideoTypes = ["video/mp4", "video/webm", "video/ogg", "video/quicktime"];
+                            const validAudioTypes = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/aac", "audio/m4a"];
+                            const validTypes = contentForm.contentType === "audio" ? validAudioTypes : [...validVideoTypes, ...validAudioTypes];
+                            
+                            if (!validTypes.some(t => file.type.includes(t.split("/")[1]))) {
+                              toast({ 
+                                title: "Invalid file type", 
+                                description: contentForm.contentType === "audio" ? "Please upload an audio file (MP3, WAV, OGG)" : "Please upload a video or audio file", 
+                                variant: "destructive" 
+                              });
+                              return;
+                            }
+                            
+                            await uploadFile(file);
+                          };
+                          input.click();
+                        }}
+                        disabled={isUploading}
+                        data-testid="button-upload-media"
+                      >
+                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    {contentForm.mediaUrl && (
+                      <p className="text-xs text-green-600 mt-1">Media file attached: {contentForm.mediaUrl.split("/").pop()}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label>Duration (seconds)</Label>
+                    <Input
+                      type="number"
+                      value={contentForm.mediaDurationSeconds}
+                      onChange={(e) => setContentForm((prev) => ({ ...prev, mediaDurationSeconds: parseInt(e.target.value) || 0 }))}
+                      placeholder="300"
+                      data-testid="input-media-duration"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {Math.floor((contentForm.mediaDurationSeconds || 0) / 60)} min {(contentForm.mediaDurationSeconds || 0) % 60} sec
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Transcript</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={handleReviewTranscript}
+                        disabled={isReviewingTranscript || !contentForm.transcript}
+                        data-testid="button-review-transcript"
+                      >
+                        {isReviewingTranscript ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        ) : (
+                          <Eye className="h-4 w-4 mr-1" />
+                        )}
+                        AI Review
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={contentForm.transcript}
+                      onChange={(e) => setContentForm((prev) => ({ ...prev, transcript: e.target.value }))}
+                      placeholder="Paste the full transcript of the media content..."
+                      className="min-h-[150px]"
+                      data-testid="input-transcript"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Word count: {contentForm.transcript.split(/\s+/).filter(Boolean).length}
+                    </p>
+                    
+                    {transcriptReviewResult && (
+                      <div className={`mt-3 p-3 rounded-lg border ${transcriptReviewResult.review.APPROVED ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800" : "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium flex items-center gap-2">
+                            {transcriptReviewResult.review.APPROVED ? (
+                              <>
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                Approved
+                              </>
+                            ) : (
+                              <>
+                                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                Needs Revision
+                              </>
+                            )}
+                          </span>
+                          <Badge variant={transcriptReviewResult.review.OVERALL_SCORE >= 7 ? "default" : "secondary"}>
+                            Score: {transcriptReviewResult.review.OVERALL_SCORE}/10
+                          </Badge>
+                        </div>
+                        {transcriptReviewResult.review.ISSUES.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs font-medium text-destructive">Issues:</p>
+                            <ul className="text-xs list-disc list-inside text-muted-foreground">
+                              {transcriptReviewResult.review.ISSUES.map((issue, i) => <li key={i}>{issue}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {transcriptReviewResult.review.SUGGESTIONS.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs font-medium">Suggestions:</p>
+                            <ul className="text-xs list-disc list-inside text-muted-foreground">
+                              {transcriptReviewResult.review.SUGGESTIONS.map((sug, i) => <li key={i}>{sug}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <Label className="text-base">Intel Content</Label>
+                    <p className="text-xs text-muted-foreground">Mark as optional research content for bonus points</p>
+                  </div>
+                  <Switch
+                    checked={contentForm.isIntelContent}
+                    onCheckedChange={(checked) => setContentForm((prev) => ({ ...prev, isIntelContent: checked }))}
+                    data-testid="switch-intel-content"
+                  />
+                </div>
+                
+                {contentForm.isIntelContent && (
+                  <div>
+                    <Label>Category</Label>
+                    <Select
+                      value={contentForm.category}
+                      onValueChange={(val) => setContentForm((prev) => ({ ...prev, category: val }))}
+                    >
+                      <SelectTrigger data-testid="select-intel-category">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INTEL_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
 
               <div>
                 <Label>Thumbnail URL (Optional)</Label>

@@ -317,9 +317,11 @@ export type InsertSimulationModule = typeof simulationModules.$inferInsert;
 export const CONTENT_TYPES = {
   TEXT: "text",
   VIDEO: "video", // YouTube, Vimeo embed
+  AUDIO: "audio", // Podcast-style audio content
   GOOGLE_DOC: "google_doc", // Google Docs/Slides embed
   LINK: "link", // External resource link
   FILE: "file", // Uploaded file (future)
+  MEDIA: "media", // Uploaded media (video/audio) stored in object storage
 } as const;
 
 export type ContentType = typeof CONTENT_TYPES[keyof typeof CONTENT_TYPES];
@@ -330,13 +332,21 @@ export const simulationContent = pgTable("simulation_content", {
   moduleId: varchar("module_id").notNull(), // Which simulation module this belongs to
   weekNumber: integer("week_number").notNull(), // Which week (1-12)
   title: varchar("title").notNull(),
-  contentType: varchar("content_type").notNull().default("text"), // text, video, google_doc, link
+  contentType: varchar("content_type").notNull().default("text"), // text, video, audio, google_doc, link, media
   content: text("content"), // Rich text content OR embed URL depending on type
   embedUrl: text("embed_url"), // For video/google doc embeds
   resourceUrl: text("resource_url"), // For external links
   thumbnailUrl: text("thumbnail_url"), // Optional preview image
   order: integer("order").notNull().default(0), // Sort order within the week
   isActive: boolean("is_active").notNull().default(true),
+  // Media-specific fields for uploaded video/audio content
+  mediaUrl: text("media_url"), // Object storage path for uploaded media
+  mediaDurationSeconds: integer("media_duration_seconds"), // Duration for progress tracking
+  transcript: text("transcript"), // Full transcript for accessibility & LLM reference
+  transcriptTimestamps: jsonb("transcript_timestamps"), // Array of {time: number, text: string} for synced display
+  // Category for intel content (optional)
+  category: varchar("category"), // industry, company, workforce, technology, etc.
+  isIntelContent: boolean("is_intel_content").default(false), // Whether this counts for Intel Bonus
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by"),
@@ -360,3 +370,26 @@ export const contentViews = pgTable("content_views", {
 
 export type ContentViewDb = typeof contentViews.$inferSelect;
 export type InsertContentViewDb = typeof contentViews.$inferInsert;
+
+// Media engagement tracking - detailed progress for video/audio content
+export const mediaEngagement = pgTable("media_engagement", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  teamId: varchar("team_id"),
+  contentId: varchar("content_id").notNull(), // simulation_content ID
+  weekNumber: integer("week_number"),
+  // Engagement milestones
+  started: boolean("started").default(false), // User clicked play
+  percentWatched: integer("percent_watched").default(0), // 0-100
+  completed: boolean("completed").default(false), // 75%+ watched = completed
+  // Detailed progress data
+  lastPositionSeconds: integer("last_position_seconds").default(0), // Resume position
+  totalWatchTimeSeconds: integer("total_watch_time_seconds").default(0), // Accumulated watch time
+  completedAt: timestamp("completed_at"), // When they reached 75%+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type MediaEngagementDb = typeof mediaEngagement.$inferSelect;
+export type InsertMediaEngagementDb = typeof mediaEngagement.$inferInsert;
