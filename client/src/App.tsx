@@ -30,6 +30,7 @@ import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FlaskConical } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
@@ -93,7 +94,16 @@ function GameLayout() {
           isAdmin={isAdmin}
         />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-4 p-3 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          {/* Sandbox Mode Banner - prominent visual indicator */}
+          {inSandboxMode && (
+            <div className="bg-amber-500 dark:bg-amber-600 text-white px-4 py-2 flex items-center justify-center gap-3 text-sm font-medium">
+              <FlaskConical className="h-4 w-4" />
+              <span>SANDBOX MODE - You are previewing the student experience</span>
+              <span className="text-amber-200">|</span>
+              <span>Use controls at bottom to navigate weeks</span>
+            </div>
+          )}
+          <header className={`flex items-center justify-between gap-4 p-3 border-b backdrop-blur-sm sticky top-0 z-50 ${inSandboxMode ? 'bg-amber-100/50 dark:bg-amber-900/20' : 'bg-card/50'}`}>
             <div className="flex items-center gap-3">
               <SidebarTrigger data-testid="button-sidebar-toggle" />
               <div className="h-4 w-px bg-border" />
@@ -249,8 +259,13 @@ function AppRouter() {
   // This check happens BEFORE the teamId check to ensure admins never see WaitingAssignment
   // Handle both boolean true AND string 'true'/'super_admin' for robustness (runtime type may differ)
   const adminValue = user.isAdmin as unknown;
-  const isAdmin = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
-  if (isAdmin) {
+  const isAdminUser = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
+  
+  // Check if admin is in sandbox mode (previewing student experience)
+  const isInSandboxMode = user.inStudentPreview === true;
+  
+  // IMPORTANT: If admin is in sandbox mode, allow them to access student pages
+  if (isAdminUser && !isInSandboxMode) {
     if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin')) {
       return <Redirect to="/super-admin" />;
     }
