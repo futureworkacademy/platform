@@ -139,7 +139,7 @@ interface UnifiedPerson {
   lastName: string;
   profileImageUrl: string | null;
   role: 'super_admin' | 'class_admin' | 'student';
-  status: 'active' | 'pending' | 'invited' | 'never_invited';
+  status: 'active' | 'pending' | 'invited' | 'never_invited' | 'deactivated';
   hasAccount: boolean;
   organizationId: string | null;
   organizationName: string | null;
@@ -990,6 +990,7 @@ export default function SuperAdminPage() {
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="invited">Invited</SelectItem>
+                        <SelectItem value="deactivated">Deactivated</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1101,6 +1102,7 @@ export default function SuperAdminPage() {
                                     person.status === "active" ? "bg-green-500/10 text-green-600 border-green-500/20" :
                                     person.status === "pending" ? "bg-amber-500/10 text-amber-600 border-amber-500/20" :
                                     person.status === "invited" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" :
+                                    person.status === "deactivated" ? "bg-red-500/10 text-red-600 border-red-500/20" :
                                     ""
                                   }
                                   data-testid={`badge-status-${person.id}`}
@@ -1109,6 +1111,7 @@ export default function SuperAdminPage() {
                                   {person.status === "pending" && "Pending"}
                                   {person.status === "invited" && "Invited"}
                                   {person.status === "never_invited" && "Not Invited"}
+                                  {person.status === "deactivated" && "Deactivated"}
                                 </Badge>
                               </td>
                               <td className="py-3 px-2">
@@ -1207,6 +1210,19 @@ export default function SuperAdminPage() {
                                       >
                                         <UserX className="h-4 w-4 mr-2" />
                                         Deactivate
+                                      </DropdownMenuItem>
+                                    )}
+                                    {/* Reactivate - for deactivated org members */}
+                                    {person.memberId && person.status === "deactivated" && (
+                                      <DropdownMenuItem 
+                                        onClick={() => {
+                                          reactivateMemberMutation.mutate(person.memberId!);
+                                        }}
+                                        className="text-green-600"
+                                        data-testid={`button-reactivate-${person.id}`}
+                                      >
+                                        <UserCheck className="h-4 w-4 mr-2" />
+                                        Reactivate
                                       </DropdownMenuItem>
                                     )}
                                     {/* Remove from Org - for org members */}

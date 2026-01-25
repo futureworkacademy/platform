@@ -1437,7 +1437,7 @@ export async function registerRoutes(
       }).from(users)
         .where(sql`${users.isTestStudent} = false OR ${users.isTestStudent} IS NULL`);
 
-      // Get all organization members with org info
+      // Get all organization members with org info (including deactivated for super admin management)
       const allOrgMembers = await db.select({
         id: organizationMembers.id,
         memberId: organizationMembers.id,
@@ -1449,8 +1449,7 @@ export async function registerRoutes(
         orgName: organizations.name,
         orgCode: organizations.code,
       }).from(organizationMembers)
-        .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
-        .where(sql`${organizationMembers.status} != 'deactivated'`);
+        .leftJoin(organizations, eq(organizationMembers.organizationId, organizations.id));
 
       // Get all teams for team name lookup
       const allTeams = await db.select({
@@ -1487,9 +1486,11 @@ export async function registerRoutes(
         }
 
         // Determine status
-        let status: 'active' | 'pending' | 'invited' | 'never_invited' = 'active';
+        let status: 'active' | 'pending' | 'invited' | 'never_invited' | 'deactivated' = 'active';
         if (primaryMembership) {
-          if (primaryMembership.memberStatus === 'pending') {
+          if (primaryMembership.memberStatus === 'deactivated') {
+            status = 'deactivated';
+          } else if (primaryMembership.memberStatus === 'pending') {
             status = 'pending';
           } else if (primaryMembership.memberStatus === 'active') {
             status = 'active';
