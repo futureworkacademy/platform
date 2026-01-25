@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +49,11 @@ const CHART_COLORS = ["hsl(35, 100%, 50%)", "hsl(142, 76%, 50%)", "hsl(200, 100%
 export default function Research() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  
+  // Check if user is in sandbox mode - skip redirects in sandbox
+  const inSandboxMode = user?.inStudentPreview === true;
 
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
@@ -105,11 +110,12 @@ export default function Research() {
   const viewedReports = new Set(team?.viewedReportIds || []);
 
   // Redirect to setup if not complete - use effect to avoid setState during render
+  // Skip this redirect when in sandbox mode - admin should see full student experience
   useEffect(() => {
-    if (team && !team.setupComplete) {
+    if (team && !team.setupComplete && !inSandboxMode) {
       setLocation("/setup");
     }
-  }, [team, setLocation]);
+  }, [team, setLocation, inSandboxMode]);
 
   const handleReportView = (reportId: string) => {
     setSelectedReport(reportId);
@@ -194,7 +200,8 @@ END OF RESEARCH MATERIALS
     );
   }
 
-  if (!team?.setupComplete) {
+  // In sandbox mode, allow viewing even if setupComplete is false
+  if (!team?.setupComplete && !inSandboxMode) {
     return null;
   }
 
