@@ -16,6 +16,7 @@ import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
 import { sendInvitationEmail } from "./services/email";
 import sanitizeHtml from "sanitize-html";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { demoService } from "./demo-service";
 
 function isAdminUser(user: { isAdmin?: string | boolean | null } | null | undefined): boolean {
   if (!user) return false;
@@ -1911,6 +1912,109 @@ Provide your consistency review in JSON format.`;
     } catch (error) {
       console.error("[Educator Inquiry] Error:", error);
       res.status(500).json({ error: "Failed to submit inquiry" });
+    }
+  });
+
+  // ==================== DEMO SELF-SERVICE ROUTES ====================
+  
+  // Request demo access (public - auto-provisions evaluator account)
+  app.post("/api/demo/request-access", async (req, res) => {
+    try {
+      const { email, name, institution, message } = req.body;
+      
+      if (!email || !name) {
+        return res.status(400).json({ error: "Email and name are required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+      
+      // Prefer .edu emails but don't require
+      const isEduEmail = email.toLowerCase().endsWith('.edu');
+      
+      console.log("[Demo Access] Provisioning evaluator:", { 
+        email, 
+        name, 
+        institution, 
+        isEduEmail 
+      });
+      
+      // Provision the evaluator
+      const result = await demoService.provisionEvaluator(email, name, institution);
+      
+      // Log the activity
+      await storage.logActivity({
+        eventType: "demo_access_provisioned",
+        userEmail: email,
+        userName: name,
+        details: { 
+          institution, 
+          message, 
+          expiresAt: result.expiresAt.toISOString(),
+          demoOrgId: result.orgId 
+        },
+      });
+      
+      // Send SMS notification to super admin
+      try {
+        if (await isTwilioConfigured()) {
+          const superAdmins = await db.select()
+            .from(users)
+            .where(eq(users.isAdmin, 'super_admin'));
+          
+          for (const admin of superAdmins) {
+            const adminOrgs = await organizationStorage.getOrganizationsByOwner(admin.id);
+            for (const org of adminOrgs) {
+              if (org.notifyOnSignup && org.notifyPhone) {
+                await sendSmsNotification(org.notifyPhone, 'educator_inquiry', {
+                  inquirerName: name,
+                  inquirerEmail: email,
+                  inquiryType: 'demo_access',
+                  institution: institution || undefined,
+                });
+                break;
+              }
+            }
+          }
+        }
+      } catch (smsError) {
+        console.error("[Demo Access] SMS notification failed:", smsError);
+      }
+      
+      res.json({ 
+        success: true, 
+        demoCode: demoService.getDemoOrgCode(),
+        expiresAt: result.expiresAt.toISOString(),
+        message: `Demo access granted! Your account will be active for 30 days. Sign in with your email (${email}) to explore the simulation.`
+      });
+    } catch (error) {
+      console.error("[Demo Access] Error:", error);
+      res.status(500).json({ error: "Failed to provision demo access" });
+    }
+  });
+  
+  // Check if user has demo access (authenticated)
+  app.get("/api/demo/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const isEvaluator = await demoService.isEvaluator(userId);
+      const allowedOrgs = await demoService.getUserAllowedOrganizations(userId);
+      
+      res.json({ 
+        isEvaluator,
+        allowedOrganizations: allowedOrgs,
+        demoCode: isEvaluator ? demoService.getDemoOrgCode() : undefined
+      });
+    } catch (error) {
+      console.error("[Demo Status] Error:", error);
+      res.status(500).json({ error: "Failed to check demo status" });
     }
   });
 
