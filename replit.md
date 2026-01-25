@@ -10,10 +10,8 @@ I prefer clear and concise communication. When making changes, prioritize the co
 
 **UI/UX Decisions:**
 - **Design Inspiration:** Bloomberg Terminal aesthetic.
-- **Components:** Shadcn/UI, Radix primitives.
-- **Data Visualization:** Recharts.
-- **Styling:** Tailwind CSS with custom design tokens.
-- **Color Scheme:** Corporate Navy, Growth Green, Caution Amber, Tech Purple, Professional Grey, with specific positive/negative data colors.
+- **Components:** Shadcn/UI, Radix primitives, Recharts for data visualization.
+- **Styling:** Tailwind CSS with custom design tokens, Corporate Navy, Growth Green, Caution Amber, Tech Purple, Professional Grey color scheme.
 - **Fonts:** IBM Plex Sans, Inter, Roboto Mono.
 - **Landing Page:** Features a tagline, sub-headline, rotating challenge cards, and calls to action.
 
@@ -28,14 +26,11 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **LLM-Powered Grading:** OpenAI-based semantic evaluation for essay responses using a 4-criteria rubric.
 - **Activity Logging:** Tracks user and game actions, exportable to CSV/JSON.
 - **Student Enrollment:** Configurable `.edu` email verification, team code entry, and SMS notifications.
-- **Admin Dashboards:** Dedicated interfaces for Super Admins and Class Admins.
-- **CSV Bulk Import:** Class Admins can import up to 500 students.
-- **Member Soft-Delete:** Allows deactivation and reactivation of organization members.
+- **Admin Dashboards:** Dedicated interfaces for Super Admins and Class Admins, including CSV bulk import and member soft-delete.
 - **Simulation Lifecycle:** Formal management with status tracking, configurable dates, and week advancement controls.
 - **Scheduled Reminders:** Email queue system for instructors.
 - **Platform Settings (Super Admin):** Configurable enrollment requirements, competition modes, scoring weights, and bonus settings.
 - **Sandbox Mode (Instructor Preview):** Class Admins can test the full student experience without affecting real student data.
-- **Super Admin Dashboard Redesign:** Features a 6-tab structure.
 - **Multi-Scenario Module Support:** Utilizes `simulationModules` and `simulationContent` tables for diverse themes.
 - **Unified People API:** Merges users, organization memberships, and team assignments.
 - **Week Results & Feedback System:** Displays detailed performance feedback, LLM-evaluated essay scores with rubric, and top answers.
