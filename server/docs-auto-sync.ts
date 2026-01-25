@@ -31,6 +31,10 @@ const DOC_FILES: Record<string, { path: string; title: string }> = {
   brand_standards: {
     path: 'docs/BRAND_STANDARDS.md',
     title: 'Future Work Academy - Brand Standards'
+  },
+  security_compliance: {
+    path: 'docs/SECURITY_COMPLIANCE.md',
+    title: 'Future Work Academy - Security & Compliance'
   }
 };
 

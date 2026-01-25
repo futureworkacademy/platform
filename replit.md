@@ -127,6 +127,7 @@ Business and marketing documentation is maintained in the `docs/` folder:
 - **docs/BUSINESS_PLAN.md** - Full business plan with costs, compliance requirements, and monetization strategy
 - **docs/PRODUCT_ROADMAP.md** - Detailed product roadmap with near-term, mid-term, and long-term features
 - **docs/MARKETING_MATERIALS.md** - Marketing content for MBA programs and generic academia
+- **docs/SECURITY_COMPLIANCE.md** - Security architecture, FERPA compliance, data handling, incident response
 
 Legacy documentation:
 - **SOLUTION_DOC.md** - Original solution document (superseded by docs/ folder)
