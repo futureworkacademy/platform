@@ -58,6 +58,42 @@ An 8-week immersive business simulation where students step into the role of exe
 
 ---
 
+### Research-Backed Pedagogy
+
+Our simulation design is grounded in peer-reviewed research on business simulation games (BSGs) and experiential learning:
+
+**Academic Validation:**
+- **Systematic Review of BSG Effectiveness (45+ studies)**: Business simulation games significantly boost student engagement, knowledge acquisition, and skill development compared to traditional lectures. BSGs are particularly effective for teaching business processes and decision-making under uncertainty. *(Vlachopoulos & Makri, International Journal of Management Education, 2022)*
+
+- **Flow States & Self-Efficacy in Simulations**: Students who experience "flow" states in realistic simulation scenarios demonstrate measurably improved skill development and self-efficacy. Our Bloomberg Terminal-inspired interface and competitive leaderboards are specifically designed to create these conditions. *(Frontiers in Psychology, 2022)*
+
+- **Post-Pandemic BSG Adoption Trends**: Business simulation adoption in higher education has accelerated dramatically. BSGs excel at teaching decision-making skills that are difficult to assess through traditional exams. *(MDPI Education Sciences, 2025)*
+
+**Industry-Validated Premise:**
+- **Deloitte/Manufacturing Institute (2021)**: 2.1 million manufacturing jobs will go unfilled by 2030 due to skills gaps
+- **Bureau of Labor Statistics (2025)**: 415,000 current manufacturing openings, with AI/automation reshaping job requirements
+- **Harvard Business Review**: 72% of Gen Z employees express reluctance to pursue management roles - a leadership pipeline crisis our simulation directly addresses
+
+**Dual Scoring Innovation:**
+Our Financial + Cultural Health dual-scoring system reflects emerging ESG (Environmental, Social, Governance) trends in business education. Unlike single-metric simulations, students learn that sustainable success requires balancing short-term gains with long-term organizational health.
+
+---
+
+### FERPA-Ready Platform
+
+Built for institutional adoption from day one:
+
+- **SOC 2 Type I-Aligned Architecture**: Enterprise-grade security controls designed to meet audit standards
+- **FERPA-Aligned Data Handling**: Student records protected per federal education privacy requirements
+- **Privacy-First AI Processing**: Institutional API keys ensure student work remains private; no training on user data
+- **Comprehensive Audit Trail**: Every action logged with timestamps for compliance verification
+- **Secure SSO Integration**: OIDC authentication eliminates password management risks
+- **Data Minimization**: We collect only what's educationally necessary
+
+**See our full [Security & Compliance Documentation](./SECURITY_COMPLIANCE.md) for detailed architecture, incident response procedures, and data handling policies.**
+
+---
+
 ### The Weekly Workflow
 
 ```mermaid
@@ -280,6 +316,26 @@ A multi-scenario simulation platform where students take on leadership roles, ma
 
 ---
 
+### Research-Backed Pedagogy
+
+Our platform is built on decades of research validating business simulation games for higher education:
+
+- **Vlachopoulos & Makri (2022)**: BSGs outperform lectures for engagement, knowledge retention, and skill development *(International Journal of Management Education)*
+- **Flow & Self-Efficacy Research**: Flow states in realistic simulations drive measurable self-efficacy gains *(Frontiers in Psychology, 2022)*
+- **Post-Pandemic Trends**: BSG adoption accelerating; proven effective for decision-making assessment *(MDPI Education Sciences, 2025)*
+
+---
+
+### FERPA-Ready & Enterprise-Secure
+
+- SOC 2 Type I-aligned architecture designed for audit readiness
+- FERPA-aligned student data handling
+- Privacy-first AI processing; no training on user data
+- Comprehensive audit trail for compliance verification
+- Full documentation: [Security & Compliance](./SECURITY_COMPLIANCE.md)
+
+---
+
 ### The Learning Cycle
 
 Each week follows a consistent pattern that builds decision-making skills:
@@ -413,6 +469,7 @@ LENGTH: [One-pager / Full brochure / Email pitch]
 | 1.0 | January 2026 | Initial marketing materials |
 | 1.1 | January 2026 | Added Sandbox Mode, content engagement, navigation improvements |
 | 1.2 | January 2026 | Added Character Profiles with AI headshots, Triggered Voicemails, Phone-a-Friend advisor system, multimedia content support |
+| 1.3 | January 2026 | Added Research-Backed Pedagogy section with academic citations, FERPA-Ready Platform callout |
 
 ---
 

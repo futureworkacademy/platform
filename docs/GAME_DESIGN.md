@@ -19,6 +19,7 @@
 9. [Scoring Mechanics](#9-scoring-mechanics)
 10. [People Analytics Data](#10-people-analytics-data)
 11. [Media Enhancement Opportunities](#11-media-enhancement-opportunities)
+12. [Future Expansion Modules](#12-future-expansion-modules)
 
 ---
 
@@ -663,6 +664,171 @@ Bloomberg Terminal-inspired dashboards with animated metrics.
 
 ---
 
+## 12. Future Expansion Modules
+
+The Future of Work Academy platform is designed for multi-scenario deployment. The core simulation engine, scoring mechanics, and pedagogical framework remain constant while scenarios, stakeholders, and industry contexts vary.
+
+### Planned Expansion Modules
+
+#### Healthcare AI Transformation
+**Setting**: Regional Health System (3,500 employees)
+**Core Tension**: Clinical efficiency vs. patient care quality; nurse shortages vs. automation
+
+**Industry Context:**
+- 500,000+ nursing positions unfilled nationally
+- AI diagnostics achieving specialist-level accuracy
+- Telehealth adoption accelerated post-pandemic
+- Burnout and moral injury at crisis levels
+
+**Unique Variables:**
+- Patient outcomes score
+- Staff-to-patient ratios
+- Telehealth adoption rate
+- Clinical quality metrics
+- Credentialing/licensing constraints
+
+**Stakeholder Adaptations:**
+- Chief Medical Officer (quality advocate)
+- Nursing Union Representative (patient safety + job protection)
+- Hospital Board (financial sustainability)
+- State Health Department (regulatory oversight)
+- Patient Advocacy Groups (community voice)
+
+---
+
+#### Retail & Logistics Automation
+**Setting**: Regional Distribution Network (2,800 employees)
+**Core Tension**: Warehouse automation vs. gig economy workforce; same-day delivery pressures
+
+**Industry Context:**
+- E-commerce driving 40% YoY fulfillment demand
+- Warehouse robotics reducing labor needs 60%
+- Gig worker classification legal battles
+- Last-mile delivery innovation
+
+**Unique Variables:**
+- Fulfillment speed
+- Gig worker satisfaction
+- Inventory accuracy
+- Customer delivery ratings
+- Worker classification risk
+
+**Stakeholder Adaptations:**
+- Distribution Center Manager
+- Gig Driver Representative
+- E-commerce Platform Partner
+- Labor Board Investigator
+- Community Delivery Association
+
+---
+
+#### Financial Services Digital Transformation
+**Setting**: Regional Bank (1,800 employees)
+**Core Tension**: Branch closures vs. community presence; algorithmic lending vs. relationship banking
+
+**Industry Context:**
+- Branch traffic down 40% since 2019
+- AI underwriting outperforming human loan officers
+- Fintech competitors capturing younger demographics
+- Regulatory scrutiny on algorithmic bias
+
+**Unique Variables:**
+- Digital adoption rate
+- Loan approval accuracy
+- Compliance risk score
+- Customer satisfaction (by age cohort)
+- Community Reinvestment Act metrics
+
+**Stakeholder Adaptations:**
+- Chief Risk Officer (compliance focus)
+- Branch Manager Network (community relationships)
+- Fintech Competitor (disruptive threat)
+- CFPB Representative (regulatory oversight)
+- Community Development Officer
+
+---
+
+#### Public Sector Digital Government
+**Setting**: State Agency (2,200 employees)
+**Core Tension**: Service delivery efficiency vs. public sector employment; citizen privacy vs. data-driven governance
+
+**Industry Context:**
+- 30% of government workforce retirement-eligible within 5 years
+- AI-driven citizen services reducing wait times 70%
+- Public trust in government at historic lows
+- Cybersecurity threats escalating
+
+**Unique Variables:**
+- Citizen satisfaction score
+- Service delivery time
+- Public trust index
+- Cybersecurity posture
+- Union grievance rate
+
+**Stakeholder Adaptations:**
+- Agency Director (political appointee)
+- Civil Service Union Representative
+- State Legislature Budget Committee
+- Citizen Advocacy Group
+- Cybersecurity Auditor
+
+---
+
+### Regional Focus: Midwest Manufacturing Initiative
+
+**Special Module: Iowa/Midwest Manufacturing Workforce**
+
+This module addresses the specific challenges facing Midwest manufacturing communities:
+
+**Regional Context:**
+- Iowa manufacturing employs 220,000+ workers
+- Rural communities disproportionately affected by automation
+- Strong community college and workforce development infrastructure
+- Access to Iowa CIRAS (Center for Industrial Research and Service) resources
+
+**Grant Alignment:**
+Designed to support applications for:
+- Iowa Economic Development Authority workforce grants
+- USDA Rural Development programs
+- National Science Foundation workforce training grants
+- Department of Labor apprenticeship programs
+
+**Unique Elements:**
+- Rural vs. urban workforce dynamics
+- Community college partnership scenarios
+- Multi-generational family employment considerations
+- Agricultural-industrial crossover opportunities
+
+**Partner Opportunities:**
+- Iowa State University CIRAS
+- Iowa Workforce Development
+- Community colleges (DMACC, Kirkwood, etc.)
+- Regional manufacturing associations
+
+---
+
+### Module Development Framework
+
+Each expansion module follows this development template:
+
+| Component | Flagship Module | Adaptation Required |
+|-----------|-----------------|---------------------|
+| Company State Variables | Apex Manufacturing | Industry-specific equivalents |
+| Weekly Scenarios | 8 manufacturing challenges | Industry-specific narratives |
+| Stakeholder Characters | 17 manufacturing roles | Industry-specific personas |
+| Research Reports | 6 manufacturing studies | Industry-specific research |
+| Scoring Mechanics | Financial + Cultural | Industry-appropriate metrics |
+| Global Events | Tariffs, strikes, recalls | Industry-relevant disruptions |
+
+**Development Timeline per Module:**
+- Research & Design: 4 weeks
+- Content Writing: 6 weeks
+- Stakeholder Development: 3 weeks
+- Testing & Iteration: 3 weeks
+- **Total: 16 weeks per module**
+
+---
+
 ## Appendix: Variable Reference
 
 ### Financial Variables
@@ -694,6 +860,7 @@ Bloomberg Terminal-inspired dashboards with animated metrics.
 
 ---
 
-*Document Version: 2.0*
+*Document Version: 2.1*
 *Last Updated: January 2026*
 *Purpose: Complete Game Mechanics Reference for Instructors and Academic Reviewers*
+*Changes in 2.1: Added Future Expansion Modules section (Healthcare, Retail, Finance, Public Sector, Iowa Manufacturing)*
