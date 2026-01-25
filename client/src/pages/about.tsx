@@ -12,7 +12,7 @@ import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import logoImg from "@assets/logo-dark.svg";
+import logoImg from "@assets/logo-icon-dark.png";
 
 interface AboutContent {
   id?: string;

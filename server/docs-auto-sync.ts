@@ -23,6 +23,10 @@ const DOC_FILES: Record<string, { path: string; title: string }> = {
   appendix_diagrams: {
     path: 'docs/APPENDIX_DIAGRAMS.md',
     title: 'Future Work Academy - Visual Appendix'
+  },
+  ai_transparency: {
+    path: 'docs/AI_TRANSPARENCY.md',
+    title: 'Future Work Academy - AI Transparency & Prompt Documentation'
   }
 };
 

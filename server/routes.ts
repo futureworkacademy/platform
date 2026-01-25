@@ -4846,7 +4846,7 @@ Access your dashboard at: https://futureworkacademy.com
   const pathModule = await import("path");
 
   const syncDocSchema = z.object({
-    documentType: z.enum(['business_plan', 'product_roadmap', 'marketing_materials', 'solution_doc'])
+    documentType: z.enum(['business_plan', 'product_roadmap', 'marketing_materials', 'solution_doc', 'ai_transparency', 'appendix_diagrams'])
   });
 
   const docFilesConfig: Record<string, { path: string; title: string }> = {
@@ -4865,6 +4865,14 @@ Access your dashboard at: https://futureworkacademy.com
     'solution_doc': { 
       path: 'SOLUTION_DOC.md', 
       title: 'Future Work Academy - Solution Document' 
+    },
+    'ai_transparency': {
+      path: 'docs/AI_TRANSPARENCY.md',
+      title: 'Future Work Academy - AI Transparency & Prompt Documentation'
+    },
+    'appendix_diagrams': {
+      path: 'docs/APPENDIX_DIAGRAMS.md',
+      title: 'Future Work Academy - Visual Appendix'
     }
   };
 

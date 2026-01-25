@@ -12,7 +12,7 @@ import {
   Shield,
   ClipboardCheck,
 } from "lucide-react";
-import logo from "@assets/logo-light.svg";
+import logo from "@assets/logo-icon-light.png";
 import {
   Sidebar,
   SidebarContent,
