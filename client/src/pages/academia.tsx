@@ -196,18 +196,19 @@ ${message || 'None provided'}
           <div className="container mx-auto max-w-4xl text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <GraduationCap className="h-4 w-4" />
-              For Academic Institutions
+              Operationalizing the Scholar-Practitioner Interface
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-              Build Decision-Making Muscle
+              Bridging the "Great Divide"
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Future Work Academy doesn't teach theory—it creates decision-making muscle. 
-              Our simulation puts future leaders in the hot seat, forcing real-time choices 
-              about AI adoption, workforce transformation, and stakeholder management.
+              Management education faces a persistent "Relevance Gap" between academic theory 
+              and practice.<sup>1</sup> Traditional case studies are often static, failing to capture 
+              the messy, complex phenomena of real organizational life.<sup>2</sup>
             </p>
-            <p className="text-base text-muted-foreground font-medium">
-              When your students graduate, they've already made the hard calls.
+            <p className="text-base text-foreground font-medium max-w-2xl mx-auto">
+              Future Work Academy is an immersive simulation platform designed to close this gap—moving 
+              students from passive analysis to dynamic "Actionable Knowledge."<sup>4</sup>
             </p>
           </div>
         </section>
@@ -218,11 +219,12 @@ ${message || 'None provided'}
               <Card className="text-center hover-elevate">
                 <CardContent className="pt-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Target className="h-6 w-6 text-primary" />
+                    <Sparkles className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">Experiential Learning</h3>
+                  <h3 className="font-semibold mb-2">"White Box" Assessment</h3>
                   <p className="text-sm text-muted-foreground">
-                    8-week simulation with real consequences—students see how their decisions compound over time
+                    Unlike "black box" AI tools that obscure evaluation logic, FWA uses transparent, 
+                    rubric-based LLM evaluation with deterministic settings for consistency.<sup>6</sup>
                   </p>
                 </CardContent>
               </Card>
@@ -230,11 +232,12 @@ ${message || 'None provided'}
               <Card className="text-center hover-elevate">
                 <CardContent className="pt-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                    <Target className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">AI-Powered Evaluation</h3>
+                  <h3 className="font-semibold mb-2">Dual-Scoring System</h3>
                   <p className="text-sm text-muted-foreground">
-                    Semantic grading provides personalized feedback on strategic thinking and stakeholder consideration
+                    Students manage a dual scoreboard: Financial Health (ROI, Revenue) and Cultural Health 
+                    (Morale, Union Sentiment)—operationalizing ethics and economics.<sup>7</sup>
                   </p>
                 </CardContent>
               </Card>
@@ -244,13 +247,24 @@ ${message || 'None provided'}
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Award className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">Competitive Leaderboard</h3>
+                  <h3 className="font-semibold mb-2">Institutional Control</h3>
                   <p className="text-sm text-muted-foreground">
-                    Dual scoring on financial performance AND cultural health drives holistic decision-making
+                    Sandbox Mode enables instructors to audit the entire student journey prior to deployment. 
+                    FERPA-compliant architecture strips PII before AI interaction.<sup>8,9</sup>
                   </p>
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </section>
+
+        <section className="py-8 px-4 border-b">
+          <div className="container mx-auto max-w-4xl text-center">
+            <p className="text-base text-muted-foreground italic">
+              "FWA places students in an executive sandbox, forcing them to navigate the Twin Transition—the 
+              simultaneous shift to digital and green economies—cited by the UNDP as the defining labor market 
+              challenge of 2030."<sup>5</sup>
+            </p>
           </div>
         </section>
 
@@ -522,10 +536,12 @@ ${message || 'None provided'}
 
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-2xl text-center space-y-4">
-            <h3 className="text-xl font-semibold">Ready to Transform Your Curriculum?</h3>
+            <h3 className="text-xl font-semibold">The Result: Actionable Knowledge</h3>
             <p className="text-muted-foreground">
-              Join leading business schools using simulation-based learning 
-              to prepare students for real-world AI transformation challenges.
+              FWA moves beyond theory to create a risk-free environment for "productive failure." 
+              It provides the data-driven rigor required by the PhD community while delivering 
+              the engagement required by students—preparing them for the 15–20 distinct career 
+              shifts expected of the modern "Learning-Worker."<sup>3</sup>
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <a href="mailto:doug@futureworkacademy.com?subject=Demo Request - Future Work Academy">
