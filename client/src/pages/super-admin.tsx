@@ -164,6 +164,171 @@ interface TeamData {
   orgName: string;
 }
 
+interface GoogleDocInfo {
+  documentId: string;
+  title: string;
+}
+
+interface SyncResult {
+  success: boolean;
+  title: string;
+  documentId?: string;
+  googleDocsUrl?: string;
+  error?: string;
+}
+
+function GoogleDocsSyncCard() {
+  const { toast } = useToast();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncingDoc, setSyncingDoc] = useState<string | null>(null);
+
+  const { data: googleDocs = [], isLoading: isLoadingDocs, refetch: refetchDocs } = useQuery<GoogleDocInfo[]>({
+    queryKey: ['/api/docs/list'],
+  });
+
+  const syncDocument = async (documentType: string) => {
+    setSyncingDoc(documentType);
+    try {
+      const response = await apiRequest('POST', '/api/docs/sync', { documentType });
+      const result = await response.json() as { success: boolean; googleDocsUrl: string; title: string };
+      toast({
+        title: "Document synced",
+        description: `${result.title} has been synced to Google Docs.`,
+      });
+      refetchDocs();
+    } catch (error: any) {
+      toast({
+        title: "Sync failed",
+        description: error.message || "Failed to sync document",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingDoc(null);
+    }
+  };
+
+  const syncAllDocuments = async () => {
+    setIsSyncing(true);
+    try {
+      const response = await apiRequest('POST', '/api/docs/sync-all');
+      const result = await response.json() as { results: SyncResult[] };
+      const successful = result.results.filter((r: SyncResult) => r.success).length;
+      const failed = result.results.filter((r: SyncResult) => !r.success).length;
+      toast({
+        title: "Sync complete",
+        description: `${successful} documents synced${failed > 0 ? `, ${failed} failed` : ''}.`,
+      });
+      refetchDocs();
+    } catch (error: any) {
+      toast({
+        title: "Sync failed",
+        description: error.message || "Failed to sync documents",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const documentTypes = [
+    { key: 'business_plan', label: 'Business Plan' },
+    { key: 'product_roadmap', label: 'Product Roadmap' },
+    { key: 'marketing_materials', label: 'Marketing Materials' },
+    { key: 'solution_doc', label: 'Solution Document' },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Google Docs Sync
+        </CardTitle>
+        <CardDescription>
+          Sync documentation files to Google Docs for easy sharing and collaboration.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label className="text-base">Sync All Documents</Label>
+            <p className="text-sm text-muted-foreground">
+              Sync all documentation to Google Docs at once
+            </p>
+          </div>
+          <Button 
+            onClick={syncAllDocuments} 
+            disabled={isSyncing}
+            data-testid="button-sync-all-docs"
+          >
+            {isSyncing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Sync All
+              </>
+            )}
+          </Button>
+        </div>
+        
+        <Separator />
+        
+        <div className="space-y-3">
+          <Label className="text-base">Individual Documents</Label>
+          <div className="grid gap-2">
+            {documentTypes.map((doc) => (
+              <div key={doc.key} className="flex items-center justify-between py-2 px-3 rounded-md border">
+                <span className="text-sm font-medium">{doc.label}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => syncDocument(doc.key)}
+                  disabled={syncingDoc === doc.key}
+                  data-testid={`button-sync-${doc.key}`}
+                >
+                  {syncingDoc === doc.key ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Sync'
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {googleDocs.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <Label className="text-base">Synced Documents ({googleDocs.length})</Label>
+              <div className="grid gap-2 max-h-48 overflow-y-auto">
+                {googleDocs.slice(0, 10).map((doc) => (
+                  <a
+                    key={doc.documentId}
+                    href={`https://docs.google.com/document/d/${doc.documentId}/edit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between py-2 px-3 rounded-md border hover-elevate"
+                    data-testid={`link-doc-${doc.documentId}`}
+                  >
+                    <span className="text-sm truncate">{doc.title}</span>
+                    <Badge variant="secondary">Open</Badge>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SuperAdminPage() {
   const { toast } = useToast();
   const [newOrgName, setNewOrgName] = useState("");
@@ -1278,12 +1443,22 @@ export default function SuperAdminPage() {
                   </Link>
                 </div>
                 <Separator />
-                <div className="space-y-0.5">
-                  <Label className="text-base">Simulation Content</Label>
-                  <p className="text-sm text-muted-foreground">Weekly briefings, videos, and resources - coming soon</p>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Simulation Content</Label>
+                    <p className="text-sm text-muted-foreground">Manage weekly briefings, research reports, and decision scenarios</p>
+                  </div>
+                  <Link href="/admin/simulation-content">
+                    <Button variant="outline" data-testid="button-edit-simulation-content">
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit Content
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
+
+            <GoogleDocsSyncCard />
           </TabsContent>
 
           {/* Placeholder Simulation tab - will be expanded later */}
