@@ -415,6 +415,112 @@ A: Comprehensive activity logs, decision histories, and performance analytics - 
 
 ---
 
+## VERSION 3: Iowa/Midwest Manufacturing & Workforce Development
+
+### The Future of Work Simulation
+*Upskilling Iowa's Manufacturing Leaders for Industry 4.0*
+
+---
+
+### Program Overview
+
+The Future of Work is an immersive business simulation designed for Iowa manufacturers navigating AI adoption and workforce transformation. Over 8 weeks, supervisors and managers practice making strategic decisions about automation investment, workforce reskilling, and stakeholder management—before facing these challenges in real life.
+
+**Qualifies as a 260F Iowa Jobs Training Program expense.**
+
+---
+
+### Why This Matters for Iowa Manufacturing
+
+| Challenge | How FWA Addresses It |
+|-----------|---------------------|
+| $32B manufacturing GDP goal by 2026 | Prepares leaders for Industry 4.0 adoption |
+| Supervisors lack AI transition training | Builds decision-making skills through practice |
+| Worker anxiety about automation | Teaches communication and change management |
+| Multigenerational workforce dynamics | Simulates real stakeholder complexity |
+
+---
+
+### Iowa Manufacturing Module (Coming 2026)
+
+**Scenario: Prairie Precision Manufacturing**
+
+A custom Iowa-specific scenario featuring:
+- **340-employee family-owned ag equipment supplier** in fictional Millbrook, Iowa
+- **Rural community dynamics** and small-town employment stakes
+- **Local UAW chapter** negotiations and workforce transition
+- **260F and Manufacturing 4.0** grant integration as plot elements
+- **Midwest work culture** and multigenerational workforce challenges
+
+**8-Week Decision Journey:**
+1. Customer ultimatum (cost reduction demand)
+2. Automation investment decision
+3. Union negotiations
+4. Workforce transition planning
+5. Community response management
+6. Implementation resistance
+7. Crisis event
+8. Long-term strategy
+
+---
+
+### 260F Eligibility
+
+| Requirement | FWA Alignment |
+|-------------|---------------|
+| Enhances employee performance | Decision-making skills for technology transitions |
+| Delivered through community college | Platform licensed via CC business training division |
+| Clear cost documentation | Per-seat licensing with defined pricing |
+| Measurable outcomes | Built-in assessment, scoring, completion tracking |
+
+---
+
+### Pricing for Workforce Development
+
+| Cohort Size | Per-Seat Cost | Total Investment |
+|-------------|---------------|------------------|
+| 15-25 | $75-100 | $1,125 - $2,500 |
+| 25-50 | $60-75 | $1,500 - $3,750 |
+| 50+ | $45-60 | Contact for quote |
+
+**Consortium discount**: 15% off for multi-company, multi-district training programs per 260E/260F consortium provisions.
+
+---
+
+### Community College Partnership Model
+
+1. **Iowa Community College** serves as training provider/administrator
+2. **Future Work Academy** provides platform access and Iowa-specific content
+3. **Participating Manufacturers** enroll supervisors/managers as participants
+4. **260F Funding** covers platform licensing as qualified training expense
+
+---
+
+### Target Audiences
+
+| Audience | Use Case |
+|----------|----------|
+| Manufacturing supervisors/managers | 260F workforce development |
+| Community college business programs | Credit or non-credit courses |
+| Regional manufacturing associations | Multi-company cohorts |
+| Economic development professionals | Understanding manufacturer challenges |
+
+---
+
+### Contact for Iowa Partnerships
+
+**Doug Mitchell, Founder**  
+Future Work Academy  
+Email: doug@futureworkacademy.com  
+Web: futureworkacademy.com/academia
+
+**Additional Iowa Materials:**
+- [Iowa Grant Proposal Outline](./IOWA_GRANT_PROPOSAL_OUTLINE.md)
+- [Iowa Manufacturing Module Concept](./IOWA_MANUFACTURING_MODULE_CONCEPT.md)
+- [Iowa Community College One-Pager](./IOWA_COMMUNITY_COLLEGE_ONEPAGER.md)
+
+---
+
 ## Reusable Prompt for Future Marketing Content
 
 ```
@@ -470,6 +576,7 @@ LENGTH: [One-pager / Full brochure / Email pitch]
 | 1.1 | January 2026 | Added Sandbox Mode, content engagement, navigation improvements |
 | 1.2 | January 2026 | Added Character Profiles with AI headshots, Triggered Voicemails, Phone-a-Friend advisor system, multimedia content support |
 | 1.3 | January 2026 | Added Research-Backed Pedagogy section with academic citations, FERPA-Ready Platform callout |
+| 1.4 | January 2026 | Added VERSION 3: Iowa/Midwest Manufacturing & Workforce Development targeting, linked Iowa grant materials |
 
 ---
 

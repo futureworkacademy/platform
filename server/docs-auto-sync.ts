@@ -1,58 +1,10 @@
 // Auto-sync documentation to Google Docs
 // Watches the docs/ folder and syncs changes automatically
+// Now auto-discovers all .md files in docs/ directory
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { syncMarkdownToGoogleDoc, findOrCreateFolder } from './google-docs-service';
-import { storage } from './storage';
-
-// Document configuration
-const DOC_FILES: Record<string, { path: string; title: string }> = {
-  business_plan: {
-    path: 'docs/BUSINESS_PLAN.md',
-    title: 'Future Work Academy - Business Plan'
-  },
-  product_roadmap: {
-    path: 'docs/PRODUCT_ROADMAP.md',
-    title: 'Future Work Academy - Product Roadmap'
-  },
-  marketing_materials: {
-    path: 'docs/MARKETING_MATERIALS.md',
-    title: 'Future Work Academy - Marketing Materials'
-  },
-  appendix_diagrams: {
-    path: 'docs/APPENDIX_DIAGRAMS.md',
-    title: 'Future Work Academy - Visual Appendix'
-  },
-  ai_transparency: {
-    path: 'docs/AI_TRANSPARENCY.md',
-    title: 'Future Work Academy - AI Transparency & Prompt Documentation'
-  },
-  brand_standards: {
-    path: 'docs/BRAND_STANDARDS.md',
-    title: 'Future Work Academy - Brand Standards'
-  },
-  security_compliance: {
-    path: 'docs/SECURITY_COMPLIANCE.md',
-    title: 'Future Work Academy - Security & Compliance'
-  },
-  game_design: {
-    path: 'docs/GAME_DESIGN.md',
-    title: 'Future Work Academy - Game Design Document'
-  },
-  iowa_grant_proposal: {
-    path: 'docs/IOWA_GRANT_PROPOSAL_OUTLINE.md',
-    title: 'Future Work Academy - Iowa Grant Proposal Outline'
-  },
-  iowa_manufacturing_module: {
-    path: 'docs/IOWA_MANUFACTURING_MODULE_CONCEPT.md',
-    title: 'Future Work Academy - Iowa Manufacturing Module Concept'
-  },
-  iowa_community_college: {
-    path: 'docs/IOWA_COMMUNITY_COLLEGE_ONEPAGER.md',
-    title: 'Future Work Academy - Iowa Community College One-Pager'
-  }
-};
 
 // Debounce timers for each file
 const debounceTimers: Map<string, NodeJS.Timeout> = new Map();
@@ -61,52 +13,64 @@ const DEBOUNCE_DELAY = 3000; // 3 seconds
 // Track if sync is in progress to avoid overlapping syncs
 let syncInProgress = false;
 
-// Log sync activity to the activity log
-async function logSyncActivity(docTitle: string, success: boolean, error?: string): Promise<void> {
+// Convert filename to document title
+function filenameToTitle(filename: string): string {
+  // Remove .md extension
+  const name = filename.replace(/\.md$/i, '');
+  
+  // Convert SCREAMING_SNAKE_CASE to Title Case
+  const words = name.split('_').map(word => {
+    // Handle common abbreviations
+    const lowerWord = word.toLowerCase();
+    if (['ai', 'llm', 'api', 'ui', 'ux', 'sso', 'soc', 'esg', 'faq'].includes(lowerWord)) {
+      return word.toUpperCase();
+    }
+    // Regular title case
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+  
+  return `Future Work Academy - ${words.join(' ')}`;
+}
+
+// Discover all markdown files in docs/ directory
+function discoverDocFiles(): { key: string; path: string; title: string }[] {
+  const docsDir = path.join(process.cwd(), 'docs');
+  
+  if (!fs.existsSync(docsDir)) {
+    return [];
+  }
+  
   try {
-    await storage.logActivity({
-      eventType: success ? 'google_docs_sync_success' : 'google_docs_sync_failure',
-      userId: 'system',
-      details: {
-        documentTitle: docTitle,
-        success,
-        error: error || null,
-        syncType: 'auto-sync'
-      }
-    });
-  } catch (logError: any) {
-    console.error(`[Auto-Sync] Failed to log activity:`, logError.message);
+    const files = fs.readdirSync(docsDir);
+    return files
+      .filter(file => file.endsWith('.md'))
+      .map(file => ({
+        key: file.replace(/\.md$/i, '').toLowerCase(),
+        path: `docs/${file}`,
+        title: filenameToTitle(file)
+      }));
+  } catch (error: any) {
+    console.error('[Auto-Sync] Error discovering doc files:', error.message);
+    return [];
   }
 }
 
-// Sync a single document
-async function syncDocument(docKey: string): Promise<{ success: boolean; title: string; error?: string }> {
-  const doc = DOC_FILES[docKey];
-  if (!doc) {
-    return { success: false, title: docKey, error: 'Unknown document type' };
-  }
-
-  const filePath = path.join(process.cwd(), doc.path);
+// Sync a single document by file path
+async function syncDocumentByPath(filePath: string, title: string): Promise<{ success: boolean; title: string; error?: string }> {
+  const fullPath = path.join(process.cwd(), filePath);
   
   try {
-    if (!fs.existsSync(filePath)) {
-      return { success: false, title: doc.title, error: 'File not found' };
+    if (!fs.existsSync(fullPath)) {
+      return { success: false, title, error: 'File not found' };
     }
 
-    const content = fs.readFileSync(filePath, 'utf-8');
-    await syncMarkdownToGoogleDoc(doc.title, content);
+    const content = fs.readFileSync(fullPath, 'utf-8');
+    await syncMarkdownToGoogleDoc(title, content);
     
-    // Log successful sync
-    await logSyncActivity(doc.title, true);
-    
-    return { success: true, title: doc.title };
+    return { success: true, title };
   } catch (error: any) {
-    console.error(`[Auto-Sync] Failed to sync ${doc.title}:`, error.message);
-    
-    // Log failed sync
-    await logSyncActivity(doc.title, false, error.message);
-    
-    return { success: false, title: doc.title, error: error.message };
+    console.error(`[Auto-Sync] Failed to sync ${title}:`, error.message);
+    return { success: false, title, error: error.message };
   }
 }
 
@@ -127,8 +91,11 @@ export async function syncAllDocuments(): Promise<{ synced: string[]; failed: st
     // Ensure folder exists first
     await findOrCreateFolder();
 
-    for (const [key, doc] of Object.entries(DOC_FILES)) {
-      const result = await syncDocument(key);
+    // Discover all docs dynamically
+    const docs = discoverDocFiles();
+    
+    for (const doc of docs) {
+      const result = await syncDocumentByPath(doc.path, doc.title);
       if (result.success) {
         synced.push(result.title);
       } else {
@@ -148,16 +115,13 @@ export async function syncAllDocuments(): Promise<{ synced: string[]; failed: st
 
 // Handle file change with debouncing
 function handleFileChange(filename: string) {
-  // Find which doc this file belongs to
-  const docEntry = Object.entries(DOC_FILES).find(([_, doc]) => 
-    doc.path.endsWith(filename) || filename.endsWith(path.basename(doc.path))
-  );
-
-  if (!docEntry) {
-    return; // Not a tracked file
+  if (!filename.endsWith('.md')) {
+    return;
   }
 
-  const [docKey, doc] = docEntry;
+  const filePath = `docs/${filename}`;
+  const title = filenameToTitle(filename);
+  const docKey = filename.replace(/\.md$/i, '').toLowerCase();
 
   // Clear existing timer for this file
   const existingTimer = debounceTimers.get(docKey);
@@ -171,14 +135,14 @@ function handleFileChange(filename: string) {
     debounceTimers.delete(docKey);
     
     try {
-      const result = await syncDocument(docKey);
+      const result = await syncDocumentByPath(filePath, title);
       if (result.success) {
         console.log(`[Auto-Sync] Successfully synced: ${result.title}`);
       } else {
         console.error(`[Auto-Sync] Failed to sync ${result.title}: ${result.error}`);
       }
     } catch (error: any) {
-      console.error(`[Auto-Sync] Error syncing ${doc.title}:`, error.message);
+      console.error(`[Auto-Sync] Error syncing ${title}:`, error.message);
     }
   }, DEBOUNCE_DELAY);
 
@@ -245,5 +209,11 @@ export async function initializeDocsAutoSync(): Promise<void> {
   }
 }
 
-// Export doc files config for use in routes
-export { DOC_FILES };
+// Export discovered doc files for use in routes (for backward compatibility)
+export function getDocFiles(): Record<string, { path: string; title: string }> {
+  const docs = discoverDocFiles();
+  return docs.reduce((acc, doc) => {
+    acc[doc.key] = { path: doc.path, title: doc.title };
+    return acc;
+  }, {} as Record<string, { path: string; title: string }>);
+}
