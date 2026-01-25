@@ -1949,6 +1949,155 @@ export class MemStorage implements IStorage {
       throw error;
     }
   }
+
+  // Simulation Modules CRUD
+  async getSimulationModules(): Promise<any[]> {
+    const { db } = await import("./db");
+    const { simulationModules } = await import("@shared/models/auth");
+    
+    const modules = await db.select().from(simulationModules);
+    return modules;
+  }
+
+  async getSimulationModule(id: string): Promise<any | null> {
+    const { db } = await import("./db");
+    const { simulationModules } = await import("@shared/models/auth");
+    
+    const [module] = await db.select().from(simulationModules).where(eq(simulationModules.id, id));
+    return module || null;
+  }
+
+  async createSimulationModule(data: { name: string; description?: string; slug: string; isDefault?: boolean; isActive?: boolean }): Promise<any> {
+    const { db } = await import("./db");
+    const { simulationModules } = await import("@shared/models/auth");
+    
+    const [module] = await db.insert(simulationModules).values({
+      name: data.name,
+      description: data.description || null,
+      slug: data.slug,
+      isDefault: data.isDefault ?? false,
+      isActive: data.isActive ?? true,
+    }).returning();
+    
+    return module;
+  }
+
+  async updateSimulationModule(id: string, data: Partial<{ name: string; description?: string; slug: string; isDefault?: boolean; isActive?: boolean }>): Promise<any | null> {
+    const { db } = await import("./db");
+    const { simulationModules } = await import("@shared/models/auth");
+    
+    const [module] = await db.update(simulationModules)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(simulationModules.id, id))
+      .returning();
+    
+    return module || null;
+  }
+
+  async deleteSimulationModule(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { simulationModules, simulationContent } = await import("@shared/models/auth");
+    
+    // First delete all content for this module
+    await db.delete(simulationContent).where(eq(simulationContent.moduleId, id));
+    // Then delete the module
+    const result = await db.delete(simulationModules).where(eq(simulationModules.id, id));
+    return true;
+  }
+
+  // Simulation Content CRUD
+  async getSimulationContent(moduleId: string, weekNumber?: number): Promise<any[]> {
+    const { db } = await import("./db");
+    const { simulationContent } = await import("@shared/models/auth");
+    const { and, asc } = await import("drizzle-orm");
+    
+    let query;
+    if (weekNumber !== undefined) {
+      query = await db.select().from(simulationContent)
+        .where(and(
+          eq(simulationContent.moduleId, moduleId),
+          eq(simulationContent.weekNumber, weekNumber)
+        ))
+        .orderBy(asc(simulationContent.order));
+    } else {
+      query = await db.select().from(simulationContent)
+        .where(eq(simulationContent.moduleId, moduleId))
+        .orderBy(asc(simulationContent.weekNumber), asc(simulationContent.order));
+    }
+    
+    return query;
+  }
+
+  async getSimulationContentItem(id: string): Promise<any | null> {
+    const { db } = await import("./db");
+    const { simulationContent } = await import("@shared/models/auth");
+    
+    const [item] = await db.select().from(simulationContent).where(eq(simulationContent.id, id));
+    return item || null;
+  }
+
+  async createSimulationContent(data: {
+    moduleId: string;
+    weekNumber: number;
+    title: string;
+    contentType: string;
+    content?: string;
+    embedUrl?: string;
+    resourceUrl?: string;
+    thumbnailUrl?: string;
+    order?: number;
+    isActive?: boolean;
+    createdBy?: string;
+  }): Promise<any> {
+    const { db } = await import("./db");
+    const { simulationContent } = await import("@shared/models/auth");
+    
+    const [item] = await db.insert(simulationContent).values({
+      moduleId: data.moduleId,
+      weekNumber: data.weekNumber,
+      title: data.title,
+      contentType: data.contentType,
+      content: data.content || null,
+      embedUrl: data.embedUrl || null,
+      resourceUrl: data.resourceUrl || null,
+      thumbnailUrl: data.thumbnailUrl || null,
+      order: data.order ?? 0,
+      isActive: data.isActive ?? true,
+      createdBy: data.createdBy || null,
+    }).returning();
+    
+    return item;
+  }
+
+  async updateSimulationContent(id: string, data: Partial<{
+    title: string;
+    contentType: string;
+    content?: string;
+    embedUrl?: string;
+    resourceUrl?: string;
+    thumbnailUrl?: string;
+    order?: number;
+    isActive?: boolean;
+    updatedBy?: string;
+  }>): Promise<any | null> {
+    const { db } = await import("./db");
+    const { simulationContent } = await import("@shared/models/auth");
+    
+    const [item] = await db.update(simulationContent)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(simulationContent.id, id))
+      .returning();
+    
+    return item || null;
+  }
+
+  async deleteSimulationContent(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { simulationContent } = await import("@shared/models/auth");
+    
+    await db.delete(simulationContent).where(eq(simulationContent.id, id));
+    return true;
+  }
 }
 
 export const storage = new MemStorage();

@@ -32,6 +32,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Platform Settings (Super Admin):** Configurable enrollment requirements, competition modes, scoring weights, and bonus settings.
 - **Sandbox Mode (Instructor Preview):** Class Admins can test the full student experience without affecting real student data.
 - **Multi-Scenario Module Support:** Utilizes simulationModules and simulationContent tables for diverse themes.
+- **Simulation Content Editor:** Admin interface at `/admin/simulation-content` for managing weekly briefings, research reports, and decision scenarios with AI-powered enhancement using OpenAI (improve clarity, expand details, simplify, add data points, generate scenarios).
 - **Unified People API:** Merges users, organization memberships, and team assignments.
 - **Week Results and Feedback System:** Displays detailed performance feedback, LLM-evaluated essay scores with rubric, and top answers.
 

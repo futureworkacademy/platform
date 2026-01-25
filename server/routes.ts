@@ -16,6 +16,12 @@ import { sendSmsNotification, isTwilioConfigured } from "./twilio-service";
 import { sendInvitationEmail } from "./services/email";
 import sanitizeHtml from "sanitize-html";
 
+function isAdminUser(user: { isAdmin?: string | boolean | null } | null | undefined): boolean {
+  if (!user) return false;
+  const adminValue = user.isAdmin;
+  return adminValue === true || adminValue === "true" || adminValue === "super_admin";
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -48,7 +54,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -63,7 +69,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -97,7 +103,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -112,7 +118,7 @@ export async function registerRoutes(
     try {
       const adminUserId = req.user?.claims?.sub;
       const adminUser = await authStorage.getUser(adminUserId);
-      if (adminUser?.isAdmin !== "true") {
+      if (!isAdminUser(adminUser)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -150,7 +156,7 @@ export async function registerRoutes(
     try {
       const adminUserId = req.user?.claims?.sub;
       const adminUser = await authStorage.getUser(adminUserId);
-      if (adminUser?.isAdmin !== "true") {
+      if (!isAdminUser(adminUser)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -633,7 +639,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -648,7 +654,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -714,7 +720,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -729,7 +735,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -747,7 +753,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -763,7 +769,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -785,7 +791,7 @@ export async function registerRoutes(
     try {
       const userId = req.user?.claims?.sub;
       const user = await authStorage.getUser(userId);
-      if (user?.isAdmin !== "true") {
+      if (!isAdminUser(user)) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -800,6 +806,236 @@ export async function registerRoutes(
       res.send(content);
     } catch (error) {
       res.status(500).json({ error: "Failed to export activity logs" });
+    }
+  });
+
+  // ===== Simulation Modules CRUD =====
+  const simulationModuleSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    description: z.string().optional(),
+    slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens only"),
+    isDefault: z.boolean().optional(),
+    isActive: z.boolean().optional(),
+  });
+
+  const simulationContentSchema = z.object({
+    moduleId: z.string().min(1, "Module ID is required"),
+    weekNumber: z.number().int().min(1).max(12),
+    title: z.string().min(1, "Title is required"),
+    contentType: z.enum(["text", "video", "google_doc", "link"]),
+    content: z.string().optional(),
+    embedUrl: z.string().optional(),
+    resourceUrl: z.string().optional(),
+    thumbnailUrl: z.string().optional(),
+    order: z.number().int().optional(),
+    isActive: z.boolean().optional(),
+  });
+
+  const contentEnhancementSchema = z.object({
+    content: z.string().min(1).max(50000, "Content too long (max 50000 characters)"),
+    enhancementType: z.enum(["improve_clarity", "expand_detail", "simplify", "add_data", "generate_scenario"]),
+    context: z.string().max(2000).optional(),
+  });
+
+  app.get("/api/admin/simulation-modules", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const modules = await storage.getSimulationModules();
+      res.json(modules);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch simulation modules" });
+    }
+  });
+
+  app.post("/api/admin/simulation-modules", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const parsed = simulationModuleSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid module data", details: parsed.error.errors });
+      }
+      const module = await storage.createSimulationModule(parsed.data);
+      res.json(module);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create simulation module" });
+    }
+  });
+
+  app.put("/api/admin/simulation-modules/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const parsed = simulationModuleSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid module data", details: parsed.error.errors });
+      }
+      const module = await storage.updateSimulationModule(req.params.id, parsed.data);
+      if (!module) {
+        return res.status(404).json({ error: "Module not found" });
+      }
+      res.json(module);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update simulation module" });
+    }
+  });
+
+  app.delete("/api/admin/simulation-modules/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      await storage.deleteSimulationModule(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete simulation module" });
+    }
+  });
+
+  // ===== Simulation Content CRUD =====
+  app.get("/api/admin/simulation-content/:moduleId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const weekNumber = req.query.week ? parseInt(req.query.week as string) : undefined;
+      const content = await storage.getSimulationContent(req.params.moduleId, weekNumber);
+      res.json(content);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch simulation content" });
+    }
+  });
+
+  app.post("/api/admin/simulation-content", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const parsed = simulationContentSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid content data", details: parsed.error.errors });
+      }
+      const item = await storage.createSimulationContent({
+        ...parsed.data,
+        createdBy: userId,
+      });
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create simulation content" });
+    }
+  });
+
+  app.put("/api/admin/simulation-content/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const parsed = simulationContentSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid content data", details: parsed.error.errors });
+      }
+      const item = await storage.updateSimulationContent(req.params.id, {
+        ...parsed.data,
+        updatedBy: userId,
+      });
+      if (!item) {
+        return res.status(404).json({ error: "Content not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update simulation content" });
+    }
+  });
+
+  app.delete("/api/admin/simulation-content/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      await storage.deleteSimulationContent(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete simulation content" });
+    }
+  });
+
+  // ===== AI Content Enhancement =====
+  app.post("/api/admin/simulation-content/enhance", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const parsed = contentEnhancementSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid enhancement request", details: parsed.error.errors });
+      }
+      
+      const { content, enhancementType, context } = parsed.data;
+      
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI();
+      
+      let systemPrompt = "";
+      switch (enhancementType) {
+        case "improve_clarity":
+          systemPrompt = "You are a professional business writing editor. Improve the clarity, readability, and professionalism of the following content while maintaining its core meaning. Make it more engaging for graduate business students.";
+          break;
+        case "expand_detail":
+          systemPrompt = "You are a business simulation content expert. Expand the following content with more relevant details, examples, and context to make it more comprehensive and educational for graduate business students studying AI adoption and workforce transformation.";
+          break;
+        case "simplify":
+          systemPrompt = "You are a clear communication specialist. Simplify the following content to make it more accessible while retaining all key business concepts. Target audience is graduate business students.";
+          break;
+        case "add_data":
+          systemPrompt = "You are a business research analyst. Enhance the following content by adding relevant statistics, research findings, or industry data points that support the narrative. Use realistic-sounding data for simulation purposes.";
+          break;
+        case "generate_scenario":
+          systemPrompt = "You are a business simulation designer. Based on the context provided, generate a compelling decision scenario for a business simulation about AI adoption and workforce transformation. Include clear options with trade-offs.";
+          break;
+      }
+      
+      if (context) {
+        systemPrompt += ` Additional context: ${context}`;
+      }
+      
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: content }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      });
+      
+      const enhancedContent = completion.choices[0]?.message?.content || content;
+      res.json({ enhancedContent, usage: completion.usage });
+    } catch (error) {
+      console.error("AI enhancement error:", error);
+      res.status(500).json({ error: "Failed to enhance content" });
     }
   });
 

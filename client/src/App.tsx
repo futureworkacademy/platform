@@ -26,6 +26,7 @@ import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
+import SimulationContentEditor from "@/pages/simulation-content-editor";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -220,6 +221,11 @@ function AppRouter() {
     return <SuperAdminPage />;
   }
 
+  // Simulation Content Editor - role checked internally
+  if (location === "/admin/simulation-content") {
+    return <SimulationContentEditor />;
+  }
+
   // Educator Inquiries page - role checked internally
   if (location === "/educator-inquiries") {
     return <EducatorInquiries />;
@@ -266,7 +272,7 @@ function AppRouter() {
   
   // IMPORTANT: If admin is in sandbox mode, allow them to access student pages
   if (isAdminUser && !isInSandboxMode) {
-    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin')) {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
   }

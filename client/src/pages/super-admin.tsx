@@ -28,7 +28,8 @@ import {
   UserX,
   UserMinus,
   UsersRound,
-  Trash2
+  Trash2,
+  FileText
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
@@ -1660,6 +1661,21 @@ export default function SuperAdminPage() {
                       ) : (
                         <p className="text-sm text-muted-foreground py-4 text-center">No email templates found</p>
                       )}
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Simulation Content Editor</Label>
+                        <p className="text-sm text-muted-foreground">Manage weekly briefings, research reports, and decision scenarios with AI assistance</p>
+                      </div>
+                      <Link href="/admin/simulation-content">
+                        <Button variant="outline" data-testid="button-edit-simulation-content">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Edit Simulation Content
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
