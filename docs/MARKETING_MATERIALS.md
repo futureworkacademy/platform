@@ -36,6 +36,16 @@ An 8-week immersive business simulation where students step into the role of exe
 
 - **Post-Week Feedback & Peer Learning**: Detailed performance analysis, rubric scores, and anonymized top responses after each decision cycle
 
+- **Interactive Industry Intelligence**: Clickable briefing articles with full content, key insights, and downloadable summaries - students can dive deep into optional research materials
+
+- **Intel Engagement Bonus**: Students who read Industry Intelligence articles receive score bonuses (up to 1.5x multiplier), rewarding thorough research habits
+
+- **Seamless Navigation**: Breadcrumb navigation across Research, Briefing, and Decisions pages helps students move intuitively through the weekly workflow
+
+- **Content Engagement Tracking**: Cross-session persistence tracks which materials students have viewed, providing instructors with engagement analytics
+
+- **Google Docs Integration**: Business documentation syncs automatically to Google Docs for easy sharing with stakeholders
+
 ---
 
 ### The Weekly Workflow
@@ -142,6 +152,14 @@ A multi-scenario simulation platform where students take on leadership roles, ma
 - **Multi-Channel Notifications**: SMS alerts for real-time enrollment updates, plus automated emails for invitations, reminders, and weekly results
 
 - **Scalable Enrollment**: Bulk CSV import for up to 500 students with automatic email invitations
+
+- **Interactive Research Materials**: Students click into detailed intelligence articles with key insights and downloadable summaries
+
+- **Engagement-Based Scoring**: Students who explore optional research materials earn score bonuses, encouraging deep learning
+
+- **Intuitive Navigation**: Breadcrumb navigation helps students move seamlessly through weekly content
+
+- **Content Analytics**: Track which materials students engage with across sessions
 
 ---
 

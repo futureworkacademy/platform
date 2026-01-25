@@ -1,6 +1,6 @@
 # Future Work Academy - Product Roadmap
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** January 2026
 
 ---
@@ -11,7 +11,7 @@ Future Work Academy will become the leading platform for AI-powered business sim
 
 ---
 
-## Current Capabilities (v1.0) - January 2026
+## Current Capabilities (v1.1) - January 2026
 
 ### Core Simulation Engine
 - 8-week immersive business simulation with weekly decision cycles
@@ -129,6 +129,25 @@ Future Work Academy will become the leading platform for AI-powered business sim
 - Instructor benchmarking tools
 
 **Target Completion:** Q3 2026
+
+---
+
+### Content Engagement Enhancements
+
+**Planned Features:**
+- Enhanced easter egg-to-article matching (map specific research references to source articles)
+- Content-reference analytics (track which intel articles lead to higher-quality responses)
+- Reading time estimates for briefings and research materials
+- Engagement heatmaps showing popular content sections
+- Correlation analysis between content viewed and decision quality
+
+**Current Capability (v1.1):**
+- Content view tracking with cross-session persistence
+- Intel engagement bonus (up to 1.5x multiplier for viewing articles)
+- Interactive article dialogs with key insights
+- Breadcrumb navigation across simulation pages
+
+**Target Completion:** Q2 2026
 
 ---
 
@@ -262,6 +281,7 @@ This roadmap is a living document informed by:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | January 2026 | Initial roadmap document |
+| 1.1 | January 2026 | Added Content Engagement Enhancements section, updated current capabilities |
 
 ---
 

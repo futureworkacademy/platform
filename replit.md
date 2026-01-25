@@ -69,3 +69,38 @@ These documents can be synced to Google Docs via the Super Admin dashboard or AP
 - `POST /api/docs/sync` - Sync a specific document (body: `{ documentType: 'business_plan' | 'product_roadmap' | 'marketing_materials' | 'solution_doc' }`)
 - `POST /api/docs/sync-all` - Sync all documents to Google Docs
 - `GET /api/docs/list` - List all Google Docs in connected account
+
+---
+
+## Documentation Update Checklist
+
+**Purpose:** Ensure all documentation stays current when features are added or changed.
+
+### After Implementing Any New Feature:
+
+1. **Update replit.md**
+   - Add feature to "Technical Implementations" section
+   - Note any new external dependencies
+   - Document any new API endpoints
+
+2. **Update Marketing Materials** (`docs/MARKETING_MATERIALS.md`)
+   - Add user-facing feature description to "Key Highlights" (Version 1)
+   - Add to "Platform Highlights" (Version 2 - Generic Academia)
+   - Update FAQs if the feature affects common questions
+
+3. **Update Product Roadmap** (`docs/PRODUCT_ROADMAP.md`)
+   - Move from "Planned" to "Current Capabilities" if applicable
+   - Add future enhancements to appropriate roadmap section
+   - Update version history
+
+4. **Update Business Plan** (`docs/BUSINESS_PLAN.md`)
+   - Only if feature affects pricing, costs, or market positioning
+
+### Suggested Review Cadence:
+- **Weekly:** Quick review of replit.md accuracy
+- **Monthly:** Full documentation review across all docs
+- **Before Major Releases:** Complete sync of all documentation
+
+### Recently Added Features (Pending Full Documentation)
+*Move items to main docs after review:*
+- (empty - all caught up as of January 2026)
