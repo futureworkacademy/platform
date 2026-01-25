@@ -2323,6 +2323,256 @@ export class MemStorage implements IStorage {
     await db.delete(simulationContent).where(eq(simulationContent.id, id));
     return true;
   }
+
+  // Character Profiles CRUD
+  async getCharacterProfiles(moduleId?: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { characterProfiles } = await import("@shared/models/auth");
+    const { asc } = await import("drizzle-orm");
+    
+    if (moduleId) {
+      const { or, isNull } = await import("drizzle-orm");
+      return db.select().from(characterProfiles)
+        .where(or(eq(characterProfiles.moduleId, moduleId), isNull(characterProfiles.moduleId)))
+        .orderBy(asc(characterProfiles.sortOrder));
+    }
+    return db.select().from(characterProfiles).orderBy(asc(characterProfiles.sortOrder));
+  }
+
+  async getCharacterProfile(id: string): Promise<any | null> {
+    const { db } = await import("./db");
+    const { characterProfiles } = await import("@shared/models/auth");
+    
+    const [profile] = await db.select().from(characterProfiles).where(eq(characterProfiles.id, id));
+    return profile || null;
+  }
+
+  async createCharacterProfile(data: {
+    moduleId?: string;
+    name: string;
+    role: string;
+    title?: string;
+    company?: string;
+    headshotUrl?: string;
+    headshotPrompt?: string;
+    bio?: string;
+    personality?: string;
+    communicationStyle?: string;
+    motivations?: string;
+    fears?: string;
+    relationships?: any[];
+    voiceDescription?: string;
+    voiceId?: string;
+    speakingStyleExamples?: string[];
+    isActive?: boolean;
+    sortOrder?: number;
+    createdBy?: string;
+  }): Promise<any> {
+    const { db } = await import("./db");
+    const { characterProfiles } = await import("@shared/models/auth");
+    
+    const [profile] = await db.insert(characterProfiles).values({
+      moduleId: data.moduleId || null,
+      name: data.name,
+      role: data.role,
+      title: data.title || null,
+      company: data.company || null,
+      headshotUrl: data.headshotUrl || null,
+      headshotPrompt: data.headshotPrompt || null,
+      bio: data.bio || null,
+      personality: data.personality || null,
+      communicationStyle: data.communicationStyle || null,
+      motivations: data.motivations || null,
+      fears: data.fears || null,
+      relationships: data.relationships || null,
+      voiceDescription: data.voiceDescription || null,
+      voiceId: data.voiceId || null,
+      speakingStyleExamples: data.speakingStyleExamples || null,
+      isActive: data.isActive ?? true,
+      sortOrder: data.sortOrder ?? 0,
+      createdBy: data.createdBy || null,
+    }).returning();
+    
+    return profile;
+  }
+
+  async updateCharacterProfile(id: string, data: Partial<{
+    moduleId?: string;
+    name?: string;
+    role?: string;
+    title?: string;
+    company?: string;
+    headshotUrl?: string;
+    headshotPrompt?: string;
+    bio?: string;
+    personality?: string;
+    communicationStyle?: string;
+    motivations?: string;
+    fears?: string;
+    relationships?: any[];
+    voiceDescription?: string;
+    voiceId?: string;
+    speakingStyleExamples?: string[];
+    isActive?: boolean;
+    sortOrder?: number;
+  }>): Promise<any | null> {
+    const { db } = await import("./db");
+    const { characterProfiles } = await import("@shared/models/auth");
+    
+    const [profile] = await db.update(characterProfiles)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(characterProfiles.id, id))
+      .returning();
+    
+    return profile || null;
+  }
+
+  async deleteCharacterProfile(id: string): Promise<boolean> {
+    const { db } = await import("./db");
+    const { characterProfiles } = await import("@shared/models/auth");
+    
+    await db.delete(characterProfiles).where(eq(characterProfiles.id, id));
+    return true;
+  }
+
+  // Phone-a-Friend Advisors CRUD
+  async getPhoneAFriendAdvisors(moduleId?: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { phoneAFriendAdvisors, characterProfiles } = await import("@shared/models/auth");
+    const { asc } = await import("drizzle-orm");
+    
+    if (moduleId) {
+      const { or, isNull } = await import("drizzle-orm");
+      return db.select({
+        advisor: phoneAFriendAdvisors,
+        character: characterProfiles
+      })
+        .from(phoneAFriendAdvisors)
+        .leftJoin(characterProfiles, eq(phoneAFriendAdvisors.characterId, characterProfiles.id))
+        .where(or(eq(phoneAFriendAdvisors.moduleId, moduleId), isNull(phoneAFriendAdvisors.moduleId)))
+        .orderBy(asc(phoneAFriendAdvisors.sortOrder));
+    }
+    return db.select({
+      advisor: phoneAFriendAdvisors,
+      character: characterProfiles
+    })
+      .from(phoneAFriendAdvisors)
+      .leftJoin(characterProfiles, eq(phoneAFriendAdvisors.characterId, characterProfiles.id))
+      .orderBy(asc(phoneAFriendAdvisors.sortOrder));
+  }
+
+  async getPhoneAFriendUsageCount(userId: string, simulationId: string): Promise<number> {
+    const { db } = await import("./db");
+    const { phoneAFriendUsage } = await import("@shared/models/auth");
+    const { and, count } = await import("drizzle-orm");
+    
+    const [result] = await db.select({ count: count() })
+      .from(phoneAFriendUsage)
+      .where(and(
+        eq(phoneAFriendUsage.userId, userId),
+        eq(phoneAFriendUsage.simulationId, simulationId)
+      ));
+    
+    return result?.count || 0;
+  }
+
+  async createPhoneAFriendUsage(data: {
+    userId: string;
+    teamId?: string;
+    simulationId: string;
+    advisorId: string;
+    weekNumber: number;
+    question: string;
+    context?: string;
+    advice: string;
+  }): Promise<any> {
+    const { db } = await import("./db");
+    const { phoneAFriendUsage } = await import("@shared/models/auth");
+    
+    const [usage] = await db.insert(phoneAFriendUsage).values({
+      userId: data.userId,
+      teamId: data.teamId || null,
+      simulationId: data.simulationId,
+      advisorId: data.advisorId,
+      weekNumber: data.weekNumber,
+      question: data.question,
+      context: data.context || null,
+      advice: data.advice,
+    }).returning();
+    
+    return usage;
+  }
+
+  // Triggered Voicemails CRUD
+  async getTriggeredVoicemails(moduleId: string, weekNumber?: number): Promise<any[]> {
+    const { db } = await import("./db");
+    const { triggeredVoicemails, characterProfiles } = await import("@shared/models/auth");
+    const { and, or, isNull } = await import("drizzle-orm");
+    
+    let condition = eq(triggeredVoicemails.moduleId, moduleId);
+    if (weekNumber !== undefined) {
+      condition = and(
+        condition,
+        or(eq(triggeredVoicemails.weekNumber, weekNumber), isNull(triggeredVoicemails.weekNumber))
+      ) as any;
+    }
+    
+    return db.select({
+      voicemail: triggeredVoicemails,
+      character: characterProfiles
+    })
+      .from(triggeredVoicemails)
+      .leftJoin(characterProfiles, eq(triggeredVoicemails.characterId, characterProfiles.id))
+      .where(condition);
+  }
+
+  async getVoicemailDeliveries(userId: string): Promise<any[]> {
+    const { db } = await import("./db");
+    const { voicemailDeliveries, triggeredVoicemails, characterProfiles } = await import("@shared/models/auth");
+    const { desc } = await import("drizzle-orm");
+    
+    return db.select({
+      delivery: voicemailDeliveries,
+      voicemail: triggeredVoicemails,
+      character: characterProfiles
+    })
+      .from(voicemailDeliveries)
+      .leftJoin(triggeredVoicemails, eq(voicemailDeliveries.voicemailId, triggeredVoicemails.id))
+      .leftJoin(characterProfiles, eq(triggeredVoicemails.characterId, characterProfiles.id))
+      .where(eq(voicemailDeliveries.userId, userId))
+      .orderBy(desc(voicemailDeliveries.deliveredAt));
+  }
+
+  async createVoicemailDelivery(data: {
+    userId: string;
+    voicemailId: string;
+  }): Promise<any> {
+    const { db } = await import("./db");
+    const { voicemailDeliveries } = await import("@shared/models/auth");
+    
+    const [delivery] = await db.insert(voicemailDeliveries).values({
+      userId: data.userId,
+      voicemailId: data.voicemailId,
+    }).returning();
+    
+    return delivery;
+  }
+
+  async updateVoicemailDelivery(id: string, data: Partial<{
+    viewedAt?: Date;
+    dismissedAt?: Date;
+    listenedFully?: boolean;
+  }>): Promise<any | null> {
+    const { db } = await import("./db");
+    const { voicemailDeliveries } = await import("@shared/models/auth");
+    
+    const [delivery] = await db.update(voicemailDeliveries)
+      .set(data)
+      .where(eq(voicemailDeliveries.id, id))
+      .returning();
+    
+    return delivery || null;
+  }
 }
 
 export const storage = new MemStorage();

@@ -873,6 +873,179 @@ export const contentViewProgressSchema = z.object({
 });
 export type ContentViewProgress = z.infer<typeof contentViewProgressSchema>;
 
+// Character Profile schema - AI-generated personas for immersive simulation
+export const characterProfileSchema = z.object({
+  id: z.string(),
+  moduleId: z.string().nullable(), // null = global character, otherwise module-specific
+  name: z.string(),
+  role: z.string(), // e.g., "CEO", "Union Leader", "HR Director"
+  title: z.string().nullable(), // e.g., "Chief Executive Officer"
+  company: z.string().nullable(), // e.g., "Apex Manufacturing"
+  // AI-generated headshot stored in object storage
+  headshotUrl: z.string().nullable(),
+  headshotPrompt: z.string().nullable(), // Prompt used to generate the headshot
+  // Rich bio and personality
+  bio: z.string().nullable(), // Full backstory
+  personality: z.string().nullable(), // Personality traits description
+  communicationStyle: z.string().nullable(), // How they speak/write
+  motivations: z.string().nullable(), // What drives them
+  fears: z.string().nullable(), // What concerns them
+  // Relationships with other characters
+  relationships: z.array(z.object({
+    characterId: z.string(),
+    relationshipType: z.string(), // e.g., "reports to", "rival", "ally"
+    description: z.string().nullable(),
+  })).nullable(),
+  // Voice/audio settings for triggered voicemails
+  voiceDescription: z.string().nullable(), // Description for AI voice synthesis
+  voiceId: z.string().nullable(), // External voice ID if using voice synthesis
+  // Content generation prompts
+  speakingStyleExamples: z.array(z.string()).nullable(), // Example quotes for AI reference
+  // Metadata
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().default(0),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+  createdBy: z.string().nullable(),
+});
+export type CharacterProfile = z.infer<typeof characterProfileSchema>;
+
+export const insertCharacterProfileSchema = characterProfileSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertCharacterProfile = z.infer<typeof insertCharacterProfileSchema>;
+
+// Triggered Voicemail schema - immersive notifications from characters
+export const triggeredVoicemailSchema = z.object({
+  id: z.string(),
+  moduleId: z.string(),
+  characterId: z.string(), // Which character sends this voicemail
+  weekNumber: z.number().nullable(), // null = any week
+  title: z.string(),
+  // Trigger conditions
+  triggerType: z.enum([
+    "time_window", // Appears during specific time
+    "decision_made", // After submitting a decision
+    "content_viewed", // After viewing specific content
+    "week_started", // When a new week begins
+    "score_threshold", // When score hits threshold
+    "random", // Random chance each session
+  ]),
+  triggerCondition: z.object({
+    // For time_window
+    startHour: z.number().optional(),
+    endHour: z.number().optional(),
+    daysOfWeek: z.array(z.number()).optional(), // 0-6 for Sun-Sat
+    // For decision_made
+    decisionId: z.string().optional(),
+    // For content_viewed
+    contentId: z.string().optional(),
+    // For score_threshold
+    scoreType: z.enum(["financial", "cultural", "overall"]).optional(),
+    threshold: z.number().optional(),
+    comparison: z.enum(["above", "below"]).optional(),
+    // For random
+    probability: z.number().optional(), // 0-1
+  }).nullable(),
+  // Content
+  audioUrl: z.string().nullable(), // Pre-recorded or AI-generated audio
+  transcript: z.string(), // Text transcript for accessibility
+  duration: z.number().nullable(), // Duration in seconds
+  // Display settings
+  urgency: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+  expiresAfterMinutes: z.number().nullable(), // How long before voicemail dismisses
+  // Metadata
+  isActive: z.boolean().default(true),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type TriggeredVoicemail = z.infer<typeof triggeredVoicemailSchema>;
+
+export const insertTriggeredVoicemailSchema = triggeredVoicemailSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertTriggeredVoicemail = z.infer<typeof insertTriggeredVoicemailSchema>;
+
+// Phone-a-Friend Advisor schema - specialized advisors students can consult
+export const phoneAFriendAdvisorSchema = z.object({
+  id: z.string(),
+  characterId: z.string(), // Links to character profile
+  moduleId: z.string().nullable(), // null = available in all modules
+  specialty: z.enum([
+    "finance", // CFO type - financial strategy
+    "hr", // CHRO type - workforce/culture
+    "operations", // COO type - efficiency/automation
+    "legal", // General Counsel - compliance/risk
+    "union", // Labor relations expert
+    "technology", // CTO type - tech strategy
+    "marketing", // CMO type - market/brand
+    "strategy", // Strategy consultant
+    "ethics", // Ethics/sustainability advisor
+  ]),
+  // AI prompt context for generating advice
+  expertiseDescription: z.string(), // What they know about
+  adviceStyle: z.string().nullable(), // How they give advice
+  biases: z.string().nullable(), // Their professional biases
+  // Display settings
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().default(0),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type PhoneAFriendAdvisor = z.infer<typeof phoneAFriendAdvisorSchema>;
+
+export const insertPhoneAFriendAdvisorSchema = phoneAFriendAdvisorSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertPhoneAFriendAdvisor = z.infer<typeof insertPhoneAFriendAdvisorSchema>;
+
+// Phone-a-Friend Usage tracking - 3 lifelines per student per simulation
+export const phoneAFriendUsageSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  teamId: z.string().nullable(),
+  simulationId: z.string(), // Which simulation run
+  advisorId: z.string(), // Which advisor was consulted
+  weekNumber: z.number(),
+  // The question asked and advice received
+  question: z.string(),
+  context: z.string().nullable(), // Current situation context
+  advice: z.string(), // AI-generated response
+  // Metadata
+  createdAt: z.string().optional(),
+});
+export type PhoneAFriendUsage = z.infer<typeof phoneAFriendUsageSchema>;
+
+export const insertPhoneAFriendUsageSchema = phoneAFriendUsageSchema.omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertPhoneAFriendUsage = z.infer<typeof insertPhoneAFriendUsageSchema>;
+
+// Voicemail delivery tracking - which voicemails have been shown to users
+export const voicemailDeliverySchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  voicemailId: z.string(),
+  // Status
+  deliveredAt: z.string(),
+  viewedAt: z.string().nullable(),
+  dismissedAt: z.string().nullable(),
+  listenedFully: z.boolean().default(false),
+});
+export type VoicemailDelivery = z.infer<typeof voicemailDeliverySchema>;
+
+export const insertVoicemailDeliverySchema = voicemailDeliverySchema.omit({
+  id: true,
+});
+export type InsertVoicemailDelivery = z.infer<typeof insertVoicemailDeliverySchema>;
+
 // Export auth models from Replit Auth integration
 export * from "./models/auth";
 

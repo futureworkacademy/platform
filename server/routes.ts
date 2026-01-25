@@ -4951,5 +4951,273 @@ Access your dashboard at: https://futureworkacademy.com
     }
   });
 
+  // ===== Character Profiles API =====
+  
+  // Get all character profiles (optionally filtered by module)
+  app.get("/api/admin/character-profiles", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const moduleId = req.query.moduleId as string | undefined;
+      const profiles = await storage.getCharacterProfiles(moduleId);
+      res.json(profiles);
+    } catch (error) {
+      console.error("Error getting character profiles:", error);
+      res.status(500).json({ error: "Failed to get character profiles" });
+    }
+  });
+
+  // Get single character profile
+  app.get("/api/admin/character-profiles/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const profile = await storage.getCharacterProfile(req.params.id);
+      if (!profile) {
+        return res.status(404).json({ error: "Character profile not found" });
+      }
+      res.json(profile);
+    } catch (error) {
+      console.error("Error getting character profile:", error);
+      res.status(500).json({ error: "Failed to get character profile" });
+    }
+  });
+
+  // Create character profile
+  app.post("/api/admin/character-profiles", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const profile = await storage.createCharacterProfile({
+        ...req.body,
+        createdBy: userId,
+      });
+      res.json(profile);
+    } catch (error) {
+      console.error("Error creating character profile:", error);
+      res.status(500).json({ error: "Failed to create character profile" });
+    }
+  });
+
+  // Update character profile
+  app.put("/api/admin/character-profiles/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const profile = await storage.updateCharacterProfile(req.params.id, req.body);
+      if (!profile) {
+        return res.status(404).json({ error: "Character profile not found" });
+      }
+      res.json(profile);
+    } catch (error) {
+      console.error("Error updating character profile:", error);
+      res.status(500).json({ error: "Failed to update character profile" });
+    }
+  });
+
+  // Delete character profile
+  app.delete("/api/admin/character-profiles/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      await storage.deleteCharacterProfile(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting character profile:", error);
+      res.status(500).json({ error: "Failed to delete character profile" });
+    }
+  });
+
+  // Generate AI headshot for character
+  app.post("/api/admin/character-profiles/:id/generate-headshot", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const profile = await storage.getCharacterProfile(req.params.id);
+      if (!profile) {
+        return res.status(404).json({ error: "Character profile not found" });
+      }
+      
+      const { prompt: customPrompt } = req.body;
+      
+      // Build a detailed prompt for headshot generation
+      const defaultPrompt = `Professional corporate headshot portrait photo of ${profile.name}, ${profile.role}${profile.company ? ` at ${profile.company}` : ''}. ${profile.personality || ''}. High quality, studio lighting, business professional attire, neutral background, photorealistic, 4k quality.`;
+      
+      const finalPrompt = customPrompt || defaultPrompt;
+      
+      // Use the image generation client
+      const { generateImageBuffer } = await import("./replit_integrations/image/client");
+      
+      const imageBuffer = await generateImageBuffer(finalPrompt, "512x512");
+      
+      // Upload to object storage
+      const { Client: ObjectStorageClient } = await import("@replit/object-storage");
+      const client = new ObjectStorageClient();
+      
+      const filename = `character-headshots/${profile.id}-${Date.now()}.png`;
+      await client.uploadFromBytes(filename, imageBuffer);
+      
+      // Get the public URL
+      const publicUrl = await client.getSignedDownloadUrl(filename);
+      
+      // Update the character profile with the new headshot URL
+      await storage.updateCharacterProfile(profile.id, {
+        headshotUrl: publicUrl.url || publicUrl,
+        headshotPrompt: finalPrompt,
+      });
+      
+      res.json({ 
+        success: true, 
+        headshotUrl: publicUrl.url || publicUrl,
+        prompt: finalPrompt 
+      });
+    } catch (error: any) {
+      console.error("Error generating headshot:", error);
+      res.status(500).json({ error: error.message || "Failed to generate headshot" });
+    }
+  });
+
+  // ===== Phone-a-Friend API =====
+  
+  // Get all advisors (for students)
+  app.get("/api/phone-a-friend/advisors", isAuthenticated, async (req: any, res) => {
+    try {
+      const moduleId = req.query.moduleId as string | undefined;
+      const advisors = await storage.getPhoneAFriendAdvisors(moduleId);
+      res.json(advisors);
+    } catch (error) {
+      console.error("Error getting advisors:", error);
+      res.status(500).json({ error: "Failed to get advisors" });
+    }
+  });
+
+  // Get remaining lifelines for current user
+  app.get("/api/phone-a-friend/remaining", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { simulationId } = req.query;
+      
+      if (!simulationId) {
+        return res.status(400).json({ error: "simulationId is required" });
+      }
+      
+      const usageCount = await storage.getPhoneAFriendUsageCount(userId, simulationId as string);
+      const maxLifelines = 3;
+      
+      res.json({ 
+        used: usageCount, 
+        remaining: Math.max(0, maxLifelines - usageCount),
+        max: maxLifelines 
+      });
+    } catch (error) {
+      console.error("Error getting remaining lifelines:", error);
+      res.status(500).json({ error: "Failed to get remaining lifelines" });
+    }
+  });
+
+  // Use a lifeline - ask an advisor for advice
+  app.post("/api/phone-a-friend/ask", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { advisorId, simulationId, weekNumber, question, context } = req.body;
+      
+      if (!advisorId || !simulationId || !weekNumber || !question) {
+        return res.status(400).json({ error: "advisorId, simulationId, weekNumber, and question are required" });
+      }
+      
+      // Check remaining lifelines
+      const usageCount = await storage.getPhoneAFriendUsageCount(userId, simulationId);
+      if (usageCount >= 3) {
+        return res.status(400).json({ error: "No lifelines remaining" });
+      }
+      
+      // Get advisor and character info
+      const advisors = await storage.getPhoneAFriendAdvisors();
+      const advisorData = advisors.find((a: any) => a.advisor.id === advisorId);
+      
+      if (!advisorData) {
+        return res.status(404).json({ error: "Advisor not found" });
+      }
+      
+      const { advisor, character } = advisorData;
+      
+      // Generate AI advice using OpenAI
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI();
+      
+      const systemPrompt = `You are ${character?.name || 'an advisor'}, a ${advisor.specialty} expert ${character?.title ? `(${character.title})` : ''}. 
+${advisor.expertiseDescription}
+
+Your advice style: ${advisor.adviceStyle || 'Professional and direct'}
+${advisor.biases ? `Your professional biases: ${advisor.biases}` : ''}
+${character?.personality ? `Your personality: ${character.personality}` : ''}
+${character?.communicationStyle ? `Your communication style: ${character.communicationStyle}` : ''}
+
+You are advising a graduate business student in a simulation about AI adoption and workforce transformation. 
+The current week is Week ${weekNumber} of an 8-week simulation.
+${context ? `Current context: ${context}` : ''}
+
+Provide thoughtful, personalized advice in your character's voice. Keep your response under 300 words but make it substantive and actionable.`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: question }
+        ],
+        temperature: 0.8,
+        max_tokens: 500,
+      });
+      
+      const advice = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate advice at this time.";
+      
+      // Record the usage
+      const user = await authStorage.getUser(userId);
+      const usage = await storage.createPhoneAFriendUsage({
+        userId,
+        teamId: user?.teamId || undefined,
+        simulationId,
+        advisorId,
+        weekNumber,
+        question,
+        context,
+        advice,
+      });
+      
+      res.json({ 
+        advice, 
+        advisor: character?.name || advisor.specialty,
+        remainingLifelines: Math.max(0, 2 - usageCount) // 3 total - 1 just used = 2 remaining at max
+      });
+    } catch (error: any) {
+      console.error("Error asking advisor:", error);
+      res.status(500).json({ error: error.message || "Failed to get advice" });
+    }
+  });
+
   return httpServer;
 }

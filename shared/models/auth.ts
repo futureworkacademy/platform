@@ -393,3 +393,118 @@ export const mediaEngagement = pgTable("media_engagement", {
 
 export type MediaEngagementDb = typeof mediaEngagement.$inferSelect;
 export type InsertMediaEngagementDb = typeof mediaEngagement.$inferInsert;
+
+// Character Profiles - AI-generated personas for immersive simulation
+export const characterProfiles = pgTable("character_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id"), // null = global character, otherwise module-specific
+  name: varchar("name").notNull(),
+  role: varchar("role").notNull(), // e.g., "CEO", "Union Leader", "HR Director"
+  title: varchar("title"), // e.g., "Chief Executive Officer"
+  company: varchar("company"), // e.g., "Apex Manufacturing"
+  // AI-generated headshot stored in object storage
+  headshotUrl: text("headshot_url"),
+  headshotPrompt: text("headshot_prompt"), // Prompt used to generate the headshot
+  // Rich bio and personality
+  bio: text("bio"), // Full backstory
+  personality: text("personality"), // Personality traits description
+  communicationStyle: text("communication_style"), // How they speak/write
+  motivations: text("motivations"), // What drives them
+  fears: text("fears"), // What concerns them
+  // Relationships with other characters
+  relationships: jsonb("relationships"), // Array of {characterId, relationshipType, description}
+  // Voice/audio settings for triggered voicemails
+  voiceDescription: text("voice_description"), // Description for AI voice synthesis
+  voiceId: varchar("voice_id"), // External voice ID if using voice synthesis
+  // Content generation prompts
+  speakingStyleExamples: jsonb("speaking_style_examples"), // Array of example quotes
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: varchar("created_by"),
+});
+
+export type CharacterProfileDb = typeof characterProfiles.$inferSelect;
+export type InsertCharacterProfileDb = typeof characterProfiles.$inferInsert;
+
+// Triggered Voicemails - immersive notifications from characters
+export const triggeredVoicemails = pgTable("triggered_voicemails", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").notNull(),
+  characterId: varchar("character_id").notNull(), // Which character sends this voicemail
+  weekNumber: integer("week_number"), // null = any week
+  title: varchar("title").notNull(),
+  // Trigger conditions
+  triggerType: varchar("trigger_type").notNull(), // time_window, decision_made, content_viewed, week_started, score_threshold, random
+  triggerCondition: jsonb("trigger_condition"), // Condition details based on triggerType
+  // Content
+  audioUrl: text("audio_url"), // Pre-recorded or AI-generated audio
+  transcript: text("transcript").notNull(), // Text transcript for accessibility
+  duration: integer("duration"), // Duration in seconds
+  // Display settings
+  urgency: varchar("urgency").default("medium"), // low, medium, high, critical
+  expiresAfterMinutes: integer("expires_after_minutes"), // How long before voicemail dismisses
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type TriggeredVoicemailDb = typeof triggeredVoicemails.$inferSelect;
+export type InsertTriggeredVoicemailDb = typeof triggeredVoicemails.$inferInsert;
+
+// Phone-a-Friend Advisors - specialized advisors students can consult
+export const phoneAFriendAdvisors = pgTable("phone_a_friend_advisors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  characterId: varchar("character_id").notNull(), // Links to character profile
+  moduleId: varchar("module_id"), // null = available in all modules
+  specialty: varchar("specialty").notNull(), // finance, hr, operations, legal, union, technology, marketing, strategy, ethics
+  // AI prompt context for generating advice
+  expertiseDescription: text("expertise_description").notNull(), // What they know about
+  adviceStyle: text("advice_style"), // How they give advice
+  biases: text("biases"), // Their professional biases
+  // Display settings
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type PhoneAFriendAdvisorDb = typeof phoneAFriendAdvisors.$inferSelect;
+export type InsertPhoneAFriendAdvisorDb = typeof phoneAFriendAdvisors.$inferInsert;
+
+// Phone-a-Friend Usage tracking - 3 lifelines per student per simulation
+export const phoneAFriendUsage = pgTable("phone_a_friend_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  teamId: varchar("team_id"),
+  simulationId: varchar("simulation_id").notNull(), // Which simulation run
+  advisorId: varchar("advisor_id").notNull(), // Which advisor was consulted
+  weekNumber: integer("week_number").notNull(),
+  // The question asked and advice received
+  question: text("question").notNull(),
+  context: text("context"), // Current situation context
+  advice: text("advice").notNull(), // AI-generated response
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type PhoneAFriendUsageDb = typeof phoneAFriendUsage.$inferSelect;
+export type InsertPhoneAFriendUsageDb = typeof phoneAFriendUsage.$inferInsert;
+
+// Voicemail delivery tracking - which voicemails have been shown to users
+export const voicemailDeliveries = pgTable("voicemail_deliveries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  voicemailId: varchar("voicemail_id").notNull(),
+  // Status
+  deliveredAt: timestamp("delivered_at").defaultNow(),
+  viewedAt: timestamp("viewed_at"),
+  dismissedAt: timestamp("dismissed_at"),
+  listenedFully: boolean("listened_fully").default(false),
+});
+
+export type VoicemailDeliveryDb = typeof voicemailDeliveries.$inferSelect;
+export type InsertVoicemailDeliveryDb = typeof voicemailDeliveries.$inferInsert;
