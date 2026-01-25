@@ -1430,6 +1430,7 @@ export async function registerRoutes(
         email: users.email,
         firstName: users.firstName,
         lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
         teamId: users.teamId,
         isAdmin: users.isAdmin,
         createdAt: users.createdAt,
@@ -1500,6 +1501,7 @@ export async function registerRoutes(
           email: user.email || '',
           firstName: user.firstName || '',
           lastName: user.lastName || '',
+          profileImageUrl: user.profileImageUrl || null,
           role,
           status,
           hasAccount: true,
@@ -1528,6 +1530,7 @@ export async function registerRoutes(
           email: '', // No email since no user account
           firstName: '',
           lastName: '',
+          profileImageUrl: null,
           role: member.role as 'super_admin' | 'class_admin' | 'student',
           status: 'invited' as const,
           hasAccount: false,
@@ -1557,6 +1560,188 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching unified people:", error);
       res.status(500).json({ error: "Failed to fetch people data" });
+    }
+  });
+
+  // Get all teams (for team assignment dropdown)
+  app.get("/api/super-admin/teams", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const allTeams = await db.select({
+        id: teams.id,
+        name: teams.name,
+        organizationId: teams.organizationId,
+        orgName: organizations.name,
+      }).from(teams)
+        .leftJoin(organizations, eq(teams.organizationId, organizations.id))
+        .orderBy(teams.name);
+
+      res.json(allTeams);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      res.status(500).json({ error: "Failed to fetch teams" });
+    }
+  });
+
+  // Update user details (Super Admin only)
+  app.patch("/api/super-admin/people/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { firstName, lastName, email, profileImageUrl } = req.body;
+
+      const updateData: any = {};
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (email !== undefined) updateData.email = email;
+      if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
+      updateData.updatedAt = new Date();
+
+      const [updated] = await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
+  // Update user team assignment (Super Admin only)
+  app.patch("/api/super-admin/people/:id/team", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { teamId } = req.body;
+
+      const [updated] = await db.update(users)
+        .set({ teamId: teamId || null, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating user team:", error);
+      res.status(500).json({ error: "Failed to update team" });
+    }
+  });
+
+  // Deactivate organization member (Super Admin only)
+  app.post("/api/super-admin/people/:memberId/deactivate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { memberId } = req.params;
+
+      // Get member info first
+      const [member] = await db.select().from(organizationMembers).where(eq(organizationMembers.id, memberId));
+      if (!member) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      // Clear teamId from user
+      await db.update(users)
+        .set({ teamId: null })
+        .where(eq(users.id, member.userId));
+
+      // Set member status to deactivated
+      const [updated] = await db.update(organizationMembers)
+        .set({ status: 'deactivated' })
+        .where(eq(organizationMembers.id, memberId))
+        .returning();
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error deactivating member:", error);
+      res.status(500).json({ error: "Failed to deactivate member" });
+    }
+  });
+
+  // Reactivate organization member (Super Admin only)
+  app.post("/api/super-admin/people/:memberId/reactivate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { memberId } = req.params;
+
+      const [updated] = await db.update(organizationMembers)
+        .set({ status: 'active' })
+        .where(eq(organizationMembers.id, memberId))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error reactivating member:", error);
+      res.status(500).json({ error: "Failed to reactivate member" });
+    }
+  });
+
+  // Remove member from organization (Super Admin only)
+  app.delete("/api/super-admin/people/member/:memberId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { memberId } = req.params;
+
+      // Get member info first
+      const [member] = await db.select().from(organizationMembers).where(eq(organizationMembers.id, memberId));
+      if (!member) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      // Clear teamId from user
+      await db.update(users)
+        .set({ teamId: null })
+        .where(eq(users.id, member.userId));
+
+      // Delete the membership
+      await db.delete(organizationMembers).where(eq(organizationMembers.id, memberId));
+
+      res.json({ success: true, message: "Member removed from organization" });
+    } catch (error) {
+      console.error("Error removing member:", error);
+      res.status(500).json({ error: "Failed to remove member" });
     }
   });
 

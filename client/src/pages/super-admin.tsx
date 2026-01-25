@@ -24,8 +24,13 @@ import {
   Save,
   Loader2,
   Mail,
-  MoreHorizontal
+  MoreHorizontal,
+  UserX,
+  UserMinus,
+  UsersRound,
+  Trash2
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -132,6 +137,7 @@ interface UnifiedPerson {
   email: string;
   firstName: string;
   lastName: string;
+  profileImageUrl: string | null;
   role: 'super_admin' | 'class_admin' | 'student';
   status: 'active' | 'pending' | 'invited' | 'never_invited';
   hasAccount: boolean;
@@ -148,6 +154,13 @@ interface UnifiedPerson {
     role: string;
     status: string;
   }>;
+}
+
+interface TeamData {
+  id: string;
+  name: string;
+  organizationId: string;
+  orgName: string;
 }
 
 export default function SuperAdminPage() {
@@ -207,6 +220,25 @@ export default function SuperAdminPage() {
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
   const [promotingPerson, setPromotingPerson] = useState<UnifiedPerson | null>(null);
   const [promoteTargetOrgId, setPromoteTargetOrgId] = useState<string>("");
+
+  // Edit user dialog state
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState<UnifiedPerson | null>(null);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editProfileImageUrl, setEditProfileImageUrl] = useState("");
+
+  // Change team dialog state
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
+  const [teamChangePerson, setTeamChangePerson] = useState<UnifiedPerson | null>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+
+  // All teams for team assignment
+  const { data: allTeams = [] } = useQuery<TeamData[]>({
+    queryKey: ["/api/super-admin/teams"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
 
   // Platform Settings
   const { data: platformSettings, isLoading: settingsLoading, refetch: refetchSettings } = useQuery<PlatformSettings>({
@@ -405,6 +437,102 @@ export default function SuperAdminPage() {
       setResendingFor(null);
     },
   });
+
+  // Edit user mutation
+  const editUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { firstName?: string; lastName?: string; email?: string; profileImageUrl?: string } }) => {
+      const response = await apiRequest("PATCH", `/api/super-admin/people/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
+      setEditUserDialogOpen(false);
+      setEditingPerson(null);
+      toast({ title: "User updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to update user", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Change team mutation
+  const changeTeamMutation = useMutation({
+    mutationFn: async ({ userId, teamId }: { userId: string; teamId: string | null }) => {
+      const response = await apiRequest("PATCH", `/api/super-admin/people/${userId}/team`, { teamId });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
+      setTeamDialogOpen(false);
+      setTeamChangePerson(null);
+      toast({ title: "Team assignment updated" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to update team", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Deactivate member mutation
+  const deactivateMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await apiRequest("POST", `/api/super-admin/people/${memberId}/deactivate`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
+      toast({ title: "Member deactivated" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to deactivate member", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Reactivate member mutation
+  const reactivateMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await apiRequest("POST", `/api/super-admin/people/${memberId}/reactivate`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
+      toast({ title: "Member reactivated" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to reactivate member", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Remove member from organization mutation
+  const removeMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await apiRequest("DELETE", `/api/super-admin/people/member/${memberId}`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/people"] });
+      toast({ title: "Member removed from organization" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to remove member", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Helper to open edit user dialog
+  const openEditUserDialog = (person: UnifiedPerson) => {
+    setEditingPerson(person);
+    setEditFirstName(person.firstName);
+    setEditLastName(person.lastName);
+    setEditEmail(person.email);
+    setEditProfileImageUrl(person.profileImageUrl || "");
+    setEditUserDialogOpen(true);
+  };
+
+  // Helper to open change team dialog
+  const openTeamDialog = (person: UnifiedPerson) => {
+    setTeamChangePerson(person);
+    setSelectedTeamId(person.teamId || "");
+    setTeamDialogOpen(true);
+  };
 
   const openEditDialog = (org: Organization) => {
     setEditingOrg(org);
@@ -947,11 +1075,21 @@ export default function SuperAdminPage() {
                           .map((person) => (
                             <tr key={person.id} className="border-b hover:bg-muted/50" data-testid={`row-person-${person.id}`}>
                               <td className="py-3 px-2">
-                                <p className="font-medium">
-                                  {person.firstName || person.lastName 
-                                    ? `${person.firstName} ${person.lastName}`.trim() 
-                                    : "—"}
-                                </p>
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8">
+                                    {person.profileImageUrl && (
+                                      <AvatarImage src={person.profileImageUrl} alt={`${person.firstName} ${person.lastName}`} />
+                                    )}
+                                    <AvatarFallback className="text-xs">
+                                      {(person.firstName?.[0] || "").toUpperCase()}{(person.lastName?.[0] || "").toUpperCase() || "?"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <p className="font-medium">
+                                    {person.firstName || person.lastName 
+                                      ? `${person.firstName} ${person.lastName}`.trim() 
+                                      : "—"}
+                                  </p>
+                                </div>
                               </td>
                               <td className="py-3 px-2">
                                 <p className="text-sm text-muted-foreground">{person.email || "No email"}</p>
@@ -1022,6 +1160,27 @@ export default function SuperAdminPage() {
                                         {resendingFor === person.id ? "Sending..." : "Resend Invite"}
                                       </DropdownMenuItem>
                                     )}
+                                    {/* Edit User - only for users with accounts */}
+                                    {person.hasAccount && (
+                                      <DropdownMenuItem 
+                                        onClick={() => openEditUserDialog(person)}
+                                        data-testid={`button-edit-${person.id}`}
+                                      >
+                                        <Pencil className="h-4 w-4 mr-2" />
+                                        Edit Details
+                                      </DropdownMenuItem>
+                                    )}
+                                    {/* Change Team - only for users with accounts and org membership */}
+                                    {person.hasAccount && person.organizationId && (
+                                      <DropdownMenuItem 
+                                        onClick={() => openTeamDialog(person)}
+                                        data-testid={`button-change-team-${person.id}`}
+                                      >
+                                        <UsersRound className="h-4 w-4 mr-2" />
+                                        Change Team
+                                      </DropdownMenuItem>
+                                    )}
+                                    {/* Promote to Admin - only for students with accounts */}
                                     {person.role === "student" && person.hasAccount && (
                                       <DropdownMenuItem 
                                         onClick={() => {
@@ -1033,6 +1192,36 @@ export default function SuperAdminPage() {
                                       >
                                         <UserPlus className="h-4 w-4 mr-2" />
                                         Promote to Admin
+                                      </DropdownMenuItem>
+                                    )}
+                                    {/* Deactivate - for active org members */}
+                                    {person.memberId && person.status === "active" && (
+                                      <DropdownMenuItem 
+                                        onClick={() => {
+                                          if (confirm(`Are you sure you want to deactivate ${person.firstName} ${person.lastName}? They will be removed from their team but can be reactivated later.`)) {
+                                            deactivateMemberMutation.mutate(person.memberId!);
+                                          }
+                                        }}
+                                        className="text-amber-600"
+                                        data-testid={`button-deactivate-${person.id}`}
+                                      >
+                                        <UserX className="h-4 w-4 mr-2" />
+                                        Deactivate
+                                      </DropdownMenuItem>
+                                    )}
+                                    {/* Remove from Org - for org members */}
+                                    {person.memberId && (
+                                      <DropdownMenuItem 
+                                        onClick={() => {
+                                          if (confirm(`Are you sure you want to remove ${person.firstName || person.email || "this user"} from ${person.organizationName}? This action cannot be undone.`)) {
+                                            removeMemberMutation.mutate(person.memberId!);
+                                          }
+                                        }}
+                                        className="text-destructive"
+                                        data-testid={`button-remove-${person.id}`}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Remove from Org
                                       </DropdownMenuItem>
                                     )}
                                   </DropdownMenuContent>
@@ -1674,6 +1863,174 @@ export default function SuperAdminPage() {
                 </>
               ) : (
                 "Promote to Class Admin"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={editUserDialogOpen} onOpenChange={(open) => {
+        setEditUserDialogOpen(open);
+        if (!open) {
+          setEditingPerson(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User Details</DialogTitle>
+            <DialogDescription>
+              Update information for {editingPerson?.firstName} {editingPerson?.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                {editProfileImageUrl && (
+                  <AvatarImage src={editProfileImageUrl} alt="Profile" />
+                )}
+                <AvatarFallback className="text-lg">
+                  {(editFirstName?.[0] || "").toUpperCase()}{(editLastName?.[0] || "").toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="edit-profile-url">Profile Image URL</Label>
+                <Input
+                  id="edit-profile-url"
+                  value={editProfileImageUrl}
+                  onChange={(e) => setEditProfileImageUrl(e.target.value)}
+                  placeholder="https://example.com/photo.jpg"
+                  data-testid="input-edit-profile-url"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-first-name">First Name</Label>
+                <Input
+                  id="edit-first-name"
+                  value={editFirstName}
+                  onChange={(e) => setEditFirstName(e.target.value)}
+                  data-testid="input-edit-first-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-last-name">Last Name</Label>
+                <Input
+                  id="edit-last-name"
+                  value={editLastName}
+                  onChange={(e) => setEditLastName(e.target.value)}
+                  data-testid="input-edit-last-name"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                data-testid="input-edit-email"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserDialogOpen(false)} data-testid="button-cancel-edit">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (editingPerson) {
+                  editUserMutation.mutate({ 
+                    id: editingPerson.id, 
+                    data: {
+                      firstName: editFirstName,
+                      lastName: editLastName,
+                      email: editEmail,
+                      profileImageUrl: editProfileImageUrl || undefined
+                    }
+                  });
+                }
+              }}
+              disabled={editUserMutation.isPending}
+              data-testid="button-save-edit"
+            >
+              {editUserMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Team Dialog */}
+      <Dialog open={teamDialogOpen} onOpenChange={(open) => {
+        setTeamDialogOpen(open);
+        if (!open) {
+          setTeamChangePerson(null);
+          setSelectedTeamId("");
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Team Assignment</DialogTitle>
+            <DialogDescription>
+              Update team for {teamChangePerson?.firstName} {teamChangePerson?.lastName}
+              {teamChangePerson?.organizationName && ` (${teamChangePerson.organizationName})`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Select Team</Label>
+              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                <SelectTrigger data-testid="select-team">
+                  <SelectValue placeholder="Select a team (or leave empty to remove)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Team</SelectItem>
+                  {allTeams
+                    .filter(team => !teamChangePerson?.organizationId || team.organizationId === teamChangePerson.organizationId)
+                    .map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name} {team.orgName && team.orgName !== teamChangePerson?.organizationName ? `(${team.orgName})` : ""}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Only teams from the user's organization are shown.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTeamDialogOpen(false)} data-testid="button-cancel-team">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (teamChangePerson) {
+                  changeTeamMutation.mutate({ 
+                    userId: teamChangePerson.id, 
+                    teamId: selectedTeamId === "none" ? null : selectedTeamId 
+                  });
+                }
+              }}
+              disabled={changeTeamMutation.isPending}
+              data-testid="button-save-team"
+            >
+              {changeTeamMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Team"
               )}
             </Button>
           </DialogFooter>
