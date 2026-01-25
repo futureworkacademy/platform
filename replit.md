@@ -129,9 +129,6 @@ Business and marketing documentation is maintained in the `docs/` folder:
 - **docs/MARKETING_MATERIALS.md** - Marketing content for MBA programs and generic academia
 - **docs/SECURITY_COMPLIANCE.md** - Security architecture, FERPA compliance, data handling, incident response
 
-Legacy documentation:
-- **SOLUTION_DOC.md** - Original solution document (superseded by docs/ folder)
-
 ### Google Docs Integration
 
 Documents automatically sync to Google Docs on server startup and when files in the `docs/` directory are modified. They are organized in a "Future Work Academy" folder.
