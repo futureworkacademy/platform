@@ -39,10 +39,12 @@ import {
   PieChartIcon,
   ArrowRight,
   AlertTriangle,
+  FlaskConical,
 } from "lucide-react";
 import type { Team, ResearchReport, HistoricalData, WorkforceDemographics } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { SandboxControls } from "@/components/sandbox-controls";
 
 const CHART_COLORS = ["hsl(35, 100%, 50%)", "hsl(142, 76%, 50%)", "hsl(200, 100%, 60%)", "hsl(280, 80%, 65%)", "hsl(0, 72%, 55%)"];
 
@@ -238,7 +240,17 @@ END OF RESEARCH MATERIALS
 
   return (
     <div className="min-h-screen bg-background" data-testid="research-page">
-      <div className="border-b bg-card">
+      {/* Sandbox Mode Banner - Prominent at top */}
+      {inSandboxMode && (
+        <div className="bg-amber-500 text-black py-3 px-4" data-testid="sandbox-banner">
+          <div className="container mx-auto flex items-center justify-center gap-3">
+            <FlaskConical className="h-5 w-5" />
+            <span className="font-semibold text-lg">SANDBOX MODE - Previewing Student Experience</span>
+            <FlaskConical className="h-5 w-5" />
+          </div>
+        </div>
+      )}
+      <div className={`border-b bg-card ${inSandboxMode ? 'border-amber-500/50' : ''}`}>
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
@@ -716,6 +728,11 @@ END OF RESEARCH MATERIALS
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Sandbox Controls - Fixed at bottom when in sandbox mode */}
+      {inSandboxMode && user?.previewModeOrgId && team && (
+        <SandboxControls orgId={user.previewModeOrgId} currentWeek={team.currentWeek || 1} />
+      )}
     </div>
   );
 }
