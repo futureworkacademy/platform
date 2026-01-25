@@ -59,7 +59,7 @@ export default function ForEducators() {
     onError: () => {
       toast({
         title: "Failed to send inquiry",
-        description: "Please try again or email dmitchell@grandview.edu directly.",
+        description: "Please try again or email doug@futureworkacademy.com directly.",
         variant: "destructive",
       });
     }
@@ -222,12 +222,12 @@ export default function ForEducators() {
                 </div>
                 <div className="clear-both flex items-center gap-3 pt-2">
                   <a 
-                    href="mailto:dmitchell@grandview.edu" 
+                    href="mailto:doug@futureworkacademy.com" 
                     className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                     data-testid="link-email"
                   >
                     <Mail className="h-4 w-4" />
-                    dmitchell@grandview.edu
+                    doug@futureworkacademy.com
                   </a>
                   <a 
                     href="https://linkedin.com/in/dougmitchell" 
@@ -394,8 +394,8 @@ export default function ForEducators() {
 
                   <p className="text-xs text-muted-foreground text-center">
                     Or reach out directly at{" "}
-                    <a href="mailto:dmitchell@grandview.edu" className="text-primary hover:underline">
-                      dmitchell@grandview.edu
+                    <a href="mailto:doug@futureworkacademy.com" className="text-primary hover:underline">
+                      doug@futureworkacademy.com
                     </a>
                   </p>
                 </form>

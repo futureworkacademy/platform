@@ -32,7 +32,7 @@ export default function Feedback() {
     onError: () => {
       toast({
         title: "Failed to send feedback",
-        description: "Please try again or email dmitchell@grandview.edu directly.",
+        description: "Please try again or email support@futureworkacademy.com directly.",
         variant: "destructive",
       });
     }
@@ -122,11 +122,11 @@ export default function Feedback() {
             <CardDescription>
               Have questions, issues, or suggestions? Fill out the form below or email{" "}
               <a 
-                href="mailto:dmitchell@grandview.edu" 
+                href="mailto:support@futureworkacademy.com" 
                 className="text-primary hover:underline"
                 data-testid="link-email-direct"
               >
-                dmitchell@grandview.edu
+                support@futureworkacademy.com
               </a>
             </CardDescription>
           </CardHeader>
