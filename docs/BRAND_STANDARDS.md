@@ -122,8 +122,8 @@
 
 | Location | Tailwind Class | Pixel Height |
 |----------|----------------|--------------|
-| Main page headers (landing, academia) | h-14 | 56px |
-| Secondary page headers (about, privacy) | h-12 | 48px |
+| Main page headers (landing, academia, for-educators) | h-20 | 80px |
+| Secondary page headers (about, privacy) | h-16 | 64px |
 | Sidebar (collapsed state) | h-10 | 40px |
 | Favicon | - | 32px |
 

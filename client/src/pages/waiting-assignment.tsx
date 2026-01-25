@@ -202,11 +202,11 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-3 py-2">
+          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-4 py-3">
             <img 
               src={logo} 
               alt="Future Work Academy" 
-              className="h-14 w-auto"
+              className="h-20 w-auto"
               data-testid="img-header-logo"
             />
           </div>
