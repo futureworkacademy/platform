@@ -252,10 +252,12 @@ export default function ClassAdminPage() {
     },
     onSuccess: () => {
       setSandboxDialogOpen(false);
+      // Invalidate user data so the app knows we're in sandbox mode
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
       toast({ title: "Sandbox mode activated", description: `Starting simulation at Week ${sandboxStartWeek}` });
-      // Navigate to student dashboard
-      setLocation("/dashboard");
+      // Navigate to student dashboard after a brief delay to allow user data to refresh
+      setTimeout(() => setLocation("/dashboard"), 100);
     },
     onError: (error: any) => {
       toast({ title: "Error entering sandbox mode", description: error.message, variant: "destructive" });
