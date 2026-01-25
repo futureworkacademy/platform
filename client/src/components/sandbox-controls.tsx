@@ -89,27 +89,28 @@ export function SandboxControls({ orgId, currentWeek }: SandboxControlsProps) {
 
   return (
     <div 
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-amber-500 dark:bg-amber-600 rounded-lg shadow-lg px-4 py-2 flex items-center gap-3 flex-wrap" 
+      className="fixed bottom-4 right-4 z-50 bg-amber-500 dark:bg-amber-600 rounded-lg shadow-lg px-3 py-1.5 flex items-center gap-2" 
       data-testid="sandbox-controls"
     >
-      <FlaskConical className="h-5 w-5 text-white" />
-      <span className="font-medium text-sm text-white">Sandbox Mode</span>
+      <FlaskConical className="h-4 w-4 text-white" />
+      <span className="font-medium text-xs text-white">Sandbox</span>
       
-      <div className="h-4 w-px bg-white/30" />
+      <div className="h-3 w-px bg-white/30" />
       
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         <Button 
           size="icon" 
           variant="secondary"
+          className="h-6 w-6"
           onClick={handlePrevWeek}
           disabled={currentWeek <= 1 || setWeekMutation.isPending}
           data-testid="button-prev-week"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3 w-3" />
         </Button>
         
         <Select value={selectedWeek} onValueChange={handleWeekChange} disabled={setWeekMutation.isPending}>
-          <SelectTrigger className="w-[100px]" data-testid="select-week">
+          <SelectTrigger className="w-[70px] h-6 text-xs" data-testid="select-week">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -127,19 +128,21 @@ export function SandboxControls({ orgId, currentWeek }: SandboxControlsProps) {
         <Button 
           size="icon" 
           variant="secondary"
+          className="h-6 w-6"
           onClick={handleNextWeek}
           disabled={currentWeek >= 8 || setWeekMutation.isPending}
           data-testid="button-next-week"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3 w-3" />
         </Button>
       </div>
       
-      <div className="h-4 w-px bg-white/30" />
+      <div className="h-3 w-px bg-white/30" />
       
       <Button 
         size="sm" 
         variant="secondary"
+        className="h-6 text-xs px-2"
         onClick={() => resetMutation.mutate()}
         disabled={resetMutation.isPending}
         data-testid="button-reset-sandbox"
@@ -151,6 +154,7 @@ export function SandboxControls({ orgId, currentWeek }: SandboxControlsProps) {
       <Button 
         size="sm" 
         variant="secondary"
+        className="h-6 text-xs px-2"
         onClick={() => exitMutation.mutate()}
         disabled={exitMutation.isPending}
         data-testid="button-exit-sandbox"
