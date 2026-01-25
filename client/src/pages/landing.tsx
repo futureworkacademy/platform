@@ -71,11 +71,11 @@ export default function Landing() {
               About FWA
             </a>
             <a 
-              href="/for-educators"
+              href="/academia"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
             >
-              Educator
+              Educator?
             </a>
             <ThemeToggle />
             <a href="/api/login">

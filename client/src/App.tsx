@@ -24,6 +24,7 @@ import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
+import Academia from "@/pages/academia";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
@@ -205,6 +206,10 @@ function AppRouter() {
     if (location === "/for-educators") {
       return <ForEducators />;
     }
+    // Allow Academia page without authentication
+    if (location === "/academia") {
+      return <Academia />;
+    }
     // Allow Privacy Policy page without authentication
     if (location === "/privacy") {
       return <Privacy />;
@@ -265,6 +270,11 @@ function AppRouter() {
   // For Educators page accessible to any logged-in user
   if (location === "/for-educators") {
     return <ForEducators />;
+  }
+
+  // Academia page accessible to any logged-in user
+  if (location === "/academia") {
+    return <Academia />;
   }
 
   // Super Admin - always redirect to admin dashboard if not already there
