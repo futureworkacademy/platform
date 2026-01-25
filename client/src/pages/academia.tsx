@@ -60,6 +60,12 @@ export default function Academia() {
   const [demoProvisioned, setDemoProvisioned] = useState(false);
   const [demoCode, setDemoCode] = useState('');
   const [demoExpiresAt, setDemoExpiresAt] = useState('');
+  const [demoEmail, setDemoEmail] = useState('');
+  
+  const [demoName, setDemoName] = useState('');
+  const [demoEmailInput, setDemoEmailInput] = useState('');
+  const [demoInstitution, setDemoInstitution] = useState('');
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [institution, setInstitution] = useState('');
@@ -81,8 +87,9 @@ export default function Academia() {
     },
     onSuccess: (data) => {
       setDemoProvisioned(true);
-      setDemoCode(data.demoCode);
-      setDemoExpiresAt(data.expiresAt);
+      setDemoCode(data.demoCode || 'DEMO2025');
+      setDemoExpiresAt(data.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString());
+      setDemoEmail(demoEmailInput);
       toast({
         title: "Demo access granted!",
         description: "You can now sign in and explore the platform.",
@@ -121,7 +128,7 @@ export default function Academia() {
 
   const handleDemoRequest = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) {
+    if (!demoName || !demoEmailInput) {
       toast({
         title: "Missing fields",
         description: "Please fill in your name and email.",
@@ -131,9 +138,9 @@ export default function Academia() {
     }
     
     demoMutation.mutate({ 
-      name, 
-      email, 
-      institution: institution || undefined,
+      name: demoName, 
+      email: demoEmailInput, 
+      institution: demoInstitution || undefined,
       message: `Instant demo request from academia page`
     });
   };
@@ -200,16 +207,19 @@ ${message || 'None provided'}
               <div className="bg-primary/5 rounded-lg p-4 text-left space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Demo Code:</span>
-                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono font-bold">{demoCode}</code>
+                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono font-bold" data-testid="text-demo-code">{demoCode}</code>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Access Expires:</span>
-                  <span className="text-sm font-medium">
-                    {new Date(demoExpiresAt).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
+                  <span className="text-sm font-medium" data-testid="text-demo-expiry">
+                    {demoExpiresAt && !isNaN(new Date(demoExpiresAt).getTime()) 
+                      ? new Date(demoExpiresAt).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })
+                      : '30 days from today'
+                    }
                   </span>
                 </div>
               </div>
@@ -237,14 +247,14 @@ ${message || 'None provided'}
               </div>
 
               <div className="pt-2 space-y-3">
-                <Link href="/">
+                <Link href="/login">
                   <Button className="w-full gap-2" data-testid="button-start-demo">
                     <Play className="h-4 w-4" />
                     Sign In & Start Exploring
                   </Button>
                 </Link>
                 <p className="text-xs text-muted-foreground">
-                  Sign in with {email} to access your demo environment
+                  Sign in with <strong>{demoEmail || 'your email'}</strong> to access your demo environment
                 </p>
               </div>
             </CardContent>
@@ -691,8 +701,8 @@ ${message || 'None provided'}
                         <Input
                           id="demo-name"
                           placeholder="Dr. Jane Smith"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          value={demoName}
+                          onChange={(e) => setDemoName(e.target.value)}
                           data-testid="input-demo-name"
                         />
                       </div>
@@ -702,8 +712,8 @@ ${message || 'None provided'}
                           id="demo-email"
                           type="email"
                           placeholder="jsmith@university.edu"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          value={demoEmailInput}
+                          onChange={(e) => setDemoEmailInput(e.target.value)}
                           data-testid="input-demo-email"
                         />
                       </div>
@@ -713,8 +723,8 @@ ${message || 'None provided'}
                       <Input
                         id="demo-institution"
                         placeholder="University of Business"
-                        value={institution}
-                        onChange={(e) => setInstitution(e.target.value)}
+                        value={demoInstitution}
+                        onChange={(e) => setDemoInstitution(e.target.value)}
                         data-testid="input-demo-institution"
                       />
                     </div>
