@@ -47,6 +47,7 @@ import type { Team, ResearchReport, HistoricalData, WorkforceDemographics } from
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { SandboxControls } from "@/components/sandbox-controls";
+import { InfoTooltip, TOOLTIP_CONTENT } from "@/components/info-tooltip";
 
 const CHART_COLORS = ["hsl(35, 100%, 50%)", "hsl(142, 76%, 50%)", "hsl(200, 100%, 60%)", "hsl(280, 80%, 65%)", "hsl(0, 72%, 55%)"];
 
@@ -280,7 +281,10 @@ END OF RESEARCH MATERIALS
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">Research Progress</p>
+                <p className="flex items-center justify-end gap-1 text-sm text-muted-foreground">
+                  Research Progress
+                  <InfoTooltip content={TOOLTIP_CONTENT.reskillingProgress} iconSize={12} side="left" />
+                </p>
                 <div className="flex items-center gap-2">
                   <Progress value={researchProgress} className="w-32 h-2" />
                   <span className="text-sm font-mono">{Math.round(researchProgress)}%</span>

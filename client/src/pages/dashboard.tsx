@@ -30,6 +30,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { InfoTooltip, TOOLTIP_CONTENT } from "@/components/info-tooltip";
 import type { Team } from "@shared/schema";
 
 export default function Dashboard() {
@@ -254,7 +255,10 @@ export default function Dashboard() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
-                <div className="text-sm text-muted-foreground mb-2">Financial Score</div>
+                <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mb-2">
+                  Financial Score
+                  <InfoTooltip content={TOOLTIP_CONTENT.financialScore} iconSize={12} />
+                </div>
                 <div className="flex items-center justify-center gap-2">
                   <div className="text-3xl font-bold font-mono text-primary" data-testid="financial-score">
                     {financialScore}
@@ -274,7 +278,10 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="text-center p-4 rounded-lg bg-success/5 border border-success/10">
-                <div className="text-sm text-muted-foreground mb-2">Cultural Score</div>
+                <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mb-2">
+                  Cultural Score
+                  <InfoTooltip content={TOOLTIP_CONTENT.culturalHealth} iconSize={12} />
+                </div>
                 <div className="flex items-center justify-center gap-2">
                   <div className="text-3xl font-bold font-mono text-success" data-testid="cultural-score">
                     {culturalScore}
@@ -331,6 +338,7 @@ export default function Dashboard() {
                     unionRiskLevel === 'medium' ? 'text-warning' : 'text-success'
                   }`} />
                   Union Sentiment
+                  <InfoTooltip content={TOOLTIP_CONTENT.unionSentiment} iconSize={12} />
                 </span>
                 <Badge variant={
                   unionRiskLevel === 'critical' ? 'destructive' :
@@ -347,6 +355,7 @@ export default function Dashboard() {
                 <span className="flex items-center gap-2">
                   <Factory className="h-4 w-4 text-primary" />
                   Automation Level
+                  <InfoTooltip content={TOOLTIP_CONTENT.automationROI} iconSize={12} />
                 </span>
                 <span className="font-mono">{companyState.automationLevel}%</span>
               </div>
@@ -358,6 +367,7 @@ export default function Dashboard() {
                 <span className="flex items-center gap-2">
                   <UserCheck className="h-4 w-4 text-accent" />
                   Management Bench
+                  <InfoTooltip content={TOOLTIP_CONTENT.managementBench} iconSize={12} />
                 </span>
                 <span className="font-mono">{companyState.managementBenchStrength}%</span>
               </div>

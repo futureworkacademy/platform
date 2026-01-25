@@ -8,16 +8,48 @@
 
 ## 1. Overview of AI Usage
 
-The platform uses OpenAI models through Replit AI Integrations for the following purposes:
+### 1.1 AI Infrastructure
 
-| Function | Model | Purpose |
-|----------|-------|---------|
-| Essay/Rationale Evaluation | gpt-4o-mini | Assess student written responses against rubrics |
-| Content Enhancement | gpt-4o-mini | Improve simulation content quality |
-| Content Consistency Review | gpt-4o-mini | Ensure narrative consistency across assets |
-| Phone-a-Friend Advisor | gpt-4o-mini | Generate contextual expert advice |
-| Character Headshot Generation | gpt-image-1 | Create stakeholder portrait images |
-| Brand Logo Generation | External AI | Create professional logo assets |
+The platform uses **enterprise-grade AI models** through Replit AI Integrations—a managed service that provides:
+- **Automatic key rotation** and secure credential management
+- **No API key exposure** to users or code
+- **Rate limiting and retry handling** built-in
+- **Cost tracking** through Replit credits
+- **Enterprise reliability** with uptime guarantees
+
+This is not a "bargain basement" implementation—we use production-grade AI infrastructure specifically designed for educational applications requiring reliability and auditability.
+
+### 1.2 Integrated AI Providers
+
+| Provider | Integration | Status | Use Cases |
+|----------|-------------|--------|-----------|
+| **OpenAI** | Replit AI Integrations (OpenAI) | Active | Essay evaluation, content enhancement, advisor system |
+| **Google Gemini** | Replit AI Integrations (Gemini) | Available | Multimodal content, future image/video analysis |
+
+### 1.3 Current AI Functions
+
+| Function | Model | Provider | Purpose |
+|----------|-------|----------|---------|
+| Essay/Rationale Evaluation | gpt-4o-mini | OpenAI | Assess student written responses against rubrics |
+| Content Enhancement | gpt-4o-mini | OpenAI | Improve simulation content quality |
+| Content Consistency Review | gpt-4o-mini | OpenAI | Ensure narrative consistency across assets |
+| Phone-a-Friend Advisor | gpt-4o-mini | OpenAI | Generate contextual expert advice with stakeholder awareness |
+| Character Headshot Generation | gpt-image-1 | OpenAI | Create stakeholder portrait images |
+| Brand Logo Generation | External AI | N/A | Create professional logo assets |
+| Content Export for External AI | N/A | Gemini-ready | Export simulation context for external tool integration |
+
+### 1.4 Available Gemini Models (Reserved for Future Use)
+
+The platform has Gemini AI Integrations configured and ready for:
+- **gemini-3-pro-preview**: Complex reasoning and agentic workflows
+- **gemini-3-flash-preview**: High-volume tasks
+- **gemini-2.5-flash-image**: Fast image generation
+- **gemini-3-pro-image-preview**: High-quality image generation
+
+These models are available for future features such as:
+- Multimodal content analysis (video briefings)
+- Alternative grading engines for cross-validation
+- Regional content localization
 
 ---
 
