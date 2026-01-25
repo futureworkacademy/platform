@@ -12,7 +12,7 @@ The platform uses OpenAI models through Replit AI Integrations for the following
 
 | Function | Model | Purpose |
 |----------|-------|---------|
-| Essay/Rationale Evaluation | gpt-4.1-nano | Assess student written responses against rubrics |
+| Essay/Rationale Evaluation | gpt-4o-mini | Assess student written responses against rubrics |
 | Content Enhancement | gpt-4o-mini | Improve simulation content quality |
 | Content Consistency Review | gpt-4o-mini | Ensure narrative consistency across assets |
 | Phone-a-Friend Advisor | gpt-4o-mini | Generate contextual expert advice |
@@ -25,7 +25,7 @@ The platform uses OpenAI models through Replit AI Integrations for the following
 
 ### 2.1 Basic Rationale Evaluation
 
-**Model:** gpt-4.1-nano  
+**Model:** gpt-4o-mini  
 **Temperature:** Default (deterministic)  
 **Purpose:** Evaluate how well students apply research materials to their decisions
 
@@ -34,11 +34,11 @@ The platform uses OpenAI models through Replit AI Integrations for the following
 You are evaluating student rationales for business decisions in a simulation about manufacturing AI adoption.
 
 Key research topics students should reference:
-- Labor shortage statistics (415,000 unfilled jobs, 2.1 million projected by 2030)
-- Workforce demographics (26% approaching retirement, Gen Z management refusal 72%)
-- Tariff impacts (25% steel/aluminum, 50% copper)
+- Labor shortage statistics (415,000 unfilled jobs per BLS 2025; 2.1-3.8 million projected need by 2030-2033 per Deloitte)
+- Workforce demographics (26% approaching retirement; Gen Z management refusal 72% per Korn Ferry/Deloitte 2024-2025)
+- Tariff impacts (25% steel/aluminum, 50% copper per Section 232 2025)
 - Competitor case studies (MicroPrecision FDA failure, PrecisionFirst success)
-- Manufacturing compensation ($102,000 average)
+- Manufacturing compensation ($85,000-$102,000 for skilled/supervisory roles per BLS 2025)
 - Workforce solutions (community college partnerships, dual career tracks, Master Technician paths)
 - Geographic factors (Iowa labor shortage)
 - Regulatory requirements (FDA medical device compliance)
@@ -78,7 +78,7 @@ Respond ONLY with the JSON object, no additional text.
 
 ### 2.2 Rubric-Based Essay Evaluation
 
-**Model:** gpt-4.1-nano  
+**Model:** gpt-4o-mini  
 **Temperature:** Default (deterministic)  
 **Purpose:** Evaluate student essays against multi-criteria rubrics with stakeholder context
 
@@ -89,9 +89,9 @@ You are an expert business education evaluator assessing student responses in a 
 Your task is to evaluate a student's written response against a specific rubric. Be fair but rigorous - graduate students should demonstrate critical thinking.
 
 Key topics students should understand:
-- Labor shortage statistics (415,000 unfilled jobs, 2.1 million projected by 2030)
-- Workforce demographics (26% approaching retirement, Gen Z management refusal 72%)
-- Tariff impacts and supply chain considerations
+- Labor shortage statistics (415,000 unfilled jobs per BLS 2025; 2.1-3.8 million projected need by 2030-2033 per Deloitte)
+- Workforce demographics (26% approaching retirement; Gen Z management refusal 72% per Korn Ferry/Deloitte 2024-2025)
+- Tariff impacts and supply chain considerations (25% steel/aluminum, 50% copper per Section 232 2025)
 - Case studies of success and failure in manufacturing AI adoption
 - Workforce solutions (reskilling, dual career tracks, worker councils)
 - Union dynamics and employee relations
@@ -340,7 +340,7 @@ services feel, suitable for executive presentations and business school marketin
 
 | Model | Use Case | Rationale |
 |-------|----------|-----------|
-| gpt-4.1-nano | Assessment | Fast, cost-effective, deterministic outputs for fair evaluation |
+| gpt-4o-mini | Assessment | Fast, cost-effective, deterministic outputs for fair evaluation |
 | gpt-4o-mini | Content/Advisor | Good balance of quality and speed for creative tasks |
 | gpt-image-1 | Images | High-quality professional imagery for stakeholder portraits |
 
@@ -352,6 +352,7 @@ services feel, suitable for executive presentations and business school marketin
 |------|--------|--------|
 | Jan 2026 | Initial documentation | Platform Team |
 | Jan 2026 | Added stakeholder context injection | Platform Team |
+| Jan 2026 | Updated statistics with source citations (BLS, Deloitte, Korn Ferry); standardized model names to gpt-4o-mini | Platform Team |
 | Jan 2026 | Added logo generation prompts | Platform Team |
 
 ---

@@ -70,9 +70,9 @@ Our simulation design is grounded in peer-reviewed research on business simulati
 - **Post-Pandemic BSG Adoption Trends**: Business simulation adoption in higher education has accelerated dramatically. BSGs excel at teaching decision-making skills that are difficult to assess through traditional exams. *(MDPI Education Sciences, 2025)*
 
 **Industry-Validated Premise:**
-- **Deloitte/Manufacturing Institute (2021)**: 2.1 million manufacturing jobs will go unfilled by 2030 due to skills gaps
+- **Deloitte/Manufacturing Institute**: 2.1 million manufacturing jobs projected unfilled by 2030 due to skills gaps *(updated 2024 projections estimate 1.9-3.8M net need by 2033)*
 - **Bureau of Labor Statistics (2025)**: 415,000 current manufacturing openings, with AI/automation reshaping job requirements
-- **Harvard Business Review**: 72% of Gen Z employees express reluctance to pursue management roles - a leadership pipeline crisis our simulation directly addresses
+- **Korn Ferry/Deloitte Surveys (2024-2025)**: 72% of Gen Z employees express reluctance to pursue management roles - a leadership pipeline crisis our simulation directly addresses
 
 **Dual Scoring Innovation:**
 Our Financial + Cultural Health dual-scoring system reflects emerging ESG (Environmental, Social, Governance) trends in business education. Unlike single-metric simulations, students learn that sustainable success requires balancing short-term gains with long-term organizational health.

@@ -172,7 +172,7 @@ Each week follows this pattern:
 - 2,400 employees with 7.2 year average tenure
 - Revenue growth stagnated at 3% vs. 8% industry average
 - 42% of employees concerned about AI job displacement
-- 28% Gen Z workforce, 72% of whom refuse management roles
+- 28% Gen Z workforce, 72% of whom refuse management roles *(per Korn Ferry/Deloitte 2024-2025)*
 - 8 unfilled manager positions, 5 managers retiring in 3 years
 
 ---
