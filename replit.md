@@ -97,6 +97,20 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Frontend Framework:** React
 - **Backend Framework:** Express.js
 - **ORM:** Drizzle ORM
+
+## AI Transparency
+
+Full documentation of all AI/LLM prompts, models, and bias mitigation measures is maintained in:
+- **docs/AI_TRANSPARENCY.md** - Complete prompt documentation for audits
+
+This document covers:
+- All LLM prompts used for student assessment (essay evaluation, rationale scoring)
+- Content enhancement and generation prompts
+- Phone-a-Friend advisor system prompts with stakeholder context injection
+- Character headshot and brand logo generation prompts
+- Bias mitigation measures and data handling policies
+- Model selection rationale
+
 ---
 
 ## Additional Documentation
