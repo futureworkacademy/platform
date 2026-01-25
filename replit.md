@@ -35,6 +35,9 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Simulation Content Editor:** Admin interface at `/admin/simulation-content` for managing weekly briefings, research reports, and decision scenarios with AI-powered enhancement using OpenAI (improve clarity, expand details, simplify, add data points, generate scenarios).
 - **Unified People API:** Merges users, organization memberships, and team assignments.
 - **Week Results and Feedback System:** Displays detailed performance feedback, LLM-evaluated essay scores with rubric, and top answers.
+- **Content View Tracking:** Records when students view research reports, briefing sections, and intel articles for cross-session persistence and engagement analytics.
+- **Intel Engagement Bonus:** Students who engage with optional Industry Intelligence articles receive a bonus multiplier on their research score (1.0x base, +0.15x per article viewed, max 1.5x).
+- **Navigation Breadcrumbs:** Research, Briefing, and Decisions pages feature breadcrumb navigation for intuitive back-and-forth movement.
 
 ## External Dependencies
 

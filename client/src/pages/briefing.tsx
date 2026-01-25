@@ -353,7 +353,17 @@ export default function Briefing() {
                 {briefing.articles.slice(0, 3).map((article, index) => (
                   <button
                     key={article.id}
-                    onClick={() => setSelectedArticle(article as BriefingArticle)}
+                    onClick={() => {
+                      setSelectedArticle(article as BriefingArticle);
+                      // Record content view for easter egg bonus tracking
+                      if (team?.currentWeek) {
+                        recordViewMutation.mutate({
+                          contentType: "simulation_content",
+                          contentId: `briefing_article_${article.id}`,
+                          weekNumber: team.currentWeek,
+                        });
+                      }
+                    }}
                     className="p-4 rounded-lg bg-muted/50 space-y-2 text-left hover-elevate cursor-pointer transition-all border border-transparent hover:border-primary/20"
                     data-testid={`card-article-${index}`}
                   >

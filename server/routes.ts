@@ -644,10 +644,16 @@ export async function registerRoutes(
         feedbackMessage = "Decision recorded. Consider diving deeper into the research materials.";
       }
       
+      // Apply view bonus multiplier to research score (rewards intel engagement)
+      const adjustedResearchScore = Math.round(llmEvaluation.score * easterEggResult.viewBonusMultiplier);
+      
       res.json({ 
         submission: enrichedSubmission,
         qualityFeedback: feedbackMessage,
-        researchScore: llmEvaluation.score,
+        researchScore: adjustedResearchScore,
+        baseResearchScore: llmEvaluation.score,
+        viewBonusMultiplier: easterEggResult.viewBonusMultiplier,
+        viewedIntelCount: easterEggResult.viewedContentMatches.length,
         llmEvaluations,
         overallLLMScore,
       });

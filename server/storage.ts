@@ -1915,37 +1915,33 @@ export class MemStorage implements IStorage {
     // Map content view IDs to their content identifiers
     const viewedContentIds = new Set(contentViews.map(v => v.contentId.toLowerCase()));
     
-    // Check which easter eggs match content the user actually viewed
-    // This includes matching sourceReport keywords against content view contentIds
-    for (const eggId of foundIds) {
-      const egg = easterEggs.find(e => e.id === eggId);
-      if (egg) {
-        // Check if any viewed content relates to this easter egg's source
-        const sourceKeywords = egg.sourceReport.toLowerCase().split(/\s+/);
-        const viewedIdArray = Array.from(viewedContentIds);
-        for (const viewedId of viewedIdArray) {
-          // Match if the viewed content ID contains keywords from the easter egg source
-          const matches = sourceKeywords.some(keyword => 
-            keyword.length > 3 && viewedId.includes(keyword)
-          );
-          if (matches) {
-            viewedContentMatches.push(eggId);
-            break;
-          }
-        }
-      }
-    }
-    
-    // Also check for research_report and simulation_content views which indicate engagement with intel items
-    const intelViews = contentViews.filter(v => 
-      v.contentType === 'research_report' || 
-      v.contentType === 'simulation_content'
+    // Filter for briefing article views (these are the optional intel items)
+    const briefingArticleViews = contentViews.filter(v => 
+      v.contentId.startsWith('briefing_article_')
     );
     
-    // Calculate bonus multiplier: more views = higher multiplier (max 1.5x)
-    // Base multiplier is 1.0, add 0.1 for each unique intel item viewed, cap at 1.5
-    const uniqueIntelViewed = new Set(intelViews.map(v => v.contentId)).size;
-    const viewBonusMultiplier = Math.min(1.5, 1.0 + (uniqueIntelViewed * 0.1));
+    // Get the article IDs that were viewed
+    const viewedArticleIds = new Set(
+      briefingArticleViews.map(v => v.contentId.replace('briefing_article_', ''))
+    );
+    
+    // Check which easter eggs match content the user actually viewed
+    // We match based on whether the user viewed any intel articles
+    // (The bonus applies when students engage with optional material and reference it)
+    const hasViewedIntel = briefingArticleViews.length > 0;
+    if (hasViewedIntel && foundIds.length > 0) {
+      // If student viewed intel and referenced easter eggs, they get bonus for engagement
+      // Mark all found easter eggs as matching viewed content since they engaged with material
+      viewedContentMatches.push(...foundIds);
+    }
+    
+    // Calculate bonus multiplier based on intel engagement:
+    // Base: 1.0x (no bonus if no intel viewed)
+    // +0.15x for each unique intel article viewed, cap at 1.5x
+    const uniqueIntelViewed = viewedArticleIds.size;
+    const viewBonusMultiplier = uniqueIntelViewed > 0 
+      ? Math.min(1.5, 1.0 + (uniqueIntelViewed * 0.15))
+      : 1.0;
     
     return {
       foundIds,
