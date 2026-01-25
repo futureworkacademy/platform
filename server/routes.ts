@@ -4016,8 +4016,31 @@ Access your dashboard at: https://futureworkacademy.com
 
   // Google Docs Integration Routes
   const { googleDocsService } = await import("./google-docs-service");
-  const fs = await import("fs");
-  const path = await import("path");
+  const fsPromises = await import("fs/promises");
+  const pathModule = await import("path");
+
+  const syncDocSchema = z.object({
+    documentType: z.enum(['business_plan', 'product_roadmap', 'marketing_materials', 'solution_doc'])
+  });
+
+  const docFilesConfig: Record<string, { path: string; title: string }> = {
+    'business_plan': { 
+      path: 'docs/BUSINESS_PLAN.md', 
+      title: 'Future Work Academy - Business Plan' 
+    },
+    'product_roadmap': { 
+      path: 'docs/PRODUCT_ROADMAP.md', 
+      title: 'Future Work Academy - Product Roadmap' 
+    },
+    'marketing_materials': { 
+      path: 'docs/MARKETING_MATERIALS.md', 
+      title: 'Future Work Academy - Marketing Materials' 
+    },
+    'solution_doc': { 
+      path: 'SOLUTION_DOC.md', 
+      title: 'Future Work Academy - Solution Document' 
+    }
+  };
 
   // List all documents synced to Google Docs
   app.get("/api/docs/list", isAuthenticated, async (req: any, res) => {
@@ -4033,7 +4056,7 @@ Access your dashboard at: https://futureworkacademy.com
       res.json(docs);
     } catch (error: any) {
       console.error("Error listing Google Docs:", error);
-      res.status(500).json({ error: error.message || "Failed to list documents" });
+      res.status(500).json({ error: "Failed to list documents" });
     }
   });
 
@@ -4047,42 +4070,25 @@ Access your dashboard at: https://futureworkacademy.com
         return res.status(403).json({ error: "Super Admin access required" });
       }
 
-      const { documentType } = req.body;
-      
-      const docFiles: Record<string, { path: string; title: string }> = {
-        'business_plan': { 
-          path: 'docs/BUSINESS_PLAN.md', 
-          title: 'Future Work Academy - Business Plan' 
-        },
-        'product_roadmap': { 
-          path: 'docs/PRODUCT_ROADMAP.md', 
-          title: 'Future Work Academy - Product Roadmap' 
-        },
-        'marketing_materials': { 
-          path: 'docs/MARKETING_MATERIALS.md', 
-          title: 'Future Work Academy - Marketing Materials' 
-        },
-        'solution_doc': { 
-          path: 'SOLUTION_DOC.md', 
-          title: 'Future Work Academy - Solution Document' 
-        }
-      };
-
-      if (!documentType || !docFiles[documentType]) {
+      const parseResult = syncDocSchema.safeParse(req.body);
+      if (!parseResult.success) {
         return res.status(400).json({ 
           error: "Invalid document type",
-          validTypes: Object.keys(docFiles)
+          validTypes: Object.keys(docFilesConfig)
         });
       }
 
-      const docConfig = docFiles[documentType];
-      const filePath = path.join(process.cwd(), docConfig.path);
+      const { documentType } = parseResult.data;
+      const docConfig = docFilesConfig[documentType];
+      const filePath = pathModule.join(process.cwd(), docConfig.path);
       
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: `Document not found: ${docConfig.path}` });
+      try {
+        await fsPromises.access(filePath);
+      } catch {
+        return res.status(404).json({ error: "Document file not found" });
       }
 
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const content = await fsPromises.readFile(filePath, 'utf-8');
       const result = await googleDocsService.syncMarkdownToGoogleDoc(docConfig.title, content);
       
       res.json({
@@ -4093,7 +4099,7 @@ Access your dashboard at: https://futureworkacademy.com
       });
     } catch (error: any) {
       console.error("Error syncing to Google Docs:", error);
-      res.status(500).json({ error: error.message || "Failed to sync document" });
+      res.status(500).json({ error: "Failed to sync document to Google Docs" });
     }
   });
 
@@ -4107,40 +4113,28 @@ Access your dashboard at: https://futureworkacademy.com
         return res.status(403).json({ error: "Super Admin access required" });
       }
 
-      const docFiles = [
-        { path: 'docs/BUSINESS_PLAN.md', title: 'Future Work Academy - Business Plan' },
-        { path: 'docs/PRODUCT_ROADMAP.md', title: 'Future Work Academy - Product Roadmap' },
-        { path: 'docs/MARKETING_MATERIALS.md', title: 'Future Work Academy - Marketing Materials' },
-        { path: 'SOLUTION_DOC.md', title: 'Future Work Academy - Solution Document' }
-      ];
-
+      const docFiles = Object.values(docFilesConfig);
       const results = [];
       
       for (const doc of docFiles) {
-        const filePath = path.join(process.cwd(), doc.path);
+        const filePath = pathModule.join(process.cwd(), doc.path);
         
-        if (fs.existsSync(filePath)) {
-          try {
-            const content = fs.readFileSync(filePath, 'utf-8');
-            const result = await googleDocsService.syncMarkdownToGoogleDoc(doc.title, content);
-            results.push({
-              success: true,
-              title: doc.title,
-              documentId: result.documentId,
-              googleDocsUrl: `https://docs.google.com/document/d/${result.documentId}/edit`
-            });
-          } catch (syncError: any) {
-            results.push({
-              success: false,
-              title: doc.title,
-              error: syncError.message
-            });
-          }
-        } else {
+        try {
+          await fsPromises.access(filePath);
+          const content = await fsPromises.readFile(filePath, 'utf-8');
+          const result = await googleDocsService.syncMarkdownToGoogleDoc(doc.title, content);
+          results.push({
+            success: true,
+            title: doc.title,
+            documentId: result.documentId,
+            googleDocsUrl: `https://docs.google.com/document/d/${result.documentId}/edit`
+          });
+        } catch (syncError: any) {
+          console.error(`Error syncing ${doc.title}:`, syncError);
           results.push({
             success: false,
             title: doc.title,
-            error: 'File not found'
+            error: 'Failed to sync document'
           });
         }
       }
