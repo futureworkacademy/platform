@@ -288,7 +288,7 @@ function AppRouter() {
   
   // IMPORTANT: If admin is in sandbox mode, allow them to access student pages
   if (isAdminUser && !isInSandboxMode) {
-    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/academia' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
   }
