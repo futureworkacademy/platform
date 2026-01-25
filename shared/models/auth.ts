@@ -17,6 +17,14 @@ export const ORG_STATUS = {
   ARCHIVED: "archived",
 } as const;
 
+// Demo/Evaluator access levels
+export const DEMO_ACCESS = {
+  NONE: "none",           // Regular user - no demo restrictions
+  EVALUATOR: "evaluator", // Demo-only access for prospective faculty
+} as const;
+
+export type DemoAccess = typeof DEMO_ACCESS[keyof typeof DEMO_ACCESS];
+
 export type OrgStatus = typeof ORG_STATUS[keyof typeof ORG_STATUS];
 
 // Session storage table.
@@ -56,6 +64,8 @@ export const users = pgTable("users", {
   testStudentOwnerOrgId: varchar("test_student_owner_org_id"),
   inStudentPreview: boolean("in_student_preview").default(false),
   previewModeOrgId: varchar("preview_mode_org_id"),
+  demoAccess: varchar("demo_access").default("none"), // none, evaluator - restricts to demo orgs only
+  demoExpiresAt: timestamp("demo_expires_at"), // When evaluator access expires
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -100,6 +110,7 @@ export const organizations = pgTable("organizations", {
   notifyOnSignup: boolean("notify_on_signup").default(true),
   notifyEmail: varchar("notify_email"),
   notifyPhone: varchar("notify_phone"),
+  isDemo: boolean("is_demo").default(false), // Demo organizations are sandboxed for evaluators
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
