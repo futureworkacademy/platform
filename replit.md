@@ -33,6 +33,14 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - Conveys: Leadership, Technology, Transformation, Education
 - Avoid: Cartoonish elements, clip-art aesthetics, overly academic symbols
 
+**Complete Brand Standards:** See `docs/BRAND_STANDARDS.md` for full documentation including:
+- Color palette with hex codes (Corporate Navy #1e3a5f, Growth Green #22c55e, etc.)
+- Typography guidelines (IBM Plex Sans, Inter, Roboto Mono)
+- Logo usage guidelines and asset locations
+- Tone and voice guidelines
+- Visual style principles
+- Spacing system
+
 **Logo Assets:**
 - `attached_assets/logo-icon-dark.png` - Square icon, navy on white (for light backgrounds)
 - `attached_assets/logo-icon-light.png` - Square icon, white on black (for dark backgrounds)

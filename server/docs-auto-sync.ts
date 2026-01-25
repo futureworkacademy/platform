@@ -27,6 +27,10 @@ const DOC_FILES: Record<string, { path: string; title: string }> = {
   ai_transparency: {
     path: 'docs/AI_TRANSPARENCY.md',
     title: 'Future Work Academy - AI Transparency & Prompt Documentation'
+  },
+  brand_standards: {
+    path: 'docs/BRAND_STANDARDS.md',
+    title: 'Future Work Academy - Brand Standards'
   }
 };
 
