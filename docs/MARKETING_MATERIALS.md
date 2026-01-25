@@ -1,7 +1,9 @@
 # Future Work Academy - Marketing Materials
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** January 2026
+
+> **Note:** Additional visual diagrams (system architecture, data models, notification flows) available in [APPENDIX_DIAGRAMS.md](./APPENDIX_DIAGRAMS.md)
 
 ---
 
@@ -50,6 +52,19 @@ An 8-week immersive business simulation where students step into the role of exe
 
 ### The Weekly Workflow
 
+```mermaid
+flowchart LR
+    subgraph Week["Weekly Cycle"]
+        A[Dashboard] --> B[Briefing]
+        B --> C[Research & Intel]
+        C --> D[Decision Making]
+        D --> E[Submit Decisions]
+        E --> F[Analytics & Results]
+        F --> G[Leaderboard]
+    end
+    G --> |Next Week| A
+```
+
 1. **Review Intelligence Briefing** - Students analyze curated industry news, market signals, and emerging trends
 
 2. **Make Strategic Decisions** - Resource allocation across multiple competing priorities with both structured inputs and open-ended strategic justifications
@@ -65,6 +80,28 @@ An 8-week immersive business simulation where students step into the role of exe
 ### LLM-Powered Essay Evaluation: Transparency by Design
 
 Unlike black-box AI grading, our system provides complete transparency:
+
+```mermaid
+flowchart TB
+    subgraph Input["Student Essay Response"]
+        Essay[Free-text Answer]
+    end
+
+    subgraph Rubric["4-Criteria Evaluation"]
+        R1["Evidence Quality (25%)"]
+        R2["Reasoning Coherence (25%)"]
+        R3["Trade-off Analysis (25%)"]
+        R4["Stakeholder Consideration (25%)"]
+    end
+
+    subgraph Output["Grading Output"]
+        Score[Score 0-100]
+        Feedback[Detailed Feedback]
+    end
+
+    Essay --> R1 & R2 & R3 & R4
+    R1 & R2 & R3 & R4 --> Score & Feedback
+```
 
 **The 4-Criteria Rubric (25 points each, 100 total)**
 

@@ -1,7 +1,7 @@
 # Future Work Academy - Business Plan
 
 **Prepared by:** The Mitchell Group, LLC  
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** January 2026
 
 ---
@@ -257,6 +257,27 @@ Higher education institutions require vendors to meet specific security and comp
 
 ## Competitive Landscape
 
+### Competitive Positioning
+
+```mermaid
+%%{init: {"quadrantChart": {"chartWidth": 500, "chartHeight": 500}}}%%
+quadrantChart
+    title Competitive Landscape
+    x-axis Low AI Integration --> High AI Integration
+    y-axis Low Engagement --> High Engagement
+    quadrant-1 Leaders
+    quadrant-2 Engaging but Manual
+    quadrant-3 Basic Tools
+    quadrant-4 AI-Heavy but Passive
+    Future Work Academy: [0.85, 0.90]
+    Traditional Case Studies: [0.15, 0.40]
+    Generic Business Sims: [0.30, 0.60]
+    AI Tutoring Platforms: [0.75, 0.35]
+    Static Online Courses: [0.10, 0.20]
+```
+
+> **Note:** If the quadrant chart doesn't render in your environment, use the [mermaid.live editor](https://mermaid.live) to generate a PNG/SVG export.
+
 ### Direct Competitors
 
 | Competitor | Strengths | Weaknesses | Pricing |
@@ -369,12 +390,18 @@ Higher education institutions require vendors to meet specific security and comp
 
 ---
 
-## Appendix: Contact Information
+## Appendix A: Contact Information
 
 - **Founder:** Doug Mitchell
 - **Email:** doug@futureworkacademy.com
 - **Website:** futureworkacademy.com
 - **Entity:** The Mitchell Group, LLC
+
+---
+
+## Appendix B: Visual Diagrams
+
+For presentation-ready visual assets including system architecture, data models, workflow diagrams, and competitive positioning charts, see [APPENDIX_DIAGRAMS.md](./APPENDIX_DIAGRAMS.md).
 
 ---
 
