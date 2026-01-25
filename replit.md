@@ -1,7 +1,7 @@
 # The Future of Work - Business Simulation Game
 
 ## Overview
-This web-based business simulation game is designed for graduate students to make strategic company decisions over a semester. It focuses on navigating AI adoption, managing employee anxiety, and workforce transformation. Teams compete on financial performance and cultural health, providing an engaging and educational experience for future business leaders. The platform aims to prepare leaders for AI-driven decision-making and offers a multi-scenario simulation platform for experiential learning in complex decision-making, with a business vision to address the market potential for AI integration and workforce management training.
+This web-based business simulation game is designed for graduate students to make strategic company decisions over a semester. It focuses on navigating AI adoption, managing employee anxiety, and workforce transformation. Teams compete on financial performance and cultural health, providing an engaging and educational experience for future business leaders. The platform aims to prepare leaders for AI-driven decision-making and offers a multi-scenario simulation platform for experiential learning in complex decision-making, addressing the market potential for AI integration and workforce management training.
 
 ## User Preferences
 I prefer clear and concise communication. When making changes, prioritize the core logic and critical features. I value iterative development and expect to be consulted before major architectural shifts or significant feature additions. Do not make changes to files related to authentication without explicit approval.
