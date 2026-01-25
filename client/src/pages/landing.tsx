@@ -212,13 +212,23 @@ export default function Landing() {
               <p className="text-sm opacity-80 mb-3">
                 Interested in bringing this simulation to your classroom?
               </p>
-              <a 
-                href="/for-educators" 
-                className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
-                data-testid="link-professor-inquiry"
-              >
-                Contact us about academic licensing
-              </a>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <a 
+                  href="/for-educators" 
+                  className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
+                  data-testid="link-professor-inquiry"
+                >
+                  Contact us about academic licensing
+                </a>
+                <span className="opacity-50">|</span>
+                <a 
+                  href="/privacy" 
+                  className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
+                  data-testid="link-privacy-policy"
+                >
+                  Privacy Policy
+                </a>
+              </div>
             </div>
           </div>
         </section>

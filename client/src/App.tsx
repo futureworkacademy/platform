@@ -25,6 +25,7 @@ import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
 import EducatorInquiries from "@/pages/educator-inquiries";
+import Privacy from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -178,6 +179,10 @@ function AppRouter() {
     // Allow For Educators page without authentication
     if (location === "/for-educators") {
       return <ForEducators />;
+    }
+    // Allow Privacy Policy page without authentication
+    if (location === "/privacy") {
+      return <Privacy />;
     }
     return <Landing />;
   }
