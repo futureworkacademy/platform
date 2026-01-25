@@ -64,7 +64,7 @@ const navigationItems = [
     icon: Trophy,
   },
   {
-    title: "About",
+    title: "About FWA",
     url: "/about",
     icon: Info,
   },

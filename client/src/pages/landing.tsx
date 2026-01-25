@@ -62,20 +62,20 @@ export default function Landing() {
               data-testid="img-header-logo"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             <a 
               href="/about"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-about"
             >
-              About
+              About FWA
             </a>
             <a 
               href="/for-educators"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
             >
-              Educator Inquiry
+              Educator
             </a>
             <ThemeToggle />
             <a href="/api/login">

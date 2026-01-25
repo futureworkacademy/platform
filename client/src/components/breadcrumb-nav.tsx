@@ -7,7 +7,7 @@ const routeLabels: Record<string, string> = {
   "/decisions": "Decisions",
   "/analytics": "People Analytics",
   "/leaderboard": "Leaderboard",
-  "/about": "About",
+  "/about": "About FWA",
 };
 
 export function BreadcrumbNav() {
