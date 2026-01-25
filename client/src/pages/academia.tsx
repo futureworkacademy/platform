@@ -27,7 +27,10 @@ import {
   Leaf,
   AlertTriangle,
   Globe,
-  UserCog
+  UserCog,
+  Zap,
+  Lock,
+  Play
 } from "lucide-react";
 import logo from "@assets/logo-horizontal-dark.png";
 import { Link } from "wouter";
@@ -54,6 +57,9 @@ const PROGRAM_TYPES = [
 export default function Academia() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  const [demoProvisioned, setDemoProvisioned] = useState(false);
+  const [demoCode, setDemoCode] = useState('');
+  const [demoExpiresAt, setDemoExpiresAt] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [institution, setInstitution] = useState('');
@@ -62,6 +68,34 @@ export default function Academia() {
   const [classSize, setClassSize] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [message, setMessage] = useState('');
+
+  const demoMutation = useMutation({
+    mutationFn: async (data: { 
+      email: string; 
+      name: string; 
+      institution?: string;
+      message?: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/demo/request-access', data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setDemoProvisioned(true);
+      setDemoCode(data.demoCode);
+      setDemoExpiresAt(data.expiresAt);
+      toast({
+        title: "Demo access granted!",
+        description: "You can now sign in and explore the platform.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to provision demo access",
+        description: "Please try again or use the contact form below.",
+        variant: "destructive",
+      });
+    }
+  });
 
   const submitMutation = useMutation({
     mutationFn: async (data: { 
@@ -84,6 +118,25 @@ export default function Academia() {
       });
     }
   });
+
+  const handleDemoRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in your name and email.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    demoMutation.mutate({ 
+      name, 
+      email, 
+      institution: institution || undefined,
+      message: `Instant demo request from academia page`
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +167,92 @@ ${message || 'None provided'}
       message: fullMessage
     });
   };
+
+  if (demoProvisioned) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
+            <Link href="/">
+              <img 
+                src={logo} 
+                alt="Future Work Academy" 
+                className="h-16 w-auto cursor-pointer"
+                data-testid="img-header-logo"
+              />
+            </Link>
+            <ThemeToggle />
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-16 max-w-xl">
+          <Card className="text-center">
+            <CardHeader className="pb-4">
+              <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+                <Zap className="h-8 w-8 text-green-600 dark:text-green-400" />
+              </div>
+              <CardTitle className="text-2xl">Demo Access Granted!</CardTitle>
+              <CardDescription className="text-base">
+                Your evaluator account has been created. You can now explore the full simulation experience.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-primary/5 rounded-lg p-4 text-left space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Demo Code:</span>
+                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono font-bold">{demoCode}</code>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Access Expires:</span>
+                  <span className="text-sm font-medium">
+                    {new Date(demoExpiresAt).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold text-sm mb-2">What's included in your demo:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1 text-left">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Pre-populated demo class with sample students
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Full access to instructor dashboard features
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Student preview mode to experience their view
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    Sandboxed environment (no real student data)
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-2 space-y-3">
+                <Link href="/">
+                  <Button className="w-full gap-2" data-testid="button-start-demo">
+                    <Play className="h-4 w-4" />
+                    Sign In & Start Exploring
+                  </Button>
+                </Link>
+                <p className="text-xs text-muted-foreground">
+                  Sign in with {email} to access your demo environment
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -529,14 +668,105 @@ ${message || 'None provided'}
                 </Card>
               </div>
 
+              <Card className="border-green-500/30 bg-green-500/5">
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-green-500" />
+                      Try It Now
+                    </CardTitle>
+                    <span className="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-1 rounded-full font-medium">
+                      Instant Access
+                    </span>
+                  </div>
+                  <CardDescription>
+                    Get immediate demo access—no waiting, no scheduling required
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleDemoRequest} className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="demo-name">Your Name *</Label>
+                        <Input
+                          id="demo-name"
+                          placeholder="Dr. Jane Smith"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          data-testid="input-demo-name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="demo-email">Email *</Label>
+                        <Input
+                          id="demo-email"
+                          type="email"
+                          placeholder="jsmith@university.edu"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          data-testid="input-demo-email"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="demo-institution">Institution (optional)</Label>
+                      <Input
+                        id="demo-institution"
+                        placeholder="University of Business"
+                        value={institution}
+                        onChange={(e) => setInstitution(e.target.value)}
+                        data-testid="input-demo-institution"
+                      />
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
+                      <p className="font-medium flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        What you'll get:
+                      </p>
+                      <ul className="text-muted-foreground text-xs space-y-1 ml-6">
+                        <li>30-day evaluator access to explore the full platform</li>
+                        <li>Pre-populated demo class with sample students</li>
+                        <li>Sandboxed environment—completely isolated from real courses</li>
+                      </ul>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full gap-2" 
+                      disabled={demoMutation.isPending}
+                      data-testid="button-instant-demo"
+                    >
+                      {demoMutation.isPending ? (
+                        <>Processing...</>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4" />
+                          Start Exploring Now
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    or schedule a personalized walkthrough
+                  </span>
+                </div>
+              </div>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calendar className="h-5 w-5" />
-                    Request Your Demo
+                    Request Guided Demo
                   </CardTitle>
                   <CardDescription>
-                    Fill out the form and we'll contact you within 24 hours
+                    Want a personal walkthrough? Fill out the form and we'll contact you within 24 hours
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
