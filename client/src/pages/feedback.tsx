@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
-import logo from "@assets/fwalogo-2_1768083577051.png";
+import logo from "@assets/logo-dark.svg";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";

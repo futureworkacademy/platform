@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft } from "lucide-react";
-import logoImg from "@assets/fwalogo-2_1768083577051.png";
+import logoImg from "@assets/logo-dark.svg";
 import { AppFooter } from "@/components/app-footer";
 
 export default function Privacy() {

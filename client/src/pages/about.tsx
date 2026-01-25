@@ -12,7 +12,7 @@ import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import logoImg from "@assets/fwalogo-2_1768083577051.png";
+import logoImg from "@assets/logo-dark.svg";
 
 interface AboutContent {
   id?: string;

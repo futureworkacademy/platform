@@ -19,7 +19,7 @@ import {
   Landmark,
   Brain
 } from "lucide-react";
-import logo from "@assets/fwalogo-2_1768083577051.png";
+import logo from "@assets/logo-dark.svg";
 
 const challengeSets = [
   [

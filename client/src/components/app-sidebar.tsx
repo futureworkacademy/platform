@@ -12,7 +12,7 @@ import {
   Shield,
   ClipboardCheck,
 } from "lucide-react";
-import logo from "@assets/fwalogo-2_1768083577051.png";
+import logo from "@assets/logo-light.svg";
 import {
   Sidebar,
   SidebarContent,
