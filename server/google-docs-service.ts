@@ -7,6 +7,10 @@ import { google } from 'googleapis';
 let docsConnectionSettings: any;
 let driveConnectionSettings: any;
 
+// Cache for folder ID
+let futureWorkFolderId: string | null = null;
+const FOLDER_NAME = 'Future Work Academy';
+
 async function getDocsAccessToken() {
   if (docsConnectionSettings && docsConnectionSettings.settings.expires_at && new Date(docsConnectionSettings.settings.expires_at).getTime() > Date.now()) {
     return docsConnectionSettings.settings.access_token;
@@ -102,6 +106,67 @@ export interface DocumentInfo {
   documentId: string;
   title: string;
   revisionId?: string;
+  folderId?: string;
+}
+
+// Find or create the "Future Work Academy" folder
+export async function findOrCreateFolder(): Promise<string> {
+  if (futureWorkFolderId) {
+    return futureWorkFolderId;
+  }
+
+  const drive = await getGoogleDriveClient();
+  
+  // Search for existing folder
+  const response = await drive.files.list({
+    q: `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}' and trashed=false`,
+    fields: 'files(id, name)',
+    pageSize: 1
+  });
+
+  if (response.data.files && response.data.files.length > 0) {
+    futureWorkFolderId = response.data.files[0].id!;
+    console.log(`[Google Docs] Found existing folder: ${FOLDER_NAME} (${futureWorkFolderId})`);
+    return futureWorkFolderId;
+  }
+
+  // Create new folder
+  const createResponse = await drive.files.create({
+    requestBody: {
+      name: FOLDER_NAME,
+      mimeType: 'application/vnd.google-apps.folder'
+    },
+    fields: 'id'
+  });
+
+  futureWorkFolderId = createResponse.data.id!;
+  console.log(`[Google Docs] Created folder: ${FOLDER_NAME} (${futureWorkFolderId})`);
+  return futureWorkFolderId;
+}
+
+// Move a file to the Future Work Academy folder
+async function moveToFolder(fileId: string): Promise<void> {
+  const drive = await getGoogleDriveClient();
+  const folderId = await findOrCreateFolder();
+  
+  // Get current parents
+  const file = await drive.files.get({
+    fileId: fileId,
+    fields: 'parents'
+  });
+  
+  const previousParents = file.data.parents?.join(',') || '';
+  
+  // Move to our folder (if not already there)
+  if (!file.data.parents?.includes(folderId)) {
+    await drive.files.update({
+      fileId: fileId,
+      addParents: folderId,
+      removeParents: previousParents,
+      fields: 'id, parents'
+    });
+    console.log(`[Google Docs] Moved document to ${FOLDER_NAME} folder`);
+  }
 }
 
 export async function createDocument(title: string): Promise<DocumentInfo> {
@@ -203,9 +268,11 @@ export async function listDocuments(): Promise<DocumentInfo[]> {
 
 export async function findOrCreateDocument(title: string): Promise<DocumentInfo> {
   const drive = await getGoogleDriveClient();
+  const folderId = await findOrCreateFolder();
   
+  // Search within our folder first
   const response = await drive.files.list({
-    q: `mimeType='application/vnd.google-apps.document' and name='${title.replace(/'/g, "\\'")}'`,
+    q: `mimeType='application/vnd.google-apps.document' and name='${title.replace(/'/g, "\\'")}' and '${folderId}' in parents and trashed=false`,
     fields: 'files(id, name)',
     pageSize: 1
   });
@@ -213,30 +280,76 @@ export async function findOrCreateDocument(title: string): Promise<DocumentInfo>
   if (response.data.files && response.data.files.length > 0) {
     return {
       documentId: response.data.files[0].id!,
-      title: response.data.files[0].name!
+      title: response.data.files[0].name!,
+      folderId: folderId
     };
   }
 
-  return await createDocument(title);
+  // Check if it exists elsewhere and move it
+  const anywhereResponse = await drive.files.list({
+    q: `mimeType='application/vnd.google-apps.document' and name='${title.replace(/'/g, "\\'")}' and trashed=false`,
+    fields: 'files(id, name)',
+    pageSize: 1
+  });
+
+  if (anywhereResponse.data.files && anywhereResponse.data.files.length > 0) {
+    const existingDocId = anywhereResponse.data.files[0].id!;
+    await moveToFolder(existingDocId);
+    return {
+      documentId: existingDocId,
+      title: anywhereResponse.data.files[0].name!,
+      folderId: folderId
+    };
+  }
+
+  // Create new document in the folder
+  const docInfo = await createDocument(title);
+  await moveToFolder(docInfo.documentId);
+  return { ...docInfo, folderId };
 }
+
+const MERMAID_NOTE = `
+═══════════════════════════════════════════════════════════════════
+NOTE: This document contains Mermaid diagram code blocks.
+To render diagrams as images:
+1. Copy the code block (between \`\`\`mermaid and \`\`\`)
+2. Paste into https://mermaid.live
+3. Download as PNG or SVG for presentations
+
+This document auto-syncs from the source repository.
+Last synced: {SYNC_TIME}
+═══════════════════════════════════════════════════════════════════
+
+`;
 
 export async function syncMarkdownToGoogleDoc(title: string, markdownContent: string): Promise<DocumentInfo> {
   const docInfo = await findOrCreateDocument(title);
   
-  const plainText = markdownContent
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/^\s*[-*]\s+/gm, '• ')
-    .replace(/^\s*\d+\.\s+/gm, (match, offset, string) => {
-      return match;
+  // Check if content has Mermaid diagrams
+  const hasMermaid = markdownContent.includes('```mermaid');
+  
+  // Convert markdown to plain text but KEEP code blocks for Mermaid
+  let plainText = markdownContent
+    .replace(/^#{1,6}\s+/gm, (match) => match.toUpperCase()) // Keep headings but uppercase
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
+    .replace(/\*([^*]+)\*/g, '$1') // Remove italics
+    .replace(/`([^`]+)`/g, '$1') // Remove inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links but keep text
+    .replace(/^\s*[-*]\s+/gm, '• '); // Convert bullets
+  
+  // Add Mermaid note at top if diagrams present
+  if (hasMermaid) {
+    const syncTime = new Date().toLocaleString('en-US', { 
+      dateStyle: 'medium', 
+      timeStyle: 'short',
+      timeZone: 'America/New_York'
     });
+    plainText = MERMAID_NOTE.replace('{SYNC_TIME}', syncTime) + plainText;
+  }
   
   await updateDocumentContent(docInfo.documentId, plainText);
   
+  console.log(`[Google Docs] Synced: ${title} (${docInfo.documentId})`);
   return docInfo;
 }
 
@@ -247,5 +360,6 @@ export const googleDocsService = {
   appendToDocument,
   listDocuments,
   findOrCreateDocument,
+  findOrCreateFolder,
   syncMarkdownToGoogleDoc
 };

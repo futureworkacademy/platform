@@ -4,6 +4,7 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { startReminderProcessor } from "./services/reminder-processor";
+import { initializeDocsAutoSync } from "./docs-auto-sync";
 
 const app = express();
 const httpServer = createServer(app);
@@ -99,6 +100,7 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
       startReminderProcessor();
+      initializeDocsAutoSync();
     },
   );
 })();

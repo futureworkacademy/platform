@@ -65,10 +65,22 @@ Legacy documentation:
 
 ### Google Docs Integration
 
-These documents can be synced to Google Docs via the Super Admin dashboard or API:
-- `POST /api/docs/sync` - Sync a specific document (body: `{ documentType: 'business_plan' | 'product_roadmap' | 'marketing_materials' | 'solution_doc' }`)
+Documents automatically sync to Google Docs on server startup and when files in the `docs/` directory are modified. They are organized in a "Future Work Academy" folder.
+
+**Automatic Sync Features:**
+- Initial sync on server startup
+- File watcher monitors docs/ directory with 3-second debounce for rapid saves
+- Documents moved to organized "Future Work Academy" folder
+
+**Manual API Endpoints:**
+- `POST /api/docs/sync` - Sync a specific document (body: `{ documentType: 'business_plan' | 'product_roadmap' | 'marketing_materials' | 'appendix_diagrams' }`)
 - `POST /api/docs/sync-all` - Sync all documents to Google Docs
 - `GET /api/docs/list` - List all Google Docs in connected account
+
+### Visual Documentation
+
+- **docs/APPENDIX_DIAGRAMS.md** - 10 Mermaid diagrams covering system architecture, workflows, scoring, rubrics, roles, competitive positioning, data models, lifecycle, and notification flows
+- Diagrams are code-based (version-controlled), render to images via [mermaid.live](https://mermaid.live) for presentations
 
 ---
 

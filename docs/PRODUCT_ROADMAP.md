@@ -286,3 +286,5 @@ This roadmap is a living document informed by:
 ---
 
 *For questions or feature requests, contact: doug@futureworkacademy.com*
+
+<!-- Last auto-sync test: Sun Jan 25 06:11:42 PM UTC 2026 -->
