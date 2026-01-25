@@ -51,4 +51,17 @@ I prefer clear and concise communication. When making changes, prioritize the co
 
 ## Additional Documentation
 
-For marketing materials, product roadmap, and business documentation, see **SOLUTION_DOC.md** in the project root.
+Business and marketing documentation is maintained in the `docs/` folder:
+- **docs/BUSINESS_PLAN.md** - Full business plan with costs, compliance requirements, and monetization strategy
+- **docs/PRODUCT_ROADMAP.md** - Detailed product roadmap with near-term, mid-term, and long-term features
+- **docs/MARKETING_MATERIALS.md** - Marketing content for MBA programs and generic academia
+
+Legacy documentation:
+- **SOLUTION_DOC.md** - Original solution document (superseded by docs/ folder)
+
+### Google Docs Integration
+
+These documents can be synced to Google Docs via the Super Admin dashboard or API:
+- `POST /api/docs/sync` - Sync a specific document (body: `{ documentType: 'business_plan' | 'product_roadmap' | 'marketing_materials' | 'solution_doc' }`)
+- `POST /api/docs/sync-all` - Sync all documents to Google Docs
+- `GET /api/docs/list` - List all Google Docs in connected account

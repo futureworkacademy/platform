@@ -4014,5 +4014,143 @@ Access your dashboard at: https://futureworkacademy.com
     }
   });
 
+  // Google Docs Integration Routes
+  const { googleDocsService } = await import("./google-docs-service");
+  const fs = await import("fs");
+  const path = await import("path");
+
+  // List all documents synced to Google Docs
+  app.get("/api/docs/list", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const docs = await googleDocsService.listDocuments();
+      res.json(docs);
+    } catch (error: any) {
+      console.error("Error listing Google Docs:", error);
+      res.status(500).json({ error: error.message || "Failed to list documents" });
+    }
+  });
+
+  // Sync a specific document to Google Docs
+  app.post("/api/docs/sync", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { documentType } = req.body;
+      
+      const docFiles: Record<string, { path: string; title: string }> = {
+        'business_plan': { 
+          path: 'docs/BUSINESS_PLAN.md', 
+          title: 'Future Work Academy - Business Plan' 
+        },
+        'product_roadmap': { 
+          path: 'docs/PRODUCT_ROADMAP.md', 
+          title: 'Future Work Academy - Product Roadmap' 
+        },
+        'marketing_materials': { 
+          path: 'docs/MARKETING_MATERIALS.md', 
+          title: 'Future Work Academy - Marketing Materials' 
+        },
+        'solution_doc': { 
+          path: 'SOLUTION_DOC.md', 
+          title: 'Future Work Academy - Solution Document' 
+        }
+      };
+
+      if (!documentType || !docFiles[documentType]) {
+        return res.status(400).json({ 
+          error: "Invalid document type",
+          validTypes: Object.keys(docFiles)
+        });
+      }
+
+      const docConfig = docFiles[documentType];
+      const filePath = path.join(process.cwd(), docConfig.path);
+      
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: `Document not found: ${docConfig.path}` });
+      }
+
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const result = await googleDocsService.syncMarkdownToGoogleDoc(docConfig.title, content);
+      
+      res.json({
+        success: true,
+        documentId: result.documentId,
+        title: result.title,
+        googleDocsUrl: `https://docs.google.com/document/d/${result.documentId}/edit`
+      });
+    } catch (error: any) {
+      console.error("Error syncing to Google Docs:", error);
+      res.status(500).json({ error: error.message || "Failed to sync document" });
+    }
+  });
+
+  // Sync all documents to Google Docs
+  app.post("/api/docs/sync-all", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const docFiles = [
+        { path: 'docs/BUSINESS_PLAN.md', title: 'Future Work Academy - Business Plan' },
+        { path: 'docs/PRODUCT_ROADMAP.md', title: 'Future Work Academy - Product Roadmap' },
+        { path: 'docs/MARKETING_MATERIALS.md', title: 'Future Work Academy - Marketing Materials' },
+        { path: 'SOLUTION_DOC.md', title: 'Future Work Academy - Solution Document' }
+      ];
+
+      const results = [];
+      
+      for (const doc of docFiles) {
+        const filePath = path.join(process.cwd(), doc.path);
+        
+        if (fs.existsSync(filePath)) {
+          try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const result = await googleDocsService.syncMarkdownToGoogleDoc(doc.title, content);
+            results.push({
+              success: true,
+              title: doc.title,
+              documentId: result.documentId,
+              googleDocsUrl: `https://docs.google.com/document/d/${result.documentId}/edit`
+            });
+          } catch (syncError: any) {
+            results.push({
+              success: false,
+              title: doc.title,
+              error: syncError.message
+            });
+          }
+        } else {
+          results.push({
+            success: false,
+            title: doc.title,
+            error: 'File not found'
+          });
+        }
+      }
+      
+      res.json({ results });
+    } catch (error: any) {
+      console.error("Error syncing all documents to Google Docs:", error);
+      res.status(500).json({ error: error.message || "Failed to sync documents" });
+    }
+  });
+
   return httpServer;
 }
