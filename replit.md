@@ -92,6 +92,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Phone-a-Friend Advisor System:** 9 specialized advisors (Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics) provide AI-generated contextual guidance using GPT-4o-mini with stakeholder awareness. Students have 3 lifetime uses per simulation.
 - **Multimedia Content Support:** Video and audio content in briefings with full transcripts, dynamic reading/viewing time estimates, media engagement tracking (started, completed, resume position), and Intel classification for bonus eligibility.
 - **SVG Logo System:** Dual-variant SVG logos with transparent backgrounds (logo-dark.svg for light backgrounds, logo-light.svg for dark sidebar).
+- **Difficulty Framework:** 3-tier difficulty system (Introductory/Standard/Advanced) with 11 quantifiable factors including simulation duration, reading load, stakeholder complexity, rubric criteria, advisor uses, event probability, scoring thresholds, and crisis triggers. Current default: Advanced (Graduate/MBA level). Student dashboard shows difficulty badge with tooltip explaining grading implications. Full documentation in GAME_DESIGN.md Section 13.
 
 ## External Dependencies
 

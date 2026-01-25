@@ -224,6 +224,7 @@ export const teamSchema = z.object({
   companyState: companyStateSchema,
   currentWeek: z.number(),
   totalWeeks: z.number(),
+  difficultyLevel: z.enum(["introductory", "standard", "advanced"]).default("advanced"),
   decisions: z.array(decisionSchema),
   decisionRecords: z.array(decisionRecordSchema).default([]),
   weeklyHistory: z.array(weeklyHistoryEntrySchema),
@@ -1055,6 +1056,58 @@ export const insertVoicemailDeliverySchema = voicemailDeliverySchema.omit({
   id: true,
 });
 export type InsertVoicemailDelivery = z.infer<typeof insertVoicemailDeliverySchema>;
+
+// Difficulty Levels enum
+export const DIFFICULTY_LEVELS = {
+  INTRODUCTORY: "introductory",
+  STANDARD: "standard",
+  ADVANCED: "advanced",
+} as const;
+
+export type DifficultyLevel = typeof DIFFICULTY_LEVELS[keyof typeof DIFFICULTY_LEVELS];
+
+// Difficulty Presets - configurable difficulty factor combinations
+export const difficultyPresetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  isSystemPreset: z.boolean().default(false),
+  // Difficulty factors
+  simulationWeeks: z.number().int().min(4).max(8).default(8),
+  requiredResearchReports: z.number().int().min(3).max(6).default(6),
+  decisionsPerWeek: z.number().int().min(2).max(4).default(3),
+  activeStakeholderCount: z.number().int().min(8).max(20).default(17),
+  rubricCriteriaCount: z.number().int().min(2).max(4).default(4),
+  phoneAFriendUses: z.number().int().min(3).max(5).default(3),
+  eventProbability: z.number().int().min(15).max(30).default(30),
+  // Scoring thresholds
+  optimalScoreThreshold: z.number().int().min(65).max(80).default(80),
+  goodScoreThreshold: z.number().int().min(50).max(60).default(60),
+  failureScoreThreshold: z.number().int().min(35).max(40).default(40),
+  // Crisis triggers
+  unionTriggerThreshold: z.number().int().min(75).max(85).default(75),
+  moraleCrisisThreshold: z.number().int().min(20).max(30).default(30),
+  managerVacancyCrisis: z.number().int().min(15).max(20).default(15),
+  // LLM grading
+  gradingStrictness: z.enum(["encouraging", "balanced", "rigorous"]).default("rigorous"),
+  targetScoreMin: z.number().int().min(50).max(70).default(50),
+  targetScoreMax: z.number().int().min(70).max(85).default(70),
+  // Intel bonus
+  intelBonusPerArticle: z.number().int().min(10).max(15).default(15),
+  maxIntelBonus: z.number().int().min(30).max(50).default(50),
+  // Metadata
+  createdBy: z.string().nullable(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+export type DifficultyPreset = z.infer<typeof difficultyPresetSchema>;
+
+export const insertDifficultyPresetSchema = difficultyPresetSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertDifficultyPreset = z.infer<typeof insertDifficultyPresetSchema>;
 
 // Export auth models from Replit Auth integration
 export * from "./models/auth";

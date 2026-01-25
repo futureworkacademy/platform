@@ -5,12 +5,13 @@ import type { Team, InsertTeam, CompanyState, Decision, DecisionRecord, WeeklyHi
 import { defaultCompanyState } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-function dbTeamToTeam(dbTeam: DbTeam): Team {
+function dbTeamToTeam(dbTeam: DbTeam, difficultyLevel: "introductory" | "standard" | "advanced" = "advanced"): Team {
   return {
     id: dbTeam.id,
     name: dbTeam.name,
     currentWeek: dbTeam.currentWeek,
     totalWeeks: dbTeam.totalWeeks,
+    difficultyLevel: difficultyLevel,
     setupComplete: dbTeam.setupComplete,
     researchComplete: dbTeam.researchComplete,
     members: dbTeam.members as string[],
@@ -33,15 +34,15 @@ export interface ITeamStorage {
 }
 
 class TeamStorage implements ITeamStorage {
-  async getTeam(id: string): Promise<Team | undefined> {
+  async getTeam(id: string, difficultyLevel?: "introductory" | "standard" | "advanced"): Promise<Team | undefined> {
     const [dbTeam] = await db.select().from(teams).where(eq(teams.id, id));
     if (!dbTeam) return undefined;
-    return dbTeamToTeam(dbTeam);
+    return dbTeamToTeam(dbTeam, difficultyLevel);
   }
 
   async getAllTeams(): Promise<Team[]> {
     const dbTeams = await db.select().from(teams);
-    return dbTeams.map(dbTeamToTeam);
+    return dbTeams.map(t => dbTeamToTeam(t));
   }
 
   async createTeam(input: InsertTeam): Promise<Team> {

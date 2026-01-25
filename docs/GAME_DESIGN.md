@@ -20,6 +20,7 @@
 10. [People Analytics Data](#10-people-analytics-data)
 11. [Media Enhancement Opportunities](#11-media-enhancement-opportunities)
 12. [Future Expansion Modules](#12-future-expansion-modules)
+13. [Difficulty Framework](#13-difficulty-framework)
 
 ---
 
@@ -829,6 +830,135 @@ Each expansion module follows this development template:
 
 ---
 
+## 13. Difficulty Framework
+
+This section documents the simulation's difficulty profile and provides a framework for understanding complexity factors that affect student experience.
+
+### Current Difficulty Profile: Advanced (Graduate/MBA Level)
+
+The default simulation configuration is calibrated for graduate business students with some professional experience. The following table quantifies each difficulty factor:
+
+| Difficulty Factor | Current Setting | Impact Description |
+|-------------------|-----------------|-------------------|
+| **Simulation Duration** | 8 weeks | Longer duration = more cumulative decisions, compound effects |
+| **Pre-Game Reading Load** | ~50 minutes (6 reports) | Higher load = more preparation required |
+| **Weekly Decision Complexity** | 3-4 decisions/week | More decisions = greater cognitive demand |
+| **Stakeholder Count** | 17+ characters | More stakeholders = complex relationship dynamics |
+| **Essay Rubric Criteria** | 4 criteria (100 points) | More criteria = nuanced evaluation, harder to optimize |
+| **Phone-a-Friend Uses** | 3 lifetime | Fewer uses = must be strategic about seeking help |
+| **Global Event Probability** | 30% per week | Higher probability = more uncertainty/chaos |
+| **Victory Threshold** | >80 combined score | Higher threshold = less margin for error |
+| **Failure Threshold** | <40 combined score | Higher failure bar = more forgiving |
+| **Union Trigger** | 75% sentiment | Lower threshold = easier to accidentally trigger |
+| **Morale Crisis Trigger** | ≤30% morale | Higher threshold = easier to accidentally trigger |
+
+### Difficulty Factor Definitions
+
+#### 1. Simulation Duration (Weeks)
+- **Introductory**: 4 weeks (compressed decisions, faster feedback)
+- **Standard**: 6 weeks (balanced pacing)
+- **Advanced**: 8 weeks (full semester, compound effects)
+
+#### 2. Pre-Game Reading Load
+- **Introductory**: ~20 minutes (3 essential reports)
+- **Standard**: ~35 minutes (5 reports)
+- **Advanced**: ~50 minutes (6 reports + optional Intel articles)
+
+#### 3. Weekly Decision Complexity
+- **Introductory**: 2 decisions/week (clear trade-offs)
+- **Standard**: 3 decisions/week (moderate complexity)
+- **Advanced**: 3-4 decisions/week (interconnected choices)
+
+#### 4. Stakeholder Count
+- **Introductory**: 8-10 stakeholders (core roles only)
+- **Standard**: 12-14 stakeholders (moderate relationship web)
+- **Advanced**: 17+ stakeholders (full ecosystem with nuanced dynamics)
+
+#### 5. Essay Rubric Configuration
+- **Introductory**: 2 criteria (50 points each, forgiving evaluation)
+- **Standard**: 3 criteria (33 points each, balanced)
+- **Advanced**: 4 criteria (25 points each, nuanced multi-dimensional evaluation)
+
+#### 6. Phone-a-Friend Advisor Uses
+- **Introductory**: 5 lifetime uses (ample guidance)
+- **Standard**: 4 lifetime uses (moderate scaffolding)
+- **Advanced**: 3 lifetime uses (strategic resource management)
+
+#### 7. Global Event Probability
+- **Introductory**: 15% per week (stable environment)
+- **Standard**: 25% per week (occasional disruption)
+- **Advanced**: 30% per week (high volatility, realistic uncertainty)
+
+#### 8. Scoring Thresholds
+| Level | Optimal | Good | Struggling | Failed |
+|-------|---------|------|------------|--------|
+| **Introductory** | >65 | >50 | 35-50 | <35 |
+| **Standard** | >75 | >55 | 40-55 | <40 |
+| **Advanced** | >80 | >60 | 40-60 | <40 |
+
+#### 9. Crisis Trigger Sensitivity
+| Level | Union Trigger | Morale Crisis | Manager Vacancy Crisis |
+|-------|---------------|---------------|------------------------|
+| **Introductory** | ≥85% | ≤20% | >20 vacancies |
+| **Standard** | ≥80% | ≤25% | >18 vacancies |
+| **Advanced** | ≥75% | ≤30% | >15 vacancies |
+
+### Difficulty Presets by Audience
+
+| Audience | Preset | Typical Use Case |
+|----------|--------|------------------|
+| **Undergraduate Business** | Introductory | First exposure to simulation-based learning |
+| **MBA/Graduate** | Advanced | Full complexity for experienced professionals |
+| **Executive Education** | Standard or Advanced | Adjustable based on program intensity |
+| **Corporate Training** | Standard | Time-constrained but meaningful engagement |
+| **Academic Research** | Any | Controlled comparison studies |
+
+### Character-Driven Difficulty Modifiers
+
+Beyond baseline difficulty settings, individual stakeholder characteristics create dynamic difficulty:
+
+**Hostility + Influence Compound Effect:**
+```
+Decision Difficulty Modifier = 0.5 + (hostility × influence / 50)
+Range: 0.5x (easy) to 2.0x (very hard)
+```
+
+**Example Calculations:**
+- Low-hostility, low-influence stakeholder (3, 3): 0.5 + (0.18) = 0.68x (easier)
+- High-hostility, high-influence stakeholder (8, 9): 0.5 + (1.44) = 1.94x (much harder)
+
+This means instructors can further tune difficulty by adjusting stakeholder trait profiles in the Character Editor.
+
+### LLM Grading Strictness by Difficulty
+
+The essay evaluation rubric adapts based on difficulty level:
+
+| Difficulty | Evaluation Style | Score Distribution Target |
+|------------|------------------|---------------------------|
+| **Introductory** | Encouraging, highlights effort | 70-85 average scores |
+| **Standard** | Balanced, constructive | 60-75 average scores |
+| **Advanced** | Rigorous, professional standards | 50-70 average scores |
+
+Stakeholder context injection (top 5 influential stakeholders' perspectives) remains active at all difficulty levels but evaluation strictness scales accordingly.
+
+### Intel Engagement Bonus by Difficulty
+
+| Difficulty | Base Research Multiplier | Max Bonus | Per-Article Bonus |
+|------------|--------------------------|-----------|-------------------|
+| **Introductory** | 1.0x | 1.3x | +0.10x |
+| **Standard** | 1.0x | 1.4x | +0.12x |
+| **Advanced** | 1.0x | 1.5x | +0.15x |
+
+### Future: Difficulty Configuration UI
+
+The platform roadmap includes an instructor-facing Difficulty Configuration interface allowing:
+- Selection of preset difficulty levels (Introductory/Standard/Advanced)
+- Custom factor adjustment with live preview of difficulty rating
+- Per-simulation difficulty visibility on student dashboard
+- Cross-simulation difficulty normalization for leaderboards
+
+---
+
 ## Appendix: Variable Reference
 
 ### Financial Variables
@@ -860,7 +990,8 @@ Each expansion module follows this development template:
 
 ---
 
-*Document Version: 2.1*
+*Document Version: 2.2*
 *Last Updated: January 2026*
 *Purpose: Complete Game Mechanics Reference for Instructors and Academic Reviewers*
+*Changes in 2.2: Added Difficulty Framework section with quantified current difficulty profile (Advanced/Graduate level) and 3-tier preset system (Introductory/Standard/Advanced)*
 *Changes in 2.1: Added Future Expansion Modules section (Healthcare, Retail, Finance, Public Sector, Iowa Manufacturing)*

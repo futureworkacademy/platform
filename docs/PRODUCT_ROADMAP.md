@@ -1,6 +1,6 @@
 # Future Work Academy - Product Roadmap
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Last Updated:** January 2026
 
 ---
@@ -109,6 +109,59 @@ Future Work Academy will become the leading platform for AI-powered business sim
 - Share learnings across partner network
 
 **Target Completion:** Q3 2026
+
+---
+
+### Difficulty Configuration System
+
+**Current State (v1.2):**
+The platform operates at **Advanced (Graduate/MBA)** difficulty level with fixed parameters documented in GAME_DESIGN.md Section 13.
+
+**Planned Features:**
+
+**Difficulty Presets UI**
+- Three-tier system: Introductory (Undergraduate), Standard (Corporate), Advanced (MBA/Executive)
+- One-click preset selection during simulation creation
+- Live preview of how preset affects all 11 difficulty factors
+
+**Configurable Difficulty Factors:**
+| Factor | Instructor Control |
+|--------|-------------------|
+| Simulation Duration | 4/6/8 weeks |
+| Pre-Game Reading Load | 3/5/6 reports required |
+| Weekly Decisions | 2/3/4 decisions per week |
+| Stakeholder Complexity | 8/12/17+ active characters |
+| Essay Rubric Criteria | 2/3/4 criteria |
+| Phone-a-Friend Uses | 5/4/3 lifetime uses |
+| Event Probability | 15%/25%/30% per week |
+| Scoring Thresholds | Adjustable victory/failure bars |
+| Crisis Sensitivity | Union/morale trigger points |
+
+**Student Dashboard Visibility**
+- Difficulty badge on student dashboard (shows "Advanced", "Standard", etc.)
+- Hover tooltip explaining what current difficulty means for grading and gameplay
+- Per-factor breakdown available in simulation info modal
+
+**Leaderboard Normalization**
+- Cross-difficulty score normalization for fair competition
+- Difficulty-weighted rankings for mixed-level cohorts
+- Optional same-difficulty-only leaderboards
+
+**Database Schema Additions:**
+- `difficulty_level` enum field on simulations table
+- `difficulty_presets` table for admin-defined custom configurations
+- `difficulty_overrides` JSON field for per-simulation factor customization
+
+**Target Audience Mapping:**
+| Audience | Recommended Preset |
+|----------|-------------------|
+| Undergraduate Business | Introductory |
+| MBA/Graduate Programs | Advanced |
+| Executive Education | Standard or Advanced |
+| Corporate Training | Standard |
+| Academic Research | Any (controlled studies) |
+
+**Target Completion:** Q2 2026
 
 ---
 

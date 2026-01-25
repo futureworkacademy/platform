@@ -27,7 +27,9 @@ import {
   Eye,
   X,
   RotateCw,
+  GraduationCap,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Team } from "@shared/schema";
 
 export default function Dashboard() {
@@ -167,6 +169,31 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge 
+                variant={team.difficultyLevel === "advanced" ? "default" : team.difficultyLevel === "standard" ? "secondary" : "outline"} 
+                className="flex items-center gap-1.5 px-3 py-1.5 cursor-help"
+                data-testid="badge-difficulty-level"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                <span className="capitalize">{team.difficultyLevel || "Advanced"}</span>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p className="font-semibold mb-1">
+                {team.difficultyLevel === "introductory" ? "Introductory Level" : 
+                 team.difficultyLevel === "standard" ? "Standard Level" : "Advanced Level"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {team.difficultyLevel === "introductory" 
+                  ? "Undergraduate level with encouraging evaluation. More advisor uses, lower event probability."
+                  : team.difficultyLevel === "standard"
+                  ? "Corporate training level with balanced evaluation. Moderate complexity and scoring thresholds."
+                  : "Graduate/MBA level with rigorous evaluation. Full stakeholder complexity, limited advisor uses."}
+              </p>
+            </TooltipContent>
+          </Tooltip>
           <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1.5">
             <Clock className="h-3.5 w-3.5" />
             <span className="font-mono">{totalWeeks - currentWeek} weeks remaining</span>

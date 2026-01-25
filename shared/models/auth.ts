@@ -240,12 +240,22 @@ export const SIMULATION_STATUS = {
 
 export type SimulationStatus = typeof SIMULATION_STATUS[keyof typeof SIMULATION_STATUS];
 
+// Difficulty level presets - Introductory (Undergraduate), Standard (Corporate), Advanced (MBA)
+export const DIFFICULTY_LEVELS = {
+  INTRODUCTORY: "introductory",
+  STANDARD: "standard",
+  ADVANCED: "advanced",
+} as const;
+
+export type DifficultyLevel = typeof DIFFICULTY_LEVELS[keyof typeof DIFFICULTY_LEVELS];
+
 // Simulations - tracks the lifecycle of each class simulation
 export const simulations = pgTable("simulations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: varchar("organization_id").notNull().unique(),
   moduleId: varchar("module_id"), // Links to simulation_modules - which scenario to use
   status: varchar("status").notNull().default("setup"), // setup, active, paused, completed
+  difficultyLevel: varchar("difficulty_level").notNull().default("advanced"), // introductory, standard, advanced
   totalWeeks: integer("total_weeks").notNull().default(8),
   currentWeek: integer("current_week").notNull().default(0),
   startDate: timestamp("start_date"),
@@ -255,6 +265,8 @@ export const simulations = pgTable("simulations", {
   completedAt: timestamp("completed_at"),
   completedBy: varchar("completed_by"),
   feedbackFormUrl: text("feedback_form_url"), // Google Form embed URL for post-simulation survey
+  // Difficulty overrides - JSON field for per-simulation factor customization
+  difficultyOverrides: text("difficulty_overrides"), // JSON: {phoneAFriendUses: 4, eventProbability: 0.25, ...}
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -515,3 +527,41 @@ export const voicemailDeliveries = pgTable("voicemail_deliveries", {
 
 export type VoicemailDeliveryDb = typeof voicemailDeliveries.$inferSelect;
 export type InsertVoicemailDeliveryDb = typeof voicemailDeliveries.$inferInsert;
+
+// Difficulty Presets - configurable difficulty factor combinations for different audiences
+export const difficultyPresets = pgTable("difficulty_presets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // e.g., "Introductory", "Standard", "Advanced", or custom names
+  description: text("description"), // Explanation of target audience
+  isSystemPreset: boolean("is_system_preset").notNull().default(false), // Built-in presets (Intro/Standard/Advanced)
+  // Difficulty factors - all configurable per preset
+  simulationWeeks: integer("simulation_weeks").notNull().default(8), // 4, 6, or 8
+  requiredResearchReports: integer("required_research_reports").notNull().default(6), // 3, 5, or 6
+  decisionsPerWeek: integer("decisions_per_week").notNull().default(3), // 2, 3, or 4
+  activeStakeholderCount: integer("active_stakeholder_count").notNull().default(17), // 8, 12, or 17+
+  rubricCriteriaCount: integer("rubric_criteria_count").notNull().default(4), // 2, 3, or 4
+  phoneAFriendUses: integer("phone_a_friend_uses").notNull().default(3), // 3, 4, or 5
+  eventProbability: integer("event_probability").notNull().default(30), // 15, 25, or 30 (percentage)
+  // Scoring thresholds
+  optimalScoreThreshold: integer("optimal_score_threshold").notNull().default(80), // >80, >75, >65
+  goodScoreThreshold: integer("good_score_threshold").notNull().default(60), // >60, >55, >50
+  failureScoreThreshold: integer("failure_score_threshold").notNull().default(40), // <40, <40, <35
+  // Crisis triggers
+  unionTriggerThreshold: integer("union_trigger_threshold").notNull().default(75), // 75, 80, or 85 (percentage)
+  moraleCrisisThreshold: integer("morale_crisis_threshold").notNull().default(30), // 30, 25, or 20 (percentage)
+  managerVacancyCrisis: integer("manager_vacancy_crisis").notNull().default(15), // 15, 18, or 20
+  // LLM grading adjustment
+  gradingStrictness: varchar("grading_strictness").notNull().default("rigorous"), // encouraging, balanced, rigorous
+  targetScoreMin: integer("target_score_min").notNull().default(50), // Target score distribution lower bound
+  targetScoreMax: integer("target_score_max").notNull().default(70), // Target score distribution upper bound
+  // Intel engagement bonus
+  intelBonusPerArticle: integer("intel_bonus_per_article").notNull().default(15), // 10, 12, or 15 (percentage points)
+  maxIntelBonus: integer("max_intel_bonus").notNull().default(50), // 30, 40, or 50 (percentage points)
+  // Metadata
+  createdBy: varchar("created_by"), // null for system presets
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type DifficultyPreset = typeof difficultyPresets.$inferSelect;
+export type InsertDifficultyPreset = typeof difficultyPresets.$inferInsert;

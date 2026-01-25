@@ -48,6 +48,8 @@ const activityLogs: ActivityLog[] = [];
 
 export interface IStorage {
   getTeam(id: string): Promise<Team | undefined>;
+  getTeamWithDifficulty(id: string, difficultyLevel: "introductory" | "standard" | "advanced"): Promise<Team | undefined>;
+  getSimulationByOrganization(organizationId: string): Promise<any | null>;
   getAllTeams(): Promise<Team[]>;
   getDefaultTeam(): Promise<Team | null>;
   createTeam(team: InsertTeam): Promise<Team>;
@@ -1304,6 +1306,11 @@ export class MemStorage implements IStorage {
     return teamStorage.getTeam(id);
   }
 
+  async getTeamWithDifficulty(id: string, difficultyLevel: "introductory" | "standard" | "advanced"): Promise<Team | undefined> {
+    const { teamStorage } = await import("./team-storage");
+    return teamStorage.getTeam(id, difficultyLevel);
+  }
+
   async getAllTeams(): Promise<Team[]> {
     const { teamStorage } = await import("./team-storage");
     return teamStorage.getAllTeams();
@@ -2158,6 +2165,16 @@ export class MemStorage implements IStorage {
       console.error("Error updating platform settings:", error);
       throw error;
     }
+  }
+
+  // Get simulation by organization ID
+  async getSimulationByOrganization(organizationId: string): Promise<any | null> {
+    const { db } = await import("./db");
+    const { simulations } = await import("@shared/models/auth");
+    
+    const [simulation] = await db.select().from(simulations)
+      .where(eq(simulations.organizationId, organizationId));
+    return simulation || null;
   }
 
   // Simulation Modules CRUD

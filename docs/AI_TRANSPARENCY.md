@@ -153,6 +153,86 @@ Respond ONLY with the JSON object.
 
 ---
 
+### 2.3 Difficulty-Adjusted Evaluation
+
+**Overview:**
+The essay evaluation system adapts its strictness based on the simulation's configured difficulty level. This ensures appropriate academic rigor for different audiences while maintaining consistent rubric criteria.
+
+**Difficulty Levels:**
+| Level | Target Audience | Evaluation Style |
+|-------|-----------------|------------------|
+| **Introductory** | Undergraduate | Encouraging, highlights effort |
+| **Standard** | Corporate/Executive | Balanced, constructive |
+| **Advanced** | MBA/Graduate | Rigorous, professional standards |
+
+**System Prompt Injection by Difficulty:**
+
+When difficulty level is **Introductory**:
+```
+Evaluation style: Be encouraging and supportive. This is an undergraduate-level 
+simulation designed as an introduction to business decision-making. Focus on 
+recognizing effort and basic understanding. Award partial credit generously when 
+students demonstrate good-faith attempts at analysis.
+
+Target score distribution: 70-85 average scores
+```
+
+When difficulty level is **Standard**:
+```
+Evaluation style: Be balanced and constructive. This simulation targets 
+working professionals. Expect solid reasoning with clear trade-off analysis. 
+Provide actionable feedback that helps learners improve.
+
+Target score distribution: 60-75 average scores
+```
+
+When difficulty level is **Advanced**:
+```
+Evaluation style: Be rigorous and hold to professional standards. This is a 
+graduate/MBA-level simulation. Expect sophisticated multi-stakeholder analysis, 
+specific evidence citation, and nuanced risk assessment. Partial credit 
+requires demonstrated competence, not just effort.
+
+Target score distribution: 50-70 average scores
+```
+
+**Rubric Configuration by Difficulty:**
+
+| Difficulty | Number of Criteria | Points per Criterion | Total Points |
+|------------|-------------------|---------------------|--------------|
+| Introductory | 2 | 50 | 100 |
+| Standard | 3 | 33 | 100 |
+| Advanced | 4 | 25 | 100 |
+
+**Introductory Rubric (2 criteria):**
+1. Understanding & Analysis (50 points) - Demonstrates comprehension of the challenge and attempts reasonable analysis
+2. Decision Quality (50 points) - Makes a clear decision with basic supporting rationale
+
+**Standard Rubric (3 criteria):**
+1. Strategic Analysis (33 points) - Quality of reasoning and evidence use
+2. Stakeholder Awareness (33 points) - Consideration of multiple perspectives
+3. Implementation Thinking (34 points) - Practicality and risk awareness
+
+**Advanced Rubric (4 criteria):**
+1. Strategic Thinking (25 points) - Quality of strategic analysis and long-term thinking
+2. Evidence-Based Reasoning (25 points) - Use of research, data, and case studies
+3. Stakeholder Consideration (25 points) - Awareness of impact on employees, unions, investors
+4. Implementation Feasibility (25 points) - Practicality and risk assessment
+
+**Stakeholder Context Injection Behavior:**
+Stakeholder perspectives are injected at all difficulty levels, but their weight in evaluation varies:
+- **Introductory**: Stakeholder awareness is appreciated but not required for high scores
+- **Standard**: Students should demonstrate awareness of key stakeholder concerns
+- **Advanced**: Students must explicitly address stakeholder dynamics with nuanced analysis
+
+**Bias Considerations:**
+- Difficulty adjustments are applied uniformly to all students in the same simulation
+- No individual student demographic data influences the difficulty setting
+- Instructors select difficulty level before simulation begins; cannot be changed mid-simulation
+- Score normalization available for cross-difficulty leaderboard comparisons
+
+---
+
 ## 3. Content Creation Prompts
 
 ### 3.1 Content Enhancement
