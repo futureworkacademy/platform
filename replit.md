@@ -101,6 +101,7 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **SMS Notifications:** Twilio
 - **Email Notifications:** SendGrid
 - **AI/LLM Integration:** OpenAI (GPT-4o-mini for text, gpt-image-1 for headshot generation)
+- **Analytics:** Google Analytics 4 (G-Y13X8BC4MW) - tracking code in `client/index.html`
 - **UI Components:** Shadcn/UI, Radix UI
 - **Charting Library:** Recharts
 - **Frontend Framework:** React
