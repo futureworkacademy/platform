@@ -47,3 +47,8 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Frontend Framework:** React
 - **Backend Framework:** Express.js
 - **ORM:** Drizzle ORM
+---
+
+## Additional Documentation
+
+For marketing materials, product roadmap, and business documentation, see **SOLUTION_DOC.md** in the project root.
