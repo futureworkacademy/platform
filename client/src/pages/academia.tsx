@@ -21,7 +21,13 @@ import {
   Clock,
   Sparkles,
   Share2,
-  Building2
+  Building2,
+  Factory,
+  Truck,
+  Leaf,
+  AlertTriangle,
+  Globe,
+  UserCog
 } from "lucide-react";
 import logo from "@assets/logo-horizontal-dark.png";
 import { Link } from "wouter";
@@ -250,6 +256,137 @@ ${message || 'None provided'}
                   </p>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12 px-4 bg-muted/20 border-y">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Simulation Modules</h2>
+              <p className="text-muted-foreground">
+                Scenario-based learning across strategic business challenges
+              </p>
+            </div>
+            
+            <div className="mb-8">
+              <h3 className="text-sm font-semibold text-primary uppercase tracking-wide mb-4 text-center">
+                Currently Available
+              </h3>
+              <Card className="max-w-2xl mx-auto border-primary/30 bg-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Factory className="h-7 w-7 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg mb-1">The Future of Work</h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Lead Apex Manufacturing through 8 weeks of AI adoption decisions. Balance automation 
+                        investments, workforce reskilling, union relations, and stakeholder management while 
+                        navigating global events and competitive pressures.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">AI Strategy</span>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">Workforce Transformation</span>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">Labor Relations</span>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">8 Weeks</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4 text-center">
+                In Development
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="bg-card/50 border-dashed">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <Truck className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-semibold">Supply Chain Resilience</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Global disruption, supplier diversification, and logistics optimization
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 border-dashed">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <Leaf className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-semibold">Sustainability & ESG</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Carbon reduction, stakeholder capitalism, and ESG reporting
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 border-dashed">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-semibold">Crisis Management</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Rapid response, stakeholder communication, and reputation recovery
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 border-dashed">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <Globe className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-semibold">Digital Transformation</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Legacy business modernization, technology adoption, and change resistance
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 border-dashed">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <UserCog className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-semibold">Change Management</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Organizational restructuring, employee engagement, and culture transformation
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <Building2 className="h-5 w-5 text-primary" />
+                      </div>
+                      <h4 className="font-semibold text-primary">Custom Module?</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      We partner with institutions to develop industry-specific scenarios
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
