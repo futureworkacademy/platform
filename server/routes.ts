@@ -3249,11 +3249,12 @@ export async function registerRoutes(
     }
   });
 
-  // Enter student preview mode
+  // Enter student preview mode (sandbox mode)
   app.post("/api/class-admin/organizations/:orgId/preview-mode/enter", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { orgId } = req.params;
+      const { startWeek = 1 } = req.body; // Allow specifying starting week (1-8)
 
       const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
       const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
@@ -3261,6 +3262,9 @@ export async function registerRoutes(
       if (!isSuperAdmin && !isOrgAdmin) {
         return res.status(403).json({ error: "Admin access required" });
       }
+
+      // Validate week number
+      const week = Math.max(1, Math.min(8, parseInt(startWeek) || 1));
 
       // Get admin user info
       const [adminUser] = await db.select().from(users).where(eq(users.id, userId));
@@ -3305,7 +3309,7 @@ export async function registerRoutes(
       if (!testTeam) {
         // Get org info for team naming
         const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
-        const teamName = `[Preview] Test Team - ${org?.name || 'Admin'}`;
+        const teamName = `[Sandbox] Test Team - ${org?.name || 'Admin'}`;
         
         const testTeamId = randomUUID();
         await db.insert(teams).values({
@@ -3314,7 +3318,7 @@ export async function registerRoutes(
           organizationId: orgId,
           members: [testStudent.id],
           companyState: defaultCompanyState,
-          currentWeek: 1,
+          currentWeek: week,
           totalWeeks: 8,
           setupComplete: true,
           researchComplete: false,
@@ -3326,6 +3330,12 @@ export async function registerRoutes(
           .where(eq(users.id, testStudent.id));
 
         [testTeam] = await db.select().from(teams).where(eq(teams.id, testTeamId));
+      } else {
+        // Team exists - update to requested week
+        await db.update(teams)
+          .set({ currentWeek: week, updatedAt: new Date() })
+          .where(eq(teams.id, testTeam.id));
+        testTeam = { ...testTeam, currentWeek: week };
       }
 
       // Also add test student to organization members if not already (check BOTH userId AND orgId)
@@ -3442,6 +3452,46 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error resetting test data:", error);
       res.status(500).json({ error: "Failed to reset test data" });
+    }
+  });
+
+  // Set sandbox week (change week while in sandbox mode)
+  app.post("/api/class-admin/organizations/:orgId/preview-mode/set-week", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      const { week: requestedWeek } = req.body;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isOrgAdmin = await organizationStorage.isClassAdmin(userId, orgId);
+      
+      if (!isSuperAdmin && !isOrgAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      // Validate week number
+      const week = Math.max(1, Math.min(8, parseInt(requestedWeek) || 1));
+
+      // Find test student scoped to this admin AND this org
+      const [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, orgId)
+        ));
+
+      if (!testStudent || !testStudent.teamId) {
+        return res.status(404).json({ error: "No sandbox team found. Enter sandbox mode first." });
+      }
+
+      // Update the test team's current week
+      await db.update(teams)
+        .set({ currentWeek: week, updatedAt: new Date() })
+        .where(eq(teams.id, testStudent.teamId));
+
+      res.json({ success: true, currentWeek: week });
+    } catch (error) {
+      console.error("Error setting sandbox week:", error);
+      res.status(500).json({ error: "Failed to set sandbox week" });
     }
   });
 

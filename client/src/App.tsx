@@ -28,6 +28,7 @@ import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+import { SandboxControls } from "@/components/sandbox-controls";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -48,6 +49,10 @@ function GameLayout() {
   });
   
   const isAdmin = user?.isAdmin === "true";
+  
+  // Check if user is in sandbox mode
+  const inSandboxMode = user?.inStudentPreview === true;
+  const previewModeOrgId = user?.previewModeOrgId as string | null;
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -114,6 +119,14 @@ function GameLayout() {
               <Route component={NotFound} />
             </Switch>
           </main>
+          
+          {/* Sandbox Mode Controls - shown when admin is testing as student */}
+          {inSandboxMode && previewModeOrgId && team && (
+            <SandboxControls 
+              orgId={previewModeOrgId}
+              currentWeek={team.currentWeek}
+            />
+          )}
         </div>
       </div>
     </SidebarProvider>

@@ -202,6 +202,10 @@ export default function ClassAdminPage() {
   const [importResult, setImportResult] = useState<{success: number; failed: number; errors: string[]; emailsSent?: number; emailsFailed?: number} | null>(null);
   const [sendInvites, setSendInvites] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Sandbox mode state
+  const [sandboxDialogOpen, setSandboxDialogOpen] = useState(false);
+  const [sandboxStartWeek, setSandboxStartWeek] = useState(1);
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -243,17 +247,31 @@ export default function ClassAdminPage() {
   });
 
   const enterPreviewModeMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/enter`, {});
+    mutationFn: async (startWeek: number = 1) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/enter`, { startWeek });
     },
     onSuccess: () => {
+      setSandboxDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
-      toast({ title: "Preview mode activated", description: "You are now viewing the simulation as a test student" });
+      toast({ title: "Sandbox mode activated", description: `Starting simulation at Week ${sandboxStartWeek}` });
       // Navigate to student dashboard
       setLocation("/dashboard");
     },
     onError: (error: any) => {
-      toast({ title: "Error entering preview mode", description: error.message, variant: "destructive" });
+      toast({ title: "Error entering sandbox mode", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const setWeekMutation = useMutation({
+    mutationFn: async (week: number) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/preview-mode/set-week`, { week });
+    },
+    onSuccess: (_, week) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "preview-mode"] });
+      toast({ title: "Week changed", description: `Now viewing Week ${week}` });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error changing week", description: error.message, variant: "destructive" });
     },
   });
 
@@ -727,14 +745,58 @@ export default function ClassAdminPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button 
-              onClick={() => enterPreviewModeMutation.mutate()} 
-              disabled={enterPreviewModeMutation.isPending}
-              data-testid="button-preview-student"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              {enterPreviewModeMutation.isPending ? 'Entering...' : 'Preview as Student'}
-            </Button>
+            <Dialog open={sandboxDialogOpen} onOpenChange={setSandboxDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-sandbox-mode">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Sandbox Mode
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Enter Sandbox Mode</DialogTitle>
+                  <DialogDescription>
+                    Test the simulation as a student. Select which week to start from and experience the full student workflow.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <Label htmlFor="sandbox-week">Start at Week</Label>
+                  <Select
+                    value={sandboxStartWeek.toString()}
+                    onValueChange={(v) => setSandboxStartWeek(parseInt(v))}
+                  >
+                    <SelectTrigger id="sandbox-week" className="mt-2" data-testid="select-sandbox-week">
+                      <SelectValue placeholder="Select week" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Week 1 - The Precision Imperative</SelectItem>
+                      <SelectItem value="2">Week 2 - The Talent Equation</SelectItem>
+                      <SelectItem value="3">Week 3 - The Innovation Paradox</SelectItem>
+                      <SelectItem value="4">Week 4 - The Global Chessboard</SelectItem>
+                      <SelectItem value="5">Week 5 - The Trust Imperative</SelectItem>
+                      <SelectItem value="6">Week 6 - The Cultural Crossroads</SelectItem>
+                      <SelectItem value="7">Week 7 - The Regulatory Reckoning</SelectItem>
+                      <SelectItem value="8">Week 8 - The Future Unfolds</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground mt-3">
+                    You'll see the briefing, make decisions, and get AI-graded feedback just like a real student. Use the sandbox controls to jump between weeks.
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSandboxDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => enterPreviewModeMutation.mutate(sandboxStartWeek)}
+                    disabled={enterPreviewModeMutation.isPending}
+                    data-testid="button-enter-sandbox"
+                  >
+                    {enterPreviewModeMutation.isPending ? 'Entering...' : 'Enter Sandbox'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" onClick={() => { refetchMembers(); refetchTeams(); }} disabled={membersFetching || teamsFetching} data-testid="button-refresh">
               <RefreshCw className={`mr-2 h-4 w-4 ${membersFetching || teamsFetching ? 'animate-spin' : ''}`} />
               {membersFetching || teamsFetching ? 'Refreshing...' : 'Refresh'}
