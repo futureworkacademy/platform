@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -31,8 +32,11 @@ import {
   Sparkles,
   Info,
   BookOpen,
+  FileText,
+  Brain,
 } from "lucide-react";
-import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport } from "@shared/schema";
+import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport, RubricCriterion } from "@shared/schema";
+import { defaultRubricCriteria } from "@shared/schema";
 
 // Source code reference key for helper text
 const SOURCE_CODES = [
@@ -383,7 +387,119 @@ function AttributeInput({
     );
   }
 
+  if (attribute.type === "text") {
+    const strValue = typeof value === 'string' ? value : "";
+    const rubricCriteria = attribute.rubricCriteria || defaultRubricCriteria;
+    
+    return (
+      <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
+        <div>
+          <label className="text-sm font-medium flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" />
+            {attribute.label}
+            <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/20">
+              <Brain className="w-3 h-3 mr-1" />
+              AI Evaluated
+            </Badge>
+          </label>
+          <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
+        </div>
+        <Textarea
+          value={strValue}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={attribute.placeholder || "Enter your response..."}
+          className="min-h-[120px]"
+          data-testid={`text-${attribute.id}`}
+        />
+        <RubricPreview criteria={rubricCriteria} />
+      </div>
+    );
+  }
+
+  if (attribute.type === "essay") {
+    const strValue = typeof value === 'string' ? value : "";
+    const rubricCriteria = attribute.rubricCriteria || defaultRubricCriteria;
+    
+    return (
+      <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
+        <div>
+          <label className="text-sm font-medium flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" />
+            {attribute.label}
+            <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/20">
+              <Brain className="w-3 h-3 mr-1" />
+              AI Evaluated
+            </Badge>
+          </label>
+          <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
+        </div>
+        {attribute.richText ? (
+          <RichTextEditor
+            content={strValue}
+            onChange={(content) => onChange(content)}
+            placeholder={attribute.placeholder || "Enter your detailed response..."}
+            minWords={attribute.minWords}
+            maxWords={attribute.maxWords}
+          />
+        ) : (
+          <Textarea
+            value={strValue}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={attribute.placeholder || "Enter your detailed response..."}
+            className="min-h-[200px]"
+            data-testid={`essay-${attribute.id}`}
+          />
+        )}
+        <RubricPreview criteria={rubricCriteria} />
+      </div>
+    );
+  }
+
   return null;
+}
+
+function RubricPreview({ criteria }: { criteria: RubricCriterion[] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <div className="bg-purple-500/5 rounded-lg border border-purple-500/20 p-3 space-y-2">
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 text-xs font-medium text-purple-600 w-full"
+        type="button"
+        data-testid="button-toggle-rubric"
+      >
+        <Brain className="w-3 h-3" />
+        <span>How Your Response Will Be Scored</span>
+        <span className="ml-auto text-xs">{isExpanded ? "Hide" : "Show Rubric"}</span>
+      </button>
+      {isExpanded && (
+        <div className="space-y-3 pt-2 border-t border-purple-500/20">
+          <p className="text-xs text-muted-foreground">
+            Your written response will be evaluated by AI on the following criteria:
+          </p>
+          <div className="grid gap-2">
+            {criteria.map((criterion) => (
+              <div key={criterion.id} className="flex items-start gap-3 p-2 rounded bg-background/50">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{criterion.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {criterion.maxPoints} pts
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{criterion.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground border-t border-purple-500/20 pt-2">
+            <strong>Total possible:</strong> {criteria.reduce((sum, c) => sum + c.maxPoints, 0)} points
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function EnhancedDecisionCard({

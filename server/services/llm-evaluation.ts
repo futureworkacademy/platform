@@ -101,3 +101,140 @@ export function calculateEasterEggBonus(
   }
   return 0;
 }
+
+// Rubric-based evaluation for text/essay responses
+export interface RubricCriterionInput {
+  id: string;
+  name: string;
+  description: string;
+  maxPoints: number;
+  evaluationGuidelines: string;
+}
+
+export interface RubricScoreResult {
+  criterionId: string;
+  criterionName: string;
+  score: number;
+  maxPoints: number;
+  feedback: string;
+}
+
+export interface RubricEvaluationResult {
+  rubricScores: RubricScoreResult[];
+  totalScore: number;
+  maxPossibleScore: number;
+  percentageScore: number;
+  overallFeedback: string;
+  strengths: string[];
+  areasForImprovement: string[];
+}
+
+export async function evaluateTextResponse(
+  response: string,
+  promptContext: string,
+  rubricCriteria: RubricCriterionInput[],
+  weekNumber: number
+): Promise<RubricEvaluationResult> {
+  try {
+    const criteriaPrompt = rubricCriteria.map(c => 
+      `- ${c.name} (${c.maxPoints} points): ${c.description}
+       Evaluation guide: ${c.evaluationGuidelines}`
+    ).join('\n\n');
+
+    const response_result = await openai.chat.completions.create({
+      model: "gpt-4.1-nano",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert business education evaluator assessing student responses in a simulation about manufacturing AI adoption and workforce management. 
+          
+Your task is to evaluate a student's written response against a specific rubric. Be fair but rigorous - graduate students should demonstrate critical thinking.
+
+Key topics students should understand:
+- Labor shortage statistics (415,000 unfilled jobs, 2.1 million projected by 2030)
+- Workforce demographics (26% approaching retirement, Gen Z management refusal 72%)
+- Tariff impacts and supply chain considerations
+- Case studies of success and failure in manufacturing AI adoption
+- Workforce solutions (reskilling, dual career tracks, worker councils)
+- Union dynamics and employee relations
+- Financial trade-offs of automation investments`,
+        },
+        {
+          role: "user",
+          content: `Week ${weekNumber} Context:
+${promptContext}
+
+Student's Response:
+"${response}"
+
+Evaluate this response against these criteria:
+${criteriaPrompt}
+
+Respond with a JSON object containing:
+{
+  "scores": [
+    {
+      "criterionId": "<criterion id>",
+      "criterionName": "<criterion name>",
+      "score": <points awarded, 0 to maxPoints>,
+      "maxPoints": <max points for this criterion>,
+      "feedback": "<specific feedback explaining the score, 1-2 sentences>"
+    }
+  ],
+  "overallFeedback": "<summary of response quality, 2-3 sentences>",
+  "strengths": ["<strength 1>", "<strength 2>"],
+  "areasForImprovement": ["<improvement 1>", "<improvement 2>"]
+}
+
+Be specific in feedback. Reference what the student did well or missed.
+Respond ONLY with the JSON object.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 1000,
+    });
+
+    const content = response_result.choices[0]?.message?.content || "{}";
+    const parsed = JSON.parse(content);
+    
+    const rubricScores: RubricScoreResult[] = (parsed.scores || []).map((s: any) => ({
+      criterionId: s.criterionId || "",
+      criterionName: s.criterionName || "",
+      score: Math.min(s.maxPoints || 25, Math.max(0, s.score || 0)),
+      maxPoints: s.maxPoints || 25,
+      feedback: s.feedback || "No feedback provided",
+    }));
+
+    const totalScore = rubricScores.reduce((sum, s) => sum + s.score, 0);
+    const maxPossibleScore = rubricCriteria.reduce((sum, c) => sum + c.maxPoints, 0);
+    const percentageScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+
+    return {
+      rubricScores,
+      totalScore,
+      maxPossibleScore,
+      percentageScore,
+      overallFeedback: parsed.overallFeedback || "Unable to generate feedback",
+      strengths: parsed.strengths || [],
+      areasForImprovement: parsed.areasForImprovement || [],
+    };
+  } catch (error) {
+    console.error("[LLM Evaluation] Failed to evaluate text response:", error);
+    
+    return {
+      rubricScores: rubricCriteria.map(c => ({
+        criterionId: c.id,
+        criterionName: c.name,
+        score: 0,
+        maxPoints: c.maxPoints,
+        feedback: "Evaluation service unavailable",
+      })),
+      totalScore: 0,
+      maxPossibleScore: rubricCriteria.reduce((sum, c) => sum + c.maxPoints, 0),
+      percentageScore: 0,
+      overallFeedback: "Evaluation service was unavailable. Please contact your instructor.",
+      strengths: [],
+      areasForImprovement: [],
+    };
+  }
+}

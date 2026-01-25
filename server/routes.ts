@@ -443,7 +443,72 @@ export async function registerRoutes(
       // Also run keyword detection as a backup metric
       const keywordMatches = await storage.detectEasterEggs(rationale, weekNumber);
       
+      // Evaluate essay/text attributes with rubric-based LLM scoring
+      const { evaluateTextResponse } = await import("./services/llm-evaluation");
+      const { defaultRubricCriteria } = await import("@shared/schema");
+      
+      const llmEvaluations: any[] = [];
+      let totalLLMScore = 0;
+      let totalMaxScore = 0;
+      
+      if (decision) {
+        const textAttributes = decision.attributes.filter(a => a.type === "text" || a.type === "essay");
+        
+        for (const attr of textAttributes) {
+          const responseText = attributeValues[attr.id];
+          if (typeof responseText === "string" && responseText.trim().length > 0) {
+            // Strip HTML tags for word count validation
+            const plainText = responseText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const attrWordCount = plainText.split(/\s+/).filter(w => w.length > 0).length;
+            
+            if (attr.minWords && attrWordCount < attr.minWords) {
+              return res.status(400).json({ 
+                error: `${attr.label} requires at least ${attr.minWords} words. Current: ${attrWordCount}` 
+              });
+            }
+            
+            // Use custom rubric or default
+            const rubricCriteria = attr.rubricCriteria || defaultRubricCriteria;
+            
+            const evaluation = await evaluateTextResponse(
+              plainText,
+              `${decision.title}: ${decision.context}\nAttribute: ${attr.label} - ${attr.description}`,
+              rubricCriteria,
+              weekNumber
+            );
+            
+            llmEvaluations.push({
+              attributeId: attr.id,
+              rubricScores: evaluation.rubricScores,
+              totalScore: evaluation.totalScore,
+              maxPossibleScore: evaluation.maxPossibleScore,
+              percentageScore: evaluation.percentageScore,
+              overallFeedback: evaluation.overallFeedback,
+              strengths: evaluation.strengths,
+              areasForImprovement: evaluation.areasForImprovement,
+              evaluatedAt: new Date().toISOString(),
+            });
+            
+            // Weight by llmWeight if specified
+            const weight = attr.llmWeight || 100;
+            totalLLMScore += evaluation.percentageScore * (weight / 100);
+            totalMaxScore += weight;
+          }
+        }
+      }
+      
+      // Calculate overall LLM score (weighted average)
+      const overallLLMScore = totalMaxScore > 0 ? Math.round(totalLLMScore / (totalMaxScore / 100)) : 0;
+      
       const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
+      
+      // Add LLM evaluations to the submission
+      const enrichedSubmission = {
+        ...submission,
+        llmEvaluations,
+        overallLLMScore,
+        evaluationStatus: llmEvaluations.length > 0 ? "completed" : "pending",
+      };
       
       // Log activity with both evaluation methods
       await storage.logActivity({
@@ -462,6 +527,8 @@ export async function registerRoutes(
           evidenceUsed: llmEvaluation.evidenceUsed.length,
           keywordMatches: keywordMatches.length,
           attributeKeys: Object.keys(attributeValues),
+          essayEvaluationsCount: llmEvaluations.length,
+          overallLLMScore,
         },
       });
       
@@ -476,11 +543,14 @@ export async function registerRoutes(
       }
       
       res.json({ 
-        submission,
+        submission: enrichedSubmission,
         qualityFeedback: feedbackMessage,
         researchScore: llmEvaluation.score,
+        llmEvaluations,
+        overallLLMScore,
       });
     } catch (error) {
+      console.error("[Submit Decision] Error:", error);
       res.status(500).json({ error: "Failed to submit enhanced decision" });
     }
   });
