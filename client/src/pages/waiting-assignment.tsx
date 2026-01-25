@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
-import logo from "@assets/logo-icon-dark.png";
+import logo from "@assets/logo-horizontal-dark.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -202,14 +202,12 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-4 py-3">
-            <img 
-              src={logo} 
-              alt="Future Work Academy" 
-              className="h-20 w-auto"
-              data-testid="img-header-logo"
-            />
-          </div>
+          <img 
+            src={logo} 
+            alt="Future Work Academy" 
+            className="h-16 w-auto"
+            data-testid="img-header-logo"
+          />
           <div className="flex items-center gap-3">
             {user?.isAdmin === "true" && (
               <Link href="/admin">

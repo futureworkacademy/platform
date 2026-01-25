@@ -12,7 +12,7 @@ import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import logoImg from "@assets/logo-icon-dark.png";
+import logoImg from "@assets/logo-horizontal-dark.png";
 
 interface AboutContent {
   id?: string;
@@ -80,14 +80,12 @@ export default function About() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/">
-            <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-4 py-3">
-              <img 
-                src={logoImg} 
-                alt="Future Work Academy" 
-                className="h-16 w-auto cursor-pointer"
-                data-testid="img-header-logo"
-              />
-            </div>
+            <img 
+              src={logoImg} 
+              alt="Future Work Academy" 
+              className="h-14 w-auto cursor-pointer"
+              data-testid="img-header-logo"
+            />
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/">

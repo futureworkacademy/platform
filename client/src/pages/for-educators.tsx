@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award, FileText, Sparkles, Newspaper, Settings, UserCog, ShieldCheck } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
-import logo from "@assets/logo-icon-dark.png";
+import logo from "@assets/logo-horizontal-dark.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -91,14 +91,12 @@ export default function ForEducators() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link href="/">
-              <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-4 py-3">
-                <img 
-                  src={logo} 
-                  alt="Future Work Academy" 
-                  className="h-20 w-auto cursor-pointer"
-                  data-testid="img-header-logo"
-                />
-              </div>
+              <img 
+                src={logo} 
+                alt="Future Work Academy" 
+                className="h-16 w-auto cursor-pointer"
+                data-testid="img-header-logo"
+              />
             </Link>
             <ThemeToggle />
           </div>
@@ -132,14 +130,12 @@ export default function ForEducators() {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Link href="/">
-            <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-4 py-3">
-              <img 
-                src={logo} 
-                alt="Future Work Academy" 
-                className="h-20 w-auto cursor-pointer"
-                data-testid="img-header-logo"
-              />
-            </div>
+            <img 
+              src={logo} 
+              alt="Future Work Academy" 
+              className="h-16 w-auto cursor-pointer"
+              data-testid="img-header-logo"
+            />
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/">

@@ -52,8 +52,8 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - `client/public/favicon.png` - Browser tab icon
 
 **Current Logo Sizes in Web App:**
-- Header logos (landing, academia, for-educators, waiting-assignment, feedback): h-20 (80px)
-- Secondary page headers (about, privacy): h-16 (64px)
+- Header logos (landing, academia, for-educators, waiting-assignment, feedback): h-16 (64px) - horizontal logo with text
+- Secondary page headers (about, privacy): h-14 (56px) - horizontal logo with text
 - Sidebar collapsed: h-10 (40px)
 - Favicon: 32px
 

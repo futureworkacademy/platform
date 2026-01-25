@@ -120,12 +120,12 @@
 
 ### Current Web App Logo Sizes
 
-| Location | Tailwind Class | Pixel Height |
-|----------|----------------|--------------|
-| Main page headers (landing, academia, for-educators) | h-20 | 80px |
-| Secondary page headers (about, privacy) | h-16 | 64px |
-| Sidebar (collapsed state) | h-10 | 40px |
-| Favicon | - | 32px |
+| Location | Tailwind Class | Pixel Height | Logo Type |
+|----------|----------------|--------------|-----------|
+| Main page headers (landing, academia, for-educators) | h-16 | 64px | Horizontal (with text) |
+| Secondary page headers (about, privacy) | h-14 | 56px | Horizontal (with text) |
+| Sidebar (collapsed state) | h-10 | 40px | Icon only |
+| Favicon | - | 32px | Icon only |
 
 ---
 
