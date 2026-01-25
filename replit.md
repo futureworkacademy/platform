@@ -19,21 +19,21 @@ I prefer clear and concise communication. When making changes, prioritize the co
 - **Frontend:** React with TypeScript, Wouter for routing, TanStack Query for data fetching.
 - **Backend:** Express.js.
 - **Database:** PostgreSQL with Drizzle ORM.
-- **Authentication:** Replit OIDC Auth with `connect-pg-simple` for session storage.
+- **Authentication:** Replit OIDC Auth with connect-pg-simple for session storage.
 - **Role System:** Three-tier hierarchy (Super Admin, Class Admin, Student).
 - **Multi-Tenancy:** Organizations managed with unique team codes.
-- **Simulation Loop:** Dashboard → Briefing → Decisions → Analytics → Leaderboard, with dual scoring (Financial & Cultural), global events, and resource allocation.
+- **Simulation Loop:** Dashboard to Briefing to Decisions to Analytics to Leaderboard, with dual scoring (Financial and Cultural), global events, and resource allocation.
 - **LLM-Powered Grading:** OpenAI-based semantic evaluation for essay responses using a 4-criteria rubric.
 - **Activity Logging:** Tracks user and game actions, exportable to CSV/JSON.
-- **Student Enrollment:** Configurable `.edu` email verification, team code entry, and SMS notifications.
+- **Student Enrollment:** Configurable .edu email verification, team code entry, and SMS notifications.
 - **Admin Dashboards:** Dedicated interfaces for Super Admins and Class Admins, including CSV bulk import and member soft-delete.
 - **Simulation Lifecycle:** Formal management with status tracking, configurable dates, and week advancement controls.
 - **Scheduled Reminders:** Email queue system for instructors.
 - **Platform Settings (Super Admin):** Configurable enrollment requirements, competition modes, scoring weights, and bonus settings.
 - **Sandbox Mode (Instructor Preview):** Class Admins can test the full student experience without affecting real student data.
-- **Multi-Scenario Module Support:** Utilizes `simulationModules` and `simulationContent` tables for diverse themes.
+- **Multi-Scenario Module Support:** Utilizes simulationModules and simulationContent tables for diverse themes.
 - **Unified People API:** Merges users, organization memberships, and team assignments.
-- **Week Results & Feedback System:** Displays detailed performance feedback, LLM-evaluated essay scores with rubric, and top answers.
+- **Week Results and Feedback System:** Displays detailed performance feedback, LLM-evaluated essay scores with rubric, and top answers.
 
 ## External Dependencies
 
