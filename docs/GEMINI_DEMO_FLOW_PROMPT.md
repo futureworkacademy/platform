@@ -20,6 +20,15 @@ You are building interactive demo flows for the Future Work Academy business sim
 - Pre-seeded with 6 fake students across 3 teams
 - Simulation starts at Week 3 (mid-simulation view)
 - 30-day evaluator access with isolated sandbox
+- Any work email accepted (no .edu requirement)
+
+**Hybrid Guided Tour System:**
+- **Driver.js Tour**: Auto-triggers 1.5 seconds after first demo user login
+- **8-Step Walkthrough**: Covers logo, company name, scores, navigation, and key features
+- **Gemini Q&A Widget**: Floating AI assistant for real-time questions
+- **Quick Question Buttons**: Pre-defined common questions for fast answers
+- **Restart Tour Button**: Available in sidebar for demo users to replay anytime
+- **Completion Tracking**: localStorage-based, only shows once per browser
 
 ---
 

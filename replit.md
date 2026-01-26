@@ -22,6 +22,8 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Brand Guidelines:** The brand emphasizes an authoritative, forward-thinking, and sophisticated tone. Visuals are clean and minimal, using navy blue and growth green, inspired by financial services and management consulting aesthetics. Logos are designed for legibility across various sizes and backgrounds, conveying leadership, technology, transformation, and education.
 
+**Self-Service Demo System:** 30-day evaluator access available to any work email (no .edu required). Demo environment (org code DEMO2025) includes 6 pre-seeded fake students across 3 teams at Week 3. Features hybrid guided tour (Driver.js 8-step walkthrough auto-triggering on first login) and Gemini-powered Q&A assistant for real-time platform questions. Tour completion tracked in localStorage; "Restart Tour" button available in sidebar for demo users.
+
 ## External Dependencies
 
 - **Authentication:** Replit OIDC Auth

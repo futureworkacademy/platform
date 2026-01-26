@@ -56,6 +56,35 @@ An 8-week immersive business simulation where students step into the role of exe
 
 - **Rich Media Content**: Weekly briefings include video and audio content with full transcripts, dynamic reading/viewing time estimates, and engagement tracking across all media types
 
+- **Self-Service Demo Access**: Instantly explore the platform with 30-day evaluator access - no .edu email required. Perfect for faculty, corporate trainers, and L&D professionals alike
+
+- **Guided Tour & AI Assistant**: New evaluators receive an interactive guided tour highlighting key features, plus an AI-powered Q&A assistant to answer questions in real-time
+
+---
+
+### Try It Yourself: Self-Service Demo
+
+Experience the simulation firsthand with our no-commitment demo environment:
+
+**Getting Started:**
+1. Visit the "For Academia" page
+2. Request 30-day evaluator access with any work email (no .edu required)
+3. Sign in to explore a pre-populated sandbox with 6 fake students across 3 teams
+4. Jump to Week 3 to see a mid-simulation view with established scores and history
+
+**What's Included:**
+- **Interactive Guided Tour**: Auto-launching walkthrough of key dashboard features
+- **AI-Powered Q&A**: Ask questions about the platform in real-time with our Gemini-powered assistant
+- **Complete Student Experience**: Make decisions, see AI feedback, explore the character system
+- **Instructor Views**: Access admin dashboards, analytics, and roster management
+- **Isolated Sandbox**: All demo data is fictional and completely separate from production
+
+**Perfect For:**
+- Faculty evaluating for curriculum integration
+- Corporate L&D teams exploring experiential training options
+- Business school administrators assessing technology investments
+- Workforce development professionals seeking simulation-based learning tools
+
 ---
 
 ### Research-Backed Pedagogy
