@@ -60,13 +60,13 @@ export default function Feedback() {
             <img 
               src={logoDark} 
               alt="Future Work Academy" 
-              className="h-24 w-auto block dark:hidden"
+              className="h-14 w-auto block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
               src={logoLight} 
               alt="Future Work Academy" 
-              className="h-24 w-auto hidden dark:block"
+              className="h-14 w-auto hidden dark:block"
               data-testid="img-header-logo-dark"
             />
             <ThemeToggle />
@@ -103,13 +103,13 @@ export default function Feedback() {
           <img 
             src={logoDark} 
             alt="Future Work Academy" 
-            className="h-24 w-auto block dark:hidden"
+            className="h-14 w-auto block dark:hidden"
             data-testid="img-header-logo-light"
           />
           <img 
             src={logoLight} 
             alt="Future Work Academy" 
-            className="h-24 w-auto hidden dark:block"
+            className="h-14 w-auto hidden dark:block"
             data-testid="img-header-logo-dark"
           />
           <div className="flex items-center gap-3">

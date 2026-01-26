@@ -79,18 +79,18 @@ export default function About() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/">
             <img 
               src={logoDark} 
               alt="Future Work Academy" 
-              className="h-24 w-auto cursor-pointer block dark:hidden"
+              className="h-14 w-auto cursor-pointer block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
               src={logoLight} 
               alt="Future Work Academy" 
-              className="h-24 w-auto cursor-pointer hidden dark:block"
+              className="h-14 w-auto cursor-pointer hidden dark:block"
               data-testid="img-header-logo-dark"
             />
           </Link>

@@ -95,13 +95,13 @@ export default function ForEducators() {
               <img 
                 src={logoDark} 
                 alt="Future Work Academy" 
-                className="h-24 w-auto cursor-pointer block dark:hidden"
+                className="h-14 w-auto cursor-pointer block dark:hidden"
                 data-testid="img-header-logo-light"
               />
               <img 
                 src={logoLight} 
                 alt="Future Work Academy" 
-                className="h-24 w-auto cursor-pointer hidden dark:block"
+                className="h-14 w-auto cursor-pointer hidden dark:block"
                 data-testid="img-header-logo-dark"
               />
             </Link>
@@ -140,13 +140,13 @@ export default function ForEducators() {
             <img 
               src={logoDark} 
               alt="Future Work Academy" 
-              className="h-24 w-auto cursor-pointer block dark:hidden"
+              className="h-14 w-auto cursor-pointer block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
               src={logoLight} 
               alt="Future Work Academy" 
-              className="h-24 w-auto cursor-pointer hidden dark:block"
+              className="h-14 w-auto cursor-pointer hidden dark:block"
               data-testid="img-header-logo-dark"
             />
           </Link>
