@@ -2040,7 +2040,9 @@ Provide your consistency review in JSON format.`;
       res.json({ 
         valid: true, 
         organizationName: result.organization?.name,
-        organizationId: result.organization?.id 
+        organizationId: result.organization?.id,
+        // PRIVACY MODE: Return whether this org is in privacy mode
+        privacyMode: result.organization?.privacyMode === true
       });
     } catch (error) {
       console.error("[Team Code] Validation error:", error);
@@ -2065,23 +2067,11 @@ Provide your consistency review in JSON format.`;
       
       // Determine the best email to use for notifications
       const userEmail = user.schoolEmail || user.email || "";
-      
-      // Check .edu email requirement based on platform settings
-      if (platformSettings.requireEduEmail) {
-        // SECURITY: Only allow joining if user has a verified .edu email in their profile
-        // We do NOT accept schoolEmail from request body to prevent bypassing verification
-        if (user.schoolEmailVerified !== "true") {
-          return res.status(400).json({ error: "Please verify your .edu email before joining an organization." });
-        }
-        
-        if (!user.schoolEmail || !validateEduEmail(user.schoolEmail)) {
-          return res.status(400).json({ error: "A verified .edu email is required. Please verify your email first." });
-        }
-      }
 
       let targetOrgId: string;
       let targetOrgName: string;
       let inviteId: string | null = null;
+      let targetOrg: any = null;
 
       // Handle organization lookup based on whether team code is required
       if (platformSettings.requireTeamCode) {
@@ -2097,6 +2087,7 @@ Provide your consistency review in JSON format.`;
         
         targetOrgId = result.organization.id;
         targetOrgName = result.organization.name;
+        targetOrg = result.organization;
         inviteId = result.invite.id;
       } else {
         // Team code is optional
@@ -2109,6 +2100,7 @@ Provide your consistency review in JSON format.`;
           
           targetOrgId = result.organization.id;
           targetOrgName = result.organization.name;
+          targetOrg = result.organization;
           inviteId = result.invite.id;
         } else if (organizationId) {
           // No code but organization ID provided (for open enrollment)
@@ -2119,9 +2111,26 @@ Provide your consistency review in JSON format.`;
           
           targetOrgId = org.id;
           targetOrgName = org.name;
+          targetOrg = org;
         } else {
           // No code and no organization - cannot proceed
           return res.status(400).json({ error: "Please provide a team code or select an organization to join" });
+        }
+      }
+
+      // PRIVACY MODE: Skip .edu email verification if organization has privacy mode enabled
+      const isPrivacyMode = targetOrg?.privacyMode === true;
+      
+      // Check .edu email requirement based on platform settings (unless privacy mode is on)
+      if (platformSettings.requireEduEmail && !isPrivacyMode) {
+        // SECURITY: Only allow joining if user has a verified .edu email in their profile
+        // We do NOT accept schoolEmail from request body to prevent bypassing verification
+        if (user.schoolEmailVerified !== "true") {
+          return res.status(400).json({ error: "Please verify your .edu email before joining an organization." });
+        }
+        
+        if (!user.schoolEmail || !validateEduEmail(user.schoolEmail)) {
+          return res.status(400).json({ error: "A verified .edu email is required. Please verify your email first." });
         }
       }
 
@@ -2146,25 +2155,34 @@ Provide your consistency review in JSON format.`;
 
       // Note: phoneNumber and smsConsent can be stored if we add user phone field later
       // For now, they're logged but not persisted
+      // PRIVACY MODE: Don't store phone numbers in privacy mode
+      if (!isPrivacyMode && phoneNumber) {
+        await authStorage.updateUser(userId, { notifyPhone: phoneNumber, smsEnabled: smsConsent === true });
+      }
 
-      // Notify admins via in-app notifications
-      await organizationStorage.notifyAdminsOfSignup(targetOrgId, {
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: userEmail,
-      });
+      // PRIVACY MODE: Skip all notifications in privacy mode
+      if (!isPrivacyMode) {
+        // Notify admins via in-app notifications
+        await organizationStorage.notifyAdminsOfSignup(targetOrgId, {
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: userEmail,
+        });
 
-      // Also try to send SMS notifications to admins
-      try {
-        const studentName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "New Student";
-        await notifyAdminViaSmsForOrg(
-          targetOrgId,
-          studentName,
-          userEmail,
-          targetOrgName
-        );
-      } catch (smsError) {
-        console.log("[SMS] Non-critical SMS notification failed:", smsError);
+        // Also try to send SMS notifications to admins
+        try {
+          const studentName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "New Student";
+          await notifyAdminViaSmsForOrg(
+            targetOrgId,
+            studentName,
+            userEmail,
+            targetOrgName
+          );
+        } catch (smsError) {
+          console.log("[SMS] Non-critical SMS notification failed:", smsError);
+        }
+      } else {
+        console.log("[Privacy Mode] Notifications skipped for privacy mode organization:", targetOrgName);
       }
 
       res.json({ 

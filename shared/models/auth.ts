@@ -111,6 +111,10 @@ export const organizations = pgTable("organizations", {
   notifyEmail: varchar("notify_email"),
   notifyPhone: varchar("notify_phone"),
   isDemo: boolean("is_demo").default(false), // Demo organizations are sandboxed for evaluators
+  // Privacy Mode: Enables anonymous enrollment without PII collection
+  privacyMode: boolean("privacy_mode").default(false),
+  // When privacy mode is on, all notifications are disabled
+  privacyModeNotificationsDisabled: boolean("privacy_mode_notifications_disabled").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
