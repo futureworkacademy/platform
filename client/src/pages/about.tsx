@@ -96,7 +96,7 @@ export default function About() {
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="ghost" size="sm" data-testid="button-back-home">
+              <Button variant="ghost" data-testid="button-back-home">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>
