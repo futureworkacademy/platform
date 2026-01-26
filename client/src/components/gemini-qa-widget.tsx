@@ -223,7 +223,7 @@ export function GeminiQAWidget() {
                       key={idx}
                       size="sm"
                       variant="outline"
-                      className="text-xs h-7"
+                      className="text-xs"
                       onClick={() => handleQuickQuestion(q)}
                       disabled={askMutation.isPending}
                       data-testid={`button-quick-question-${idx}`}

@@ -31,10 +31,8 @@ interface UserData {
   email?: string;
   organizationCode?: string;
   role?: string;
-  demoAccess?: {
-    accessType: string;
-    expiresAt: string;
-  };
+  demoAccess?: string;
+  isTestStudent?: boolean;
 }
 
 export function DemoTourProvider({ children }: DemoTourProviderProps) {
@@ -46,10 +44,7 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     retry: false,
   });
 
-  const isDemoUser = Boolean(
-    user?.demoAccess?.accessType === "EVALUATOR" ||
-    user?.organizationCode === "DEMO2025"
-  );
+  const isDemoUser = user?.demoAccess === "evaluator";
 
   useEffect(() => {
     if (isDemoUser && !hasCompletedTour && !isTourActive) {
