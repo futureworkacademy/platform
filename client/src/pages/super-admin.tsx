@@ -180,32 +180,10 @@ interface SyncResult {
 function GoogleDocsSyncCard() {
   const { toast } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncingDoc, setSyncingDoc] = useState<string | null>(null);
 
-  const { data: googleDocs = [], isLoading: isLoadingDocs, refetch: refetchDocs } = useQuery<GoogleDocInfo[]>({
+  const { data: googleDocs = [], refetch: refetchDocs } = useQuery<GoogleDocInfo[]>({
     queryKey: ['/api/docs/list'],
   });
-
-  const syncDocument = async (documentType: string) => {
-    setSyncingDoc(documentType);
-    try {
-      const response = await apiRequest('POST', '/api/docs/sync', { documentType });
-      const result = await response.json() as { success: boolean; googleDocsUrl: string; title: string };
-      toast({
-        title: "Document synced",
-        description: `${result.title} has been synced to Google Docs.`,
-      });
-      refetchDocs();
-    } catch (error: any) {
-      toast({
-        title: "Sync failed",
-        description: error.message || "Failed to sync document",
-        variant: "destructive",
-      });
-    } finally {
-      setSyncingDoc(null);
-    }
-  };
 
   const syncAllDocuments = async () => {
     setIsSyncing(true);
@@ -230,12 +208,19 @@ function GoogleDocsSyncCard() {
     }
   };
 
-  const documentTypes = [
-    { key: 'business_plan', label: 'Business Plan' },
-    { key: 'product_roadmap', label: 'Product Roadmap' },
-    { key: 'marketing_materials', label: 'Marketing Materials' },
-    { key: 'solution_doc', label: 'Solution Document' },
-  ];
+  // Get the most recent sync time from all documents
+  const lastSyncTime = googleDocs.length > 0 
+    ? googleDocs.reduce((latest, doc) => {
+        const docTime = doc.lastSyncedAt ? new Date(doc.lastSyncedAt).getTime() : 0;
+        return docTime > latest ? docTime : latest;
+      }, 0)
+    : null;
+
+  const formatLastSync = (timestamp: number | null) => {
+    if (!timestamp) return null;
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
 
   return (
     <Card>
@@ -255,6 +240,11 @@ function GoogleDocsSyncCard() {
             <p className="text-sm text-muted-foreground">
               Sync all documentation to Google Docs at once
             </p>
+            {lastSyncTime && (
+              <p className="text-xs text-muted-foreground">
+                Last synced: {formatLastSync(lastSyncTime)}
+              </p>
+            )}
           </div>
           <Button 
             onClick={syncAllDocuments} 
@@ -274,32 +264,6 @@ function GoogleDocsSyncCard() {
             )}
           </Button>
         </div>
-        
-        <Separator />
-        
-        <div className="space-y-3">
-          <Label className="text-base">Individual Documents</Label>
-          <div className="grid gap-2">
-            {documentTypes.map((doc) => (
-              <div key={doc.key} className="flex items-center justify-between py-2 px-3 rounded-md border">
-                <span className="text-sm font-medium">{doc.label}</span>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => syncDocument(doc.key)}
-                  disabled={syncingDoc === doc.key}
-                  data-testid={`button-sync-${doc.key}`}
-                >
-                  {syncingDoc === doc.key ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Sync'
-                  )}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {googleDocs.length > 0 && (
           <>
@@ -307,7 +271,7 @@ function GoogleDocsSyncCard() {
             <div className="space-y-3">
               <Label className="text-base">Synced Documents ({googleDocs.length})</Label>
               <div className="grid gap-2 max-h-48 overflow-y-auto">
-                {googleDocs.slice(0, 10).map((doc) => (
+                {googleDocs.map((doc) => (
                   <a
                     key={doc.documentId}
                     href={`https://docs.google.com/document/d/${doc.documentId}/edit`}
