@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { useDemoTour } from "@/components/demo-tour-provider";
 import { Button } from "@/components/ui/button";
-import logo from "@assets/logo-icon-light.png";
+import logoDark from "@assets/logo-icon-dark.png";
+import logoLight from "@assets/logo-icon-light.png";
 import {
   Sidebar,
   SidebarContent,
@@ -110,12 +111,18 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md px-3 py-2">
+          <div className="rounded-md px-2 py-1">
             <img 
-              src={logo} 
+              src={logoDark} 
               alt="Future Work Academy" 
-              className="h-10 w-auto cursor-pointer"
-              data-testid="img-sidebar-logo"
+              className="h-16 w-auto cursor-pointer block dark:hidden"
+              data-testid="img-sidebar-logo-light"
+            />
+            <img 
+              src={logoLight} 
+              alt="Future Work Academy" 
+              className="h-16 w-auto cursor-pointer hidden dark:block"
+              data-testid="img-sidebar-logo-dark"
             />
           </div>
         </Link>

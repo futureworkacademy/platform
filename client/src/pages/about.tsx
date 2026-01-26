@@ -12,7 +12,8 @@ import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import logoImg from "@assets/logo-horizontal-dark.png";
+import logoDark from "@assets/logo-horizontal-dark.png";
+import logoLight from "@assets/logo-horizontal-light.png";
 
 interface AboutContent {
   id?: string;
@@ -81,10 +82,16 @@ export default function About() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/">
             <img 
-              src={logoImg} 
+              src={logoDark} 
               alt="Future Work Academy" 
-              className="h-14 w-auto cursor-pointer"
-              data-testid="img-header-logo"
+              className="h-24 w-auto cursor-pointer block dark:hidden"
+              data-testid="img-header-logo-light"
+            />
+            <img 
+              src={logoLight} 
+              alt="Future Work Academy" 
+              className="h-24 w-auto cursor-pointer hidden dark:block"
+              data-testid="img-header-logo-dark"
             />
           </Link>
           <div className="flex items-center gap-3">
