@@ -3,6 +3,8 @@
 
 **Purpose:** Your complete checklist and step-by-step guide for creating and uploading all simulation content.
 
+> **Canonical Source:** All company names, character names, week titles, and facts must match [STORY_BIBLE.md](./STORY_BIBLE.md) and [canonical.json](./canonical.json). Before creating content, review the Story Bible for exact names and details. After creating content, run `npx tsx server/validate-content.ts` to verify consistency.
+
 **Last Updated:** January 2026
 
 ---
@@ -72,36 +74,42 @@ News-style articles that appear as optional reading during each week.
 
 ---
 
-### Character Profiles (17+ Total)
+### Character Profiles (17 Total)
+
+> **Note:** These names are canonical. See [STORY_BIBLE.md](./STORY_BIBLE.md) for full character details.
 
 #### Internal Stakeholders
-| Role | Name (Your Choice) | Bio | Headshot | Status |
-|------|-------------------|-----|----------|--------|
-| Board Chair | | 150-200 words | ⬜ | ⬜ |
-| CFO | | 150-200 words | ⬜ | ⬜ |
-| COO | | 150-200 words | ⬜ | ⬜ |
-| HR Director | | 150-200 words | ⬜ | ⬜ |
-| Operations Manager | | 150-200 words | ⬜ | ⬜ |
-| Sales VP | | 150-200 words | ⬜ | ⬜ |
-| General Counsel | | 150-200 words | ⬜ | ⬜ |
+| Role | Canonical Name | Bio | Headshot | Status |
+|------|----------------|-----|----------|--------|
+| Board Chair | Victoria Hartwell | 150-200 words | ⬜ | ⬜ |
+| CFO | David Chen | 150-200 words | ⬜ | ⬜ |
+| COO | Margaret O'Brien (Maggie) | 150-200 words | ⬜ | ⬜ |
+| HR Director | Sandra Williams | 150-200 words | ⬜ | ⬜ |
+| Operations Manager | Frank Torres | 150-200 words | ⬜ | ⬜ |
+| Sales VP | Jennifer Park | 150-200 words | ⬜ | ⬜ |
+| General Counsel | Robert Nakamura | 150-200 words | ⬜ | ⬜ |
 
 #### External Stakeholders
-| Role | Name (Your Choice) | Bio | Headshot | Status |
-|------|-------------------|-----|----------|--------|
-| Union Organizer | | 150-200 words | ⬜ | ⬜ |
-| Bank Representative | | 150-200 words | ⬜ | ⬜ |
-| Industry Analyst | | 150-200 words | ⬜ | ⬜ |
-| Mayor's Office Rep | | 150-200 words | ⬜ | ⬜ |
-| Key Customer | | 150-200 words | ⬜ | ⬜ |
-| Technology Vendor | | 150-200 words | ⬜ | ⬜ |
-| External Consultant | | 150-200 words | ⬜ | ⬜ |
+| Role | Canonical Name | Bio | Headshot | Status |
+|------|----------------|-----|----------|--------|
+| Union Organizer | Marcus Webb | 150-200 words | ⬜ | ⬜ |
+| Bank Representative | Patricia Lawson | 150-200 words | ⬜ | ⬜ |
+| Industry Analyst | Dr. Nathan Cross | 150-200 words | ⬜ | ⬜ |
+| Mayor | Angela Reyes | 150-200 words | ⬜ | ⬜ |
+| Key Customer (AutoCorp) | Thomas Richardson | 150-200 words | ⬜ | ⬜ |
+| Technology Vendor | Rachel Kim | 150-200 words | ⬜ | ⬜ |
+| External Consultant | Dr. Helen Mercer | 150-200 words | ⬜ | ⬜ |
 
-#### Special Characters
-| Role | Name (Your Choice) | Bio | Headshot | Status |
-|------|-------------------|-----|----------|--------|
-| Gen Z Focus Group Rep 1 | | 100-150 words | ⬜ | ⬜ |
-| Gen Z Focus Group Rep 2 | | 100-150 words | ⬜ | ⬜ |
-| Gen Z Focus Group Rep 3 | | 100-150 words | ⬜ | ⬜ |
+#### Gen Z Representatives
+| Role | Canonical Name | Bio | Headshot | Status |
+|------|----------------|-----|----------|--------|
+| Gen Z Focus Group Leader | Jaylen Brooks | 100-150 words | ⬜ | ⬜ |
+| Gen Z Employee | Destiny Martinez | 100-150 words | ⬜ | ⬜ |
+
+#### Board/Investor
+| Role | Canonical Name | Bio | Headshot | Status |
+|------|----------------|-----|----------|--------|
+| Board Member (PE) | William Thornton III | 150-200 words | ⬜ | ⬜ |
 
 ---
 

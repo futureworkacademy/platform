@@ -1,5 +1,7 @@
 # Explainer Video Script
 
+> **Canonical Source:** All company names, character names, and facts in this script must match [STORY_BIBLE.md](./STORY_BIBLE.md) and [canonical.json](./canonical.json). Run `npx tsx server/validate-content.ts` to check consistency.
+
 **Target Audience:** Business school faculty, department chairs, program directors  
 **Tone:** Professional, credible, direct  
 **Length:** 2:30 - 3:00 minutes  
