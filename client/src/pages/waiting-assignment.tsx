@@ -48,6 +48,8 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
   const [teamCode, setTeamCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [smsConsent, setSmsConsent] = useState(false);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
+  const [validatedOrgName, setValidatedOrgName] = useState('');
   
   const { data: institutions = [] } = useQuery<string[]>({
     queryKey: ['/api/institutions'],
@@ -114,6 +116,26 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     }
   });
 
+  const validateTeamCodeMutation = useMutation({
+    mutationFn: async (code: string) => {
+      return apiRequest('POST', '/api/validate-team-code', { code });
+    },
+    onSuccess: (data: { valid: boolean; organizationName: string; privacyMode: boolean }) => {
+      setIsPrivacyMode(data.privacyMode || false);
+      setValidatedOrgName(data.organizationName || '');
+      if (data.privacyMode) {
+        toast({
+          title: "Privacy Mode Active",
+          description: `${data.organizationName} uses Privacy Mode - no email verification needed.`,
+        });
+      }
+    },
+    onError: () => {
+      setIsPrivacyMode(false);
+      setValidatedOrgName('');
+    }
+  });
+
   const joinOrganizationMutation = useMutation({
     mutationFn: async (data: { teamCode: string; phoneNumber?: string; smsConsent: boolean }) => {
       return apiRequest('POST', '/api/join-organization', data);
@@ -135,6 +157,16 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       });
     }
   });
+  
+  // Validate team code when it changes to detect privacy mode
+  useEffect(() => {
+    if (teamCode.trim().length >= 6) {
+      validateTeamCodeMutation.mutate(teamCode.trim().toUpperCase());
+    } else {
+      setIsPrivacyMode(false);
+      setValidatedOrgName('');
+    }
+  }, [teamCode]);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +214,8 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       });
       return;
     }
-    if (!isSchoolEmailVerified) {
+    // PRIVACY MODE: Skip email verification requirement
+    if (!isPrivacyMode && !isSchoolEmailVerified) {
       toast({
         title: "Email verification required",
         description: "Please verify your .edu email before joining an organization.",
@@ -190,10 +223,11 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       });
       return;
     }
+    // PRIVACY MODE: Don't send phone number in privacy mode
     joinOrganizationMutation.mutate({
       teamCode: teamCode.trim().toUpperCase(),
-      phoneNumber: phoneNumber.trim() || undefined,
-      smsConsent,
+      phoneNumber: isPrivacyMode ? undefined : (phoneNumber.trim() || undefined),
+      smsConsent: isPrivacyMode ? false : smsConsent,
     });
   };
 
@@ -296,42 +330,61 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
               </p>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Phone Number (Optional)
-              </Label>
-              <Input
-                id="phoneNumber"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+1 (555) 123-4567"
-                data-testid="input-phoneNumber"
-              />
-            </div>
-            
-            <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-md">
-              <Checkbox
-                id="smsConsent"
-                checked={smsConsent}
-                onCheckedChange={(checked) => setSmsConsent(checked === true)}
-                data-testid="checkbox-smsConsent"
-              />
-              <div className="grid gap-1.5 leading-none">
-                <label
-                  htmlFor="smsConsent"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Receive SMS notifications
-                </label>
-                <p className="text-xs text-muted-foreground">
-                  Get text alerts about game updates and deadlines. Standard messaging rates may apply depending on your mobile carrier plan.
-                </p>
+            {/* PRIVACY MODE: Show indicator when privacy mode is detected */}
+            {isPrivacyMode && validatedOrgName && (
+              <div className="flex items-start gap-2 p-3 bg-green-500/10 rounded-md border border-green-500/20" data-testid="privacy-mode-indicator">
+                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-green-700 dark:text-green-400">Privacy Mode Active</p>
+                  <p className="text-muted-foreground">
+                    {validatedOrgName} uses anonymous enrollment. No email verification or phone number required.
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
             
-            {!isSchoolEmailVerified && (
+            {/* PRIVACY MODE: Hide phone/SMS fields when privacy mode is active */}
+            {!isPrivacyMode && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber" className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Number (Optional)
+                  </Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="+1 (555) 123-4567"
+                    data-testid="input-phoneNumber"
+                  />
+                </div>
+                
+                <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-md">
+                  <Checkbox
+                    id="smsConsent"
+                    checked={smsConsent}
+                    onCheckedChange={(checked) => setSmsConsent(checked === true)}
+                    data-testid="checkbox-smsConsent"
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <label
+                      htmlFor="smsConsent"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Receive SMS notifications
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Get text alerts about game updates and deadlines. Standard messaging rates may apply depending on your mobile carrier plan.
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {/* PRIVACY MODE: Only show email verification warning when NOT in privacy mode */}
+            {!isPrivacyMode && !isSchoolEmailVerified && (
               <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-md border border-yellow-500/20">
                 <AlertCircle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
                 <div className="text-sm">
@@ -345,7 +398,7 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
             
             <Button
               onClick={handleJoinOrganization}
-              disabled={joinOrganizationMutation.isPending || !isSchoolEmailVerified}
+              disabled={joinOrganizationMutation.isPending || (!isPrivacyMode && !isSchoolEmailVerified)}
               className="w-full"
               data-testid="button-join-organization"
             >

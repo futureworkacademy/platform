@@ -2263,7 +2263,7 @@ Provide your consistency review in JSON format.`;
         return res.status(403).json({ error: "Super Admin access required" });
       }
 
-      const { name, description, ownerEmail, maxMembers, notifyPhone } = req.body;
+      const { name, description, ownerEmail, maxMembers, notifyPhone, privacyMode } = req.body;
       if (!name) {
         return res.status(400).json({ error: "Organization name is required" });
       }
@@ -2285,14 +2285,18 @@ Provide your consistency review in JSON format.`;
         }
       }
 
+      // PRIVACY MODE: Disable notifications if privacy mode is enabled
+      const isPrivacyModeEnabled = privacyMode === true;
       const org = await organizationStorage.createOrganization({
         code,
         name,
         description,
         ownerId,
         maxMembers: maxMembers || 100,
-        notifyOnSignup: !!notifyPhone,
-        notifyPhone: notifyPhone || undefined,
+        notifyOnSignup: isPrivacyModeEnabled ? false : !!notifyPhone,
+        notifyPhone: isPrivacyModeEnabled ? undefined : (notifyPhone || undefined),
+        privacyMode: isPrivacyModeEnabled,
+        privacyModeNotificationsDisabled: isPrivacyModeEnabled,
       });
 
       // If owner is different from creator, add them as class admin
@@ -2324,7 +2328,7 @@ Provide your consistency review in JSON format.`;
       }
 
       const { id } = req.params;
-      const { name, description, maxMembers, notifyPhone, notifyOnSignup, status } = req.body;
+      const { name, description, maxMembers, notifyPhone, notifyOnSignup, status, privacyMode } = req.body;
 
       // Validate required fields
       if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -2342,13 +2346,17 @@ Provide your consistency review in JSON format.`;
         ? maxMembers 
         : undefined;
 
+      // PRIVACY MODE: If privacy mode is enabled, disable notifications
+      const isPrivacyModeEnabled = privacyMode === true;
       const org = await organizationStorage.updateOrganization(id, {
         name: name.trim(),
         description: description || undefined,
         maxMembers: parsedMaxMembers,
-        notifyPhone: notifyPhone || undefined,
-        notifyOnSignup: typeof notifyOnSignup === 'boolean' ? notifyOnSignup : undefined,
+        notifyPhone: isPrivacyModeEnabled ? null : (notifyPhone || undefined),
+        notifyOnSignup: isPrivacyModeEnabled ? false : (typeof notifyOnSignup === 'boolean' ? notifyOnSignup : undefined),
         status: status || undefined,
+        privacyMode: isPrivacyModeEnabled,
+        privacyModeNotificationsDisabled: isPrivacyModeEnabled,
       });
 
       if (!org) {
@@ -2939,6 +2947,80 @@ Provide your consistency review in JSON format.`;
     } catch (error) {
       console.error("[Educator Inquiries] Export error:", error);
       res.status(500).json({ error: "Failed to export inquiries" });
+    }
+  });
+
+  // ==================== PRIVACY MODE ROUTES ====================
+  
+  // Download Privacy Mode Roster Template (for mapping pseudonyms to real students offline)
+  app.get("/api/class-admin/organizations/:orgId/privacy-roster-template", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.params;
+      
+      // Check if user is admin of this org
+      const membership = await organizationStorage.getMember(userId, orgId);
+      if (!membership || (membership.role !== ROLES.CLASS_ADMIN && !(await organizationStorage.isSuperAdmin(userId)))) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const org = await organizationStorage.getOrganization(orgId);
+      if (!org) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      
+      // Get all members of this organization
+      const members = await organizationStorage.getOrganizationMembers(orgId);
+      const studentMembers = members.filter((m: any) => m.role === ROLES.STUDENT);
+      
+      // Get teams for this organization
+      const orgTeams = await organizationStorage.getTeams(orgId);
+      const teamMap = new Map(orgTeams.map((t: any) => [t.id, t.name]));
+      
+      // Generate CSV with pseudonymous identifiers
+      const headers = [
+        "Pseudonym (Username)", 
+        "Team Name", 
+        "Enrolled Date",
+        "Real Name (FILL IN OFFLINE)",
+        "Student ID (FILL IN OFFLINE)",
+        "Email (FILL IN OFFLINE)"
+      ];
+      
+      const rows = studentMembers.map((m: any) => {
+        // Use username or generate a pseudonym from user ID
+        const pseudonym = m.firstName && m.lastName 
+          ? `Student_${m.id.substring(0, 8)}` 
+          : `Student_${m.id.substring(0, 8)}`;
+        const teamName = m.teamId ? (teamMap.get(m.teamId) || "Unassigned") : "Unassigned";
+        const enrolledDate = m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : "Unknown";
+        
+        return [
+          pseudonym,
+          teamName,
+          enrolledDate,
+          "", // Real Name - to be filled offline
+          "", // Student ID - to be filled offline  
+          ""  // Email - to be filled offline
+        ];
+      });
+      
+      const csv = [
+        `# Privacy Mode Roster Template - ${org.name}`,
+        `# Generated: ${new Date().toISOString()}`,
+        `# IMPORTANT: This file is for OFFLINE use only. Do NOT upload student PII to the platform.`,
+        "",
+        headers.join(","),
+        ...rows.map(r => r.join(","))
+      ].join("\n");
+      
+      const filename = `privacy-roster-${org.code || org.id}-${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+      res.send(csv);
+    } catch (error) {
+      console.error("[Privacy Roster] Export error:", error);
+      res.status(500).json({ error: "Failed to generate roster template" });
     }
   });
 

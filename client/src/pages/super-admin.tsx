@@ -335,6 +335,7 @@ export default function SuperAdminPage() {
   const [newOrgDescription, setNewOrgDescription] = useState("");
   const [newOrgMaxMembers, setNewOrgMaxMembers] = useState(100);
   const [newOrgNotifyPhone, setNewOrgNotifyPhone] = useState("");
+  const [newOrgPrivacyMode, setNewOrgPrivacyMode] = useState(false);
   const [promoteEmail, setPromoteEmail] = useState("");
   const [selectedOrgId, setSelectedOrgId] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -346,6 +347,7 @@ export default function SuperAdminPage() {
   const [editNotifyPhone, setEditNotifyPhone] = useState("");
   const [editNotifyOnSignup, setEditNotifyOnSignup] = useState(true);
   const [editStatus, setEditStatus] = useState("active");
+  const [editPrivacyMode, setEditPrivacyMode] = useState(false);
   const [activeTab, setActiveTab] = useState("organizations");
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
@@ -528,7 +530,7 @@ export default function SuperAdminPage() {
   };
 
   const createOrgMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string; maxMembers: number; notifyPhone?: string }) => {
+    mutationFn: async (data: { name: string; description: string; maxMembers: number; notifyPhone?: string; privacyMode?: boolean }) => {
       return apiRequest("POST", "/api/super-admin/organizations", data);
     },
     onSuccess: () => {
@@ -537,6 +539,7 @@ export default function SuperAdminPage() {
       setNewOrgDescription("");
       setNewOrgMaxMembers(100);
       setNewOrgNotifyPhone("");
+      setNewOrgPrivacyMode(false);
       setCreateDialogOpen(false);
       toast({ title: "Organization created successfully" });
     },
@@ -566,7 +569,7 @@ export default function SuperAdminPage() {
   });
 
   const updateOrgMutation = useMutation({
-    mutationFn: async (data: { id: string; name: string; description: string; maxMembers: number; notifyPhone?: string; notifyOnSignup: boolean; status: string }) => {
+    mutationFn: async (data: { id: string; name: string; description: string; maxMembers: number; notifyPhone?: string; notifyOnSignup: boolean; status: string; privacyMode: boolean }) => {
       const response = await apiRequest("PUT", `/api/super-admin/organizations/${data.id}`, data);
       return response.json();
     },
@@ -708,6 +711,7 @@ export default function SuperAdminPage() {
     setEditNotifyPhone(org.notifyPhone || "");
     setEditNotifyOnSignup(org.notifyOnSignup ?? true);
     setEditStatus(org.status);
+    setEditPrivacyMode((org as any).privacyMode ?? false);
     setEditDialogOpen(true);
   };
 
@@ -918,6 +922,20 @@ export default function SuperAdminPage() {
                         Receive SMS alerts when students sign up. Include country code.
                       </p>
                     </div>
+                    <div className="flex items-center justify-between p-3 rounded-md border border-green-500/30 bg-green-500/5">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="org-privacy-mode" className="text-sm font-medium">Privacy Mode</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Enable anonymous enrollment. No .edu email or phone required. Notifications disabled.
+                        </p>
+                      </div>
+                      <Switch
+                        id="org-privacy-mode"
+                        checked={newOrgPrivacyMode}
+                        onCheckedChange={setNewOrgPrivacyMode}
+                        data-testid="switch-org-privacy-mode"
+                      />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button
@@ -925,7 +943,8 @@ export default function SuperAdminPage() {
                         name: newOrgName,
                         description: newOrgDescription,
                         maxMembers: newOrgMaxMembers,
-                        notifyPhone: newOrgNotifyPhone || undefined,
+                        notifyPhone: newOrgPrivacyMode ? undefined : (newOrgNotifyPhone || undefined),
+                        privacyMode: newOrgPrivacyMode,
                       })}
                       disabled={!newOrgName || createOrgMutation.isPending}
                       data-testid="button-submit-org"
@@ -993,7 +1012,22 @@ export default function SuperAdminPage() {
                         id="edit-notify"
                         checked={editNotifyOnSignup}
                         onCheckedChange={setEditNotifyOnSignup}
+                        disabled={editPrivacyMode}
                         data-testid="switch-edit-notify"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-md border border-green-500/30 bg-green-500/5">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="edit-privacy-mode" className="text-sm font-medium">Privacy Mode</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Anonymous enrollment. No .edu email or phone required. Notifications disabled.
+                        </p>
+                      </div>
+                      <Switch
+                        id="edit-privacy-mode"
+                        checked={editPrivacyMode}
+                        onCheckedChange={setEditPrivacyMode}
+                        data-testid="switch-edit-privacy-mode"
                       />
                     </div>
                     <div className="space-y-2">
@@ -1027,9 +1061,10 @@ export default function SuperAdminPage() {
                             name: editName,
                             description: editDescription,
                             maxMembers: editMaxMembers,
-                            notifyPhone: editNotifyPhone || undefined,
-                            notifyOnSignup: editNotifyOnSignup,
+                            notifyPhone: editPrivacyMode ? undefined : (editNotifyPhone || undefined),
+                            notifyOnSignup: editPrivacyMode ? false : editNotifyOnSignup,
                             status: editStatus,
+                            privacyMode: editPrivacyMode,
                           });
                         }
                       }}

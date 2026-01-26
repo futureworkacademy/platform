@@ -24,6 +24,8 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Self-Service Demo System:** 30-day evaluator access available to any work email (no .edu required). Demo environment (org code DEMO2025) includes 6 pre-seeded fake students across 3 teams at Week 3. Features hybrid guided tour (Driver.js 8-step walkthrough auto-triggering on first login) and Gemini-powered Q&A assistant for real-time platform questions. Tour completion tracked in localStorage; "Restart Tour" button available in sidebar for demo users.
 
+**Privacy Mode:** Enables immediate classroom use without SOC 2 compliance. When enabled on an organization: (1) Students enroll anonymously via Replit OIDC - no .edu email verification required; (2) Phone numbers not collected, SMS/email notifications disabled; (3) Students identified by pseudonymous IDs (e.g., `Student_abc12345`); (4) Instructors download offline roster template to map pseudonyms to real students; (5) LLM evaluation receives only written responses, no PII. Compliance roadmap: Privacy Mode (Now) → Institutional Agreements (Q1 2026) → SOC 2 Type II (Q2 2026).
+
 ## External Dependencies
 
 - **Authentication:** Replit OIDC Auth

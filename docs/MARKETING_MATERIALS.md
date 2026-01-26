@@ -363,6 +363,25 @@ Our platform is built on decades of research validating business simulation game
 - Comprehensive audit trail for compliance verification
 - Full documentation: [Security & Compliance](./SECURITY_COMPLIANCE.md)
 
+**NEW: Privacy Mode for Immediate Classroom Use**
+
+Start using Future Work Academy with your class today - no SOC 2 audit required:
+
+| Phase | Timeline | What You Get |
+|-------|----------|--------------|
+| **Privacy Mode** | Available Now | Anonymous enrollment, no PII collection, instant deployment |
+| **Institutional Agreements** | Q1 2026 | Standard DPAs with partner institutions |
+| **SOC 2 Type II** | Q2 2026 | Full enterprise certification |
+
+With Privacy Mode enabled:
+- Students enroll using only Replit accounts (no .edu email verification required)
+- No phone numbers or personal information collected
+- All notifications disabled; instructor uses offline roster mapping
+- LLM evaluation receives only written responses (no identifying information)
+- Download roster template to map pseudonymous IDs to real students offline
+
+See full details: [Privacy Mode Documentation](./PRIVACY_MODE.md)
+
 ---
 
 ### The Learning Cycle
