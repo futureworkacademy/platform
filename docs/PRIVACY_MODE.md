@@ -153,6 +153,96 @@ GRADING WORKFLOW:
 - [ ] LLM API calls contain no PII
 - [ ] Exported data uses pseudonymous identifiers only
 
+## FERPA, COPPA & Data Privacy Compliance
+
+Privacy Mode is specifically designed to minimize regulatory compliance risk by **not collecting protected student information in the first place**. Below is a point-by-point analysis of how Privacy Mode addresses key data protection requirements.
+
+### FERPA (Family Educational Rights and Privacy Act)
+
+FERPA protects the privacy of student education records. Here's how Privacy Mode addresses each relevant provision:
+
+| FERPA Requirement | How Privacy Mode Addresses It |
+|-------------------|-------------------------------|
+| **Personally Identifiable Information (PII)** - Schools must protect student names, addresses, student IDs, and other direct identifiers | ✅ **No PII Collected**: Privacy Mode does not collect or store student names, school email addresses, phone numbers, or student IDs. Students are identified only by system-generated pseudonyms (e.g., `Student_abc12345`). |
+| **Directory Information** - Schools can release "directory information" but must allow opt-out | ✅ **No Directory Info Stored**: No names, photos, majors, or enrollment status are stored in the platform. Nothing to release. |
+| **Third-Party Disclosure** - Schools cannot disclose education records without consent | ✅ **No Records to Disclose**: Since no PII is collected, there are no identifiable education records that could be disclosed to third parties. |
+| **Right to Inspect Records** - Students/parents can request to see their records | ✅ **Pseudonymous Records Only**: Students can view their own simulation decisions and scores. No cross-referencing to real identity exists within the platform. |
+| **Data Minimization** - Collect only what's educationally necessary | ✅ **Minimal Data Collection**: Only simulation responses and choices are stored - no demographic data, no contact information, no institutional identifiers. |
+
+### AI/LLM Data Handling
+
+A critical concern for educational institutions is how AI systems process student work:
+
+| Concern | How Privacy Mode Addresses It |
+|---------|-------------------------------|
+| **Student work sent to AI** | ✅ **PII-Free Prompts**: The LLM (OpenAI) receives only the text of student responses. No names, emails, student IDs, or user identifiers are included in API calls. |
+| **AI training on student data** | ✅ **No Training**: We use OpenAI's API with data usage controls. Student responses are not used to train models. |
+| **Identifiable feedback** | ✅ **Anonymous Scores**: AI-generated feedback is stored against pseudonymous IDs only. |
+
+### COPPA (Children's Online Privacy Protection Act)
+
+While COPPA applies primarily to children under 13, Privacy Mode's approach aligns with its principles:
+
+| COPPA Principle | Privacy Mode Compliance |
+|-----------------|------------------------|
+| **Parental Consent for Data Collection** | ✅ **Not Applicable**: No personal information is collected that would trigger COPPA requirements. |
+| **Data Minimization** | ✅ **Minimal Collection**: Only educational responses are collected; no profiles, preferences, or contact info. |
+
+### State-Level Privacy Laws
+
+Privacy Mode aligns with emerging state privacy requirements:
+
+| Regulation | Compliance Approach |
+|------------|---------------------|
+| **California (CCPA/CPRA)** | No personal information as defined by CCPA is collected. No "sale" or "sharing" of data occurs. |
+| **Colorado/Virginia/Connecticut** | De-identified data exemptions apply when no PII is present. |
+| **Illinois BIPA** | No biometric data collected (no photos, voice, or biometric identifiers). |
+
+### Data Flow Summary
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PRIVACY MODE DATA FLOW                           │
+│                                                                     │
+│  WHAT WE COLLECT              WHAT WE DON'T COLLECT                │
+│  ─────────────────            ────────────────────                 │
+│  ✓ Simulation responses       ✗ Student names                      │
+│  ✓ Decision choices           ✗ Email addresses                    │
+│  ✓ AI-generated scores        ✗ Phone numbers                      │
+│  ✓ Team assignments           ✗ Student ID numbers                 │
+│  ✓ Pseudonymous user ID       ✗ Institutional identifiers          │
+│                               ✗ IP addresses (not logged)          │
+│                               ✗ Device fingerprints                │
+│                                                                     │
+│  THIRD-PARTY DATA SHARING                                          │
+│  ────────────────────────                                          │
+│  OpenAI: Receives only response text (no identifiers)              │
+│  Analytics: Disabled in Privacy Mode                               │
+│  Notifications: Disabled (no Twilio/SendGrid calls)                │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Institutional Verification Checklist
+
+For administrators verifying compliance, confirm the following in Privacy Mode organizations:
+
+- [ ] No student email addresses in `users` table (verify: `email` field is Replit OIDC identifier, not school email)
+- [ ] No phone numbers stored (`notifyPhone` is null/empty for all users)
+- [ ] No SMS notifications sent (check Twilio logs - should be empty for this org)
+- [ ] No SendGrid emails sent for this organization
+- [ ] LLM API calls contain no user identifiers (audit OpenAI request logs)
+- [ ] Grade exports use pseudonymous IDs only
+- [ ] No Google Analytics user tracking for Privacy Mode sessions
+
+### Statement for Institutional Review Boards
+
+The following statement can be provided to IRBs, legal counsel, or compliance officers:
+
+> *"Future Work Academy Privacy Mode operates without collecting personally identifiable information (PII) as defined by FERPA, COPPA, or state privacy laws. Students enroll using anonymized Replit accounts and are identified within the system only by system-generated pseudonymous identifiers. Student written responses are evaluated by AI systems that receive no identifying information. Instructors maintain offline mappings between pseudonyms and real student identities using their institution's secure systems. No student contact information is collected, stored, or transmitted to third parties."*
+
+---
+
 ## Compliance Roadmap
 
 | Phase | Timeline | Description |
@@ -160,6 +250,8 @@ GRADING WORKFLOW:
 | **Phase 1: Privacy Mode** | Now | Anonymous enrollment for immediate classroom use |
 | **Phase 2: Institutional Agreements** | Q1 2026 | Standard DPAs with partner institutions |
 | **Phase 3: SOC 2 Compliance** | Q2 2026 | Full SOC 2 Type II certification |
+
+---
 
 ## FAQ
 

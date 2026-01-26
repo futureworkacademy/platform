@@ -5225,6 +5225,104 @@ Access your dashboard at: https://futureworkacademy.com
     }
   });
 
+  // List all documents in the Future Work Academy folder
+  app.get("/api/docs/folder-contents", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const docs = await googleDocsService.listFolderDocuments();
+      res.json(docs);
+    } catch (error: any) {
+      console.error("Error listing folder documents:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to list folder documents" });
+    }
+  });
+
+  // Find duplicate documents (same name)
+  app.get("/api/docs/duplicates", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const duplicates = await googleDocsService.findDuplicateDocuments();
+      // Convert Map to array for JSON response
+      const result: Array<{ name: string; copies: Array<{ id: string; modifiedTime: string }> }> = [];
+      const entries = Array.from(duplicates.entries());
+      for (const [name, docs] of entries) {
+        result.push({
+          name,
+          copies: docs.map(d => ({ id: d.id, modifiedTime: d.modifiedTime }))
+        });
+      }
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error finding duplicate documents:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to find duplicate documents" });
+    }
+  });
+
+  // Clean up duplicate documents (keep newest, trash older copies)
+  app.post("/api/docs/cleanup-duplicates", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const result = await googleDocsService.cleanupDuplicates();
+      res.json({
+        success: true,
+        message: `Cleaned up ${result.cleaned} duplicate documents`,
+        details: result.details
+      });
+    } catch (error: any) {
+      console.error("Error cleaning up duplicates:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to clean up duplicate documents" });
+    }
+  });
+
+  // Trash a specific document
+  app.delete("/api/docs/:documentId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { documentId } = req.params;
+      await googleDocsService.trashDocument(documentId);
+      res.json({ success: true, message: "Document moved to trash" });
+    } catch (error: any) {
+      console.error("Error trashing document:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to trash document" });
+    }
+  });
+
   // ===== Character Profiles API =====
   
   // Get all character profiles (optionally filtered by module)

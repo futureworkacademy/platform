@@ -353,6 +353,108 @@ export async function syncMarkdownToGoogleDoc(title: string, markdownContent: st
   return docInfo;
 }
 
+// List all documents in the Future Work Academy folder with metadata
+export async function listFolderDocuments(): Promise<Array<{
+  id: string;
+  name: string;
+  modifiedTime: string;
+  createdTime: string;
+}>> {
+  const drive = await getGoogleDriveClient();
+  const folderId = await findOrCreateFolder();
+  
+  const response = await drive.files.list({
+    q: `'${folderId}' in parents and mimeType='application/vnd.google-apps.document' and trashed=false`,
+    fields: 'files(id, name, modifiedTime, createdTime)',
+    orderBy: 'name, modifiedTime desc',
+    pageSize: 100
+  });
+
+  return (response.data.files || []).map(file => ({
+    id: file.id!,
+    name: file.name!,
+    modifiedTime: file.modifiedTime!,
+    createdTime: file.createdTime!
+  }));
+}
+
+// Find duplicate documents (same name) and return grouped
+export async function findDuplicateDocuments(): Promise<Map<string, Array<{
+  id: string;
+  name: string;
+  modifiedTime: string;
+  createdTime: string;
+}>>> {
+  const docs = await listFolderDocuments();
+  const grouped = new Map<string, typeof docs>();
+  
+  for (const doc of docs) {
+    const existing = grouped.get(doc.name) || [];
+    existing.push(doc);
+    grouped.set(doc.name, existing);
+  }
+  
+  // Filter to only duplicates (more than one with same name)
+  const duplicates = new Map<string, typeof docs>();
+  const entries = Array.from(grouped.entries());
+  for (const [name, docList] of entries) {
+    if (docList.length > 1) {
+      // Sort by modified time descending (newest first)
+      docList.sort((a: { modifiedTime: string }, b: { modifiedTime: string }) => 
+        new Date(b.modifiedTime).getTime() - new Date(a.modifiedTime).getTime()
+      );
+      duplicates.set(name, docList);
+    }
+  }
+  
+  return duplicates;
+}
+
+// Move a document to trash
+export async function trashDocument(documentId: string): Promise<void> {
+  const drive = await getGoogleDriveClient();
+  
+  await drive.files.update({
+    fileId: documentId,
+    requestBody: {
+      trashed: true
+    }
+  });
+  
+  console.log(`[Google Docs] Moved document ${documentId} to trash`);
+}
+
+// Clean up duplicate documents (keep the most recently modified, trash the rest)
+export async function cleanupDuplicates(): Promise<{
+  cleaned: number;
+  details: Array<{ name: string; kept: string; trashed: string[] }>;
+}> {
+  const duplicates = await findDuplicateDocuments();
+  const details: Array<{ name: string; kept: string; trashed: string[] }> = [];
+  let cleaned = 0;
+  
+  const dupEntries = Array.from(duplicates.entries());
+  for (const [name, docList] of dupEntries) {
+    // Keep the first one (most recently modified), trash the rest
+    const [keep, ...toTrash] = docList;
+    const trashedIds: string[] = [];
+    
+    for (const doc of toTrash) {
+      await trashDocument(doc.id);
+      trashedIds.push(doc.id);
+      cleaned++;
+    }
+    
+    details.push({
+      name,
+      kept: keep.id,
+      trashed: trashedIds
+    });
+  }
+  
+  return { cleaned, details };
+}
+
 export const googleDocsService = {
   createDocument,
   getDocument,
@@ -361,5 +463,9 @@ export const googleDocsService = {
   listDocuments,
   findOrCreateDocument,
   findOrCreateFolder,
-  syncMarkdownToGoogleDoc
+  syncMarkdownToGoogleDoc,
+  listFolderDocuments,
+  findDuplicateDocuments,
+  trashDocument,
+  cleanupDuplicates
 };
