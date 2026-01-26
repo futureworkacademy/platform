@@ -3,16 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppFooter } from "@/components/app-footer";
 import { 
   ArrowLeft, 
-  Send, 
   CheckCircle, 
   Mail, 
-  Calendar, 
   Users, 
   GraduationCap, 
   Target, 
@@ -32,32 +28,15 @@ import {
   Lock,
   Play
 } from "lucide-react";
-import logoDark from "@assets/logo-horizontal-dark.png";
-import logoLight from "@assets/logo-horizontal-light.png";
+import logoDark from "@assets/logo-dark.svg";
+import logoLight from "@assets/logo-light.svg";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const DEMO_TIMES = [
-  "Morning (9am-12pm ET)",
-  "Afternoon (12pm-5pm ET)",
-  "Evening (5pm-8pm ET)",
-  "Flexible - Contact me to schedule"
-];
-
-const PROGRAM_TYPES = [
-  { value: "mba", label: "MBA / Graduate Business Program" },
-  { value: "undergrad", label: "Undergraduate Business" },
-  { value: "executive", label: "Executive Education" },
-  { value: "corporate", label: "Corporate Training" },
-  { value: "community", label: "Community College" },
-  { value: "other", label: "Other" }
-];
-
 export default function Academia() {
   const { toast } = useToast();
-  const [submitted, setSubmitted] = useState(false);
   const [demoProvisioned, setDemoProvisioned] = useState(false);
   const [demoCode, setDemoCode] = useState('');
   const [demoExpiresAt, setDemoExpiresAt] = useState('');
@@ -66,15 +45,6 @@ export default function Academia() {
   const [demoName, setDemoName] = useState('');
   const [demoEmailInput, setDemoEmailInput] = useState('');
   const [demoInstitution, setDemoInstitution] = useState('');
-  
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [institution, setInstitution] = useState('');
-  const [programType, setProgramType] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
-  const [classSize, setClassSize] = useState('');
-  const [referralCode, setReferralCode] = useState('');
-  const [message, setMessage] = useState('');
 
   const demoMutation = useMutation({
     mutationFn: async (data: { 
@@ -105,28 +75,6 @@ export default function Academia() {
     }
   });
 
-  const submitMutation = useMutation({
-    mutationFn: async (data: { 
-      name: string; 
-      email: string; 
-      institution?: string;
-      inquiryType: string;
-      message: string 
-    }) => {
-      return apiRequest('POST', '/api/educator-inquiry', data);
-    },
-    onSuccess: () => {
-      setSubmitted(true);
-    },
-    onError: () => {
-      toast({
-        title: "Failed to send request",
-        description: "Please try again or email doug@futureworkacademy.com directly.",
-        variant: "destructive",
-      });
-    }
-  });
-
   const handleDemoRequest = (e: React.FormEvent) => {
     e.preventDefault();
     if (!demoName || !demoEmailInput) {
@@ -143,36 +91,6 @@ export default function Academia() {
       email: demoEmailInput, 
       institution: demoInstitution || undefined,
       message: `Instant demo request from academia page`
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill in your name and email.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const fullMessage = `
-Program Type: ${programType || 'Not specified'}
-Preferred Demo Time: ${preferredTime || 'Not specified'}
-Estimated Class Size: ${classSize || 'Not specified'}
-Referral Code: ${referralCode || 'None'}
-
-Additional Notes:
-${message || 'None provided'}
-    `.trim();
-    
-    submitMutation.mutate({ 
-      name, 
-      email, 
-      institution: institution || undefined,
-      inquiryType: 'demo_request',
-      message: fullMessage
     });
   };
 
@@ -271,66 +189,6 @@ ${message || 'None provided'}
     );
   }
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <Link href="/">
-              <img 
-                src={logoDark} 
-                alt="Future Work Academy" 
-                className="h-14 w-auto cursor-pointer block dark:hidden"
-                data-testid="img-header-logo-light"
-              />
-              <img 
-                src={logoLight} 
-                alt="Future Work Academy" 
-                className="h-14 w-auto cursor-pointer hidden dark:block"
-                data-testid="img-header-logo-dark"
-              />
-            </Link>
-            <ThemeToggle />
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-16 max-w-xl">
-          <Card className="text-center">
-            <CardHeader className="pb-4">
-              <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
-              <CardTitle className="text-2xl">Demo Request Received</CardTitle>
-              <CardDescription className="text-base">
-                We'll be in touch within 24 hours to schedule your personalized demo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-muted/50 rounded-lg p-4 text-sm">
-                <p className="text-muted-foreground">
-                  In the meantime, feel free to reach out directly:
-                </p>
-                <a 
-                  href="mailto:doug@futureworkacademy.com" 
-                  className="text-primary font-medium hover:underline"
-                >
-                  doug@futureworkacademy.com
-                </a>
-              </div>
-              
-              <Link href="/">
-                <Button variant="outline" className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Home
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -419,41 +277,23 @@ ${message || 'None provided'}
                   </div>
                 </div>
 
-                <Card className="bg-card">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Prefer to reach out directly?
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <a 
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span>
+                    Prefer email? <a 
                       href="mailto:doug@futureworkacademy.com?subject=Demo Request - Future Work Academy" 
                       className="text-primary font-medium hover:underline"
                       data-testid="link-email-contact"
-                    >
-                      doug@futureworkacademy.com
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Let's build decision-making muscle together!
-                    </p>
-                  </CardContent>
-                </Card>
+                    >doug@futureworkacademy.com</a>
+                  </span>
+                </div>
 
-                <Card className="bg-primary/5 border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Share2 className="h-4 w-4" />
-                      Referral Program
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm">
-                    <p className="text-muted-foreground">
-                      Know a colleague who could benefit? Refer another program and both institutions 
-                      receive 15% off your first semester.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <Share2 className="h-4 w-4 flex-shrink-0" />
+                  <span>
+                    <span className="font-medium text-foreground">Referral:</span> Refer a colleague and both get 15% off
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-6">
@@ -537,151 +377,6 @@ ${message || 'None provided'}
                   </CardContent>
                 </Card>
 
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-muted/30 px-2 text-muted-foreground">
-                      or schedule a personalized walkthrough
-                    </span>
-                  </div>
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5" />
-                      Request Guided Demo
-                    </CardTitle>
-                    <CardDescription>
-                      Want a personal walkthrough? Fill out the form and we'll contact you within 24 hours
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Your Name *</Label>
-                        <Input
-                          id="name"
-                          placeholder="Dr. Jane Smith"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          data-testid="input-name"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="jsmith@university.edu"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          data-testid="input-email"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="institution">Institution</Label>
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="institution"
-                            placeholder="University of Business"
-                            value={institution}
-                            onChange={(e) => setInstitution(e.target.value)}
-                            className="flex-1"
-                            data-testid="input-institution"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="programType">Program Type</Label>
-                        <Select value={programType} onValueChange={setProgramType}>
-                          <SelectTrigger data-testid="select-program-type">
-                            <SelectValue placeholder="Select your program type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PROGRAM_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="classSize">Estimated Class Size</Label>
-                        <Input
-                          id="classSize"
-                          placeholder="e.g., 30 students"
-                          value={classSize}
-                          onChange={(e) => setClassSize(e.target.value)}
-                          data-testid="input-class-size"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="preferredTime">Preferred Demo Time</Label>
-                        <Select value={preferredTime} onValueChange={setPreferredTime}>
-                          <SelectTrigger data-testid="select-preferred-time">
-                            <SelectValue placeholder="When works best?" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DEMO_TIMES.map((time) => (
-                              <SelectItem key={time} value={time}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="referralCode">Referral Code (optional)</Label>
-                        <Input
-                          id="referralCode"
-                          placeholder="Enter if referred by a colleague"
-                          value={referralCode}
-                          onChange={(e) => setReferralCode(e.target.value)}
-                          data-testid="input-referral-code"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Additional Notes</Label>
-                        <Textarea
-                          id="message"
-                          placeholder="Any specific questions or requirements for your course?"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          rows={3}
-                          data-testid="textarea-message"
-                        />
-                      </div>
-
-                      <Button 
-                        type="submit" 
-                        className="w-full gap-2"
-                        disabled={submitMutation.isPending}
-                        data-testid="button-submit-demo"
-                      >
-                        {submitMutation.isPending ? (
-                          "Sending..."
-                        ) : (
-                          <>
-                            <Send className="h-4 w-4" />
-                            Request Demo
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
               </div>
             </div>
           </div>
