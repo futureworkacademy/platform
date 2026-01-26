@@ -4555,7 +4555,10 @@ Provide your consistency review in JSON format.`;
 
   // Update about page content (super admin only)
   const aboutContentSchema = z.object({
-    photoUrl: z.string().url().max(2000).nullable().optional(),
+    photoUrl: z.string().max(2000).refine(
+      (val) => !val || val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'),
+      { message: "Must be a valid URL or path starting with /" }
+    ).nullable().optional(),
     content: z.string().max(50000).nullable().optional(),
   });
 
