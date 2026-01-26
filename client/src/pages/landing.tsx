@@ -19,8 +19,8 @@ import {
   Landmark,
   Brain
 } from "lucide-react";
-import logoDark from "@assets/logo-horizontal-dark.png";
-import logoLight from "@assets/logo-horizontal-light.png";
+import logoDark from "@assets/logo-dark.svg";
+import logoLight from "@assets/logo-light.svg";
 
 const challengeSets = [
   [
@@ -58,13 +58,13 @@ export default function Landing() {
           <img 
             src={logoDark} 
             alt="Future Work Academy" 
-            className="h-14 w-auto block dark:hidden"
+            className="h-16 w-auto block dark:hidden"
             data-testid="img-header-logo-light"
           />
           <img 
             src={logoLight} 
             alt="Future Work Academy" 
-            className="h-14 w-auto hidden dark:block"
+            className="h-16 w-auto hidden dark:block"
             data-testid="img-header-logo-dark"
           />
           <div className="flex items-center gap-5">
