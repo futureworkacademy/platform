@@ -5,6 +5,8 @@
 
 **Document Purpose:** For instructors, academic reviewers, and stakeholders who need to understand how the simulation works mechanically.
 
+> **What this document covers:** Everything about how the simulation game works—from the fictional company students manage, to weekly challenges, scoring, characters they interact with, and how difficulty can be adjusted. This is the "rules of the game" reference.
+
 ---
 
 ## Table of Contents
@@ -25,6 +27,8 @@
 ---
 
 ## 1. Game Overview & Learning Objectives
+
+> **What this section covers:** The big picture—students lead a fictional manufacturing company through an 8-week transformation, learning to balance financial results with employee wellbeing while making tough decisions about AI and automation.
 
 ### Premise
 Students take on the role of executive leadership at **Apex Manufacturing**, a mid-sized automotive parts supplier facing pressure to modernize. Over 8 weeks, they must navigate the challenges of AI/automation adoption while managing employee anxiety, union dynamics, financial constraints, and generational workforce differences.
@@ -48,6 +52,8 @@ Graduate students in business, organizational behavior, labor relations, technol
 ---
 
 ## 2. Company State Variables
+
+> **What this section covers:** The "dashboard" of company health—financial metrics like revenue and debt, workforce metrics like morale and union sentiment, and automation progress. Decisions shift these numbers, and certain thresholds trigger crises.
 
 ### Starting State: Apex Manufacturing
 
@@ -93,6 +99,8 @@ Graduate students in business, organizational behavior, labor relations, technol
 ---
 
 ## 3. Game Flow & Phases
+
+> **What this section covers:** The rhythm of the simulation—students first read background research, then each week they receive a briefing, make decisions, see outcomes, and review analytics. The weekly themes progress from financing to displacement to final strategy.
 
 ### Phase 1: Pre-Game Research (Week 0)
 **Duration**: Before simulation begins
@@ -151,6 +159,8 @@ Each week follows this pattern:
 ---
 
 ## 4. Pre-Game Research Content
+
+> **What this section covers:** The required reading before the simulation starts—industry reports about AI adoption, company profiles, competitor case studies, and best practices. This gives students the knowledge foundation for making informed decisions.
 
 ### Research Report 1: State of AI in Manufacturing 2025
 **Category**: Industry Analysis
@@ -240,6 +250,8 @@ Each week follows this pattern:
 ---
 
 ## 5. Weekly Scenarios (Week 1-8)
+
+> **What this section covers:** The eight weekly storylines—each presents a different challenge, from financing automation to handling layoffs to responding to union organizing. Each week includes the narrative context, stakeholder pressures, and the key question students must answer.
 
 ### Week 1: The Automation Imperative
 
@@ -412,6 +424,8 @@ Your decisions will determine Apex's legacy: a cautionary tale of transformation
 
 ## 6. Decision Framework
 
+> **What this section covers:** The types of decisions students make (automation, workforce, unions, reskilling, etc.) and sample decision options for key weeks. Each option has trade-offs—there are no "right" answers, only consequences.
+
 ### Decision Categories
 
 | Category | Focus Area | Typical Trade-offs |
@@ -449,6 +463,8 @@ Your decisions will determine Apex's legacy: a cautionary tale of transformation
 ---
 
 ## 7. Stakeholder Characters
+
+> **What this section covers:** The 17+ fictional people students interact with—board members, CFOs, union organizers, HR directors, and more. Each has a stance, concerns, and communication style. Their influence and attitudes affect decision difficulty and grading.
 
 ### Internal Stakeholders
 
@@ -493,6 +509,8 @@ Each stakeholder has quantifiable traits (influence, hostility, flexibility, ris
 
 ## 8. Global Events System
 
+> **What this section covers:** Surprise external events that can happen each week—like tariff increases, labor strikes, or technology breakthroughs. These add realism and unpredictability, affecting company metrics and forcing students to adapt.
+
 Random events that can occur each week, simulating external factors beyond player control.
 
 ### Event Types
@@ -516,6 +534,8 @@ Random events that can occur each week, simulating external factors beyond playe
 ---
 
 ## 9. Scoring Mechanics
+
+> **What this section covers:** How teams are ranked—using two scores: Financial (revenue, ROI, debt management) and Cultural (morale, adaptability, leadership pipeline). Combined scores determine if a team achieves optimal, good, struggling, or failed outcomes.
 
 ### Dual Score System
 
@@ -564,6 +584,8 @@ Student rationales are evaluated using a 4-criteria rubric:
 
 ## 10. People Analytics Data
 
+> **What this section covers:** The detailed workforce data students see—department breakdowns, skill distributions, tenure ranges, and emerging issues. This simulates real HR analytics dashboards that executives use for workforce planning.
+
 ### Sentiment by Department
 
 | Department | Headcount | Avg Tenure | Avg Age | AI Exposure Risk | Reskilling Potential |
@@ -608,6 +630,8 @@ The system tracks emerging issues such as:
 ---
 
 ## 11. Media Enhancement Opportunities
+
+> **What this section covers:** The multimedia elements that bring the simulation to life—weekly video briefings, character voicemail messages, AI-generated headshots, and Bloomberg Terminal-inspired dashboards.
 
 This section outlines where AI-generated video, audio, and images enhance the simulation experience.
 
@@ -666,6 +690,8 @@ Bloomberg Terminal-inspired dashboards with animated metrics.
 ---
 
 ## 12. Future Expansion Modules
+
+> **What this section covers:** Planned additional simulation scenarios beyond manufacturing—including healthcare, retail/logistics, banking, and government. Each module uses the same simulation engine but with industry-specific challenges, characters, and metrics.
 
 The Future of Work Academy platform is designed for multi-scenario deployment. The core simulation engine, scoring mechanics, and pedagogical framework remain constant while scenarios, stakeholders, and industry contexts vary.
 
@@ -831,6 +857,8 @@ Each expansion module follows this development template:
 ---
 
 ## 13. Difficulty Framework
+
+> **What this section covers:** How difficulty can be adjusted for different audiences—from undergraduates (easier: fewer decisions, more advisor uses) to MBA students (harder: more stakeholders, stricter grading). Includes 11 configurable factors.
 
 This section documents the simulation's difficulty profile and provides a framework for understanding complexity factors that affect student experience.
 

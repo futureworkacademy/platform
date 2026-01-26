@@ -2,9 +2,13 @@
 
 ## Overview
 
+> **What this section covers:** Privacy Mode lets instructors use the platform immediately without complex compliance paperwork. Students enroll anonymously—no real names, emails, or phone numbers are collected.
+
 Privacy Mode enables instructors to use the Future Work Academy simulation platform with their classes **immediately** without requiring expensive SOC 2 compliance audits or complex data processing agreements. This is achieved through **anonymous enrollment** where no personally identifiable information (PII) is collected or stored.
 
 ## How It Works
+
+> **What this section covers:** Step-by-step guides for both instructors and students explaining how anonymous enrollment works and how grading is handled when students appear only as pseudonymous IDs.
 
 ### For Instructors
 
@@ -45,6 +49,8 @@ Privacy Mode enables instructors to use the Future Work Academy simulation platf
 
 ## Technical Implementation
 
+> **What this section covers:** For developers—how Privacy Mode is implemented in the database and code, including how the enrollment flow skips email verification and how LLM grading receives no identifying information.
+
 ### Database Schema
 
 ```typescript
@@ -68,6 +74,8 @@ The LLM evaluation system is designed to be PII-free:
 - Decision context and rubric criteria are passed (simulation content, not PII)
 
 ## Workflow Diagram
+
+> **What this section covers:** Visual flowcharts showing the complete journey from instructor setup through student enrollment to final grading—all without collecting personal information.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -113,6 +121,8 @@ GRADING WORKFLOW:
 
 ## Testing Checklist
 
+> **What this section covers:** For developers and QA—a checklist to verify Privacy Mode works correctly before releasing updates.
+
 ### Pre-Deployment Testing
 
 - [ ] **Organization Creation**
@@ -154,6 +164,8 @@ GRADING WORKFLOW:
 - [ ] Exported data uses pseudonymous identifiers only
 
 ## FERPA, COPPA & Data Privacy Compliance
+
+> **What this section covers:** How Privacy Mode meets federal privacy laws (FERPA for student records, COPPA for children's data) and state regulations—primarily by simply not collecting protected information in the first place.
 
 Privacy Mode is specifically designed to minimize regulatory compliance risk by **not collecting protected student information in the first place**. Below is a point-by-point analysis of how Privacy Mode addresses key data protection requirements.
 
@@ -245,6 +257,8 @@ The following statement can be provided to IRBs, legal counsel, or compliance of
 
 ## Compliance Roadmap
 
+> **What this section covers:** Our timeline moving from anonymous enrollment (available now) to formal institutional agreements and full SOC 2 certification by mid-2026.
+
 | Phase | Timeline | Description |
 |-------|----------|-------------|
 | **Phase 1: Privacy Mode** | Now | Anonymous enrollment for immediate classroom use |
@@ -254,6 +268,8 @@ The following statement can be provided to IRBs, legal counsel, or compliance of
 ---
 
 ## FAQ
+
+> **What this section covers:** Common questions from instructors about how Privacy Mode works, including grade matching, converting existing organizations, and handling students who identify themselves in written responses.
 
 ### Q: Can students opt-out of Privacy Mode?
 No. Privacy Mode is an organization-level setting controlled by the instructor. All students in a Privacy Mode organization are enrolled anonymously.

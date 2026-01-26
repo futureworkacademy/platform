@@ -8,6 +8,8 @@
 
 ## 1. Executive Summary
 
+> **What this section covers:** A high-level overview of our commitment to keeping student data safe and the industry standards we follow to prove it.
+
 Future Work Academy is committed to protecting student data and maintaining the highest standards of information security. This document outlines our security architecture, data handling practices, and compliance posture for institutional partners, grant reviewers, and regulatory audits.
 
 **Key Compliance Targets:**
@@ -19,6 +21,8 @@ Future Work Academy is committed to protecting student data and maintaining the 
 ---
 
 ## 2. Data Classification
+
+> **What this section covers:** We categorize all information we collect into different levels of sensitivity—from public statistics to highly confidential login credentials—and handle each type with appropriate protections.
 
 ### 2.1 Data Categories
 
@@ -44,6 +48,8 @@ Future Work Academy is committed to protecting student data and maintaining the 
 ---
 
 ## 3. Technical Security Architecture
+
+> **What this section covers:** The technical building blocks that keep the platform secure—including encrypted connections, secure login systems, and protections against common hacking techniques like unauthorized data access.
 
 ### 3.1 Infrastructure Security
 
@@ -99,6 +105,8 @@ Future Work Academy is committed to protecting student data and maintaining the 
 
 ## 4. FERPA Compliance
 
+> **What this section covers:** How we comply with FERPA, the federal law protecting student education records. Students can access their own data, and we only share information with authorized instructors.
+
 ### 4.1 FERPA Applicability
 
 Future Work Academy processes "education records" as defined under FERPA:
@@ -133,6 +141,8 @@ We execute the following agreements with institutional partners:
 ---
 
 ## 5. Third-Party Integrations
+
+> **What this section covers:** The outside services we connect to (like email delivery and AI grading) and how we ensure they also protect your data. Importantly, no student names or identifying information is ever sent to AI systems.
 
 ### 5.1 Integration Inventory
 
@@ -197,6 +207,8 @@ The guided demo tour uses browser-local storage only:
 
 ## 6. Access Controls
 
+> **What this section covers:** Who can access what—and how we verify it. Different roles (students, instructors, administrators) have different permission levels, and every action is logged for accountability.
+
 ### 6.1 Administrative Access
 
 | Access Type | Who | Controls |
@@ -231,6 +243,8 @@ Administrators can export activity logs for audit purposes:
 
 ## 7. Incident Response
 
+> **What this section covers:** Our plan if something goes wrong—from minor issues to serious security breaches. We have defined response times, notification procedures, and processes to learn from incidents and prevent recurrence.
+
 ### 7.1 Incident Classification
 
 | Severity | Description | Response Time | Examples |
@@ -263,6 +277,8 @@ Administrators can export activity logs for audit purposes:
 
 ## 8. Data Subject Rights
 
+> **What this section covers:** What students can do with their own data—including viewing it, requesting corrections, downloading it, or asking for deletion. We respond to requests within 30 days.
+
 ### 8.1 Student Rights
 
 | Right | Implementation | Process |
@@ -283,6 +299,8 @@ Administrators can export activity logs for audit purposes:
 ---
 
 ## 9. Business Continuity
+
+> **What this section covers:** How we keep the platform running even when things break. Our data is backed up continuously, and we can recover from most problems within minutes to hours.
 
 ### 9.1 Backup Strategy
 
@@ -305,6 +323,8 @@ Administrators can export activity logs for audit purposes:
 ---
 
 ## 10. Compliance Roadmap
+
+> **What this section covers:** Our timeline for achieving formal security certifications. We've already completed many requirements, and we're working toward full SOC 2 certification by mid-2026.
 
 ### 10.1 Current Status
 

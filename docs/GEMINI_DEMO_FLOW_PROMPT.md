@@ -2,6 +2,8 @@
 
 This document provides a structured prompt for using Gemini (or other LLMs) to build guided demo flows for the Future Work Academy simulation platform.
 
+> **What this document covers:** Instructions for AI assistants that help demonstrate the platform to prospective customers. This defines how the demo environment works, typical customer personas, and sample scripts for addressing their concerns.
+
 ---
 
 ## System Context
@@ -34,6 +36,8 @@ You are building interactive demo flows for the Future Work Academy business sim
 
 ## Demo Flow Personas
 
+> **What this section covers:** Three common types of evaluators—skeptical deans (worried about data privacy), curious professors (interested in pedagogy), and innovation champions (focused on differentiation). Each has different concerns we need to address.
+
 ### Persona A: Skeptical Dean
 **Profile:** Academic administrator evaluating platform for curriculum integration
 **Concerns:** Academic integrity, student data privacy, cost-effectiveness
@@ -61,6 +65,8 @@ You are building interactive demo flows for the Future Work Academy business sim
 ---
 
 ## Demo Flow Structure
+
+> **What this section covers:** The recommended 10-minute demo structure—from the opening hook through the dashboard tour, student experience preview, transparency showcase, and closing with next steps.
 
 Each guided demo should follow this narrative arc:
 
@@ -106,6 +112,8 @@ Connect back to their specific needs:
 
 ## Sample Dialogue Scripts
 
+> **What this section covers:** Ready-to-use conversation scripts for common demo moments—opening statements, transitioning to the student view, and answering the "can I customize?" question.
+
 ### Opening Script (Skeptical Dean)
 ```
 "Dr. [Name], before we dive in, I want to acknowledge your concern about AI in education. 
@@ -132,6 +140,8 @@ You control that balance."
 
 ## Technical Demo Points
 
+> **What this section covers:** Technical reference for live demos—specific page URLs to visit, key statistics to mention, and API endpoints that show real data.
+
 ### Key Routes to Highlight
 - `/admin/dashboard` - Class Admin overview
 - `/admin/simulation/[simId]` - Simulation management
@@ -153,6 +163,8 @@ You control that balance."
 
 ## Objection Handling
 
+> **What this section covers:** Pre-written responses to common objections—"this is just a video game," "students will cheat," "IT won't approve," and "faculty don't have time."
+
 | Objection | Response |
 |-----------|----------|
 | "How is this different from a video game?" | "Games optimize for engagement; we optimize for learning transfer. Every decision maps to real management frameworks with measurable outcomes." |
@@ -163,6 +175,8 @@ You control that balance."
 ---
 
 ## Demo Environment Technical Details
+
+> **What this section covers:** How the demo sandbox works—it's completely isolated from real student data, pre-populated with fake teams, provides 30-day evaluator access, and restricts what demo users can do.
 
 ### Sandbox Isolation
 - Demo users can only see demo organization data
@@ -193,6 +207,8 @@ You control that balance."
 
 ## Follow-Up Actions
 
+> **What this section covers:** What to do after a successful demo—send a thank-you within 24 hours, share relevant materials, and schedule a pilot discussion within one week.
+
 After demo completion, recommended next steps:
 
 1. **Immediate:** Send personalized thank-you with recording link (if applicable)
@@ -203,6 +219,8 @@ After demo completion, recommended next steps:
 ---
 
 ## LLM Prompt Template
+
+> **What this section covers:** A copy-paste template for generating customized demo scripts using AI—just fill in the persona, institution, program type, and time constraints.
 
 Use this template when generating demo scripts with Gemini or other AI:
 

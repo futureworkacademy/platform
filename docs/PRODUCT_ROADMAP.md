@@ -3,6 +3,8 @@
 **Version:** 1.3  
 **Last Updated:** January 2026
 
+> **What this document covers:** Our product development timeline—what features exist today, what we're building in the next 6 months, and our long-term vision. This helps partners understand where the platform is headed.
+
 ---
 
 ## Vision Statement
@@ -12,6 +14,8 @@ Future Work Academy will become the leading platform for AI-powered business sim
 ---
 
 ## Current Capabilities (v1.2) - January 2026
+
+> **What this section covers:** Everything the platform can do today—simulation engine, AI grading, character profiles, multimedia content, instructor tools, and notifications. These features are fully implemented and available.
 
 ### Core Simulation Engine
 - 8-week immersive business simulation with weekly decision cycles
@@ -92,6 +96,8 @@ Future Work Academy will become the leading platform for AI-powered business sim
 ---
 
 ## Near-Term Roadmap (Q2-Q3 2026)
+
+> **What this section covers:** Features coming in the next 6 months—custom content authoring, difficulty configuration, new simulation modules (supply chain, ESG, crisis management), and enhanced analytics dashboards.
 
 ### Custom Content Authoring *(Partnership Priority)*
 **Status:** Seeking University Partners
@@ -236,6 +242,8 @@ The platform operates at **Advanced (Graduate/MBA)** difficulty level with fixed
 
 ## Mid-Term Roadmap (Q4 2026 - Q1 2027)
 
+> **What this section covers:** Features planned for late 2026 and early 2027—integration with Canvas and other learning management systems, mobile app experience, and peer collaboration tools.
+
 ### LMS Integration
 
 **Canvas LTI Integration**
@@ -279,6 +287,8 @@ The platform operates at **Advanced (Graduate/MBA)** difficulty level with fixed
 ---
 
 ## Long-Term Roadmap (2027+)
+
+> **What this section covers:** Our ambitious future plans—branching storylines, industry partnerships with real executives, digital credentials/badges, white-label enterprise options, and multi-language support.
 
 ### Scenario Branching & Consequences
 - Decisions in early weeks affect later scenarios
@@ -325,6 +335,8 @@ The platform operates at **Advanced (Graduate/MBA)** difficulty level with fixed
 
 ## Technical Debt & Infrastructure
 
+> **What this section covers:** Behind-the-scenes work to keep the platform fast, secure, and reliable—performance optimization, SOC 2 certification, penetration testing, and capacity planning for large cohorts.
+
 ### Ongoing Improvements
 - Performance optimization for large cohorts (500+ students)
 - Database query optimization
@@ -342,6 +354,8 @@ The platform operates at **Advanced (Graduate/MBA)** difficulty level with fixed
 ---
 
 ## Feedback & Prioritization
+
+> **What this section covers:** How we decide what to build next—customer feedback comes first, followed by competitive needs, platform stability, and differentiating features.
 
 This roadmap is a living document informed by:
 - Instructor feedback from pilot programs

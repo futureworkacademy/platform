@@ -8,6 +8,8 @@
 
 ## 1. Overview of AI Usage
 
+> **What this section covers:** How we use AI in the platform—primarily for grading student essays and providing virtual advisor guidance. We use enterprise-grade AI services with automatic security and no exposed API keys.
+
 ### 1.1 AI Infrastructure
 
 The platform uses **enterprise-grade AI models** through Replit AI Integrations—a managed service that provides:
@@ -54,6 +56,8 @@ These models are available for future features such as:
 ---
 
 ## 2. Student Assessment Prompts
+
+> **What this section covers:** The exact instructions we give to the AI when grading student work. These prompts are transparent and consistent—every student is evaluated against the same criteria with no access to their identity.
 
 ### 2.1 Basic Rationale Evaluation
 
@@ -267,6 +271,8 @@ Stakeholder perspectives are injected at all difficulty levels, but their weight
 
 ## 3. Content Creation Prompts
 
+> **What this section covers:** The AI prompts used by instructors to improve simulation content—like clarifying text, adding realistic data points, or generating new scenarios. These are admin-only tools, not student-facing.
+
 ### 3.1 Content Enhancement
 
 **Model:** gpt-4o-mini  
@@ -307,6 +313,8 @@ Your job is to review a transcript for a {contentType} asset and check it agains
 ---
 
 ## 4. Advisor System Prompts
+
+> **What this section covers:** The "Phone-a-Friend" feature lets students get advice from virtual experts (finance, HR, legal, etc.). This section shows exactly how those advisors are configured to respond—with awareness of key stakeholders and their concerns.
 
 ### 4.1 Phone-a-Friend Advisor
 
@@ -354,6 +362,8 @@ Consider mentioning these stakeholder concerns in your advice.
 ---
 
 ## 5. Image Generation Prompts
+
+> **What this section covers:** How we generate professional portrait images for fictional stakeholder characters using AI image generation. Instructors can customize prompts for specific character appearances.
 
 ### 5.1 Character Headshot Generation
 
@@ -408,6 +418,8 @@ services feel, suitable for executive presentations and business school marketin
 
 ## 6. Bias Mitigation Measures
 
+> **What this section covers:** How we ensure fair, unbiased AI grading. The AI never sees student demographics; all rubrics are transparent; instructors can override any AI score; and stakeholder characters represent diverse backgrounds.
+
 ### Assessment Fairness
 1. **Blind Evaluation:** No student demographic data is passed to LLM evaluators
 2. **Rubric Transparency:** All scoring criteria are documented and shared with students
@@ -429,6 +441,8 @@ services feel, suitable for executive presentations and business school marketin
 
 ## 7. Data Handling
 
+> **What this section covers:** Exactly what information goes to AI systems (just essay text and simulation context) and what never goes to AI systems (student names, emails, or any identifying information).
+
 ### What AI Models Receive
 - Student essay text (anonymized, no PII)
 - Simulation context and week number
@@ -449,6 +463,8 @@ services feel, suitable for executive presentations and business school marketin
 ---
 
 ## 8. Model Selection Rationale
+
+> **What this section covers:** Why we chose specific AI models—balancing cost, speed, and quality for different tasks like grading, content creation, and image generation.
 
 | Model | Use Case | Rationale |
 |-------|----------|-----------|
