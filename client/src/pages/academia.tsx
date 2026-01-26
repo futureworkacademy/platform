@@ -344,7 +344,7 @@ ${message || 'None provided'}
 
       <main>
         <section className="py-16 px-4 bg-gradient-to-b from-primary/5 to-background">
-          <div className="container mx-auto max-w-4xl text-center space-y-6">
+          <div className="container mx-auto max-w-5xl text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <GraduationCap className="h-4 w-4" />
               Operationalizing the Scholar-Practitioner Interface
@@ -361,6 +361,310 @@ ${message || 'None provided'}
               Future Work Academy is an immersive simulation platform designed to close this gap—moving 
               students from passive analysis to dynamic "Actionable Knowledge."<sup>4</sup>
             </p>
+          </div>
+        </section>
+
+        <section className="py-12 px-4 bg-muted/30">
+          <div className="container mx-auto max-w-5xl">
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">Schedule a 15-Minute Demo</h2>
+                  <p className="text-muted-foreground">
+                    See how Future Work Academy can transform your AI/workforce management curriculum. 
+                    We'll walk through the simulation, grading system, and instructor dashboard.
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Quick Setup</p>
+                      <p className="text-sm text-muted-foreground">Get your class running in under an hour with our onboarding support</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Users className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Flexible Class Sizes</p>
+                      <p className="text-sm text-muted-foreground">Works for seminars of 15 or cohorts of 150+</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <BookOpen className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Curriculum Integration</p>
+                      <p className="text-sm text-muted-foreground">Complements strategy, HR, ethics, and technology management courses</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Card className="bg-card">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Prefer to reach out directly?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <a 
+                      href="mailto:doug@futureworkacademy.com?subject=Demo Request - Future Work Academy" 
+                      className="text-primary font-medium hover:underline"
+                      data-testid="link-email-contact"
+                    >
+                      doug@futureworkacademy.com
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Let's build decision-making muscle together!
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Share2 className="h-4 w-4" />
+                      Referral Program
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm">
+                    <p className="text-muted-foreground">
+                      Know a colleague who could benefit? Refer another program and both institutions 
+                      receive 15% off your first semester.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="space-y-6">
+                <Card className="border-green-500/30 bg-green-500/5">
+                  <CardHeader>
+                    <div className="flex items-center justify-between gap-2">
+                      <CardTitle className="flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-green-500" />
+                        Try It Now
+                      </CardTitle>
+                      <span className="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-1 rounded-full font-medium">
+                        Instant Access
+                      </span>
+                    </div>
+                    <CardDescription>
+                      Get immediate demo access—no waiting, no scheduling required
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleDemoRequest} className="space-y-4">
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="demo-name">Your Name *</Label>
+                          <Input
+                            id="demo-name"
+                            placeholder="Dr. Jane Smith"
+                            value={demoName}
+                            onChange={(e) => setDemoName(e.target.value)}
+                            data-testid="input-demo-name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="demo-email">Work Email *</Label>
+                          <Input
+                            id="demo-email"
+                            type="email"
+                            placeholder="name@company.com"
+                            value={demoEmailInput}
+                            onChange={(e) => setDemoEmailInput(e.target.value)}
+                            data-testid="input-demo-email"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="demo-institution">Organization (optional)</Label>
+                        <Input
+                          id="demo-institution"
+                          placeholder="Your company or university"
+                          value={demoInstitution}
+                          onChange={(e) => setDemoInstitution(e.target.value)}
+                          data-testid="input-demo-institution"
+                        />
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
+                        <p className="font-medium flex items-center gap-2">
+                          <Lock className="h-4 w-4 text-muted-foreground" />
+                          What you'll get:
+                        </p>
+                        <ul className="text-muted-foreground text-xs space-y-1 ml-6">
+                          <li>30-day evaluator access to explore the full platform</li>
+                          <li>Pre-populated demo class with sample students</li>
+                          <li>Sandboxed environment—completely isolated from real courses</li>
+                        </ul>
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full gap-2" 
+                        disabled={demoMutation.isPending}
+                        data-testid="button-instant-demo"
+                      >
+                        {demoMutation.isPending ? (
+                          <>Processing...</>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4" />
+                            Start Exploring Now
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-muted/30 px-2 text-muted-foreground">
+                      or schedule a personalized walkthrough
+                    </span>
+                  </div>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      Request Guided Demo
+                    </CardTitle>
+                    <CardDescription>
+                      Want a personal walkthrough? Fill out the form and we'll contact you within 24 hours
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Your Name *</Label>
+                        <Input
+                          id="name"
+                          placeholder="Dr. Jane Smith"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          data-testid="input-name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="jsmith@university.edu"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          data-testid="input-email"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="institution">Institution</Label>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="institution"
+                            placeholder="University of Business"
+                            value={institution}
+                            onChange={(e) => setInstitution(e.target.value)}
+                            className="flex-1"
+                            data-testid="input-institution"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="programType">Program Type</Label>
+                        <Select value={programType} onValueChange={setProgramType}>
+                          <SelectTrigger data-testid="select-program-type">
+                            <SelectValue placeholder="Select your program type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PROGRAM_TYPES.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="classSize">Estimated Class Size</Label>
+                        <Input
+                          id="classSize"
+                          placeholder="e.g., 30 students"
+                          value={classSize}
+                          onChange={(e) => setClassSize(e.target.value)}
+                          data-testid="input-class-size"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="preferredTime">Preferred Demo Time</Label>
+                        <Select value={preferredTime} onValueChange={setPreferredTime}>
+                          <SelectTrigger data-testid="select-preferred-time">
+                            <SelectValue placeholder="When works best?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEMO_TIMES.map((time) => (
+                              <SelectItem key={time} value={time}>
+                                {time}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="referralCode">Referral Code (optional)</Label>
+                        <Input
+                          id="referralCode"
+                          placeholder="Enter if referred by a colleague"
+                          value={referralCode}
+                          onChange={(e) => setReferralCode(e.target.value)}
+                          data-testid="input-referral-code"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Additional Notes</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Any specific questions or requirements for your course?"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          rows={3}
+                          data-testid="textarea-message"
+                        />
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full gap-2"
+                        disabled={submitMutation.isPending}
+                        data-testid="button-submit-demo"
+                      >
+                        {submitMutation.isPending ? (
+                          "Sending..."
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4" />
+                            Request Demo
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -541,369 +845,12 @@ ${message || 'None provided'}
         </section>
 
         <section className="py-8 px-4 border-b">
-          <div className="container mx-auto max-w-4xl text-center">
+          <div className="container mx-auto max-w-5xl text-center">
             <p className="text-base text-muted-foreground italic">
               "FWA places students in an executive sandbox, forcing them to navigate the Twin Transition—the 
               simultaneous shift to digital and green economies—cited by the UNDP as the defining labor market 
               challenge of 2030."<sup>5</sup>
             </p>
-          </div>
-        </section>
-
-        <section className="py-12 px-4 bg-muted/30">
-          <div className="container mx-auto max-w-5xl">
-            <div className="grid lg:grid-cols-2 gap-8 items-start">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-4">Schedule a 15-Minute Demo</h2>
-                  <p className="text-muted-foreground">
-                    See how Future Work Academy can transform your AI/workforce management curriculum. 
-                    We'll walk through the simulation, grading system, and instructor dashboard.
-                  </p>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Clock className="h-5 w-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-medium">Quick Setup</p>
-                      <p className="text-sm text-muted-foreground">Get your class running in under an hour with our onboarding support</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Users className="h-5 w-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-medium">Flexible Class Sizes</p>
-                      <p className="text-sm text-muted-foreground">Works for seminars of 15 or cohorts of 150+</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="h-5 w-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-medium">Curriculum Integration</p>
-                      <p className="text-sm text-muted-foreground">Complements strategy, HR, ethics, and technology management courses</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Card className="bg-card">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Prefer to reach out directly?
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <a 
-                      href="mailto:doug@futureworkacademy.com?subject=Demo Request - Future Work Academy" 
-                      className="text-primary font-medium hover:underline"
-                      data-testid="link-email-contact"
-                    >
-                      doug@futureworkacademy.com
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Let's build decision-making muscle together!
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-primary/5 border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Share2 className="h-4 w-4" />
-                      Referral Program
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm">
-                    <p className="text-muted-foreground">
-                      Know a colleague who could benefit? Refer another program and both institutions 
-                      receive 15% off your first semester.
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Scan to Share</CardTitle>
-                    <CardDescription>
-                      Share this page with colleagues
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-col items-center gap-3">
-                    <div className="bg-white p-3 rounded-lg">
-                      <svg 
-                        data-testid="img-qr-code"
-                        viewBox="0 0 256 256" 
-                        className="w-32 h-32"
-                        aria-label="QR Code for futureworkacademy.com/academia"
-                      >
-                        <rect width="256" height="256" fill="white"/>
-                        <g fill="black">
-                          <rect x="16" y="16" width="8" height="8"/><rect x="24" y="16" width="8" height="8"/><rect x="32" y="16" width="8" height="8"/><rect x="40" y="16" width="8" height="8"/><rect x="48" y="16" width="8" height="8"/><rect x="56" y="16" width="8" height="8"/><rect x="64" y="16" width="8" height="8"/>
-                          <rect x="80" y="16" width="8" height="8"/><rect x="88" y="16" width="8" height="8"/><rect x="112" y="16" width="8" height="8"/>
-                          <rect x="144" y="16" width="8" height="8"/><rect x="160" y="16" width="8" height="8"/><rect x="176" y="16" width="8" height="8"/><rect x="184" y="16" width="8" height="8"/><rect x="192" y="16" width="8" height="8"/><rect x="200" y="16" width="8" height="8"/><rect x="208" y="16" width="8" height="8"/><rect x="216" y="16" width="8" height="8"/><rect x="224" y="16" width="8" height="8"/>
-                          <rect x="16" y="24" width="8" height="8"/><rect x="64" y="24" width="8" height="8"/><rect x="96" y="24" width="8" height="8"/><rect x="112" y="24" width="8" height="8"/><rect x="128" y="24" width="8" height="8"/><rect x="160" y="24" width="8" height="8"/><rect x="224" y="24" width="8" height="8"/>
-                          <rect x="16" y="32" width="8" height="8"/><rect x="32" y="32" width="8" height="8"/><rect x="40" y="32" width="8" height="8"/><rect x="48" y="32" width="8" height="8"/><rect x="64" y="32" width="8" height="8"/><rect x="88" y="32" width="8" height="8"/><rect x="104" y="32" width="8" height="8"/><rect x="112" y="32" width="8" height="8"/><rect x="160" y="32" width="8" height="8"/><rect x="176" y="32" width="8" height="8"/><rect x="184" y="32" width="8" height="8"/><rect x="192" y="32" width="8" height="8"/><rect x="224" y="32" width="8" height="8"/>
-                          <rect x="16" y="40" width="8" height="8"/><rect x="32" y="40" width="8" height="8"/><rect x="40" y="40" width="8" height="8"/><rect x="48" y="40" width="8" height="8"/><rect x="64" y="40" width="8" height="8"/><rect x="80" y="40" width="8" height="8"/><rect x="96" y="40" width="8" height="8"/><rect x="128" y="40" width="8" height="8"/><rect x="136" y="40" width="8" height="8"/><rect x="160" y="40" width="8" height="8"/><rect x="176" y="40" width="8" height="8"/><rect x="184" y="40" width="8" height="8"/><rect x="192" y="40" width="8" height="8"/><rect x="224" y="40" width="8" height="8"/>
-                          <rect x="16" y="48" width="8" height="8"/><rect x="32" y="48" width="8" height="8"/><rect x="40" y="48" width="8" height="8"/><rect x="48" y="48" width="8" height="8"/><rect x="64" y="48" width="8" height="8"/><rect x="88" y="48" width="8" height="8"/><rect x="96" y="48" width="8" height="8"/><rect x="104" y="48" width="8" height="8"/><rect x="120" y="48" width="8" height="8"/><rect x="136" y="48" width="8" height="8"/><rect x="160" y="48" width="8" height="8"/><rect x="176" y="48" width="8" height="8"/><rect x="184" y="48" width="8" height="8"/><rect x="192" y="48" width="8" height="8"/><rect x="224" y="48" width="8" height="8"/>
-                          <rect x="16" y="56" width="8" height="8"/><rect x="64" y="56" width="8" height="8"/><rect x="80" y="56" width="8" height="8"/><rect x="104" y="56" width="8" height="8"/><rect x="120" y="56" width="8" height="8"/><rect x="136" y="56" width="8" height="8"/><rect x="160" y="56" width="8" height="8"/><rect x="224" y="56" width="8" height="8"/>
-                          <rect x="16" y="64" width="8" height="8"/><rect x="24" y="64" width="8" height="8"/><rect x="32" y="64" width="8" height="8"/><rect x="40" y="64" width="8" height="8"/><rect x="48" y="64" width="8" height="8"/><rect x="56" y="64" width="8" height="8"/><rect x="64" y="64" width="8" height="8"/><rect x="80" y="64" width="8" height="8"/><rect x="96" y="64" width="8" height="8"/><rect x="112" y="64" width="8" height="8"/><rect x="128" y="64" width="8" height="8"/><rect x="144" y="64" width="8" height="8"/><rect x="160" y="64" width="8" height="8"/><rect x="168" y="64" width="8" height="8"/><rect x="176" y="64" width="8" height="8"/><rect x="184" y="64" width="8" height="8"/><rect x="192" y="64" width="8" height="8"/><rect x="200" y="64" width="8" height="8"/><rect x="208" y="64" width="8" height="8"/><rect x="216" y="64" width="8" height="8"/><rect x="224" y="64" width="8" height="8"/>
-                          <rect x="88" y="72" width="8" height="8"/><rect x="96" y="72" width="8" height="8"/><rect x="128" y="72" width="8" height="8"/><rect x="136" y="72" width="8" height="8"/>
-                          <rect x="16" y="80" width="8" height="8"/><rect x="24" y="80" width="8" height="8"/><rect x="32" y="80" width="8" height="8"/><rect x="48" y="80" width="8" height="8"/><rect x="56" y="80" width="8" height="8"/><rect x="72" y="80" width="8" height="8"/><rect x="88" y="80" width="8" height="8"/><rect x="120" y="80" width="8" height="8"/><rect x="128" y="80" width="8" height="8"/><rect x="144" y="80" width="8" height="8"/><rect x="168" y="80" width="8" height="8"/><rect x="184" y="80" width="8" height="8"/><rect x="208" y="80" width="8" height="8"/><rect x="216" y="80" width="8" height="8"/>
-                          <rect x="16" y="88" width="8" height="8"/><rect x="40" y="88" width="8" height="8"/><rect x="64" y="88" width="8" height="8"/><rect x="80" y="88" width="8" height="8"/><rect x="96" y="88" width="8" height="8"/><rect x="120" y="88" width="8" height="8"/><rect x="152" y="88" width="8" height="8"/><rect x="168" y="88" width="8" height="8"/><rect x="176" y="88" width="8" height="8"/><rect x="184" y="88" width="8" height="8"/><rect x="192" y="88" width="8" height="8"/><rect x="200" y="88" width="8" height="8"/>
-                          <rect x="24" y="96" width="8" height="8"/><rect x="56" y="96" width="8" height="8"/><rect x="64" y="96" width="8" height="8"/><rect x="72" y="96" width="8" height="8"/><rect x="88" y="96" width="8" height="8"/><rect x="96" y="96" width="8" height="8"/><rect x="104" y="96" width="8" height="8"/><rect x="112" y="96" width="8" height="8"/><rect x="120" y="96" width="8" height="8"/><rect x="136" y="96" width="8" height="8"/><rect x="144" y="96" width="8" height="8"/><rect x="152" y="96" width="8" height="8"/><rect x="160" y="96" width="8" height="8"/><rect x="176" y="96" width="8" height="8"/><rect x="200" y="96" width="8" height="8"/><rect x="208" y="96" width="8" height="8"/><rect x="216" y="96" width="8" height="8"/>
-                          <rect x="16" y="104" width="8" height="8"/><rect x="48" y="104" width="8" height="8"/><rect x="72" y="104" width="8" height="8"/><rect x="80" y="104" width="8" height="8"/><rect x="96" y="104" width="8" height="8"/><rect x="104" y="104" width="8" height="8"/><rect x="128" y="104" width="8" height="8"/><rect x="136" y="104" width="8" height="8"/><rect x="176" y="104" width="8" height="8"/><rect x="192" y="104" width="8" height="8"/><rect x="200" y="104" width="8" height="8"/><rect x="216" y="104" width="8" height="8"/>
-                          <rect x="24" y="112" width="8" height="8"/><rect x="40" y="112" width="8" height="8"/><rect x="48" y="112" width="8" height="8"/><rect x="64" y="112" width="8" height="8"/><rect x="80" y="112" width="8" height="8"/><rect x="88" y="112" width="8" height="8"/><rect x="112" y="112" width="8" height="8"/><rect x="120" y="112" width="8" height="8"/><rect x="136" y="112" width="8" height="8"/><rect x="168" y="112" width="8" height="8"/><rect x="192" y="112" width="8" height="8"/><rect x="200" y="112" width="8" height="8"/><rect x="224" y="112" width="8" height="8"/>
-                          <rect x="16" y="120" width="8" height="8"/><rect x="40" y="120" width="8" height="8"/><rect x="56" y="120" width="8" height="8"/><rect x="64" y="120" width="8" height="8"/><rect x="72" y="120" width="8" height="8"/><rect x="80" y="120" width="8" height="8"/><rect x="96" y="120" width="8" height="8"/><rect x="104" y="120" width="8" height="8"/><rect x="136" y="120" width="8" height="8"/><rect x="144" y="120" width="8" height="8"/><rect x="152" y="120" width="8" height="8"/><rect x="176" y="120" width="8" height="8"/><rect x="184" y="120" width="8" height="8"/><rect x="192" y="120" width="8" height="8"/><rect x="200" y="120" width="8" height="8"/><rect x="208" y="120" width="8" height="8"/>
-                          <rect x="24" y="128" width="8" height="8"/><rect x="32" y="128" width="8" height="8"/><rect x="40" y="128" width="8" height="8"/><rect x="48" y="128" width="8" height="8"/><rect x="64" y="128" width="8" height="8"/><rect x="72" y="128" width="8" height="8"/><rect x="80" y="128" width="8" height="8"/><rect x="88" y="128" width="8" height="8"/><rect x="96" y="128" width="8" height="8"/><rect x="104" y="128" width="8" height="8"/><rect x="112" y="128" width="8" height="8"/><rect x="120" y="128" width="8" height="8"/><rect x="128" y="128" width="8" height="8"/><rect x="136" y="128" width="8" height="8"/><rect x="176" y="128" width="8" height="8"/><rect x="200" y="128" width="8" height="8"/><rect x="224" y="128" width="8" height="8"/>
-                          <rect x="32" y="136" width="8" height="8"/><rect x="56" y="136" width="8" height="8"/><rect x="64" y="136" width="8" height="8"/><rect x="72" y="136" width="8" height="8"/><rect x="112" y="136" width="8" height="8"/><rect x="120" y="136" width="8" height="8"/><rect x="144" y="136" width="8" height="8"/><rect x="152" y="136" width="8" height="8"/><rect x="160" y="136" width="8" height="8"/><rect x="176" y="136" width="8" height="8"/><rect x="184" y="136" width="8" height="8"/><rect x="192" y="136" width="8" height="8"/><rect x="200" y="136" width="8" height="8"/><rect x="216" y="136" width="8" height="8"/>
-                          <rect x="16" y="144" width="8" height="8"/><rect x="40" y="144" width="8" height="8"/><rect x="56" y="144" width="8" height="8"/><rect x="72" y="144" width="8" height="8"/><rect x="88" y="144" width="8" height="8"/><rect x="96" y="144" width="8" height="8"/><rect x="104" y="144" width="8" height="8"/><rect x="120" y="144" width="8" height="8"/><rect x="128" y="144" width="8" height="8"/><rect x="136" y="144" width="8" height="8"/><rect x="152" y="144" width="8" height="8"/><rect x="160" y="144" width="8" height="8"/><rect x="176" y="144" width="8" height="8"/><rect x="184" y="144" width="8" height="8"/><rect x="192" y="144" width="8" height="8"/><rect x="208" y="144" width="8" height="8"/><rect x="216" y="144" width="8" height="8"/><rect x="224" y="144" width="8" height="8"/>
-                          <rect x="16" y="152" width="8" height="8"/><rect x="24" y="152" width="8" height="8"/><rect x="32" y="152" width="8" height="8"/><rect x="40" y="152" width="8" height="8"/><rect x="48" y="152" width="8" height="8"/><rect x="72" y="152" width="8" height="8"/><rect x="88" y="152" width="8" height="8"/><rect x="96" y="152" width="8" height="8"/><rect x="104" y="152" width="8" height="8"/><rect x="112" y="152" width="8" height="8"/><rect x="128" y="152" width="8" height="8"/><rect x="152" y="152" width="8" height="8"/><rect x="160" y="152" width="8" height="8"/><rect x="168" y="152" width="8" height="8"/><rect x="176" y="152" width="8" height="8"/><rect x="200" y="152" width="8" height="8"/><rect x="224" y="152" width="8" height="8"/>
-                          <rect x="16" y="160" width="8" height="8"/><rect x="24" y="160" width="8" height="8"/><rect x="32" y="160" width="8" height="8"/><rect x="48" y="160" width="8" height="8"/><rect x="64" y="160" width="8" height="8"/><rect x="104" y="160" width="8" height="8"/><rect x="112" y="160" width="8" height="8"/><rect x="120" y="160" width="8" height="8"/><rect x="128" y="160" width="8" height="8"/><rect x="136" y="160" width="8" height="8"/><rect x="152" y="160" width="8" height="8"/><rect x="192" y="160" width="8" height="8"/><rect x="200" y="160" width="8" height="8"/><rect x="208" y="160" width="8" height="8"/><rect x="224" y="160" width="8" height="8"/>
-                          <rect x="80" y="168" width="8" height="8"/><rect x="88" y="168" width="8" height="8"/><rect x="96" y="168" width="8" height="8"/><rect x="112" y="168" width="8" height="8"/><rect x="128" y="168" width="8" height="8"/><rect x="144" y="168" width="8" height="8"/><rect x="152" y="168" width="8" height="8"/><rect x="168" y="168" width="8" height="8"/><rect x="184" y="168" width="8" height="8"/><rect x="200" y="168" width="8" height="8"/><rect x="208" y="168" width="8" height="8"/><rect x="216" y="168" width="8" height="8"/>
-                          <rect x="16" y="176" width="8" height="8"/><rect x="24" y="176" width="8" height="8"/><rect x="32" y="176" width="8" height="8"/><rect x="40" y="176" width="8" height="8"/><rect x="48" y="176" width="8" height="8"/><rect x="56" y="176" width="8" height="8"/><rect x="64" y="176" width="8" height="8"/><rect x="80" y="176" width="8" height="8"/><rect x="88" y="176" width="8" height="8"/><rect x="104" y="176" width="8" height="8"/><rect x="120" y="176" width="8" height="8"/><rect x="128" y="176" width="8" height="8"/><rect x="152" y="176" width="8" height="8"/><rect x="168" y="176" width="8" height="8"/><rect x="176" y="176" width="8" height="8"/><rect x="192" y="176" width="8" height="8"/><rect x="200" y="176" width="8" height="8"/><rect x="208" y="176" width="8" height="8"/>
-                          <rect x="16" y="184" width="8" height="8"/><rect x="64" y="184" width="8" height="8"/><rect x="96" y="184" width="8" height="8"/><rect x="112" y="184" width="8" height="8"/><rect x="128" y="184" width="8" height="8"/><rect x="144" y="184" width="8" height="8"/><rect x="152" y="184" width="8" height="8"/><rect x="168" y="184" width="8" height="8"/><rect x="200" y="184" width="8" height="8"/><rect x="208" y="184" width="8" height="8"/>
-                          <rect x="16" y="192" width="8" height="8"/><rect x="32" y="192" width="8" height="8"/><rect x="40" y="192" width="8" height="8"/><rect x="48" y="192" width="8" height="8"/><rect x="64" y="192" width="8" height="8"/><rect x="80" y="192" width="8" height="8"/><rect x="88" y="192" width="8" height="8"/><rect x="96" y="192" width="8" height="8"/><rect x="112" y="192" width="8" height="8"/><rect x="136" y="192" width="8" height="8"/><rect x="152" y="192" width="8" height="8"/><rect x="168" y="192" width="8" height="8"/><rect x="176" y="192" width="8" height="8"/><rect x="200" y="192" width="8" height="8"/><rect x="208" y="192" width="8" height="8"/><rect x="224" y="192" width="8" height="8"/>
-                          <rect x="16" y="200" width="8" height="8"/><rect x="32" y="200" width="8" height="8"/><rect x="40" y="200" width="8" height="8"/><rect x="48" y="200" width="8" height="8"/><rect x="64" y="200" width="8" height="8"/><rect x="80" y="200" width="8" height="8"/><rect x="88" y="200" width="8" height="8"/><rect x="104" y="200" width="8" height="8"/><rect x="120" y="200" width="8" height="8"/><rect x="128" y="200" width="8" height="8"/><rect x="136" y="200" width="8" height="8"/><rect x="144" y="200" width="8" height="8"/><rect x="168" y="200" width="8" height="8"/><rect x="176" y="200" width="8" height="8"/><rect x="184" y="200" width="8" height="8"/><rect x="192" y="200" width="8" height="8"/>
-                          <rect x="16" y="208" width="8" height="8"/><rect x="32" y="208" width="8" height="8"/><rect x="40" y="208" width="8" height="8"/><rect x="48" y="208" width="8" height="8"/><rect x="64" y="208" width="8" height="8"/><rect x="80" y="208" width="8" height="8"/><rect x="120" y="208" width="8" height="8"/><rect x="136" y="208" width="8" height="8"/><rect x="152" y="208" width="8" height="8"/><rect x="168" y="208" width="8" height="8"/><rect x="176" y="208" width="8" height="8"/><rect x="184" y="208" width="8" height="8"/><rect x="192" y="208" width="8" height="8"/><rect x="200" y="208" width="8" height="8"/><rect x="208" y="208" width="8" height="8"/><rect x="216" y="208" width="8" height="8"/>
-                          <rect x="16" y="216" width="8" height="8"/><rect x="64" y="216" width="8" height="8"/><rect x="88" y="216" width="8" height="8"/><rect x="112" y="216" width="8" height="8"/><rect x="128" y="216" width="8" height="8"/><rect x="136" y="216" width="8" height="8"/><rect x="144" y="216" width="8" height="8"/><rect x="152" y="216" width="8" height="8"/><rect x="168" y="216" width="8" height="8"/><rect x="176" y="216" width="8" height="8"/><rect x="192" y="216" width="8" height="8"/><rect x="200" y="216" width="8" height="8"/><rect x="216" y="216" width="8" height="8"/><rect x="224" y="216" width="8" height="8"/>
-                          <rect x="16" y="224" width="8" height="8"/><rect x="24" y="224" width="8" height="8"/><rect x="32" y="224" width="8" height="8"/><rect x="40" y="224" width="8" height="8"/><rect x="48" y="224" width="8" height="8"/><rect x="56" y="224" width="8" height="8"/><rect x="64" y="224" width="8" height="8"/><rect x="80" y="224" width="8" height="8"/><rect x="88" y="224" width="8" height="8"/><rect x="104" y="224" width="8" height="8"/><rect x="120" y="224" width="8" height="8"/><rect x="128" y="224" width="8" height="8"/><rect x="160" y="224" width="8" height="8"/><rect x="168" y="224" width="8" height="8"/><rect x="200" y="224" width="8" height="8"/><rect x="208" y="224" width="8" height="8"/><rect x="216" y="224" width="8" height="8"/><rect x="224" y="224" width="8" height="8"/>
-                        </g>
-                      </svg>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      futureworkacademy.com/academia
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card className="border-green-500/30 bg-green-500/5">
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-green-500" />
-                      Try It Now
-                    </CardTitle>
-                    <span className="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-1 rounded-full font-medium">
-                      Instant Access
-                    </span>
-                  </div>
-                  <CardDescription>
-                    Get immediate demo access—no waiting, no scheduling required
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleDemoRequest} className="space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="demo-name">Your Name *</Label>
-                        <Input
-                          id="demo-name"
-                          placeholder="Dr. Jane Smith"
-                          value={demoName}
-                          onChange={(e) => setDemoName(e.target.value)}
-                          data-testid="input-demo-name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="demo-email">Work Email *</Label>
-                        <Input
-                          id="demo-email"
-                          type="email"
-                          placeholder="name@company.com"
-                          value={demoEmailInput}
-                          onChange={(e) => setDemoEmailInput(e.target.value)}
-                          data-testid="input-demo-email"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="demo-institution">Organization (optional)</Label>
-                      <Input
-                        id="demo-institution"
-                        placeholder="Your company or university"
-                        value={demoInstitution}
-                        onChange={(e) => setDemoInstitution(e.target.value)}
-                        data-testid="input-demo-institution"
-                      />
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
-                      <p className="font-medium flex items-center gap-2">
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                        What you'll get:
-                      </p>
-                      <ul className="text-muted-foreground text-xs space-y-1 ml-6">
-                        <li>30-day evaluator access to explore the full platform</li>
-                        <li>Pre-populated demo class with sample students</li>
-                        <li>Sandboxed environment—completely isolated from real courses</li>
-                      </ul>
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full gap-2" 
-                      disabled={demoMutation.isPending}
-                      data-testid="button-instant-demo"
-                    >
-                      {demoMutation.isPending ? (
-                        <>Processing...</>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4" />
-                          Start Exploring Now
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    or schedule a personalized walkthrough
-                  </span>
-                </div>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Request Guided Demo
-                  </CardTitle>
-                  <CardDescription>
-                    Want a personal walkthrough? Fill out the form and we'll contact you within 24 hours
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Your Name *</Label>
-                      <Input
-                        id="name"
-                        placeholder="Dr. Jane Smith"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        data-testid="input-name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="jsmith@university.edu"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        data-testid="input-email"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="institution">Institution</Label>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="institution"
-                          placeholder="University of Business"
-                          value={institution}
-                          onChange={(e) => setInstitution(e.target.value)}
-                          className="flex-1"
-                          data-testid="input-institution"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="programType">Program Type</Label>
-                      <Select value={programType} onValueChange={setProgramType}>
-                        <SelectTrigger data-testid="select-program-type">
-                          <SelectValue placeholder="Select your program type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PROGRAM_TYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="classSize">Estimated Class Size</Label>
-                      <Input
-                        id="classSize"
-                        placeholder="e.g., 30 students"
-                        value={classSize}
-                        onChange={(e) => setClassSize(e.target.value)}
-                        data-testid="input-class-size"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="preferredTime">Preferred Demo Time</Label>
-                      <Select value={preferredTime} onValueChange={setPreferredTime}>
-                        <SelectTrigger data-testid="select-preferred-time">
-                          <SelectValue placeholder="When works best?" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DEMO_TIMES.map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="referralCode">Referral Code (optional)</Label>
-                      <Input
-                        id="referralCode"
-                        placeholder="Enter if referred by a colleague"
-                        value={referralCode}
-                        onChange={(e) => setReferralCode(e.target.value)}
-                        data-testid="input-referral-code"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Additional Notes</Label>
-                      <Textarea
-                        id="message"
-                        placeholder="Any specific questions or requirements for your course?"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        rows={3}
-                        data-testid="textarea-message"
-                      />
-                    </div>
-
-                    <Button 
-                      type="submit" 
-                      className="w-full gap-2"
-                      disabled={submitMutation.isPending}
-                      data-testid="button-submit-demo"
-                    >
-                      {submitMutation.isPending ? (
-                        "Sending..."
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4" />
-                          Request Demo
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </section>
 
