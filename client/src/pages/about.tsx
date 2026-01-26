@@ -224,15 +224,14 @@ export default function About() {
             {aboutContent?.photoUrl || aboutContent?.content ? (
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 {aboutContent.photoUrl && (
-                  <Avatar className="w-48 h-48 shrink-0 border-4 border-primary/10">
-                    <AvatarImage 
+                  <div className="shrink-0 w-64 md:w-72">
+                    <img 
                       src={aboutContent.photoUrl} 
                       alt="Profile" 
-                      className="object-cover"
+                      className="w-full h-auto rounded-lg border-4 border-primary/10 object-cover"
                       data-testid="img-about-photo"
                     />
-                    <AvatarFallback className="text-4xl">?</AvatarFallback>
-                  </Avatar>
+                  </div>
                 )}
                 <div className="flex-1" data-testid="text-about-content">
                   {renderContent(aboutContent.content)}
