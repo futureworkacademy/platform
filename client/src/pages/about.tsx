@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ArrowLeft, Edit2, Save, X } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Phone, Mail } from "lucide-react";
 import { Link } from "wouter";
+import { SiLinkedin } from "react-icons/si";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import logoForLight from "@assets/logo-horizontal.png";
@@ -223,16 +224,47 @@ export default function About() {
 
             {aboutContent?.photoUrl || aboutContent?.content ? (
               <div className="flex flex-col md:flex-row gap-8 items-start">
-                {aboutContent.photoUrl && (
-                  <div className="shrink-0 w-64 md:w-72">
+                <div className="shrink-0 w-64 md:w-72 space-y-6">
+                  {aboutContent.photoUrl && (
                     <img 
                       src={aboutContent.photoUrl} 
                       alt="Profile" 
                       className="w-full h-auto rounded-lg border-4 border-primary/10 object-cover"
                       data-testid="img-about-photo"
                     />
+                  )}
+                  <div className="space-y-3">
+                    <h3 className="text-base font-semibold text-foreground">Get in Touch</h3>
+                    <div className="space-y-2">
+                      <a 
+                        href="mailto:doug@futureworkacademy.com" 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        data-testid="link-contact-email"
+                      >
+                        <Mail className="h-4 w-4" />
+                        <span>doug@futureworkacademy.com</span>
+                      </a>
+                      <a 
+                        href="tel:+15156191640" 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        data-testid="link-contact-phone"
+                      >
+                        <Phone className="h-4 w-4" />
+                        <span>515.619.1640</span>
+                      </a>
+                      <a 
+                        href="https://linkedin.com/in/dougmitchell" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        data-testid="link-contact-linkedin"
+                      >
+                        <SiLinkedin className="h-4 w-4" />
+                        <span>LinkedIn</span>
+                      </a>
+                    </div>
                   </div>
-                )}
+                </div>
                 <div className="flex-1" data-testid="text-about-content">
                   {renderContent(aboutContent.content)}
                 </div>
