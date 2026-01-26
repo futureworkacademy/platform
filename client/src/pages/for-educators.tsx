@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft, Send, CheckCircle, Linkedin, Mail, Phone, BookOpen, Users, TrendingUp, Award, FileText, Sparkles, Newspaper, Settings, UserCog, ShieldCheck } from "lucide-react";
 import danMitchellPhoto from "@assets/image_1768085802226.png";
-import logoDark from "@assets/logo-horizontal-dark.png";
-import logoLight from "@assets/logo-horizontal-light.png";
+import logoForLight from "@assets/logo-horizontal.png";
+import logoForDark from "@assets/logo-white.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -93,13 +93,13 @@ export default function ForEducators() {
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <Link href="/">
               <img 
-                src={logoDark} 
+                src={logoForLight} 
                 alt="Future Work Academy" 
                 className="h-14 w-auto cursor-pointer block dark:hidden"
                 data-testid="img-header-logo-light"
               />
               <img 
-                src={logoLight} 
+                src={logoForDark} 
                 alt="Future Work Academy" 
                 className="h-14 w-auto cursor-pointer hidden dark:block"
                 data-testid="img-header-logo-dark"
@@ -138,13 +138,13 @@ export default function ForEducators() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Link href="/">
             <img 
-              src={logoDark} 
+              src={logoForLight} 
               alt="Future Work Academy" 
               className="h-14 w-auto cursor-pointer block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
-              src={logoLight} 
+              src={logoForDark} 
               alt="Future Work Academy" 
               className="h-14 w-auto cursor-pointer hidden dark:block"
               data-testid="img-header-logo-dark"

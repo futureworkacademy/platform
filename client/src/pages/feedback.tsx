@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
-import logoDark from "@assets/logo-horizontal-dark.png";
-import logoLight from "@assets/logo-horizontal-light.png";
+import logoForLight from "@assets/logo-horizontal.png";
+import logoForDark from "@assets/logo-white.png";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -58,13 +58,13 @@ export default function Feedback() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <img 
-              src={logoDark} 
+              src={logoForLight} 
               alt="Future Work Academy" 
               className="h-14 w-auto block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
-              src={logoLight} 
+              src={logoForDark} 
               alt="Future Work Academy" 
               className="h-14 w-auto hidden dark:block"
               data-testid="img-header-logo-dark"
@@ -101,13 +101,13 @@ export default function Feedback() {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <img 
-            src={logoDark} 
+            src={logoForLight} 
             alt="Future Work Academy" 
             className="h-14 w-auto block dark:hidden"
             data-testid="img-header-logo-light"
           />
           <img 
-            src={logoLight} 
+            src={logoForDark} 
             alt="Future Work Academy" 
             className="h-14 w-auto hidden dark:block"
             data-testid="img-header-logo-dark"

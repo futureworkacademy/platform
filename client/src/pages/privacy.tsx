@@ -2,8 +2,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArrowLeft } from "lucide-react";
-import logoDark from "@assets/logo-horizontal-dark.png";
-import logoLight from "@assets/logo-horizontal-light.png";
+import logoForLight from "@assets/logo-horizontal.png";
+import logoForDark from "@assets/logo-white.png";
 import { AppFooter } from "@/components/app-footer";
 
 export default function Privacy() {
@@ -13,13 +13,13 @@ export default function Privacy() {
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/">
             <img 
-              src={logoDark} 
+              src={logoForLight} 
               alt="Future Work Academy" 
               className="h-14 w-auto cursor-pointer block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
-              src={logoLight} 
+              src={logoForDark} 
               alt="Future Work Academy" 
               className="h-14 w-auto cursor-pointer hidden dark:block"
               data-testid="img-header-logo-dark"
