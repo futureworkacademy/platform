@@ -707,11 +707,11 @@ ${message || 'None provided'}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="demo-email">Email *</Label>
+                        <Label htmlFor="demo-email">Work Email *</Label>
                         <Input
                           id="demo-email"
                           type="email"
-                          placeholder="jsmith@university.edu"
+                          placeholder="name@company.com"
                           value={demoEmailInput}
                           onChange={(e) => setDemoEmailInput(e.target.value)}
                           data-testid="input-demo-email"
@@ -719,10 +719,10 @@ ${message || 'None provided'}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="demo-institution">Institution (optional)</Label>
+                      <Label htmlFor="demo-institution">Organization (optional)</Label>
                       <Input
                         id="demo-institution"
-                        placeholder="University of Business"
+                        placeholder="Your company or university"
                         value={demoInstitution}
                         onChange={(e) => setDemoInstitution(e.target.value)}
                         data-testid="input-demo-institution"
