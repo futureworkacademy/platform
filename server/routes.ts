@@ -5323,6 +5323,70 @@ Access your dashboard at: https://futureworkacademy.com
     }
   });
 
+  // List all documents in the Future Work Academy folder
+  app.get("/api/docs/folder-list", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const docs = await googleDocsService.listFolderDocuments();
+      res.json(docs);
+    } catch (error: any) {
+      console.error("Error listing folder documents:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to list folder documents" });
+    }
+  });
+
+  // Find documents with similar names (name variants that might be duplicates)
+  app.get("/api/docs/similar", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const similarGroups = await googleDocsService.findSimilarDocuments();
+      res.json(similarGroups);
+    } catch (error: any) {
+      console.error("Error finding similar documents:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to find similar documents" });
+    }
+  });
+
+  // Permanently delete a specific document (not just trash)
+  app.delete("/api/docs/:documentId/permanent", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { documentId } = req.params;
+      await googleDocsService.deleteDocument(documentId);
+      res.json({ success: true, message: "Document permanently deleted" });
+    } catch (error: any) {
+      console.error("Error deleting document:", error);
+      if (error.message?.includes("not connected") || error.message?.includes("X_REPLIT_TOKEN")) {
+        return res.status(503).json({ error: "Google Docs integration not configured." });
+      }
+      res.status(500).json({ error: "Failed to delete document" });
+    }
+  });
+
   // ===== Character Profiles API =====
   
   // Get all character profiles (optionally filtered by module)

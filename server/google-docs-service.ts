@@ -410,6 +410,52 @@ export async function findDuplicateDocuments(): Promise<Map<string, Array<{
   return duplicates;
 }
 
+// Find documents with similar names (e.g., "One-Pager" vs "Onepager")
+export async function findSimilarDocuments(): Promise<Array<{
+  group: string;
+  docs: Array<{ id: string; name: string; modifiedTime: string; createdTime: string }>;
+}>> {
+  const docs = await listFolderDocuments();
+  const groups: Array<{
+    group: string;
+    docs: Array<{ id: string; name: string; modifiedTime: string; createdTime: string }>;
+  }> = [];
+  
+  // Define known similar name patterns
+  const similarPatterns = [
+    ['One-Pager', 'Onepager', 'One Pager'],
+    ['Game Design Document', 'Game Design'],
+    ['Security & Compliance', 'Security and Compliance'],
+  ];
+  
+  for (const pattern of similarPatterns) {
+    const matchingDocs = docs.filter(d => 
+      pattern.some(p => d.name.toLowerCase().includes(p.toLowerCase()))
+    );
+    if (matchingDocs.length > 1) {
+      groups.push({
+        group: pattern[0],
+        docs: matchingDocs.sort((a, b) => 
+          new Date(b.modifiedTime).getTime() - new Date(a.modifiedTime).getTime()
+        )
+      });
+    }
+  }
+  
+  return groups;
+}
+
+// Delete a document permanently (not just trash)
+export async function deleteDocument(documentId: string): Promise<void> {
+  const drive = await getGoogleDriveClient();
+  
+  await drive.files.delete({
+    fileId: documentId
+  });
+  
+  console.log(`[Google Docs] Permanently deleted document ${documentId}`);
+}
+
 // Move a document to trash
 export async function trashDocument(documentId: string): Promise<void> {
   const drive = await getGoogleDriveClient();
@@ -466,6 +512,8 @@ export const googleDocsService = {
   syncMarkdownToGoogleDoc,
   listFolderDocuments,
   findDuplicateDocuments,
+  findSimilarDocuments,
   trashDocument,
+  deleteDocument,
   cleanupDuplicates
 };
