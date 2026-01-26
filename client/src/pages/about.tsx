@@ -31,12 +31,15 @@ export default function About() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [content, setContent] = useState("");
 
-  const { data: aboutContent, isLoading } = useQuery<AboutContent>({
+  const { data: aboutContent, isLoading, isError } = useQuery<AboutContent>({
     queryKey: ["/api/about"],
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: 2,
   });
 
   const { data: userRole } = useQuery<UserRole>({
     queryKey: ["/api/my-role"],
+    retry: false, // Don't retry auth check - it's optional
   });
 
   const isSuperAdmin = userRole?.isSuperAdmin === true;
@@ -119,6 +122,14 @@ export default function About() {
               </div>
             </div>
           </div>
+        ) : isError ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground" data-testid="text-about-error">
+                Unable to load content. Please try refreshing the page.
+              </p>
+            </CardContent>
+          </Card>
         ) : isEditing ? (
           <Card>
             <CardContent className="pt-6 space-y-6">
