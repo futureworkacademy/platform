@@ -100,19 +100,29 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const claims = tokens.claims();
-    const user: SessionUser = {} as SessionUser;
-    
-    // Store OIDC tokens for refresh
-    updateUserSession(user, tokens);
-    
-    // Fetch COMPLETE user from database (includes isAdmin, teamId)
-    const dbUser = await upsertAndFetchUser(claims);
-    user.dbUser = dbUser;
-    
-    console.log(`[AUTH VERIFY] User ${claims?.sub}: isAdmin=${dbUser?.isAdmin}, teamId=${dbUser?.teamId}`);
-    
-    verified(null, user);
+    try {
+      const claims = tokens.claims();
+      const user: SessionUser = {} as SessionUser;
+      
+      // Store OIDC tokens for refresh
+      updateUserSession(user, tokens);
+      
+      // Fetch COMPLETE user from database (includes isAdmin, teamId)
+      try {
+        const dbUser = await upsertAndFetchUser(claims);
+        user.dbUser = dbUser;
+        console.log(`[AUTH VERIFY] User ${claims?.sub}: isAdmin=${dbUser?.isAdmin}, teamId=${dbUser?.teamId}`);
+      } catch (dbError) {
+        console.error(`[AUTH VERIFY] Database error during upsert:`, dbError);
+        // Still allow authentication to proceed - user can be created later
+        user.dbUser = null;
+      }
+      
+      verified(null, user);
+    } catch (error) {
+      console.error(`[AUTH VERIFY] Error:`, error);
+      verified(error as Error, undefined);
+    }
   };
 
   // Keep track of registered strategies
@@ -151,53 +161,66 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
-    ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, async (err: any, user: SessionUser) => {
-      if (err || !user) {
-        console.log(`[AUTH CALLBACK] Error or no user, redirecting to login`);
-        return res.redirect("/api/login");
-      }
-      
-      req.logIn(user, async (loginErr) => {
-        if (loginErr) {
-          console.log(`[AUTH CALLBACK] Login error:`, loginErr);
+    
+    try {
+      ensureStrategy(hostname);
+      passport.authenticate(`replitauth:${hostname}`, async (err: any, user: SessionUser) => {
+        if (err) {
+          console.error(`[AUTH CALLBACK] Passport error:`, err);
+          return res.redirect("/?error=auth_failed");
+        }
+        
+        if (!user) {
+          console.log(`[AUTH CALLBACK] No user returned from passport`);
           return res.redirect("/api/login");
         }
         
-        // Fetch fresh user data from database to ensure we have latest admin status
-        // This is more robust than relying on session-stored dbUser
-        const userId = user.claims?.sub;
-        let dbUser = user.dbUser;
-        
-        // If dbUser is missing from session, fetch fresh from database
-        if (!dbUser && userId) {
-          console.log(`[AUTH CALLBACK] dbUser missing, fetching fresh from database`);
-          try {
-            dbUser = await authStorage.getUser(userId);
-            // Update session with fresh data
-            user.dbUser = dbUser;
-          } catch (error) {
-            console.error(`[AUTH CALLBACK] Error fetching user:`, error);
+        req.logIn(user, async (loginErr) => {
+          if (loginErr) {
+            console.error(`[AUTH CALLBACK] Login error:`, loginErr);
+            return res.redirect("/?error=login_failed");
           }
-        }
-        
-        console.log(`[AUTH CALLBACK] hostname=${hostname}, userId=${dbUser?.id || userId}, isAdmin=${dbUser?.isAdmin}, isAdminType=${typeof dbUser?.isAdmin}`);
-        
-        // Redirect admins directly to /super-admin
-        // Handle both boolean true AND string 'true'/'super_admin' for robustness
-        const isAdminValue = dbUser?.isAdmin;
-        const isAdmin = isAdminValue === true || isAdminValue === 'true' || isAdminValue === 'super_admin';
-        
-        if (dbUser && isAdmin) {
-          console.log(`[AUTH CALLBACK] Admin detected (isAdmin=${isAdminValue}), redirecting to /super-admin`);
-          return res.redirect('/super-admin');
-        }
-        
-        // Default redirect for non-admins or if dbUser is missing
-        console.log(`[AUTH CALLBACK] Non-admin or missing dbUser, redirecting to /`);
-        return res.redirect('/');
-      });
-    })(req, res, next);
+          
+          try {
+            // Fetch fresh user data from database to ensure we have latest admin status
+            // This is more robust than relying on session-stored dbUser
+            const userId = user.claims?.sub;
+            let dbUser = user.dbUser;
+            
+            // If dbUser is missing from session, fetch fresh from database
+            if (!dbUser && userId) {
+              console.log(`[AUTH CALLBACK] dbUser missing, fetching fresh from database`);
+              dbUser = await authStorage.getUser(userId);
+              // Update session with fresh data
+              user.dbUser = dbUser;
+            }
+            
+            console.log(`[AUTH CALLBACK] hostname=${hostname}, userId=${dbUser?.id || userId}, isAdmin=${dbUser?.isAdmin}, isAdminType=${typeof dbUser?.isAdmin}`);
+            
+            // Redirect admins directly to /super-admin
+            // Handle both boolean true AND string 'true'/'super_admin' for robustness
+            const isAdminValue = dbUser?.isAdmin;
+            const isAdmin = isAdminValue === true || isAdminValue === 'true' || isAdminValue === 'super_admin';
+            
+            if (dbUser && isAdmin) {
+              console.log(`[AUTH CALLBACK] Admin detected (isAdmin=${isAdminValue}), redirecting to /super-admin`);
+              return res.redirect('/super-admin');
+            }
+            
+            // Default redirect for non-admins or if dbUser is missing
+            console.log(`[AUTH CALLBACK] Non-admin or missing dbUser, redirecting to /`);
+            return res.redirect('/');
+          } catch (dbError) {
+            console.error(`[AUTH CALLBACK] Database error:`, dbError);
+            // Still redirect to home - user is authenticated even if db lookup fails
+            return res.redirect('/');
+          }
+        });
+      })(req, res, next);
+    } catch (outerError) {
+      console.error(`[AUTH CALLBACK] Outer error:`, outerError);
+      return res.redirect("/?error=auth_error");
+    }
   });
 
   app.get("/api/logout", (req, res) => {
