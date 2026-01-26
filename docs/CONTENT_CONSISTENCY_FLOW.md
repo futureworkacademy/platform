@@ -3,6 +3,8 @@
 
 **Last Updated:** January 2026
 
+**WHY THIS MATTERS:** See [CONTENT_INTEGRITY.md](./CONTENT_INTEGRITY.md) for the full explanation of why content consistency is critical - including the "ripple effect" when character traits change.
+
 ---
 
 ## The Golden Rule

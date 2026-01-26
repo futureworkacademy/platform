@@ -7,6 +7,8 @@
 
 **VALIDATION:** Run `npx tsx server/validate-content.ts` to verify this document matches canonical.json.
 
+**WHY THIS MATTERS:** Characters aren't just portraits - they're variables that affect LLM grading, decision difficulty, and narrative tension across all 8 weeks. One inconsistency creates ripple effects throughout the simulation. See [CONTENT_INTEGRITY.md](./CONTENT_INTEGRITY.md) for the full explanation.
+
 **Last Updated:** January 2026
 
 ---
