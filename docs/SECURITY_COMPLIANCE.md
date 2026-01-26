@@ -159,6 +159,40 @@ We execute the following agreements with institutional partners:
 
 **OpenAI Data Retention:** API requests are not used for training. Data retained for 30 days for abuse monitoring, then deleted (per OpenAI API data policy).
 
+### 5.3 Gemini AI Integration (Demo Guide)
+
+The demo environment includes a Gemini-powered Q&A assistant for guided demonstrations:
+
+| Data Element | Sent to Gemini | Purpose |
+|--------------|----------------|---------|
+| User questions | YES | Generate helpful responses about platform |
+| Student PII | NO | Never included in prompts |
+| Platform context | YES (static) | Pre-defined simulation knowledge only |
+| Conversation history | NO | Not persisted, session-only |
+
+**Data Handling:**
+- Demo Q&A uses Replit AI Integrations (Gemini 2.5 Flash)
+- Questions are processed in real-time, not stored
+- Static context about simulation features only (no user data)
+- No training on user queries
+- Session-based only; cleared on page refresh
+
+### 5.4 Demo Tour System
+
+The guided demo tour uses browser-local storage only:
+
+| Feature | Storage Method | Data Stored |
+|---------|---------------|-------------|
+| Tour completion | localStorage | Boolean flag only |
+| Tour progress | Memory | Not persisted |
+| User preferences | localStorage | Tour skipped/completed status |
+
+**Security Notes:**
+- No PII collected during tour
+- All tour data stored client-side only
+- Demo environment completely isolated from production data
+- Demo users cannot access real student data
+
 ---
 
 ## 6. Access Controls

@@ -11,7 +11,10 @@ import {
   User,
   Shield,
   ClipboardCheck,
+  PlayCircle,
 } from "lucide-react";
+import { useDemoTour } from "@/components/demo-tour-provider";
+import { Button } from "@/components/ui/button";
 import logo from "@assets/logo-icon-light.png";
 import {
   Sidebar,
@@ -95,6 +98,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false }: AppSidebarProps) {
   const [location] = useLocation();
+  const { isDemoUser, startTour, resetTour } = useDemoTour();
   
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>({
     queryKey: ["/api/leaderboard"],
@@ -212,6 +216,21 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
         <div className="flex flex-col gap-3">
+          {isDemoUser && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full bg-sidebar-accent/50 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
+              onClick={() => {
+                resetTour();
+                setTimeout(() => startTour(), 100);
+              }}
+              data-testid="button-restart-tour"
+            >
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Restart Tour
+            </Button>
+          )}
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Team</span>
             <span className="text-sm font-medium text-sidebar-foreground" data-testid="text-team-name">{teamName}</span>

@@ -17,6 +17,7 @@ import { sendInvitationEmail } from "./services/email";
 import sanitizeHtml from "sanitize-html";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { demoService } from "./demo-service";
+import { registerDemoQARoutes } from "./demo-qa-routes";
 
 function isAdminUser(user: { isAdmin?: string | boolean | null } | null | undefined): boolean {
   if (!user) return false;
@@ -94,6 +95,9 @@ export async function registerRoutes(
   
   // Register object storage routes for media uploads
   registerObjectStorageRoutes(app);
+  
+  // Register demo Q&A routes for guided tour
+  registerDemoQARoutes(app);
   
   app.get("/api/institutions", (_req, res) => {
     res.json(institutions);

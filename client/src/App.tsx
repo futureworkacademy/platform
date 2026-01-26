@@ -37,6 +37,8 @@ import { FlaskConical } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
+import { DemoTourProvider } from "@/components/demo-tour-provider";
+import { GeminiQAWidget } from "@/components/gemini-qa-widget";
 
 function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
@@ -310,7 +312,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="fow-theme">
         <TooltipProvider>
-          <AppRouter />
+          <DemoTourProvider>
+            <AppRouter />
+            <GeminiQAWidget />
+          </DemoTourProvider>
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
