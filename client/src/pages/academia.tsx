@@ -103,13 +103,13 @@ export default function Academia() {
               <img 
                 src={logoDark} 
                 alt="Future Work Academy" 
-                className="h-14 w-auto cursor-pointer block dark:hidden"
+                className="h-16 w-auto cursor-pointer block dark:hidden"
                 data-testid="img-header-logo-light"
               />
               <img 
                 src={logoLight} 
                 alt="Future Work Academy" 
-                className="h-14 w-auto cursor-pointer hidden dark:block"
+                className="h-16 w-auto cursor-pointer hidden dark:block"
                 data-testid="img-header-logo-dark"
               />
             </Link>
@@ -197,19 +197,19 @@ export default function Academia() {
             <img 
               src={logoDark} 
               alt="Future Work Academy" 
-              className="h-14 w-auto cursor-pointer block dark:hidden"
+              className="h-16 w-auto cursor-pointer block dark:hidden"
               data-testid="img-header-logo-light"
             />
             <img 
               src={logoLight} 
               alt="Future Work Academy" 
-              className="h-14 w-auto cursor-pointer hidden dark:block"
+              className="h-16 w-auto cursor-pointer hidden dark:block"
               data-testid="img-header-logo-dark"
             />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Home</span>
               </Button>
