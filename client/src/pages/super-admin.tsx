@@ -1504,7 +1504,7 @@ export default function SuperAdminPage() {
                 <CardDescription>Manage simulation lifecycle and game mechanics.</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Simulation controls will be migrated here from the old settings.</p>
+                <p className="text-muted-foreground">Simulation controls are coming soon. This section will allow you to manage simulation settings, scenarios, and game mechanics.</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1517,7 +1517,7 @@ export default function SuperAdminPage() {
                 <CardDescription>Track user actions and system events.</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Activity logs will be migrated here from the old settings.</p>
+                <p className="text-muted-foreground">Activity logging is coming soon. This section will display user actions and system events for monitoring and auditing.</p>
               </CardContent>
             </Card>
           </TabsContent>
