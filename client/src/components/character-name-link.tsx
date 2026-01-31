@@ -50,7 +50,7 @@ interface CharacterData {
 export function CharacterNameLink({ name, showIcon = true, className = "" }: CharacterNameLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: character } = useQuery<CharacterData>({
+  const { data: character, isLoading } = useQuery<CharacterData>({
     queryKey: ['/api/characters/by-name', name],
     queryFn: async () => {
       const res = await fetch(`/api/characters/by-name?name=${encodeURIComponent(name)}`);
@@ -69,7 +69,7 @@ export function CharacterNameLink({ name, showIcon = true, className = "" }: Cha
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center justify-center h-5 w-5 rounded hover-elevate text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center justify-center h-5 w-5 rounded hover-elevate text-muted-foreground"
                 data-testid={`button-view-profile-${name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <IdCard className="h-3.5 w-3.5" />
@@ -86,6 +86,7 @@ export function CharacterNameLink({ name, showIcon = true, className = "" }: Cha
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         character={character || null}
+        isLoading={isLoading}
       />
     </>
   );
@@ -108,7 +109,7 @@ export function CharacterAvatarLink({
 }: CharacterAvatarLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: character } = useQuery<CharacterData>({
+  const { data: character, isLoading } = useQuery<CharacterData>({
     queryKey: ['/api/characters/by-name', name],
     queryFn: async () => {
       const res = await fetch(`/api/characters/by-name?name=${encodeURIComponent(name)}`);
@@ -133,7 +134,7 @@ export function CharacterAvatarLink({
             className={`inline-flex items-center gap-2 hover-elevate rounded-full ${className}`}
             data-testid={`button-avatar-profile-${name.toLowerCase().replace(/\s+/g, '-')}`}
           >
-            <div className={`${sizeClasses[size]} rounded-full overflow-hidden border-2 border-transparent hover:border-primary transition-colors`}>
+            <div className={`${sizeClasses[size]} rounded-full overflow-hidden border-2 border-muted`}>
               {headshotUrl ? (
                 <img 
                   src={headshotUrl} 
@@ -160,6 +161,7 @@ export function CharacterAvatarLink({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         character={character || null}
+        isLoading={isLoading}
       />
     </>
   );

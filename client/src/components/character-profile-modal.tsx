@@ -1,9 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Briefcase, GraduationCap, Award, Users, MapPin } from "lucide-react";
+import { Briefcase, GraduationCap, Award, Users, MapPin, Loader2 } from "lucide-react";
 
 interface SocialProfile {
   headline: string;
@@ -43,10 +42,23 @@ interface CharacterProfileModalProps {
     influence?: number;
     hostility?: number;
   } | null;
+  isLoading?: boolean;
 }
 
-export function CharacterProfileModal({ isOpen, onClose, character }: CharacterProfileModalProps) {
-  if (!character) return null;
+export function CharacterProfileModal({ isOpen, onClose, character, isLoading = false }: CharacterProfileModalProps) {
+  if (!isOpen) return null;
+  
+  if (isLoading || !character) {
+    return (
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-2xl">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const socialProfile = character.socialProfile as SocialProfile | undefined;
 
@@ -128,23 +140,21 @@ export function CharacterProfileModal({ isOpen, onClose, character }: CharacterP
             <div className="space-y-4">
               {/* Current Position */}
               {socialProfile?.currentPosition && (
-                <Card className="border-l-4 border-l-[#22c55e]">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-medium">{socialProfile.currentPosition.title}</h4>
-                        <p className="text-sm text-muted-foreground">{socialProfile.currentPosition.company}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{socialProfile.currentPosition.duration}</p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">Current</Badge>
+                <div className="pl-4 border-l-2 border-[#22c55e]">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium">{socialProfile.currentPosition.title}</h4>
+                      <p className="text-sm text-muted-foreground">{socialProfile.currentPosition.company}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{socialProfile.currentPosition.duration}</p>
                     </div>
-                    {socialProfile.currentPosition.description && (
-                      <p className="text-sm mt-2 text-muted-foreground">
-                        {socialProfile.currentPosition.description}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                    <Badge variant="secondary" className="text-xs">Current</Badge>
+                  </div>
+                  {socialProfile.currentPosition.description && (
+                    <p className="text-sm mt-2 text-muted-foreground">
+                      {socialProfile.currentPosition.description}
+                    </p>
+                  )}
+                </div>
               )}
 
               {/* Previous Positions */}
