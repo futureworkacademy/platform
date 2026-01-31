@@ -29,6 +29,7 @@ import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
+import ContentValidation from "@/pages/content-validation";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -241,6 +242,11 @@ function AppRouter() {
   // Character Profiles Editor - role checked internally
   if (location === "/admin/character-profiles") {
     return <CharacterProfilesEditor />;
+  }
+
+  // Content Validation Dashboard - role checked internally
+  if (location === "/admin/content-validation") {
+    return <ContentValidation />;
   }
 
   // Educator Inquiries page - role checked internally

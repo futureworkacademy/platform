@@ -5676,5 +5676,24 @@ Provide thoughtful, personalized advice in your character's voice. Keep your res
     }
   });
 
+  // Content Validation API endpoint
+  app.get("/api/admin/content-validation", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as { isAdmin?: string | boolean | null } | null;
+      
+      if (!isAdminUser(user)) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const { runValidation } = await import("./content-validation");
+      const report = await runValidation();
+      
+      res.json(report);
+    } catch (error: any) {
+      console.error("Content validation error:", error);
+      res.status(500).json({ error: error.message || "Validation failed" });
+    }
+  });
+
   return httpServer;
 }

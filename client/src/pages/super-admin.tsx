@@ -29,7 +29,8 @@ import {
   UserMinus,
   UsersRound,
   Trash2,
-  FileText
+  FileText,
+  CheckCircle
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
@@ -1848,6 +1849,18 @@ export default function SuperAdminPage() {
                         <Button variant="outline" data-testid="button-edit-simulation-content">
                           <FileText className="h-4 w-4 mr-2" />
                           Edit Simulation Content
+                        </Button>
+                      </Link>
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Content Validation</Label>
+                        <p className="text-sm text-muted-foreground">Verify all content is consistent with canonical data</p>
+                      </div>
+                      <Link href="/admin/content-validation">
+                        <Button variant="outline" data-testid="button-content-validation">
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Validate Content
                         </Button>
                       </Link>
                     </div>
