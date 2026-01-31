@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails, advisors, advisorCalls } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -191,6 +191,188 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching voicemail:", error);
       res.status(500).json({ error: "Failed to fetch voicemail" });
+    }
+  });
+
+  // Advisor API - Get all advisors with categories
+  app.get("/api/advisors", isAuthenticated, async (req, res) => {
+    try {
+      const allAdvisors = await db
+        .select({
+          id: advisors.id,
+          name: advisors.name,
+          category: advisors.category,
+          title: advisors.title,
+          organization: advisors.organization,
+          specialty: advisors.specialty,
+          bio: advisors.bio,
+          keyInsights: advisors.keyInsights,
+          headshotUrl: advisors.headshotUrl,
+          hasAudio: advisors.audioUrl,
+        })
+        .from(advisors)
+        .where(eq(advisors.isActive, true));
+
+      // Group by category
+      const grouped = {
+        consultant: allAdvisors.filter(a => a.category === 'consultant'),
+        industry_expert: allAdvisors.filter(a => a.category === 'industry_expert'),
+        thought_leader: allAdvisors.filter(a => a.category === 'thought_leader'),
+      };
+
+      res.json({
+        advisors: allAdvisors,
+        byCategory: grouped,
+      });
+    } catch (error) {
+      console.error("Error fetching advisors:", error);
+      res.status(500).json({ error: "Failed to fetch advisors" });
+    }
+  });
+
+  // Advisor API - Get specific advisor with full content
+  app.get("/api/advisors/:id", isAuthenticated, async (req, res) => {
+    try {
+      const [advisor] = await db
+        .select()
+        .from(advisors)
+        .where(and(
+          eq(advisors.id, req.params.id),
+          eq(advisors.isActive, true)
+        ))
+        .limit(1);
+
+      if (!advisor) {
+        return res.status(404).json({ error: "Advisor not found" });
+      }
+
+      res.json(advisor);
+    } catch (error) {
+      console.error("Error fetching advisor:", error);
+      res.status(500).json({ error: "Failed to fetch advisor" });
+    }
+  });
+
+  // Advisor API - Call an advisor (use a credit)
+  const advisorCallSchema = z.object({
+    advisorId: z.string().uuid("Invalid advisor ID"),
+  });
+
+  app.post("/api/advisor-calls", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user?.teamId) {
+        return res.status(400).json({ error: "User not on a team" });
+      }
+
+      // Validate request body
+      const parseResult = advisorCallSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid request", 
+          details: parseResult.error.errors 
+        });
+      }
+      const { advisorId } = parseResult.data;
+
+      // First verify the advisor exists
+      const [advisor] = await db
+        .select()
+        .from(advisors)
+        .where(eq(advisors.id, advisorId))
+        .limit(1);
+
+      if (!advisor) {
+        return res.status(404).json({ error: "Advisor not found" });
+      }
+
+      // Get the team
+      const [team] = await db
+        .select()
+        .from(teams)
+        .where(eq(teams.id, user.teamId))
+        .limit(1);
+
+      if (!team) {
+        return res.status(404).json({ error: "Team not found" });
+      }
+
+      // Check if already called this advisor
+      const [existingCall] = await db
+        .select()
+        .from(advisorCalls)
+        .where(and(
+          eq(advisorCalls.teamId, team.id),
+          eq(advisorCalls.advisorId, advisorId)
+        ))
+        .limit(1);
+
+      if (existingCall) {
+        // Already called - return advisor data without deducting credit
+        return res.json({
+          advisor,
+          creditsRemaining: team.advisorCreditsRemaining ?? 3,
+          alreadyCalled: true,
+        });
+      }
+
+      // Check credits (with null safety)
+      const currentCredits = team.advisorCreditsRemaining ?? 3;
+      if (currentCredits <= 0) {
+        return res.status(400).json({ 
+          error: "No advisor credits remaining",
+          creditsRemaining: 0,
+        });
+      }
+
+      // Record the call
+      await db.insert(advisorCalls).values({
+        id: randomUUID(),
+        teamId: team.id,
+        advisorId,
+        weekNumber: team.currentWeek,
+      });
+
+      // Deduct credit atomically using SQL to prevent race conditions
+      await db.update(teams)
+        .set({ 
+          advisorCreditsRemaining: sql`GREATEST(COALESCE(advisor_credits_remaining, 3) - 1, 0)`,
+          updatedAt: new Date(),
+        })
+        .where(eq(teams.id, team.id));
+
+      res.json({
+        advisor,
+        creditsRemaining: Math.max(currentCredits - 1, 0),
+        alreadyCalled: false,
+      });
+    } catch (error) {
+      console.error("Error calling advisor:", error);
+      res.status(500).json({ error: "Failed to call advisor" });
+    }
+  });
+
+  // Advisor API - Get team's called advisors
+  app.get("/api/advisor-calls", isAuthenticated, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user?.teamId) {
+        return res.status(400).json({ error: "User not on a team" });
+      }
+
+      const calls = await db
+        .select({
+          advisorId: advisorCalls.advisorId,
+          weekNumber: advisorCalls.weekNumber,
+          calledAt: advisorCalls.calledAt,
+        })
+        .from(advisorCalls)
+        .where(eq(advisorCalls.teamId, user.teamId));
+
+      res.json({ calls });
+    } catch (error) {
+      console.error("Error fetching advisor calls:", error);
+      res.status(500).json({ error: "Failed to fetch advisor calls" });
     }
   });
 

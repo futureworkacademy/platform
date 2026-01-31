@@ -36,7 +36,9 @@ import {
   Brain,
   Home,
   Newspaper,
+  Phone,
 } from "lucide-react";
+import { AdvisorPicker } from "@/components/advisor-picker";
 import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport, RubricCriterion } from "@shared/schema";
 import { defaultRubricCriteria } from "@shared/schema";
 import { CharacterNameLink } from "@/components/character-name-link";
@@ -688,6 +690,7 @@ export default function Decisions() {
   const [enhancedAttributeValues, setEnhancedAttributeValues] = useState<Record<string, Record<string, number | string | boolean>>>({});
   const [enhancedRationales, setEnhancedRationales] = useState<Record<string, string>>({});
   const [submittedEnhanced, setSubmittedEnhanced] = useState<Set<string>>(new Set());
+  const [showAdvisorPicker, setShowAdvisorPicker] = useState(false);
 
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
@@ -906,7 +909,29 @@ export default function Decisions() {
               Make critical choices that will shape Apex's future
             </p>
           </div>
+          {team && (
+            <Button
+              variant="outline"
+              onClick={() => setShowAdvisorPicker(true)}
+              className="gap-2"
+              data-testid="button-phone-advisor"
+            >
+              <Phone className="w-4 h-4" />
+              Phone an Advisor
+              <Badge variant="secondary" className="ml-1">
+                {team.advisorCreditsRemaining ?? 3}
+              </Badge>
+            </Button>
+          )}
         </div>
+
+        {showAdvisorPicker && (
+          <AdvisorPicker
+            isOpen={showAdvisorPicker}
+            onClose={() => setShowAdvisorPicker(false)}
+            creditsRemaining={team.advisorCreditsRemaining ?? 3}
+          />
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="bg-card/50">

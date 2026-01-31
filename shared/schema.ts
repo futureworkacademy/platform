@@ -231,7 +231,9 @@ export const teamSchema = z.object({
   setupComplete: z.boolean().default(false),
   researchComplete: z.boolean().default(false),
   viewedReportIds: z.array(z.string()).default([]),
+  advisorCreditsRemaining: z.number().default(3),
   createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export type Team = z.infer<typeof teamSchema>;

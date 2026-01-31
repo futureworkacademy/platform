@@ -1,0 +1,285 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Phone,
+  Users,
+  Building2,
+  Lightbulb,
+  Briefcase,
+  CheckCircle2,
+} from "lucide-react";
+import { AdvisorPlayer } from "./advisor-player";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+
+interface Advisor {
+  id: string;
+  name: string;
+  category: string;
+  title: string;
+  organization: string;
+  specialty: string;
+  bio: string;
+  keyInsights: string[];
+  headshotUrl: string | null;
+  hasAudio: string | null;
+}
+
+interface AdvisorsResponse {
+  advisors: Advisor[];
+  byCategory: {
+    consultant: Advisor[];
+    industry_expert: Advisor[];
+    thought_leader: Advisor[];
+  };
+}
+
+interface AdvisorCallsResponse {
+  calls: { advisorId: string; weekNumber: number; calledAt: string }[];
+}
+
+interface AdvisorPickerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  creditsRemaining: number;
+}
+
+const categoryConfig = {
+  consultant: {
+    label: "Strategy Consultants",
+    icon: Briefcase,
+    description: "Expert guidance on AI transformation strategy and implementation",
+  },
+  industry_expert: {
+    label: "Industry Experts",
+    icon: Building2,
+    description: "Real-world manufacturing and business leadership experience",
+  },
+  thought_leader: {
+    label: "Thought Leaders",
+    icon: Lightbulb,
+    description: "Forward-thinking perspectives on AI ethics and the future of work",
+  },
+};
+
+export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPickerProps) {
+  const [selectedAdvisor, setSelectedAdvisor] = useState<string | null>(null);
+  const [showPlayer, setShowPlayer] = useState(false);
+
+  const { data: advisorsData, isLoading: advisorsLoading } = useQuery<AdvisorsResponse>({
+    queryKey: ["/api/advisors"],
+    enabled: isOpen,
+  });
+
+  const { data: callsData } = useQuery<AdvisorCallsResponse>({
+    queryKey: ["/api/advisor-calls"],
+    enabled: isOpen,
+  });
+
+  const callMutation = useMutation({
+    mutationFn: async (advisorId: string) => {
+      const res = await apiRequest("POST", "/api/advisor-calls", { advisorId });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/advisor-calls"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+    },
+  });
+
+  const calledAdvisorIds = new Set(callsData?.calls?.map(c => c.advisorId) || []);
+
+  const handleCallAdvisor = async (advisorId: string) => {
+    setSelectedAdvisor(advisorId);
+    
+    // If already called, just show the player
+    if (calledAdvisorIds.has(advisorId)) {
+      setShowPlayer(true);
+      return;
+    }
+
+    // Call the advisor (uses a credit)
+    try {
+      await callMutation.mutateAsync(advisorId);
+      setShowPlayer(true);
+    } catch (error) {
+      console.error("Failed to call advisor:", error);
+    }
+  };
+
+  const handleClosePlayer = () => {
+    setShowPlayer(false);
+    setSelectedAdvisor(null);
+  };
+
+  if (showPlayer && selectedAdvisor) {
+    return (
+      <AdvisorPlayer
+        advisorId={selectedAdvisor}
+        onClose={handleClosePlayer}
+        onBack={() => setShowPlayer(false)}
+      />
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden" data-testid="dialog-advisor-picker">
+        <div className="bg-gradient-to-b from-primary/10 to-background p-6 pb-4">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Phone className="w-5 h-5 text-primary" />
+                <DialogTitle className="text-xl">Phone an Advisor</DialogTitle>
+              </div>
+              <Badge variant="outline" className="gap-1.5">
+                <Users className="w-3 h-3" />
+                {creditsRemaining} credit{creditsRemaining !== 1 ? 's' : ''} remaining
+              </Badge>
+            </div>
+            <DialogDescription className="text-muted-foreground">
+              Get expert guidance from industry professionals. Each call uses 1 credit. 
+              Advisors you've already called can be replayed at no cost.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <Tabs defaultValue="consultant" className="flex-1">
+          <div className="px-6 border-b">
+            <TabsList className="w-full justify-start h-auto p-0 bg-transparent gap-6">
+              {Object.entries(categoryConfig).map(([key, config]) => (
+                <TabsTrigger
+                  key={key}
+                  value={key}
+                  className="gap-2 py-3 px-0 border-b-2 border-transparent data-[state=active]:border-primary rounded-none bg-transparent"
+                  data-testid={`tab-${key}`}
+                >
+                  <config.icon className="w-4 h-4" />
+                  {config.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          <ScrollArea className="flex-1 h-[50vh]">
+            <div className="p-6">
+              {advisorsLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i} className="animate-pulse">
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+                          <div className="w-16 h-16 rounded-full bg-muted" />
+                          <div className="flex-1 space-y-2">
+                            <div className="h-5 bg-muted rounded w-32" />
+                            <div className="h-4 bg-muted rounded w-48" />
+                            <div className="h-4 bg-muted rounded w-full" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                Object.entries(categoryConfig).map(([key, config]) => (
+                  <TabsContent key={key} value={key} className="mt-0 space-y-4">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {config.description}
+                    </p>
+                    {advisorsData?.byCategory[key as keyof typeof advisorsData.byCategory]?.map((advisor) => {
+                      const isCalled = calledAdvisorIds.has(advisor.id);
+                      const canCall = creditsRemaining > 0 || isCalled;
+                      
+                      return (
+                        <Card 
+                          key={advisor.id} 
+                          className={`hover-elevate transition-colors ${!canCall ? 'opacity-60' : ''}`}
+                          data-testid={`card-advisor-${advisor.id}`}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex gap-4">
+                              <Avatar className="w-16 h-16 border-2 border-primary/20">
+                                <AvatarImage src={advisor.headshotUrl || undefined} />
+                                <AvatarFallback className="text-lg bg-primary/10">
+                                  {advisor.name.split(" ").map(n => n[0]).join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                                      {advisor.name}
+                                      {isCalled && (
+                                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                      )}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                      {advisor.title}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {advisor.organization}
+                                    </p>
+                                  </div>
+                                  <Badge variant="secondary" className="shrink-0">
+                                    {advisor.specialty}
+                                  </Badge>
+                                </div>
+                                
+                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                                  {advisor.bio}
+                                </p>
+                                
+                                <div className="flex items-center justify-between mt-3">
+                                  <div className="flex gap-2">
+                                    {advisor.keyInsights?.slice(0, 2).map((insight, idx) => (
+                                      <Badge key={idx} variant="outline" className="text-xs max-w-[150px] truncate">
+                                        {insight}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                  
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleCallAdvisor(advisor.id)}
+                                    disabled={!canCall || callMutation.isPending}
+                                    data-testid={`button-call-advisor-${advisor.id}`}
+                                  >
+                                    <Phone className="w-4 h-4 mr-1" />
+                                    {isCalled ? "Listen Again" : "Call Advisor"}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </TabsContent>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </Tabs>
+
+        <div className="p-4 border-t bg-muted/30 flex justify-end">
+          <Button variant="outline" onClick={onClose} data-testid="button-close-picker">
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

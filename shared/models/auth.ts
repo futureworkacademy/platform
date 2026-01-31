@@ -83,6 +83,9 @@ export const teams = pgTable("teams", {
   setupComplete: boolean("setup_complete").notNull().default(false),
   researchComplete: boolean("research_complete").notNull().default(false),
   
+  // Phone-a-Friend advisor credits (3 per simulation by default)
+  advisorCreditsRemaining: integer("advisor_credits_remaining").notNull().default(3),
+  
   // JSONB for complex nested game state
   members: jsonb("members").notNull().default([]),
   companyState: jsonb("company_state").notNull(),
@@ -584,3 +587,38 @@ export const difficultyPresets = pgTable("difficulty_presets", {
 
 export type DifficultyPreset = typeof difficultyPresets.$inferSelect;
 export type InsertDifficultyPreset = typeof difficultyPresets.$inferInsert;
+
+// Pre-recorded advisors with audio guidance for Phone-a-Friend feature
+export const advisors = pgTable("advisors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  category: varchar("category").notNull(), // consultant, industry_expert, thought_leader
+  title: varchar("title").notNull(),
+  organization: varchar("organization").notNull(),
+  specialty: varchar("specialty").notNull(),
+  bio: text("bio").notNull(),
+  transcript: text("transcript").notNull(), // Pre-recorded guidance transcript
+  audioUrl: text("audio_url"), // ElevenLabs-generated audio file
+  voiceId: varchar("voice_id"), // ElevenLabs voice ID used
+  voiceName: varchar("voice_name"), // ElevenLabs voice name
+  keyInsights: jsonb("key_insights").default([]), // Array of key insight strings
+  headshotUrl: text("headshot_url"), // Optional headshot image
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type AdvisorDb = typeof advisors.$inferSelect;
+export type InsertAdvisorDb = typeof advisors.$inferInsert;
+
+// Advisor calls tracking - which advisors have been called by teams
+export const advisorCalls = pgTable("advisor_calls", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  teamId: varchar("team_id").notNull(),
+  advisorId: varchar("advisor_id").notNull(),
+  weekNumber: integer("week_number").notNull(),
+  calledAt: timestamp("called_at").defaultNow(),
+});
+
+export type AdvisorCallDb = typeof advisorCalls.$inferSelect;
+export type InsertAdvisorCallDb = typeof advisorCalls.$inferInsert;
