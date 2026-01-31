@@ -34,6 +34,7 @@ import {
   X,
 } from "lucide-react";
 import type { Team, WeeklyScenario, WeeklyBriefing } from "@shared/schema";
+import { CharacterNameLink } from "@/components/character-name-link";
 
 interface ContentViewProgress {
   briefing: { viewed: number; total: number; percentage: number };
@@ -260,7 +261,7 @@ export default function Briefing() {
               {scenario.pressures.map((pressure, index) => (
                 <div key={index} className="space-y-2" data-testid={`card-pressure-${index}`}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-foreground">{pressure.source}</span>
+                    <CharacterNameLink name={pressure.source} className="text-foreground" />
                     <UrgencyBadge urgency={pressure.urgency} />
                   </div>
                   <p className="text-sm text-muted-foreground italic">"{pressure.message}"</p>

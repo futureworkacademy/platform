@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport, RubricCriterion } from "@shared/schema";
 import { defaultRubricCriteria } from "@shared/schema";
+import { CharacterNameLink } from "@/components/character-name-link";
 
 // Source code reference key for helper text
 const SOURCE_CODES = [
@@ -569,7 +570,7 @@ function EnhancedDecisionCard({
               {decision.stakeholderPerspectives.map((perspective, i) => (
                 <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">{perspective.role}</span>
+                    <CharacterNameLink name={perspective.role} className="text-sm" />
                     <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
@@ -1062,7 +1063,7 @@ export default function Decisions() {
                         {currentDecision.stakeholderPerspectives.map((perspective, i) => (
                           <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm font-medium">{perspective.role}</span>
+                              <CharacterNameLink name={perspective.role} className="text-sm" />
                               <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
                             </div>
                             <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
