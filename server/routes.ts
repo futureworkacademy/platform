@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -139,6 +139,58 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching characters:", error);
       res.status(500).json({ error: "Failed to fetch characters" });
+    }
+  });
+
+  // Voicemail API - Get voicemail for a specific week
+  app.get("/api/voicemails/:weekNumber", isAuthenticated, async (req, res) => {
+    try {
+      const weekNumber = parseInt(req.params.weekNumber);
+      if (isNaN(weekNumber)) {
+        return res.status(400).json({ error: "Invalid week number" });
+      }
+
+      const [voicemail] = await db
+        .select()
+        .from(triggeredVoicemails)
+        .where(and(
+          eq(triggeredVoicemails.weekNumber, weekNumber),
+          eq(triggeredVoicemails.isActive, true)
+        ))
+        .limit(1);
+
+      if (!voicemail) {
+        return res.status(404).json({ error: "No voicemail for this week" });
+      }
+
+      // Get character info for the voicemail
+      const characterName = voicemail.characterId
+        ?.split('-')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+      const [character] = characterName ? await db
+        .select({
+          name: characterProfiles.name,
+          role: characterProfiles.role,
+          title: characterProfiles.title,
+          headshotUrl: characterProfiles.headshotUrl,
+        })
+        .from(characterProfiles)
+        .where(eq(characterProfiles.name, characterName))
+        .limit(1) : [null];
+
+      res.json({
+        ...voicemail,
+        character: character || {
+          name: characterName || "Unknown",
+          role: "Apex Manufacturing",
+          headshotUrl: null,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching voicemail:", error);
+      res.status(500).json({ error: "Failed to fetch voicemail" });
     }
   });
 

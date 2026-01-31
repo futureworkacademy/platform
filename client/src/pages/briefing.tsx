@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import type { Team, WeeklyScenario, WeeklyBriefing } from "@shared/schema";
 import { CharacterNameLink } from "@/components/character-name-link";
+import { VoicemailPlayer, VoicemailNotification } from "@/components/voicemail-player";
 
 interface ContentViewProgress {
   briefing: { viewed: number; total: number; percentage: number };
@@ -75,6 +76,8 @@ export default function Briefing() {
   const queryClient = useQueryClient();
   const viewedSectionsRef = useRef<Set<string>>(new Set());
   const [selectedArticle, setSelectedArticle] = useState<BriefingArticle | null>(null);
+  const [showVoicemail, setShowVoicemail] = useState(false);
+  const voicemailShownRef = useRef<Set<number>>(new Set());
 
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
@@ -136,6 +139,19 @@ export default function Briefing() {
     }
   }, [scenario, team?.currentWeek]);
 
+  // Auto-show voicemail when entering a new week
+  useEffect(() => {
+    if (team?.currentWeek && !voicemailShownRef.current.has(team.currentWeek)) {
+      const voicemailKey = `voicemail-shown-week-${team.currentWeek}`;
+      const alreadyShown = localStorage.getItem(voicemailKey);
+      if (!alreadyShown) {
+        setShowVoicemail(true);
+        localStorage.setItem(voicemailKey, "true");
+      }
+      voicemailShownRef.current.add(team.currentWeek);
+    }
+  }, [team?.currentWeek]);
+
   const isViewed = (sectionId: string) => {
     return contentViews.some(v => v.contentId === sectionId);
   };
@@ -187,13 +203,27 @@ export default function Briefing() {
               {scenario.title}
             </h1>
           </div>
-          <Link href="/decisions">
-            <Button data-testid="button-go-to-decisions">
-              Make Decisions
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <VoicemailNotification 
+              weekNumber={team.currentWeek} 
+              onClick={() => setShowVoicemail(true)} 
+            />
+            <Link href="/decisions">
+              <Button data-testid="button-go-to-decisions">
+                Make Decisions
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        {showVoicemail && (
+          <VoicemailPlayer 
+            weekNumber={team.currentWeek} 
+            onClose={() => setShowVoicemail(false)}
+            autoShow={true}
+          />
+        )}
 
         {/* Content viewing progress indicator */}
         <Card className="bg-muted/30">
