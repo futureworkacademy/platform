@@ -14,7 +14,12 @@ import {
   Calendar,
   Building2,
   ArrowLeft,
-  ShieldAlert
+  ShieldAlert,
+  Phone,
+  MessageSquare,
+  Newspaper,
+  ClipboardCheck,
+  Mic
 } from "lucide-react";
 import { Link } from "wouter";
 import { queryClient } from "@/lib/queryClient";
@@ -24,7 +29,7 @@ interface ValidationResult {
   type: 'error' | 'warning' | 'info';
   source: string;
   message: string;
-  category: 'character' | 'company' | 'week' | 'competitor' | 'content' | 'system';
+  category: 'character' | 'company' | 'week' | 'competitor' | 'content' | 'voicemail' | 'advisor' | 'briefing' | 'decision' | 'intel' | 'system';
   line?: number;
 }
 
@@ -66,6 +71,16 @@ function CategoryIcon({ category }: { category: ValidationResult['category'] }) 
       return <Calendar className="h-4 w-4" />;
     case 'content':
       return <FileText className="h-4 w-4" />;
+    case 'voicemail':
+      return <Mic className="h-4 w-4" />;
+    case 'advisor':
+      return <Phone className="h-4 w-4" />;
+    case 'briefing':
+      return <MessageSquare className="h-4 w-4" />;
+    case 'decision':
+      return <ClipboardCheck className="h-4 w-4" />;
+    case 'intel':
+      return <Newspaper className="h-4 w-4" />;
     default:
       return <Info className="h-4 w-4" />;
   }
@@ -78,6 +93,11 @@ function CategoryBadge({ category }: { category: ValidationResult['category'] })
     week: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     competitor: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
     content: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200",
+    voicemail: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+    advisor: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+    briefing: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+    decision: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+    intel: "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200",
     system: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
   };
   
