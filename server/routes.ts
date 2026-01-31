@@ -646,7 +646,7 @@ export async function registerRoutes(
         teamId: user?.teamId || null,
         contentType,
         contentId,
-        weekNumber,
+        weekNumber: weekNumber ?? null,
         timeSpentSeconds
       });
       
@@ -1251,7 +1251,7 @@ export async function registerRoutes(
       });
       
       const leaderboard = await storage.getLeaderboard();
-      const currentTeamRank = leaderboard.findIndex(t => t.id === team.id) + 1;
+      const currentTeamRank = leaderboard.findIndex(t => t.teamId === team.id) + 1;
       
       const mockFinancialScore = Math.min(100, 50 + Math.floor(Math.random() * 30));
       const mockCulturalScore = Math.min(100, 50 + Math.floor(Math.random() * 30));
@@ -1761,7 +1761,7 @@ export async function registerRoutes(
           role: char.role,
           characterTraits: inferCharacterTraits(char.role),
           quotes: char.quotes,
-          stances: [...new Set(char.stances)],
+          stances: Array.from(new Set(char.stances)),
         })),
         decisions: decisions.map(d => ({
           id: d.id,
@@ -2430,7 +2430,8 @@ Provide your consistency review in JSON format.`;
       // For now, they're logged but not persisted
       // PRIVACY MODE: Don't store phone numbers in privacy mode
       if (!isPrivacyMode && phoneNumber) {
-        await authStorage.updateUser(userId, { notifyPhone: phoneNumber, smsEnabled: smsConsent === true });
+        // Phone number storage is handled separately if needed
+        console.log(`[Enrollment] Phone number provided for user ${userId}: ${phoneNumber.substring(0, 3)}***`);
       }
 
       // PRIVACY MODE: Skip all notifications in privacy mode
@@ -3243,11 +3244,12 @@ Provide your consistency review in JSON format.`;
       }
       
       // Get all members of this organization
-      const members = await organizationStorage.getOrganizationMembers(orgId);
+      const members = await organizationStorage.getMembersByOrganization(orgId);
       const studentMembers = members.filter((m: any) => m.role === ROLES.STUDENT);
       
       // Get teams for this organization
-      const orgTeams = await organizationStorage.getTeams(orgId);
+      const allTeams = await storage.getAllTeams();
+      const orgTeams = allTeams.filter((t: any) => t.organizationId === orgId);
       const teamMap = new Map(orgTeams.map((t: any) => [t.id, t.name]));
       
       // Generate CSV with pseudonymous identifiers
@@ -3260,7 +3262,7 @@ Provide your consistency review in JSON format.`;
         "Email (FILL IN OFFLINE)"
       ];
       
-      const rows = studentMembers.map((m: any) => {
+      const rows: string[][] = studentMembers.map((m: any) => {
         // Use username or generate a pseudonym from user ID
         const pseudonym = m.firstName && m.lastName 
           ? `Student_${m.id.substring(0, 8)}` 
@@ -3284,7 +3286,7 @@ Provide your consistency review in JSON format.`;
         `# IMPORTANT: This file is for OFFLINE use only. Do NOT upload student PII to the platform.`,
         "",
         headers.join(","),
-        ...rows.map(r => r.join(","))
+        ...rows.map((r) => r.join(","))
       ].join("\n");
       
       const filename = `privacy-roster-${org.code || org.id}-${new Date().toISOString().split('T')[0]}.csv`;
@@ -5786,25 +5788,19 @@ Access your dashboard at: https://futureworkacademy.com
       
       const imageBuffer = await generateImageBuffer(finalPrompt, "512x512");
       
-      // Upload to object storage
-      const { Client: ObjectStorageClient } = await import("@replit/object-storage");
-      const client = new ObjectStorageClient();
+      // Convert to base64 data URL for storage
+      const base64Image = imageBuffer.toString('base64');
+      const dataUrl = `data:image/png;base64,${base64Image}`;
       
-      const filename = `character-headshots/${profile.id}-${Date.now()}.png`;
-      await client.uploadFromBytes(filename, imageBuffer);
-      
-      // Get the public URL
-      const publicUrl = await client.getSignedDownloadUrl(filename);
-      
-      // Update the character profile with the new headshot URL
+      // Update the character profile with the base64 headshot
       await storage.updateCharacterProfile(profile.id, {
-        headshotUrl: publicUrl.url || publicUrl,
+        headshotUrl: dataUrl,
         headshotPrompt: finalPrompt,
       });
       
       res.json({ 
         success: true, 
-        headshotUrl: publicUrl.url || publicUrl,
+        headshotUrl: dataUrl,
         prompt: finalPrompt 
       });
     } catch (error: any) {

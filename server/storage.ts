@@ -62,6 +62,7 @@ export interface IStorage {
   getEnhancedDecisions(weekNumber: number): Promise<EnhancedDecision[]>;
   submitDecision(teamId: string, decisionId: string, optionId: string, rationale?: string): Promise<Team | undefined>;
   submitEnhancedDecision(playerId: string, decisionId: string, attributeValues: Record<string, number | string | boolean>, rationale: string): Promise<PlayerDecisionSubmission>;
+  getPlayerDecisions(playerId: string): Promise<PlayerDecisionSubmission[]>;
   getLeaderboard(): Promise<LeaderboardEntry[]>;
   getPeopleAnalytics(teamId: string): Promise<PeopleAnalytics>;
   addDecision(teamId: string, decision: InsertDecision): Promise<Decision>;
@@ -1999,7 +2000,7 @@ export class MemStorage implements IStorage {
       contentType: row.contentType as 'research_report' | 'briefing_section' | 'simulation_content',
       contentId: row.contentId,
       weekNumber: row.weekNumber,
-      viewedAt: row.viewedAt.toISOString(),
+      viewedAt: row.viewedAt ? row.viewedAt.toISOString() : new Date().toISOString(),
       timeSpentSeconds: row.timeSpentSeconds,
     };
   }
@@ -2024,7 +2025,7 @@ export class MemStorage implements IStorage {
       contentType: row.contentType as 'research_report' | 'briefing_section' | 'simulation_content',
       contentId: row.contentId,
       weekNumber: row.weekNumber,
-      viewedAt: row.viewedAt.toISOString(),
+      viewedAt: row.viewedAt ? row.viewedAt.toISOString() : new Date().toISOString(),
       timeSpentSeconds: row.timeSpentSeconds,
     }));
   }
@@ -2041,7 +2042,7 @@ export class MemStorage implements IStorage {
     const researchReportCategories = ['industry', 'workforce', 'financials', 'market', 'technology', 'regulatory'];
     const researchTotal = researchReportCategories.length;
     const researchViews = allViews.filter(v => v.contentType === 'research_report');
-    const uniqueResearchIds = [...new Set(researchViews.map(v => v.contentId))];
+    const uniqueResearchIds = Array.from(new Set(researchViews.map(v => v.contentId)));
     const researchViewed = Math.min(uniqueResearchIds.length, researchTotal);
     
     // Briefing progress - each week has 4 sections:
@@ -2054,7 +2055,7 @@ export class MemStorage implements IStorage {
       v.contentType === 'briefing_section' && 
       (weekNumber === undefined || v.weekNumber === weekNumber)
     );
-    const uniqueBriefingIds = [...new Set(briefingViews.map(v => v.contentId))];
+    const uniqueBriefingIds = Array.from(new Set(briefingViews.map(v => v.contentId)));
     
     // Get simulation config for dynamic week count (defaults to 8 if not available)
     let totalSimulationWeeks = 8;
@@ -2396,6 +2397,10 @@ export class MemStorage implements IStorage {
     this.playerDecisions.set(playerId, [...existing, submission]);
 
     return submission;
+  }
+
+  async getPlayerDecisions(playerId: string): Promise<PlayerDecisionSubmission[]> {
+    return this.playerDecisions.get(playerId) || [];
   }
 
   async getSimulationConfig(): Promise<SimulationConfig> {
