@@ -443,8 +443,12 @@ export const characterProfiles = pgTable("character_profiles", {
   // Voice/audio settings for triggered voicemails
   voiceDescription: text("voice_description"), // Description for AI voice synthesis
   voiceId: varchar("voice_id"), // External voice ID if using voice synthesis
+  // Structured voice profile for external voice synthesis tools (ElevenLabs, etc.)
+  voiceProfile: jsonb("voice_profile"), // {pitch, pace, accent, tone, ageRange, emotionalBaseline, distinctiveQualities}
   // Content generation prompts
   speakingStyleExamples: jsonb("speaking_style_examples"), // Array of example quotes
+  // Social media profile content (LinkedIn-style simulated profile)
+  socialProfile: jsonb("social_profile"), // {headline, about, experience, education, skills, connections}
   // Quantifiable traits for simulation mechanics (1-10 scale)
   influence: integer("influence").default(5), // How much sway they have over decisions
   hostility: integer("hostility").default(5), // How antagonistic they are

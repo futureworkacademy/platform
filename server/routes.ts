@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -101,6 +101,45 @@ export async function registerRoutes(
   
   app.get("/api/institutions", (_req, res) => {
     res.json(institutions);
+  });
+
+  // Character profiles API
+  app.get("/api/characters/by-name", async (req, res) => {
+    try {
+      const name = req.query.name as string;
+      if (!name) {
+        return res.status(400).json({ error: "Name parameter required" });
+      }
+
+      const [character] = await db
+        .select()
+        .from(characterProfiles)
+        .where(eq(characterProfiles.name, name))
+        .limit(1);
+
+      if (!character) {
+        return res.status(404).json({ error: "Character not found" });
+      }
+
+      res.json(character);
+    } catch (error) {
+      console.error("Error fetching character:", error);
+      res.status(500).json({ error: "Failed to fetch character" });
+    }
+  });
+
+  app.get("/api/characters", async (_req, res) => {
+    try {
+      const characters = await db
+        .select()
+        .from(characterProfiles)
+        .where(eq(characterProfiles.isActive, true));
+
+      res.json(characters);
+    } catch (error) {
+      console.error("Error fetching characters:", error);
+      res.status(500).json({ error: "Failed to fetch characters" });
+    }
   });
 
   app.get("/api/team", isAuthenticated, async (req: any, res) => {
