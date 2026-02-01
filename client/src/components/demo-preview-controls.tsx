@@ -38,19 +38,37 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
     },
     onSuccess: async () => {
       // Invalidate all relevant queries for sandbox mode
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/team"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", demoOrgId, "preview-mode"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", demoOrgId, "preview-mode"] });
       
-      // Navigate to dashboard first
-      setLocation("/dashboard");
+      // Wait for the queries to refetch - critical for the user to have teamId
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/team"] });
       
-      // Wait for dashboard to render before starting multi-page tour
-      try {
-        await waitForElement('[data-testid="financial-score"], [data-testid="button-start-week"]', 5000);
-      } catch (e) {
-        // Continue anyway
+      // Give React time to re-render with new user state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Navigate to dashboard
+      setLocation("/");
+      
+      // Wait for dashboard page to actually render with content
+      let attempts = 0;
+      const maxAttempts = 40; // 10 seconds
+      while (attempts < maxAttempts) {
+        const dashboardPage = document.querySelector('[data-testid="dashboard-page"]');
+        const financialCard = document.querySelector('[data-testid="financial-score-card"]');
+        if (dashboardPage && financialCard) {
+          console.log('Demo tour: Dashboard fully loaded');
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 250));
+        attempts++;
+      }
+      
+      if (attempts >= maxAttempts) {
+        console.warn('Demo tour: Dashboard elements not found, starting tour anyway');
       }
       
       // Reset and start the comprehensive multi-page student tour
