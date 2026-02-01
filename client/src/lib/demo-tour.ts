@@ -791,6 +791,18 @@ export async function startMultiPageStudentTour(
     
     // Extra wait to ensure everything is rendered
     await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Dismiss any open modals/popups that might interfere with the tour
+    // Specifically close voicemail popup on briefing page
+    if (page === "briefing") {
+      const closeVoicemailButton = document.querySelector('[data-testid="button-close-voicemail"]');
+      if (closeVoicemailButton) {
+        console.log("Tour: Closing voicemail popup before briefing tour");
+        (closeVoicemailButton as HTMLElement).click();
+        // Wait for popup to close
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
 
     return new Promise((resolve) => {
       const steps = getStepsForPage(page);
