@@ -37,6 +37,7 @@ interface UserData {
   role?: string;
   demoAccess?: string;
   isTestStudent?: boolean;
+  inDemoPreview?: boolean;
 }
 
 export function DemoTourProvider({ children }: DemoTourProviderProps) {
@@ -50,7 +51,8 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     retry: false,
   });
 
-  const isDemoUser = user?.demoAccess === "evaluator";
+  // Show tour for evaluators OR users in demo preview mode (super admins testing)
+  const isDemoUser = user?.demoAccess === "evaluator" || user?.inDemoPreview === true;
 
   useEffect(() => {
     if (isDemoUser && !hasCompletedTour && !isTourActive) {
