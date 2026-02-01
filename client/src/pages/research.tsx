@@ -348,7 +348,7 @@ END OF RESEARCH MATERIALS
             <div className="grid lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1 space-y-4">
                 <h2 className="text-lg font-semibold">Intelligence Reports</h2>
-                <ScrollArea className="h-[600px] pr-4">
+                <ScrollArea className="max-h-[600px] pr-4">
                   <div className="space-y-2">
                     {reports?.map((report) => (
                       <Card 
