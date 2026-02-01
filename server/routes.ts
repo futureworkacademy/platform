@@ -384,22 +384,48 @@ export async function registerRoutes(
       }
       
       const user = await authStorage.getUser(userId);
-      if (!user?.teamId) {
+      
+      // If user is in student preview mode, get the test student's team instead
+      let teamId = user?.teamId;
+      let orgId: string | null = null;
+      
+      if (user?.inStudentPreview && user?.previewModeOrgId) {
+        // Find the test student for this admin and org
+        const [testStudent] = await db.select().from(users)
+          .where(and(
+            eq(users.testStudentOwnerId, userId),
+            eq(users.testStudentOwnerOrgId, user.previewModeOrgId)
+          ));
+        
+        if (testStudent?.teamId) {
+          teamId = testStudent.teamId;
+          orgId = user.previewModeOrgId;
+        }
+      }
+      
+      if (!teamId) {
         return res.json(null);
       }
       
       // Get the difficulty level from the simulation associated with this team
       let difficultyLevel: "introductory" | "standard" | "advanced" = "advanced";
-      const memberships = await organizationStorage.getMembershipsByUser(userId);
-      if (memberships && memberships.length > 0) {
-        const orgId = memberships[0].organizationId;
+      
+      // Use the preview org or find from memberships
+      if (!orgId) {
+        const memberships = await organizationStorage.getMembershipsByUser(userId);
+        if (memberships && memberships.length > 0) {
+          orgId = memberships[0].organizationId;
+        }
+      }
+      
+      if (orgId) {
         const simulation = await storage.getSimulationByOrganization(orgId);
         if (simulation?.difficultyLevel) {
           difficultyLevel = simulation.difficultyLevel as "introductory" | "standard" | "advanced";
         }
       }
       
-      const team = await storage.getTeamWithDifficulty(user.teamId, difficultyLevel);
+      const team = await storage.getTeamWithDifficulty(teamId, difficultyLevel);
       res.json(team || null);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch team" });
