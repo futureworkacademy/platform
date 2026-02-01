@@ -482,27 +482,51 @@ export async function startMultiPageStudentTour(
       leaderboard: "Leaderboard"
     };
     
+    const pageRoutes: Record<string, string> = {
+      dashboard: "/",
+      briefing: "/briefing",
+      decisions: "/decisions",
+      analytics: "/analytics",
+      leaderboard: "/leaderboard"
+    };
+    
+    const pageSelectors: Record<string, string> = {
+      dashboard: '[data-testid="dashboard-page"]',
+      briefing: '[data-testid="briefing-page"]',
+      decisions: '[data-testid="decisions-page"]',
+      analytics: '[data-testid="analytics-page"]',
+      leaderboard: '[data-testid="leaderboard-page"]'
+    };
+    
     showLoadingOverlay(`Loading ${pageNames[page] || page}...`);
     
-    switch (page) {
-      case "dashboard":
-        navigate("/");
+    // Navigate to the page
+    navigate(pageRoutes[page]);
+    
+    // Wait for URL to change and page to mount
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Wait for the page element to appear (up to 10 seconds)
+    const selector = pageSelectors[page];
+    let attempts = 0;
+    const maxAttempts = 40; // 40 * 250ms = 10 seconds
+    
+    while (attempts < maxAttempts) {
+      const element = document.querySelector(selector);
+      if (element) {
+        console.log(`Tour: Found ${page} page element after ${attempts * 250}ms`);
         break;
-      case "briefing":
-        navigate("/briefing");
-        break;
-      case "decisions":
-        navigate("/decisions");
-        break;
-      case "analytics":
-        navigate("/analytics");
-        break;
-      case "leaderboard":
-        navigate("/leaderboard");
-        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 250));
+      attempts++;
     }
-    // Wait for page to render
-    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    if (attempts >= maxAttempts) {
+      console.warn(`Tour: ${page} page element not found after 10 seconds`);
+    }
+    
+    // Extra wait for content to load
+    await new Promise(resolve => setTimeout(resolve, 500));
     hideLoadingOverlay();
     return true;
   };
@@ -695,6 +719,7 @@ export async function startMultiPageStudentTour(
               description: "Teams compete for the top spot based on both financial performance and cultural health. This dual-scoring system prevents 'win at all costs' thinking.",
               side: "top",
               align: "center",
+              nextBtnText: "Next →",
             },
           },
           {
@@ -704,23 +729,25 @@ export async function startMultiPageStudentTour(
               description: "The leaderboard fosters engagement while teaching that sustainable success requires balancing multiple stakeholder interests—just like real business.",
               side: "bottom",
               align: "center",
+              nextBtnText: "Next →",
             },
           },
           {
             element: '[data-testid="leaderboard-page"]',
             popover: {
-              title: "Tour Complete",
+              title: "Tour Complete!",
               description: `<div style="text-align:left; line-height:1.6;">
-                <strong>You've seen the student experience:</strong><br><br>
+                <strong>You've completed the student experience tour!</strong><br><br>
                 • Dashboard with dual financial/cultural scoring<br>
                 • Weekly intelligence briefings<br>
                 • Strategic decision-making with AI evaluation<br>
                 • Workforce analytics for informed choices<br>
                 • Competitive leaderboard for engagement<br><br>
-                <strong>Ready to try the Instructor Tour?</strong> Click the "Instructor Tour" button to see admin controls and classroom management features.
+                You're now ready to experience the full simulation. Good luck, executive!
               </div>`,
               side: "top",
               align: "center",
+              nextBtnText: "Finish →",
             },
           },
         ];
@@ -733,51 +760,52 @@ export async function startMultiPageStudentTour(
   const runPageTour = async (page: string): Promise<boolean> => {
     await navigateToPage(page);
     
-    // Extra wait for page elements to render
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for actual content elements to load (not just the page container/skeleton)
+    const contentSelectors: Record<string, string> = {
+      dashboard: '[data-testid="financial-score-card"]',
+      briefing: '[data-testid="card-situation-report"]',
+      decisions: '[data-testid="decisions-page"]',
+      analytics: '[data-testid="avg-sentiment"]',
+      leaderboard: '[data-testid="your-rank"]'
+    };
     
-    try {
-      // Wait for the page container first (including loading state)
-      const pageSelector = page === "dashboard" 
-        ? '[data-testid="dashboard-page"]'
-        : page === "briefing"
-        ? '[data-testid="briefing-page"]'
-        : page === "decisions"
-        ? '[data-testid="decisions-page"]'
-        : page === "analytics"
-        ? '[data-testid="analytics-page"]'
-        : '[data-testid="leaderboard-page"]';
+    const contentSelector = contentSelectors[page];
+    if (contentSelector) {
+      let attempts = 0;
+      const maxAttempts = 30; // 30 * 300ms = 9 seconds
       
-      await waitForElement(pageSelector, 5000);
-      
-      // Then wait for actual content elements (not just skeleton) if there's a specific highlight target
-      const contentSelector = page === "dashboard" 
-        ? '[data-testid="financial-score-card"]'
-        : page === "briefing"
-        ? '[data-testid="card-situation-report"]'
-        : page === "analytics"
-        ? '[data-testid="avg-sentiment"]'
-        : page === "leaderboard"
-        ? '[data-testid="your-rank"]'
-        : null;
-      
-      if (contentSelector) {
-        try {
-          await waitForElement(contentSelector, 8000);
-        } catch {
-          console.warn(`Tour: Content element ${contentSelector} not found, proceeding anyway`);
+      while (attempts < maxAttempts) {
+        const element = document.querySelector(contentSelector);
+        if (element) {
+          console.log(`Tour: Found ${page} content element after ${attempts * 300}ms`);
+          break;
         }
+        await new Promise(resolve => setTimeout(resolve, 300));
+        attempts++;
       }
       
-      // Extra wait to ensure everything is rendered
-      await new Promise(resolve => setTimeout(resolve, 300));
-    } catch (e) {
-      console.warn(`Tour: Could not find element for ${page}`, e);
+      if (attempts >= maxAttempts) {
+        console.warn(`Tour: ${page} content element ${contentSelector} not found, proceeding anyway`);
+      }
     }
+    
+    // Extra wait to ensure everything is rendered
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     return new Promise((resolve) => {
       const steps = getStepsForPage(page);
       const isLastPage = page === "leaderboard";
+      
+      console.log(`Tour: Starting ${page} tour with ${steps.length} steps`);
+      console.log(`Tour: Steps:`, steps.map(s => s.element || 'no-element'));
+      
+      // Check if target elements actually exist
+      steps.forEach((step, i) => {
+        if (step.element) {
+          const el = document.querySelector(step.element as string);
+          console.log(`Tour: Step ${i} element ${step.element} exists:`, !!el);
+        }
+      });
       
       const driverObj = driver({
         showProgress: true,
