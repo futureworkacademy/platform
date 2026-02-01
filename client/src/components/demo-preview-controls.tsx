@@ -75,21 +75,27 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
   });
 
   const handleStartInstructorTour = async () => {
+    const onTourComplete = () => {
+      if (isEvaluator) {
+        showCtaModal();
+      }
+    };
+    
     if (demoOrgId && !location.includes(`org=${demoOrgId}`)) {
       setLocation(`/class-admin?org=${demoOrgId}`);
       // Wait for class admin page to render before starting tour
       try {
         await waitForElement('[data-testid="tab-students"], [data-testid="tab-simulation"]', 5000);
         resetInstructorTourProgress();
-        startInstructorTour();
+        startInstructorTour(onTourComplete, onTourComplete);
       } catch (e) {
         // Page loaded but elements not found - start tour anyway
         resetInstructorTourProgress();
-        startInstructorTour();
+        startInstructorTour(onTourComplete, onTourComplete);
       }
     } else {
       resetInstructorTourProgress();
-      startInstructorTour();
+      startInstructorTour(onTourComplete, onTourComplete);
     }
   };
 
