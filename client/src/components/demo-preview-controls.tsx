@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { X, Eye, PlayCircle, GraduationCap, Users } from "lucide-react";
+import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
 import { startInstructorTour, startDashboardTour, resetInstructorTourProgress, resetStudentTourProgress } from "@/lib/demo-tour";
 
 interface DemoPreviewControlsProps {
@@ -30,6 +30,27 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
     },
   });
 
+  // Enter sandbox mode to start the student tour
+  const enterSandboxMutation = useMutation({
+    mutationFn: async () => {
+      if (!demoOrgId) throw new Error("No demo org available");
+      return apiRequest("POST", `/api/class-admin/organizations/${demoOrgId}/preview-mode/enter`, { startWeek: 1 });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Navigate to dashboard and start tour
+      setLocation("/dashboard");
+      setTimeout(() => {
+        resetStudentTourProgress();
+        startDashboardTour();
+      }, 800);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error starting student tour", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleStartInstructorTour = () => {
     if (demoOrgId && !location.includes(`org=${demoOrgId}`)) {
       setLocation(`/class-admin?org=${demoOrgId}`);
@@ -45,10 +66,12 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
 
   const handleStartStudentTour = () => {
     if (demoOrgId) {
-      setLocation(`/class-admin?org=${demoOrgId}`);
+      enterSandboxMutation.mutate();
+    } else {
       toast({ 
-        title: "Student Preview", 
-        description: "Click 'Student Preview' in the Class Admin console to experience the student view with guided tour." 
+        title: "Demo org not available", 
+        description: "Unable to start student tour - demo organization not found." ,
+        variant: "destructive"
       });
     }
   };
@@ -94,10 +117,15 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
           variant="outline"
           className="h-7 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
           onClick={handleStartStudentTour}
+          disabled={enterSandboxMutation.isPending}
           data-testid="button-student-tour"
         >
-          <Users className="h-3 w-3 mr-1" />
-          Student Tour
+          {enterSandboxMutation.isPending ? (
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+          ) : (
+            <Users className="h-3 w-3 mr-1" />
+          )}
+          {enterSandboxMutation.isPending ? "Loading..." : "Student Tour"}
         </Button>
       </div>
     </div>
