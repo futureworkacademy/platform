@@ -93,6 +93,14 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
                 Click the button above to log in and begin. Make sure to use this email address 
                 (<strong>${data.toEmail}</strong>) when signing in.
               </p>
+              
+              <div style="background-color: #f8fafc; padding: 16px; margin-top: 24px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <p style="color: #475569; margin: 0 0 8px 0; font-weight: 600;">Need Help Getting Started?</p>
+                <p style="color: #64748b; font-size: 14px; margin: 0;">
+                  Check out our <a href="https://futureworkacademy.com/student-guide" style="color: #22c55e; text-decoration: underline;">Student Guide</a> 
+                  for tips on navigating the simulation, understanding how you're scored, and making the most of your experience.
+                </p>
+              </div>
             </div>
             
             <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
@@ -116,6 +124,8 @@ In this simulation, you'll step into the role of an executive at Apex Manufactur
 To get started, visit: ${data.loginUrl}
 
 Make sure to use this email address (${data.toEmail}) when signing in.
+
+Need help? Check out our Student Guide: https://futureworkacademy.com/student-guide
 
 - The Future of Work Team
       `.trim()

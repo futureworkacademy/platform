@@ -12,6 +12,7 @@ import {
   Shield,
   ClipboardCheck,
   PlayCircle,
+  HelpCircle,
 } from "lucide-react";
 import { useDemoTour } from "@/components/demo-tour-provider";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,11 @@ const navigationItems = [
     title: "Leaderboard",
     url: "/leaderboard",
     icon: Trophy,
+  },
+  {
+    title: "Student Guide",
+    url: "/student-guide",
+    icon: HelpCircle,
   },
   {
     title: "About FWA",

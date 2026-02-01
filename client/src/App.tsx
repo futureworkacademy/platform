@@ -30,6 +30,7 @@ import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
 import ContentValidation from "@/pages/content-validation";
+import StudentGuide from "@/pages/student-guide";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -133,6 +134,7 @@ function GameLayout() {
               <Route path="/week-results" component={WeekResults} />
               <Route path="/about" component={About} />
               <Route path="/profile" component={Profile} />
+              <Route path="/student-guide" component={StudentGuide} />
               <Route component={NotFound} />
             </Switch>
           </main>
