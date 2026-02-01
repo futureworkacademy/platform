@@ -412,18 +412,81 @@ export function waitForElement(selector: string, timeout: number = 5000): Promis
   });
 }
 
+// Show loading overlay during page transitions
+function showLoadingOverlay(message: string = "Loading...") {
+  const existing = document.getElementById("fwa-tour-loading");
+  if (existing) existing.remove();
+  
+  const overlay = document.createElement("div");
+  overlay.id = "fwa-tour-loading";
+  overlay.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+    ">
+      <div style="
+        background: white;
+        padding: 24px 32px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      ">
+        <div style="
+          width: 40px;
+          height: 40px;
+          border: 3px solid #e5e7eb;
+          border-top-color: #1e3a5f;
+          border-radius: 50%;
+          margin: 0 auto 12px;
+          animation: fwa-spin 1s linear infinite;
+        "></div>
+        <div style="color: #374151; font-size: 14px; font-weight: 500;">${message}</div>
+      </div>
+    </div>
+    <style>
+      @keyframes fwa-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById("fwa-tour-loading");
+  if (overlay) overlay.remove();
+}
+
 // Multi-page student tour with navigation
 export async function startMultiPageStudentTour(
   navigate: (path: string) => void,
   onComplete?: () => void,
   onSkip?: () => void
 ): Promise<void> {
-  const pages = ["dashboard", "briefing", "decisions", "research", "phone-a-friend"];
+  const pages = ["dashboard", "briefing", "decisions", "analytics", "leaderboard"];
   
   const navigateToPage = async (page: string): Promise<boolean> => {
+    const pageNames: Record<string, string> = {
+      dashboard: "Dashboard",
+      briefing: "Intelligence Briefing",
+      decisions: "Decision Center",
+      analytics: "People Analytics",
+      leaderboard: "Leaderboard"
+    };
+    
+    showLoadingOverlay(`Loading ${pageNames[page] || page}...`);
+    
     switch (page) {
       case "dashboard":
-        navigate("/dashboard");
+        navigate("/");
         break;
       case "briefing":
         navigate("/briefing");
@@ -431,15 +494,16 @@ export async function startMultiPageStudentTour(
       case "decisions":
         navigate("/decisions");
         break;
-      case "research":
-        navigate("/research");
+      case "analytics":
+        navigate("/analytics");
         break;
-      case "phone-a-friend":
-        navigate("/phone-a-friend");
+      case "leaderboard":
+        navigate("/leaderboard");
         break;
     }
     // Wait for page to render
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 800));
+    hideLoadingOverlay();
     return true;
   };
 
@@ -577,58 +641,58 @@ export async function startMultiPageStudentTour(
           },
           {
             popover: {
-              title: "Next: Research Center →",
-              description: "Students can research industry intelligence to inform their decisions. Let's see the intel reports available.",
+              title: "Next: People Analytics →",
+              description: "Let's see the analytics dashboard where students can understand workforce data.",
               side: "top",
               align: "center",
             },
           },
         ];
       
-      case "research":
+      case "analytics":
         return [
           {
-            element: '[data-testid="nav-research"]',
+            element: '[data-testid="nav-people-analytics"]',
             popover: {
-              title: "Research Center",
-              description: "The Research section provides industry intelligence reports, market analysis, and case studies. Reading these optional materials earns bonus points and helps make better-informed decisions.",
+              title: "People Analytics",
+              description: "This dashboard shows workforce data—department headcounts, tenure distribution, and AI exposure risk by role. Students use this data to inform their transformation decisions.",
               side: "right",
               align: "center",
             },
           },
           {
             popover: {
-              title: "Intel Engagement Bonus",
-              description: "Students who engage with research materials demonstrate initiative and thoroughness—qualities valued in executives. The simulation tracks and rewards this engagement.",
+              title: "Data-Driven Decisions",
+              description: "Effective leaders use data to anticipate how changes will affect different parts of the organization. This builds analytical skills essential for modern executives.",
               side: "top",
               align: "center",
             },
           },
           {
             popover: {
-              title: "Next: Expert Advisors →",
-              description: "Finally, let's see the 'Phone-a-Friend' feature—AI advisors students can consult for strategic guidance.",
+              title: "Next: Leaderboard →",
+              description: "Finally, let's see how teams compete on the leaderboard.",
               side: "top",
               align: "center",
             },
           },
         ];
       
-      case "phone-a-friend":
+      case "leaderboard":
         return [
           {
-            element: '[data-testid="nav-phone-a-friend"]',
+            element: '[data-testid="nav-leaderboard"]',
             popover: {
-              title: "Phone-a-Friend Advisors",
-              description: "Stuck on a tough decision? Students can consult 9 specialized AI advisors—from a CEO Coach to an HR Expert to a CFO Strategist. Each offers different perspectives.",
+              title: "Competitive Leaderboard",
+              description: "Teams compete for the top spot based on both financial performance and cultural health. This dual-scoring system prevents 'win at all costs' thinking.",
               side: "right",
               align: "center",
             },
           },
           {
             popover: {
-              title: "Limited Credits, Strategic Use",
-              description: "Students receive 3 advisor consultations per semester. This teaches prioritization—when is expert guidance worth the cost? Just like real executive coaching.",
+              title: "Healthy Competition",
+              description: "The leaderboard fosters engagement while teaching that sustainable success requires balancing multiple stakeholder interests—just like real business.",
               side: "top",
               align: "center",
             },
@@ -641,8 +705,8 @@ export async function startMultiPageStudentTour(
                 • Dashboard with dual financial/cultural scoring<br>
                 • Weekly intelligence briefings<br>
                 • Strategic decision-making with AI evaluation<br>
-                • Research center for informed choices<br>
-                • Expert advisor consultations<br><br>
+                • Workforce analytics for informed choices<br>
+                • Competitive leaderboard for engagement<br><br>
                 <strong>Ready to try the Instructor Tour?</strong> Click the "Instructor Tour" button to see admin controls and classroom management features.
               </div>`,
               side: "top",
@@ -667,9 +731,9 @@ export async function startMultiPageStudentTour(
         ? '[data-testid="briefing-page"]'
         : page === "decisions"
         ? '[data-testid="decisions-page"]'
-        : page === "research"
-        ? '[data-testid="nav-research"]'
-        : '[data-testid="nav-phone-a-friend"]';
+        : page === "analytics"
+        ? '[data-testid="nav-people-analytics"]'
+        : '[data-testid="nav-leaderboard"]';
       
       await waitForElement(waitSelector, 3000);
     } catch (e) {
@@ -678,7 +742,7 @@ export async function startMultiPageStudentTour(
 
     return new Promise((resolve) => {
       const steps = getStepsForPage(page);
-      const isLastPage = page === "phone-a-friend";
+      const isLastPage = page === "leaderboard";
       
       const driverObj = driver({
         showProgress: true,
