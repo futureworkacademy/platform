@@ -30,10 +30,11 @@ import {
   UsersRound,
   Trash2,
   FileText,
-  CheckCircle
+  CheckCircle,
+  Eye
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -651,6 +652,29 @@ export default function SuperAdminPage() {
     },
   });
 
+  const [, setLocation] = useLocation();
+  
+  // Enter demo preview mode mutation
+  const enterDemoPreviewMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/demo/preview/enter", {});
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ 
+        title: "Demo Preview Mode Active", 
+        description: "You are now viewing as an evaluator would. Use the controls at the bottom to exit." 
+      });
+      setLocation("/class-admin");
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to enter demo preview", description: error.message, variant: "destructive" });
+    },
+  });
+
   // Helper to open edit user dialog
   const openEditUserDialog = (person: UnifiedPerson) => {
     setEditingPerson(person);
@@ -720,7 +744,16 @@ export default function SuperAdminPage() {
             </h1>
             <p className="text-muted-foreground">Platform-wide management and organization control</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              variant="default" 
+              onClick={() => enterDemoPreviewMutation.mutate()}
+              disabled={enterDemoPreviewMutation.isPending}
+              data-testid="button-enter-demo-preview"
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              {enterDemoPreviewMutation.isPending ? "Entering..." : "Preview as Evaluator"}
+            </Button>
             <Button variant="outline" onClick={handleRefresh} data-testid="button-refresh">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
