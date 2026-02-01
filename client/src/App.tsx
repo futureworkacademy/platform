@@ -33,8 +33,9 @@ import ContentValidation from "@/pages/content-validation";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
+import { DemoPreviewControls } from "@/components/demo-preview-controls";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, Eye } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
@@ -298,8 +299,11 @@ function AppRouter() {
   // Check if admin is in sandbox mode (previewing student experience)
   const isInSandboxMode = user.inStudentPreview === true;
   
-  // IMPORTANT: If admin is in sandbox mode, allow them to access student pages
-  if (isAdminUser && !isInSandboxMode) {
+  // Check if admin is in demo preview mode (viewing as evaluator would)
+  const isInDemoPreview = user.inDemoPreview === true;
+  
+  // IMPORTANT: If admin is in sandbox mode or demo preview mode, allow them to access other pages
+  if (isAdminUser && !isInSandboxMode && !isInDemoPreview) {
     if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/academia' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
@@ -313,6 +317,15 @@ function AppRouter() {
   return <AuthenticatedApp />;
 }
 
+function DemoPreviewWrapper() {
+  const { user } = useAuth();
+  const inDemoPreview = user?.inDemoPreview === true;
+  
+  if (!inDemoPreview) return null;
+  
+  return <DemoPreviewControls />;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -320,6 +333,7 @@ function App() {
         <TooltipProvider>
           <DemoTourProvider>
             <AppRouter />
+            <DemoPreviewWrapper />
             <GeminiQAWidget />
           </DemoTourProvider>
           <Toaster />
