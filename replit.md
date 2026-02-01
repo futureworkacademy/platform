@@ -26,13 +26,22 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Privacy Mode:** Enables immediate classroom use without SOC 2 compliance. When enabled on an organization: (1) Students enroll anonymously via Replit OIDC - no .edu email verification required; (2) Phone numbers not collected, SMS/email notifications disabled; (3) Students identified by pseudonymous IDs (e.g., `Student_abc12345`); (4) Instructors download offline roster template to map pseudonyms to real students; (5) LLM evaluation receives only written responses, no PII. Compliance roadmap: Privacy Mode (Now) → Institutional Agreements (Q1 2026) → SOC 2 Type II (Q2 2026).
 
+## Recent Updates (February 2026)
+
+**Content Consistency Dashboard:** Super Admin dashboard at `/content-validation` validates all simulation content (briefings, decisions, voicemails, intel articles, advisors) against `docs/canonical.json` as the source of truth. Ensures 17 characters, 8 weeks, and company details are consistent across all content.
+
+**Phone-a-Friend Advisor System:** 9 specialized advisors provide AI-generated strategic guidance (3 credits per semester). Advisors include CEO Coach, HR Expert, CFO Strategist, and more with stakeholder awareness integration.
+
+**Documentation Auto-Sync:** All markdown files in `docs/` folder automatically sync to Google Docs in the "Future Work Academy" folder. Supports 20+ documents including business plan, game design, brand standards, and test checklists.
+
 ## External Dependencies
 
 - **Authentication:** Replit OIDC Auth
 - **Database:** PostgreSQL
 - **SMS Notifications:** Twilio
 - **Email Notifications:** SendGrid
-- **AI/LLM Integration:** OpenAI (GPT-4o-mini for text, gpt-image-1 for image generation)
+- **AI/LLM Integration:** OpenAI (GPT-4o-mini for text, gpt-image-1 for image generation), Gemini (Q&A assistant)
+- **Document Sync:** Google Docs, Google Drive
 - **Analytics:** Google Analytics 4
 - **UI Components:** Shadcn/UI, Radix UI
 - **Charting Library:** Recharts
