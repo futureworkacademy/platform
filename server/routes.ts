@@ -4790,7 +4790,7 @@ Provide your consistency review in JSON format.`;
           currentWeek: week,
           totalWeeks: 8,
           setupComplete: true,
-          researchComplete: false,
+          researchComplete: true, // Skip research phase for demo/preview tours
         });
 
         // Assign test student to team
@@ -4800,11 +4800,11 @@ Provide your consistency review in JSON format.`;
 
         [testTeam] = await db.select().from(teams).where(eq(teams.id, testTeamId));
       } else {
-        // Team exists - update to requested week
+        // Team exists - update to requested week and ensure researchComplete for tours
         await db.update(teams)
-          .set({ currentWeek: week, updatedAt: new Date() })
+          .set({ currentWeek: week, researchComplete: true, updatedAt: new Date() })
           .where(eq(teams.id, testTeam.id));
-        testTeam = { ...testTeam, currentWeek: week };
+        testTeam = { ...testTeam, currentWeek: week, researchComplete: true };
       }
 
       // Also add test student to organization members if not already (check BOTH userId AND orgId)

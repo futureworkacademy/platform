@@ -37,41 +37,18 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
       return apiRequest("POST", `/api/class-admin/organizations/${demoOrgId}/preview-mode/enter`, { startWeek: 1 });
     },
     onSuccess: async () => {
-      // Invalidate all relevant queries for sandbox mode
+      // Invalidate and refetch all relevant queries
       await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/team"] });
-      await queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", demoOrgId, "preview-mode"] });
       
-      // Wait for the queries to refetch - critical for the user to have teamId
-      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
-      await queryClient.refetchQueries({ queryKey: ["/api/team"] });
-      
-      // Give React time to re-render with new user state
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Navigate to dashboard
+      // Navigate to dashboard first
       setLocation("/");
       
-      // Wait for dashboard page to actually render with content
-      let attempts = 0;
-      const maxAttempts = 40; // 10 seconds
-      while (attempts < maxAttempts) {
-        const dashboardPage = document.querySelector('[data-testid="dashboard-page"]');
-        const financialCard = document.querySelector('[data-testid="financial-score-card"]');
-        if (dashboardPage && financialCard) {
-          console.log('Demo tour: Dashboard fully loaded');
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 250));
-        attempts++;
-      }
+      // Wait for page and queries to settle before starting tour
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (attempts >= maxAttempts) {
-        console.warn('Demo tour: Dashboard elements not found, starting tour anyway');
-      }
-      
-      // Reset and start the comprehensive multi-page student tour
+      // Reset and start the multi-page student tour
       resetStudentTourProgress();
       await startMultiPageStudentTour(setLocation);
     },
