@@ -379,3 +379,27 @@
 .driver-popover.fwa-tour-popover .driver-popover-close-btn:hover {
   color: hsl(var(--foreground));
 }
+
+/* Sample question tour step - wider popover */
+.driver-popover.fwa-tour-popover {
+  max-width: 450px;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-description strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-description em {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Dark mode adjustments for sample question backgrounds */
+.dark .driver-popover.fwa-tour-popover .driver-popover-description div[style*="background:#f5f5f5"] {
+  background: hsl(var(--muted)) !important;
+}
+
+.dark .driver-popover.fwa-tour-popover .driver-popover-description div[style*="background:#e8f5e9"] {
+  background: hsl(220 15% 18%) !important;
+}

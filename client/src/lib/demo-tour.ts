@@ -8,6 +8,24 @@ export interface TourConfig {
   storageKey?: string;
 }
 
+// Sample decision question for the tour
+export const SAMPLE_QUESTION = {
+  question: `Given the current workforce anxiety levels (7.2/10) and the potential 15% efficiency gains from AI automation, should Apex Manufacturing proceed with Phase 1 AI implementation on the assembly line?
+
+Consider:
+• Financial impact on quarterly projections
+• Employee morale and retention risks
+• Union relations and communication strategy
+• Competitive pressure from industry peers
+
+Explain your reasoning in 2-3 paragraphs.`,
+  modelAnswer: `I recommend proceeding with Phase 1 implementation, but with a carefully phased approach that prioritizes transparent communication and workforce development.
+
+The 15% efficiency gain is compelling from a financial standpoint and necessary to remain competitive. However, the high anxiety score (7.2/10) signals that rushing implementation could trigger talent flight and union pushback, ultimately costing more than the efficiency gains. I would allocate 20% of projected savings toward a comprehensive retraining program, giving affected workers a path to higher-value roles.
+
+My implementation plan: First, hold town halls with union leadership to preview the changes and gather feedback. Second, identify 10-15 employees for pilot training in AI oversight roles. Third, implement Phase 1 in a single production line while monitoring both efficiency metrics and employee sentiment weekly. This balanced approach demonstrates executive judgment—pursuing innovation while protecting our most valuable asset: our workforce.`
+};
+
 const STUDENT_TOUR_KEY = "fwa_student_tour_completed";
 const INSTRUCTOR_TOUR_KEY = "fwa_instructor_tour_completed";
 
@@ -198,8 +216,15 @@ export const decisionsTourSteps: DriveStep[] = [
 export const instructorTourSteps: DriveStep[] = [
   {
     popover: {
-      title: "Welcome, Instructor!",
-      description: "This is your Instructor Console where you'll manage your simulation. Let's walk through the key features you'll use to run a successful course.",
+      title: "Welcome to Your Instructor Console",
+      description: `<div style="text-align:left; line-height:1.6;">
+        This is your command center for managing the AI workforce transformation simulation.<br><br>
+        <strong>What you'll learn:</strong><br>
+        • Student enrollment & team management<br>
+        • Simulation pacing controls<br>
+        • AI-graded submission review<br>
+        • Performance analytics dashboard
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -208,7 +233,13 @@ export const instructorTourSteps: DriveStep[] = [
     element: '[data-testid="tab-students"]',
     popover: {
       title: "Student Management",
-      description: "View and manage all enrolled students. You can add students individually, import via CSV, or have them self-enroll using your class code.",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>Three enrollment options:</strong><br><br>
+        1. <em>Self-Enrollment:</em> Share your class code—students register themselves<br>
+        2. <em>Individual Add:</em> Manually add students with .edu email verification<br>
+        3. <em>CSV Import:</em> Bulk import entire rosters with one file<br><br>
+        Students receive SMS/email notifications when the simulation starts.
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -217,7 +248,13 @@ export const instructorTourSteps: DriveStep[] = [
     element: '[data-testid="tab-teams"]',
     popover: {
       title: "Team Organization",
-      description: "Organize students into teams. Teams compete against each other, fostering collaboration and healthy competition.",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>Teams drive competition and collaboration:</strong><br><br>
+        • Assign 3-5 students per team for optimal dynamics<br>
+        • Each team shares decisions and scores together<br>
+        • Leaderboard rankings foster healthy competition<br>
+        • Teams can be auto-generated or manually assigned
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -225,8 +262,14 @@ export const instructorTourSteps: DriveStep[] = [
   {
     element: '[data-testid="tab-simulation"]',
     popover: {
-      title: "Simulation Control",
-      description: "Start, pause, and advance the simulation week by week. You control the pace to align with your course schedule.",
+      title: "Simulation Control Center",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>You control the pace:</strong><br><br>
+        • <em>Start Simulation:</em> Launch Week 1 for all teams<br>
+        • <em>Advance Week:</em> Move to the next week when ready<br>
+        • <em>Pause/Resume:</em> Halt progress during holidays or exam periods<br><br>
+        The 8-week simulation aligns with a typical semester—advance weekly or at your own pace.
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -234,8 +277,14 @@ export const instructorTourSteps: DriveStep[] = [
   {
     element: '[data-testid="tab-submissions"]',
     popover: {
-      title: "Review Submissions",
-      description: "View student decisions and AI-graded responses. Each submission shows reasoning quality scores and detailed feedback.",
+      title: "AI-Graded Submissions",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>Every decision is evaluated by AI:</strong><br><br>
+        • <em>Reasoning Quality:</em> Scored 1-10 for analytical depth<br>
+        • <em>Stakeholder Awareness:</em> Did they consider all perspectives?<br>
+        • <em>Strategic Thinking:</em> Short-term vs long-term balance<br><br>
+        You can override AI scores and add personalized feedback.
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -244,7 +293,14 @@ export const instructorTourSteps: DriveStep[] = [
     element: '[data-testid="tab-analytics"]',
     popover: {
       title: "Performance Analytics",
-      description: "Track class-wide performance with charts and metrics. Identify trends and areas where students may need guidance.",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>Track class-wide patterns:</strong><br><br>
+        • Team rankings by financial & cultural scores<br>
+        • Week-over-week performance trends<br>
+        • Common decision patterns across teams<br>
+        • Engagement metrics (briefing reads, research views)<br><br>
+        Use insights to guide classroom discussions.
+      </div>`,
       side: "bottom",
       align: "center",
     },
@@ -252,16 +308,30 @@ export const instructorTourSteps: DriveStep[] = [
   {
     element: '[data-testid="button-student-preview"]',
     popover: {
-      title: "Student Preview Mode",
-      description: "Experience the simulation exactly as your students see it. This creates a test student account so you can walk through briefings and decisions.",
+      title: "Experience It Yourself",
+      description: `<div style="text-align:left; line-height:1.5;">
+        <strong>Student Preview Mode:</strong><br><br>
+        Enter a sandbox environment to experience the simulation exactly as your students will see it:<br><br>
+        • Read the intelligence briefings<br>
+        • Make strategic decisions<br>
+        • Consult AI advisors<br><br>
+        Perfect for preparing discussion questions or troubleshooting issues.
+      </div>`,
       side: "left",
       align: "center",
     },
   },
   {
     popover: {
-      title: "Ready to Run Your Simulation!",
-      description: "You now have the tools to manage a successful simulation. Add students, organize teams, and when ready, start the simulation. Students will receive their first intelligence briefing immediately.",
+      title: "You're Ready to Launch",
+      description: `<div style="text-align:left; line-height:1.6;">
+        <strong>Quick-start checklist:</strong><br><br>
+        • Enroll students (share class code or import CSV)<br>
+        • Organize into teams of 3-5<br>
+        • Preview the student experience<br>
+        • Start the simulation when ready<br><br>
+        <strong>Need help?</strong> Click the "Ask Gemini" button (bottom right) for instant platform assistance.
+      </div>`,
       side: "top",
       align: "center",
     },
@@ -340,4 +410,309 @@ export function waitForElement(selector: string, timeout: number = 5000): Promis
     
     requestAnimationFrame(checkElement);
   });
+}
+
+// Multi-page student tour with navigation
+export async function startMultiPageStudentTour(
+  navigate: (path: string) => void,
+  onComplete?: () => void,
+  onSkip?: () => void
+): Promise<void> {
+  const pages = ["dashboard", "briefing", "decisions", "research", "phone-a-friend"];
+  
+  const navigateToPage = async (page: string): Promise<boolean> => {
+    switch (page) {
+      case "dashboard":
+        navigate("/dashboard");
+        break;
+      case "briefing":
+        navigate("/briefing");
+        break;
+      case "decisions":
+        navigate("/decisions");
+        break;
+      case "research":
+        navigate("/research");
+        break;
+      case "phone-a-friend":
+        navigate("/phone-a-friend");
+        break;
+    }
+    // Wait for page to render
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return true;
+  };
+
+  const getStepsForPage = (page: string): DriveStep[] => {
+    switch (page) {
+      case "dashboard":
+        return [
+          {
+            popover: {
+              title: "Welcome to Future Work Academy",
+              description: "You're about to step into the shoes of a CEO navigating AI transformation at Apex Manufacturing. This interactive tour will show you the key features of the simulation.",
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            element: '[data-testid="financial-score"]',
+            popover: {
+              title: "Financial Performance",
+              description: "This tracks your company's financial health. Every strategic decision you make—from AI investments to workforce restructuring—directly impacts these numbers. Your goal: grow revenue while managing costs wisely.",
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            element: '[data-testid="cultural-score"]',
+            popover: {
+              title: "Cultural Health Score",
+              description: "AI adoption affects your workforce. This score measures employee morale, trust, and organizational culture. Push too hard and you'll face resistance; move too slowly and competitors will overtake you.",
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            element: '[data-testid="combined-score"]',
+            popover: {
+              title: "Your Leadership Score",
+              description: "This combined metric reflects true executive leadership—balancing short-term financial gains with long-term cultural sustainability. Top performers excel at both.",
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Next: Intelligence Briefing →",
+              description: "Let's see what you'll read each week to inform your decisions. Click 'Next' to continue to the Briefing page.",
+              side: "top",
+              align: "center",
+            },
+          },
+        ];
+      
+      case "briefing":
+        return [
+          {
+            element: '[data-testid="briefing-page"]',
+            popover: {
+              title: "Weekly Intelligence Briefing",
+              description: "Each week, you receive a detailed briefing with critical information about what's happening at Apex Manufacturing. This is your foundation for making informed decisions.",
+              side: "top",
+              align: "center",
+            },
+          },
+          {
+            element: '[data-testid="card-situation-report"]',
+            popover: {
+              title: "Situation Report (SITREP)",
+              description: "The SITREP provides context: What happened this week? What's the current state of operations? What external pressures are you facing? Read this carefully—the details matter.",
+              side: "right",
+              align: "start",
+            },
+          },
+          {
+            element: '[data-testid="card-stakeholder-pressures"]',
+            popover: {
+              title: "Stakeholder Pressures",
+              description: "Different stakeholders have competing interests: the board wants profits, employees want job security, unions demand transparency, customers expect quality. Understanding these tensions is key to effective leadership.",
+              side: "right",
+              align: "start",
+            },
+          },
+          {
+            popover: {
+              title: "Next: Decision Center →",
+              description: "Now let's see where you'll make your strategic choices—and preview a real simulation question. Click 'Next' to continue.",
+              side: "top",
+              align: "center",
+            },
+          },
+        ];
+      
+      case "decisions":
+        return [
+          {
+            element: '[data-testid="decisions-page"]',
+            popover: {
+              title: "Strategic Decision Center",
+              description: "This is where the real work happens. Each week presents multiple decisions requiring careful analysis and clear reasoning.",
+              side: "top",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Sample Question Preview",
+              description: `<div style="text-align:left; font-size:13px; line-height:1.5;">
+                <strong>Here's a real example of what students will answer:</strong><br><br>
+                <div style="background:#f5f5f5; padding:12px; border-radius:6px; margin-bottom:12px; border-left:3px solid #1e3a5f;">
+                  <em>"Given workforce anxiety levels (7.2/10) and potential 15% efficiency gains from AI automation, should Apex proceed with Phase 1 AI implementation on the assembly line?<br><br>
+                  Consider: financial impact, employee morale risks, union relations, and competitive pressure.<br><br>
+                  Explain your reasoning in 2-3 paragraphs."</em>
+                </div>
+                Questions require strategic thinking, not just picking an option. The AI evaluates reasoning quality and executive judgment.
+              </div>`,
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Model Answer Example",
+              description: `<div style="text-align:left; font-size:12px; line-height:1.5; max-height:280px; overflow-y:auto;">
+                <strong>A high-scoring response demonstrates:</strong><br><br>
+                <div style="background:#e8f5e9; padding:12px; border-radius:6px; border-left:3px solid #22c55e;">
+                  <em>"I recommend proceeding with Phase 1, but with a carefully phased approach prioritizing transparent communication and workforce development.<br><br>
+                  The 15% efficiency gain is compelling financially and necessary to remain competitive. However, the high anxiety score signals that rushing could trigger talent flight and union pushback. I would allocate 20% of projected savings toward retraining programs.<br><br>
+                  My plan: (1) Hold town halls with union leadership; (2) Identify employees for AI oversight training; (3) Pilot in one production line while monitoring efficiency and sentiment weekly."</em>
+                </div>
+                <br>
+                <strong>Key elements:</strong> Balanced reasoning, concrete action steps, stakeholder awareness, risk mitigation.
+              </div>`,
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Next: Research Center →",
+              description: "Students can research industry intelligence to inform their decisions. Let's see the intel reports available.",
+              side: "top",
+              align: "center",
+            },
+          },
+        ];
+      
+      case "research":
+        return [
+          {
+            element: '[data-testid="nav-research"]',
+            popover: {
+              title: "Research Center",
+              description: "The Research section provides industry intelligence reports, market analysis, and case studies. Reading these optional materials earns bonus points and helps make better-informed decisions.",
+              side: "right",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Intel Engagement Bonus",
+              description: "Students who engage with research materials demonstrate initiative and thoroughness—qualities valued in executives. The simulation tracks and rewards this engagement.",
+              side: "top",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Next: Expert Advisors →",
+              description: "Finally, let's see the 'Phone-a-Friend' feature—AI advisors students can consult for strategic guidance.",
+              side: "top",
+              align: "center",
+            },
+          },
+        ];
+      
+      case "phone-a-friend":
+        return [
+          {
+            element: '[data-testid="nav-phone-a-friend"]',
+            popover: {
+              title: "Phone-a-Friend Advisors",
+              description: "Stuck on a tough decision? Students can consult 9 specialized AI advisors—from a CEO Coach to an HR Expert to a CFO Strategist. Each offers different perspectives.",
+              side: "right",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Limited Credits, Strategic Use",
+              description: "Students receive 3 advisor consultations per semester. This teaches prioritization—when is expert guidance worth the cost? Just like real executive coaching.",
+              side: "top",
+              align: "center",
+            },
+          },
+          {
+            popover: {
+              title: "Tour Complete",
+              description: `<div style="text-align:left; line-height:1.6;">
+                <strong>You've seen the student experience:</strong><br><br>
+                • Dashboard with dual financial/cultural scoring<br>
+                • Weekly intelligence briefings<br>
+                • Strategic decision-making with AI evaluation<br>
+                • Research center for informed choices<br>
+                • Expert advisor consultations<br><br>
+                <strong>Ready to try the Instructor Tour?</strong> Click the "Instructor Tour" button to see admin controls and classroom management features.
+              </div>`,
+              side: "top",
+              align: "center",
+            },
+          },
+        ];
+      
+      default:
+        return [];
+    }
+  };
+
+  const runPageTour = async (page: string): Promise<boolean> => {
+    await navigateToPage(page);
+    
+    // Extra wait for page elements to render
+    try {
+      const waitSelector = page === "dashboard" 
+        ? '[data-testid="financial-score"]'
+        : page === "briefing"
+        ? '[data-testid="briefing-page"]'
+        : page === "decisions"
+        ? '[data-testid="decisions-page"]'
+        : page === "research"
+        ? '[data-testid="nav-research"]'
+        : '[data-testid="nav-phone-a-friend"]';
+      
+      await waitForElement(waitSelector, 3000);
+    } catch (e) {
+      // Continue anyway
+    }
+
+    return new Promise((resolve) => {
+      const steps = getStepsForPage(page);
+      const isLastPage = page === "phone-a-friend";
+      
+      const driverObj = driver({
+        showProgress: true,
+        showButtons: ["next", "previous", "close"],
+        steps: steps,
+        nextBtnText: isLastPage ? "Finish →" : "Next →",
+        prevBtnText: "← Back",
+        doneBtnText: "Got it!",
+        progressText: `${page.charAt(0).toUpperCase() + page.slice(1).replace("-", " ")} • {{current}} of {{total}}`,
+        popoverClass: "fwa-tour-popover",
+        allowClose: true,
+        onDestroyStarted: () => {
+          driverObj.destroy();
+          if (isLastPage) {
+            markStudentTourCompleted();
+            onComplete?.();
+          }
+          resolve(true);
+        },
+        onCloseClick: () => {
+          driverObj.destroy();
+          markStudentTourCompleted();
+          onSkip?.();
+          resolve(false);
+        },
+      });
+      
+      driverObj.drive();
+    });
+  };
+
+  // Run through each page
+  for (const page of pages) {
+    const shouldContinue = await runPageTour(page);
+    if (!shouldContinue) break;
+  }
 }

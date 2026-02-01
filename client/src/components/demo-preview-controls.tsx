@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
-import { startInstructorTour, startDashboardTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
+import { startInstructorTour, startMultiPageStudentTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
 
 interface DemoPreviewControlsProps {
   demoOrgId?: string | null;
@@ -43,19 +43,19 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/team"] });
       queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", demoOrgId, "preview-mode"] });
       
-      // Navigate to dashboard
+      // Navigate to dashboard first
       setLocation("/dashboard");
       
-      // Wait for dashboard to render before starting tour
+      // Wait for dashboard to render before starting multi-page tour
       try {
         await waitForElement('[data-testid="financial-score"], [data-testid="button-start-week"]', 5000);
-        resetStudentTourProgress();
-        startDashboardTour();
       } catch (e) {
-        // Dashboard loaded but elements not found - start tour anyway
-        resetStudentTourProgress();
-        startDashboardTour();
+        // Continue anyway
       }
+      
+      // Reset and start the comprehensive multi-page student tour
+      resetStudentTourProgress();
+      await startMultiPageStudentTour(setLocation);
     },
     onError: (error: any) => {
       toast({ title: "Error starting student tour", description: error.message, variant: "destructive" });

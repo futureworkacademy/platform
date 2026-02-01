@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { hasTourBeenCompleted, resetTourProgress, startDashboardTour } from "@/lib/demo-tour";
+import { useLocation } from "wouter";
+import { hasTourBeenCompleted, resetTourProgress, startMultiPageStudentTour } from "@/lib/demo-tour";
 
 interface DemoTourContextType {
   isDemoUser: boolean;
@@ -38,6 +39,7 @@ interface UserData {
 export function DemoTourProvider({ children }: DemoTourProviderProps) {
   const [isTourActive, setIsTourActive] = useState(false);
   const [hasCompletedTour, setHasCompletedTour] = useState(hasTourBeenCompleted());
+  const [, setLocation] = useLocation();
 
   const { data: user } = useQuery<UserData>({
     queryKey: ["/api/auth/user"],
@@ -55,9 +57,10 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     }
   }, [isDemoUser, hasCompletedTour, isTourActive]);
 
-  const startTour = () => {
+  const startTour = async () => {
     setIsTourActive(true);
-    startDashboardTour(
+    await startMultiPageStudentTour(
+      setLocation,
       () => {
         setIsTourActive(false);
         setHasCompletedTour(true);
