@@ -321,7 +321,8 @@ function DemoPreviewWrapper() {
   const { user } = useAuth();
   const inDemoPreview = user?.inDemoPreview === true;
   const demoOrgId = user?.demoPreviewOrgId;
-  const isEvaluator = user?.demoAccess === "evaluator";
+  // Show CTA for both real evaluators AND super admins previewing the evaluator experience
+  const isEvaluator = user?.demoAccess === "evaluator" || inDemoPreview;
   
   if (!inDemoPreview) return null;
   
