@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
-import { startInstructorTour, startDashboardTour, resetInstructorTourProgress, resetStudentTourProgress } from "@/lib/demo-tour";
+import { startInstructorTour, startDashboardTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
 
 interface DemoPreviewControlsProps {
   demoOrgId?: string | null;
@@ -36,28 +36,45 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
       if (!demoOrgId) throw new Error("No demo org available");
       return apiRequest("POST", `/api/class-admin/organizations/${demoOrgId}/preview-mode/enter`, { startWeek: 1 });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidate all relevant queries for sandbox mode
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Navigate to dashboard and start tour
+      queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", demoOrgId, "preview-mode"] });
+      
+      // Navigate to dashboard
       setLocation("/dashboard");
-      setTimeout(() => {
+      
+      // Wait for dashboard to render before starting tour
+      try {
+        await waitForElement('[data-testid="financial-score"], [data-testid="button-start-week"]', 5000);
         resetStudentTourProgress();
         startDashboardTour();
-      }, 800);
+      } catch (e) {
+        // Dashboard loaded but elements not found - start tour anyway
+        resetStudentTourProgress();
+        startDashboardTour();
+      }
     },
     onError: (error: any) => {
       toast({ title: "Error starting student tour", description: error.message, variant: "destructive" });
     },
   });
 
-  const handleStartInstructorTour = () => {
+  const handleStartInstructorTour = async () => {
     if (demoOrgId && !location.includes(`org=${demoOrgId}`)) {
       setLocation(`/class-admin?org=${demoOrgId}`);
-      setTimeout(() => {
+      // Wait for class admin page to render before starting tour
+      try {
+        await waitForElement('[data-testid="tab-students"], [data-testid="tab-simulation"]', 5000);
         resetInstructorTourProgress();
         startInstructorTour();
-      }, 500);
+      } catch (e) {
+        // Page loaded but elements not found - start tour anyway
+        resetInstructorTourProgress();
+        startInstructorTour();
+      }
     } else {
       resetInstructorTourProgress();
       startInstructorTour();
@@ -90,7 +107,6 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
         <Button 
           size="sm" 
           variant="secondary"
-          className="h-6 text-xs px-2"
           onClick={() => exitMutation.mutate()}
           disabled={exitMutation.isPending}
           data-testid="button-exit-demo-preview"
@@ -103,8 +119,7 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
       <div className="flex items-center gap-2">
         <Button 
           size="sm" 
-          variant="outline"
-          className="h-7 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
+          variant="secondary"
           onClick={handleStartInstructorTour}
           data-testid="button-instructor-tour"
         >
@@ -114,8 +129,7 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
         
         <Button 
           size="sm" 
-          variant="outline"
-          className="h-7 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
+          variant="secondary"
           onClick={handleStartStudentTour}
           disabled={enterSandboxMutation.isPending}
           data-testid="button-student-tour"

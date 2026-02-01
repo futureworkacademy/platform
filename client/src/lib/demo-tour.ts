@@ -318,3 +318,26 @@ export function startInstructorTour(onComplete?: () => void, onSkip?: () => void
   driverObj.drive();
   return driverObj;
 }
+
+export function waitForElement(selector: string, timeout: number = 5000): Promise<Element> {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+    
+    const checkElement = () => {
+      const element = document.querySelector(selector);
+      if (element) {
+        resolve(element);
+        return;
+      }
+      
+      if (Date.now() - startTime >= timeout) {
+        reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+        return;
+      }
+      
+      requestAnimationFrame(checkElement);
+    };
+    
+    requestAnimationFrame(checkElement);
+  });
+}
