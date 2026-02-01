@@ -322,22 +322,370 @@ Last synced: {SYNC_TIME}
 
 `;
 
-export async function syncMarkdownToGoogleDoc(title: string, markdownContent: string): Promise<DocumentInfo> {
+interface ParsedElement {
+  type: 'title' | 'subtitle' | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'paragraph' | 'bullet' | 'numbered' | 'separator' | 'table_row' | 'code_block';
+  text: string;
+  level?: number;
+}
+
+function parseMarkdownToElements(markdown: string): ParsedElement[] {
+  const elements: ParsedElement[] = [];
+  const lines = markdown.split('\n');
+  let inCodeBlock = false;
+  let codeBlockContent = '';
+  let isFirstHeading = true;
+  let hasSeenSubtitle = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Handle code blocks
+    if (line.startsWith('```')) {
+      if (inCodeBlock) {
+        elements.push({ type: 'code_block', text: codeBlockContent.trim() });
+        codeBlockContent = '';
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+      }
+      continue;
+    }
+    
+    if (inCodeBlock) {
+      codeBlockContent += line + '\n';
+      continue;
+    }
+    
+    // Horizontal rule / separator
+    if (/^[-*_]{3,}\s*$/.test(line)) {
+      elements.push({ type: 'separator', text: '' });
+      continue;
+    }
+    
+    // Headings
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      let text = headingMatch[2]
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .trim();
+      
+      if (level === 1 && isFirstHeading) {
+        elements.push({ type: 'title', text });
+        isFirstHeading = false;
+      } else if (level === 1) {
+        elements.push({ type: 'heading1', text, level: 1 });
+      } else if (level === 2) {
+        // Check if this is a subtitle (italic text right after title)
+        if (!hasSeenSubtitle && elements.length > 0 && elements[elements.length - 1].type === 'title') {
+          elements.push({ type: 'subtitle', text });
+          hasSeenSubtitle = true;
+        } else {
+          elements.push({ type: 'heading2', text, level: 2 });
+        }
+      } else if (level === 3) {
+        elements.push({ type: 'heading3', text, level: 3 });
+      } else {
+        elements.push({ type: 'heading4', text, level: 4 });
+      }
+      continue;
+    }
+    
+    // Check for italic subtitle line (e.g., *Everything you need...*)
+    if (!hasSeenSubtitle && /^\*[^*]+\*$/.test(line.trim()) && elements.length > 0 && elements[elements.length - 1].type === 'title') {
+      const text = line.trim().replace(/^\*|\*$/g, '');
+      elements.push({ type: 'subtitle', text });
+      hasSeenSubtitle = true;
+      continue;
+    }
+    
+    // Table rows
+    if (line.includes('|') && line.trim().startsWith('|')) {
+      // Skip separator rows (|---|---|)
+      if (/^\|[-:\s|]+\|$/.test(line.trim())) {
+        continue;
+      }
+      const cells = line.split('|').filter(c => c.trim()).map(c => c.trim());
+      if (cells.length > 0) {
+        elements.push({ type: 'table_row', text: cells.join('\t') });
+      }
+      continue;
+    }
+    
+    // Numbered lists
+    const numberedMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
+    if (numberedMatch) {
+      let text = numberedMatch[2]
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      elements.push({ type: 'numbered', text, level: Math.floor((line.match(/^\s*/)?.[0].length || 0) / 2) });
+      continue;
+    }
+    
+    // Bullet points
+    const bulletMatch = line.match(/^\s*[-*]\s+(.+)$/);
+    if (bulletMatch) {
+      let text = bulletMatch[1]
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      // Check for checkbox syntax
+      text = text.replace(/^\[[ x]\]\s*/, '');
+      elements.push({ type: 'bullet', text, level: Math.floor((line.match(/^\s*/)?.[0].length || 0) / 2) });
+      continue;
+    }
+    
+    // Empty lines - skip
+    if (!line.trim()) {
+      continue;
+    }
+    
+    // Regular paragraph
+    let text = line
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .trim();
+    
+    if (text) {
+      elements.push({ type: 'paragraph', text });
+    }
+  }
+  
+  return elements;
+}
+
+function buildTableOfContents(elements: ParsedElement[]): string {
+  const tocLines: string[] = [
+    '────────────────────────────────────────',
+    '',
+    'TABLE OF CONTENTS',
+    ''
+  ];
+  
+  for (const element of elements) {
+    if (element.type === 'heading1') {
+      tocLines.push('▸ ' + element.text);
+    } else if (element.type === 'heading2') {
+      tocLines.push('    ▹ ' + element.text);
+    } else if (element.type === 'heading3') {
+      tocLines.push('        ◦ ' + element.text);
+    }
+  }
+  
+  tocLines.push('', '────────────────────────────────────────', '', '');
+  return tocLines.join('\n');
+}
+
+async function applyFormattingWithTOC(documentId: string, elements: ParsedElement[], includeTableOfContents: boolean): Promise<void> {
+  const docs = await getUncachableGoogleDocsClient();
+  
+  // Build the document content with proper structure
+  let fullText = '';
+  const styleRanges: Array<{
+    startIndex: number;
+    endIndex: number;
+    style: string;
+  }> = [];
+  
+  let currentIndex = 1; // Google Docs indices start at 1
+  
+  // First, add title and subtitle
+  let titleSubtitleEndIndex = 1;
+  const titleSubtitleElements = elements.filter(e => e.type === 'title' || e.type === 'subtitle');
+  const contentElements = elements.filter(e => e.type !== 'title' && e.type !== 'subtitle');
+  
+  // Add title/subtitle first
+  for (const element of titleSubtitleElements) {
+    const startIndex = currentIndex;
+    let text = element.text + '\n\n';
+    fullText += text;
+    
+    if (element.type === 'title') {
+      styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'TITLE' });
+    } else if (element.type === 'subtitle') {
+      styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'SUBTITLE' });
+    }
+    
+    currentIndex = startIndex + text.length;
+    titleSubtitleEndIndex = currentIndex;
+  }
+  
+  // Add table of contents if requested
+  if (includeTableOfContents && contentElements.some(e => e.type.startsWith('heading'))) {
+    const tocText = buildTableOfContents(contentElements);
+    const tocStartIndex = currentIndex;
+    fullText += tocText;
+    currentIndex += tocText.length;
+    
+    // Style the TOC header
+    styleRanges.push({ 
+      startIndex: tocStartIndex, 
+      endIndex: tocStartIndex + 'TABLE OF CONTENTS'.length, 
+      style: 'HEADING_1' 
+    });
+  }
+  
+  // Add remaining content
+  for (const element of contentElements) {
+    const startIndex = currentIndex;
+    let text = element.text;
+    
+    switch (element.type) {
+      case 'heading1':
+        text += '\n';
+        fullText += text;
+        styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'HEADING_1' });
+        break;
+        
+      case 'heading2':
+        text += '\n';
+        fullText += text;
+        styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'HEADING_2' });
+        break;
+        
+      case 'heading3':
+        text += '\n';
+        fullText += text;
+        styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'HEADING_3' });
+        break;
+        
+      case 'heading4':
+        text += '\n';
+        fullText += text;
+        styleRanges.push({ startIndex, endIndex: startIndex + element.text.length, style: 'HEADING_4' });
+        break;
+        
+      case 'separator':
+        text = '────────────────────────────────────────\n';
+        fullText += text;
+        break;
+        
+      case 'bullet':
+        text = '• ' + element.text + '\n';
+        fullText += text;
+        break;
+        
+      case 'numbered':
+        text = element.text + '\n';
+        fullText += text;
+        break;
+        
+      case 'table_row':
+        text += '\n';
+        fullText += text;
+        break;
+        
+      case 'code_block':
+        text = element.text + '\n\n';
+        fullText += text;
+        break;
+        
+      case 'paragraph':
+      default:
+        text += '\n';
+        fullText += text;
+        break;
+    }
+    
+    currentIndex = startIndex + text.length;
+  }
+  
+  // Clear the document first
+  const doc = await docs.documents.get({ documentId });
+  const endIndex = doc.data.body?.content?.slice(-1)[0]?.endIndex || 1;
+  
+  const requests: any[] = [];
+  
+  if (endIndex > 2) {
+    requests.push({
+      deleteContentRange: {
+        range: {
+          startIndex: 1,
+          endIndex: endIndex - 1
+        }
+      }
+    });
+  }
+  
+  // Insert the full text
+  requests.push({
+    insertText: {
+      location: { index: 1 },
+      text: fullText
+    }
+  });
+  
+  // Apply styles to headings
+  for (const range of styleRanges) {
+    requests.push({
+      updateParagraphStyle: {
+        range: {
+          startIndex: range.startIndex,
+          endIndex: range.endIndex
+        },
+        paragraphStyle: {
+          namedStyleType: range.style
+        },
+        fields: 'namedStyleType'
+      }
+    });
+    
+    // Center title and subtitle
+    if (range.style === 'TITLE' || range.style === 'SUBTITLE') {
+      requests.push({
+        updateParagraphStyle: {
+          range: {
+            startIndex: range.startIndex,
+            endIndex: range.endIndex
+          },
+          paragraphStyle: {
+            alignment: 'CENTER'
+          },
+          fields: 'alignment'
+        }
+      });
+    }
+  }
+  
+  // Execute the batch update
+  await docs.documents.batchUpdate({
+    documentId,
+    requestBody: { requests }
+  });
+  
+}
+
+export async function syncMarkdownToGoogleDoc(title: string, markdownContent: string, options?: { formatted?: boolean }): Promise<DocumentInfo> {
   const docInfo = await findOrCreateDocument(title);
   
-  // Check if content has Mermaid diagrams
+  // Check if we should use formatted sync (with headings, TOC, etc.)
+  const useFormatted = options?.formatted ?? false;
+  
+  if (useFormatted) {
+    const elements = parseMarkdownToElements(markdownContent);
+    const includeTableOfContents = true; // Always include TOC for formatted docs
+    await applyFormattingWithTOC(docInfo.documentId, elements, includeTableOfContents);
+    console.log(`[Google Docs] Synced with formatting: ${title} (${docInfo.documentId})`);
+    return docInfo;
+  }
+  
+  // Original plain-text sync logic
   const hasMermaid = markdownContent.includes('```mermaid');
   
-  // Convert markdown to plain text but KEEP code blocks for Mermaid
   let plainText = markdownContent
-    .replace(/^#{1,6}\s+/gm, (match) => match.toUpperCase()) // Keep headings but uppercase
-    .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
-    .replace(/\*([^*]+)\*/g, '$1') // Remove italics
-    .replace(/`([^`]+)`/g, '$1') // Remove inline code
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links but keep text
-    .replace(/^\s*[-*]\s+/gm, '• '); // Convert bullets
+    .replace(/^#{1,6}\s+/gm, (match) => match.toUpperCase())
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '• ');
   
-  // Add Mermaid note at top if diagrams present
   if (hasMermaid) {
     const syncTime = new Date().toLocaleString('en-US', { 
       dateStyle: 'medium', 
@@ -351,6 +699,10 @@ export async function syncMarkdownToGoogleDoc(title: string, markdownContent: st
   
   console.log(`[Google Docs] Synced: ${title} (${docInfo.documentId})`);
   return docInfo;
+}
+
+export async function syncFormattedDocument(title: string, markdownContent: string): Promise<DocumentInfo> {
+  return syncMarkdownToGoogleDoc(title, markdownContent, { formatted: true });
 }
 
 // List all documents in the Future Work Academy folder with metadata
@@ -510,6 +862,7 @@ export const googleDocsService = {
   findOrCreateDocument,
   findOrCreateFolder,
   syncMarkdownToGoogleDoc,
+  syncFormattedDocument,
   listFolderDocuments,
   findDuplicateDocuments,
   findSimilarDocuments,

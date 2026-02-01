@@ -4,7 +4,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { syncMarkdownToGoogleDoc, findOrCreateFolder } from './google-docs-service';
+import { syncMarkdownToGoogleDoc, syncFormattedDocument, findOrCreateFolder } from './google-docs-service';
+
+// Documents that should be synced with full formatting (headings, TOC, etc.)
+const FORMATTED_DOCS = ['STUDENT_GUIDE', 'GAME_DESIGN', 'BUSINESS_PLAN'];
 
 // Debounce timers for each file
 const debounceTimers: Map<string, NodeJS.Timeout> = new Map();
@@ -65,7 +68,18 @@ async function syncDocumentByPath(filePath: string, title: string): Promise<{ su
     }
 
     const content = fs.readFileSync(fullPath, 'utf-8');
-    await syncMarkdownToGoogleDoc(title, content);
+    
+    // Check if this document should use formatted sync
+    const filename = path.basename(filePath, '.md');
+    const useFormatted = FORMATTED_DOCS.some(doc => 
+      doc.toLowerCase() === filename.toLowerCase()
+    );
+    
+    if (useFormatted) {
+      await syncFormattedDocument(title, content);
+    } else {
+      await syncMarkdownToGoogleDoc(title, content);
+    }
     
     return { success: true, title };
   } catch (error: any) {
