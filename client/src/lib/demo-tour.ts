@@ -520,7 +520,7 @@ export async function startMultiPageStudentTour(
             },
           },
           {
-            element: '[data-testid="financial-score"]',
+            element: '[data-testid="financial-score-card"]',
             popover: {
               title: "Financial Performance",
               description: "This tracks your company's financial health. Every strategic decision you make—from AI investments to workforce restructuring—directly impacts these numbers. Your goal: grow revenue while managing costs wisely.",
@@ -529,7 +529,7 @@ export async function startMultiPageStudentTour(
             },
           },
           {
-            element: '[data-testid="cultural-score"]',
+            element: '[data-testid="cultural-score-card"]',
             popover: {
               title: "Cultural Health Score",
               description: "AI adoption affects your workforce. This score measures employee morale, trust, and organizational culture. Push too hard and you'll face resistance; move too slowly and competitors will overtake you.",
@@ -538,7 +538,7 @@ export async function startMultiPageStudentTour(
             },
           },
           {
-            element: '[data-testid="combined-score"]',
+            element: '[data-testid="combined-score-card"]',
             popover: {
               title: "Your Leadership Score",
               description: "This combined metric reflects true executive leadership—balancing short-term financial gains with long-term cultural sustainability. Top performers excel at both.",
@@ -726,7 +726,7 @@ export async function startMultiPageStudentTour(
     // Extra wait for page elements to render
     try {
       const waitSelector = page === "dashboard" 
-        ? '[data-testid="financial-score"]'
+        ? '[data-testid="financial-score-card"]'
         : page === "briefing"
         ? '[data-testid="briefing-page"]'
         : page === "decisions"

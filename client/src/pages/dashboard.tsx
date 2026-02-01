@@ -254,7 +254,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
+              <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10" data-testid="financial-score-card">
                 <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mb-2">
                   Financial Score
                   <InfoTooltip content={TOOLTIP_CONTENT.financialScore} iconSize={12} />
@@ -277,7 +277,7 @@ export default function Dashboard() {
                   Range: 0 - 150
                 </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-success/5 border border-success/10">
+              <div className="text-center p-4 rounded-lg bg-success/5 border border-success/10" data-testid="cultural-score-card">
                 <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mb-2">
                   Cultural Score
                   <InfoTooltip content={TOOLTIP_CONTENT.culturalHealth} iconSize={12} />
@@ -300,7 +300,7 @@ export default function Dashboard() {
                   Range: 0 - 100
                 </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/10">
+              <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/10" data-testid="combined-score-card">
                 <div className="text-sm text-muted-foreground mb-2">Combined Score</div>
                 <div className="flex items-center justify-center gap-2">
                   <div className="text-3xl font-bold font-mono text-accent-foreground" data-testid="combined-score">
