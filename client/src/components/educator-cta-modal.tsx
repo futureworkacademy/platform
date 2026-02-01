@@ -10,7 +10,7 @@ interface EducatorCtaModalProps {
   onContinue?: () => void;
 }
 
-const BOOKING_URL = "https://calendar.google.com/calendar/appointments";
+const BOOKING_URL = "https://calendar.app.google/hhb4P8TqnpryG9M38";
 
 export function EducatorCtaModal({ 
   open, 
