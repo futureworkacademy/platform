@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import {
   LineChart,
@@ -348,42 +347,40 @@ END OF RESEARCH MATERIALS
             <div className="grid lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1 space-y-4">
                 <h2 className="text-lg font-semibold">Intelligence Reports</h2>
-                <ScrollArea className="max-h-[600px] pr-4">
-                  <div className="space-y-2 pb-2">
-                    {reports?.map((report) => (
-                      <Card 
-                        key={report.id}
-                        className={`cursor-pointer transition-all hover-elevate ${
-                          selectedReport === report.id ? "ring-2 ring-primary" : ""
-                        }`}
-                        onClick={() => handleReportView(report.id)}
-                        data-testid={`report-card-${report.id}`}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="space-y-1 flex-1">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="secondary" className={getCategoryColor(report.category)}>
-                                  {getCategoryIcon(report.category)}
-                                  <span className="ml-1 capitalize">{report.category.replace("_", " ")}</span>
-                                </Badge>
-                                {viewedReports.has(report.id) && (
-                                  <CheckCircle2 className="h-4 w-4 text-success" />
-                                )}
-                              </div>
-                              <h3 className="font-medium text-sm leading-tight">{report.title}</h3>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                {report.readingTime} min read
-                              </div>
+                <div className="max-h-[600px] overflow-y-auto pr-4 space-y-2">
+                  {reports?.map((report) => (
+                    <Card 
+                      key={report.id}
+                      className={`cursor-pointer transition-all hover-elevate ${
+                        selectedReport === report.id ? "ring-2 ring-primary" : ""
+                      }`}
+                      onClick={() => handleReportView(report.id)}
+                      data-testid={`report-card-${report.id}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1 flex-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className={getCategoryColor(report.category)}>
+                                {getCategoryIcon(report.category)}
+                                <span className="ml-1 capitalize">{report.category.replace("_", " ")}</span>
+                              </Badge>
+                              {viewedReports.has(report.id) && (
+                                <CheckCircle2 className="h-4 w-4 text-success" />
+                              )}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <h3 className="font-medium text-sm leading-tight">{report.title}</h3>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              {report.readingTime} min read
+                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
 
               <div className="lg:col-span-2">
