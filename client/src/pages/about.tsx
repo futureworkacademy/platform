@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ArrowLeft, Edit2, Save, X, Phone, Mail } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Phone, Mail, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { SiLinkedin } from "react-icons/si";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -261,6 +261,16 @@ export default function About() {
                       >
                         <SiLinkedin className="h-4 w-4" />
                         <span>LinkedIn</span>
+                      </a>
+                      <a 
+                        href="https://calendar.app.google/hhb4P8TqnpryG9M38" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        data-testid="link-schedule-call"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        <span>Schedule a Call</span>
                       </a>
                     </div>
                   </div>
