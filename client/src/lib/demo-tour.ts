@@ -329,8 +329,7 @@ export const instructorTourSteps: DriveStep[] = [
         • Enroll students (share class code or import CSV)<br>
         • Organize into teams of 3-5<br>
         • Preview the student experience<br>
-        • Start the simulation when ready<br><br>
-        <strong>Need help?</strong> Click the "Ask Gemini" button (bottom right) for instant platform assistance.
+        • Start the simulation when ready
       </div>`,
       side: "top",
       align: "center",
