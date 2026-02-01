@@ -4179,6 +4179,10 @@ Provide your consistency review in JSON format.`;
       const [user] = await db.select().from(users).where(eq(users.id, userId));
       const inStudentPreview = user?.inStudentPreview || false;
       const previewModeOrgId = user?.previewModeOrgId || null;
+      
+      // Demo preview mode - allows super admins to experience evaluator view
+      const inDemoPreview = user?.inDemoPreview || false;
+      const demoPreviewOrgId = user?.demoPreviewOrgId || null;
 
       // Get organizations where user is admin (for preview mode exit)
       const adminOrgs: Array<{ id: string; name: string }> = [];
@@ -4197,6 +4201,8 @@ Provide your consistency review in JSON format.`;
         isClassAdmin,
         inStudentPreview,
         previewModeOrgId,
+        inDemoPreview,
+        demoPreviewOrgId,
         organizations: adminOrgs,
         membershipCount: memberships.length,
         memberships,
