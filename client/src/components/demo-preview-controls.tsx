@@ -5,14 +5,17 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
 import { startInstructorTour, startMultiPageStudentTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
+import { useDemoTour } from "./demo-tour-provider";
 
 interface DemoPreviewControlsProps {
   demoOrgId?: string | null;
+  isEvaluator?: boolean;
 }
 
-export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
+export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPreviewControlsProps) {
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
+  const { showCtaModal } = useDemoTour();
 
   const exitMutation = useMutation({
     mutationFn: async () => {
@@ -50,7 +53,21 @@ export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
       
       // Reset and start the multi-page student tour
       resetStudentTourProgress();
-      await startMultiPageStudentTour(setLocation);
+      await startMultiPageStudentTour(
+        setLocation,
+        () => {
+          // Tour completed - show CTA modal for evaluators
+          if (isEvaluator) {
+            showCtaModal();
+          }
+        },
+        () => {
+          // Tour skipped - still show CTA modal for evaluators
+          if (isEvaluator) {
+            showCtaModal();
+          }
+        }
+      );
     },
     onError: (error: any) => {
       toast({ title: "Error starting student tour", description: error.message, variant: "destructive" });

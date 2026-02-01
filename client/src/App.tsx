@@ -321,10 +321,11 @@ function DemoPreviewWrapper() {
   const { user } = useAuth();
   const inDemoPreview = user?.inDemoPreview === true;
   const demoOrgId = user?.demoPreviewOrgId;
+  const isEvaluator = user?.demoAccess === "evaluator";
   
   if (!inDemoPreview) return null;
   
-  return <DemoPreviewControls demoOrgId={demoOrgId} />;
+  return <DemoPreviewControls demoOrgId={demoOrgId} isEvaluator={isEvaluator} />;
 }
 
 function App() {

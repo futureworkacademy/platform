@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { hasTourBeenCompleted, resetTourProgress, startMultiPageStudentTour } from "@/lib/demo-tour";
+import { EducatorCtaModal } from "./educator-cta-modal";
 
 interface DemoTourContextType {
   isDemoUser: boolean;
@@ -9,6 +10,7 @@ interface DemoTourContextType {
   hasCompletedTour: boolean;
   startTour: () => void;
   resetTour: () => void;
+  showCtaModal: () => void;
 }
 
 const DemoTourContext = createContext<DemoTourContextType>({
@@ -17,6 +19,7 @@ const DemoTourContext = createContext<DemoTourContextType>({
   hasCompletedTour: false,
   startTour: () => {},
   resetTour: () => {},
+  showCtaModal: () => {},
 });
 
 export function useDemoTour() {
@@ -39,7 +42,8 @@ interface UserData {
 export function DemoTourProvider({ children }: DemoTourProviderProps) {
   const [isTourActive, setIsTourActive] = useState(false);
   const [hasCompletedTour, setHasCompletedTour] = useState(hasTourBeenCompleted());
-  const [, setLocation] = useLocation();
+  const [ctaModalOpen, setCtaModalOpen] = useState(false);
+  const [location, setLocation] = useLocation();
 
   const { data: user } = useQuery<UserData>({
     queryKey: ["/api/auth/user"],
@@ -57,24 +61,34 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     }
   }, [isDemoUser, hasCompletedTour, isTourActive]);
 
+  const handleTourComplete = () => {
+    setIsTourActive(false);
+    setHasCompletedTour(true);
+    if (isDemoUser) {
+      setCtaModalOpen(true);
+    }
+  };
+
   const startTour = async () => {
     setIsTourActive(true);
     await startMultiPageStudentTour(
       setLocation,
-      () => {
-        setIsTourActive(false);
-        setHasCompletedTour(true);
-      },
-      () => {
-        setIsTourActive(false);
-        setHasCompletedTour(true);
-      }
+      handleTourComplete,
+      handleTourComplete
     );
   };
 
   const resetTour = () => {
     resetTourProgress();
     setHasCompletedTour(false);
+  };
+
+  const showCtaModal = () => {
+    setCtaModalOpen(true);
+  };
+
+  const handleContactUs = () => {
+    setLocation("/academia");
   };
 
   return (
@@ -85,9 +99,15 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
         hasCompletedTour,
         startTour,
         resetTour,
+        showCtaModal,
       }}
     >
       {children}
+      <EducatorCtaModal
+        open={ctaModalOpen}
+        onOpenChange={setCtaModalOpen}
+        onContactUs={handleContactUs}
+      />
     </DemoTourContext.Provider>
   );
 }
