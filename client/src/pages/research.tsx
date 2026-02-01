@@ -343,11 +343,10 @@ END OF RESEARCH MATERIALS
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="reports" className="space-y-6">
+          <TabsContent value="reports" className="space-y-4">
+            <h2 className="text-lg font-semibold text-center">Intelligence Reports</h2>
             <div className="grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1 space-y-4">
-                <h2 className="text-lg font-semibold">Intelligence Reports</h2>
-                <div className="max-h-[600px] overflow-y-auto pr-4 space-y-2">
+              <div className="lg:col-span-1 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
                   {reports?.map((report) => (
                     <Card 
                       key={report.id}
@@ -380,7 +379,6 @@ END OF RESEARCH MATERIALS
                       </CardContent>
                     </Card>
                   ))}
-                </div>
               </div>
 
               <div className="lg:col-span-2">
