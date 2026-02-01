@@ -819,7 +819,7 @@ export default function Decisions() {
 
   if (!team) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="flex flex-col items-center justify-center h-full p-8" data-testid="decisions-page">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
         <h2 className="text-xl font-semibold mb-2">Unable to load decisions</h2>
         <p className="text-muted-foreground text-center max-w-md">
@@ -1255,7 +1255,7 @@ export default function Decisions() {
 
 function DecisionsSkeleton() {
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="p-6 space-y-6 max-w-4xl mx-auto" data-testid="decisions-page">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Skeleton className="h-5 w-32 mb-2" />

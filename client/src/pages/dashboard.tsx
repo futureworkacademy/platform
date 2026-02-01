@@ -89,7 +89,7 @@ export default function Dashboard() {
 
   if (error || !team) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="flex flex-col items-center justify-center h-full p-8" data-testid="dashboard-page">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
         <h2 className="text-xl font-semibold mb-2">Unable to load dashboard</h2>
         <p className="text-muted-foreground text-center max-w-md">
@@ -536,7 +536,7 @@ export default function Dashboard() {
 
 function DashboardSkeleton() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6" data-testid="dashboard-page">
       <div className="flex items-center justify-between gap-4">
         <div>
           <Skeleton className="h-8 w-64 mb-2" />

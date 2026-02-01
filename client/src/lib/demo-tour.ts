@@ -737,7 +737,8 @@ export async function startMultiPageStudentTour(
     await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
-      const waitSelector = page === "dashboard" 
+      // Wait for the page container first (including loading state)
+      const pageSelector = page === "dashboard" 
         ? '[data-testid="dashboard-page"]'
         : page === "briefing"
         ? '[data-testid="briefing-page"]'
@@ -747,8 +748,28 @@ export async function startMultiPageStudentTour(
         ? '[data-testid="analytics-page"]'
         : '[data-testid="leaderboard-page"]';
       
-      await waitForElement(waitSelector, 5000);
-      // Extra wait to ensure element is fully rendered
+      await waitForElement(pageSelector, 5000);
+      
+      // Then wait for actual content elements (not just skeleton) if there's a specific highlight target
+      const contentSelector = page === "dashboard" 
+        ? '[data-testid="financial-score-card"]'
+        : page === "briefing"
+        ? '[data-testid="card-situation-report"]'
+        : page === "analytics"
+        ? '[data-testid="avg-sentiment"]'
+        : page === "leaderboard"
+        ? '[data-testid="your-rank"]'
+        : null;
+      
+      if (contentSelector) {
+        try {
+          await waitForElement(contentSelector, 8000);
+        } catch {
+          console.warn(`Tour: Content element ${contentSelector} not found, proceeding anyway`);
+        }
+      }
+      
+      // Extra wait to ensure everything is rendered
       await new Promise(resolve => setTimeout(resolve, 300));
     } catch (e) {
       console.warn(`Tour: Could not find element for ${page}`, e);

@@ -21,7 +21,7 @@ export default function Leaderboard() {
 
   if (error || !entries) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="flex flex-col items-center justify-center h-full p-8" data-testid="leaderboard-page">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
         <h2 className="text-xl font-semibold mb-2">Unable to load leaderboard</h2>
         <p className="text-muted-foreground text-center max-w-md">
@@ -148,7 +148,7 @@ export default function Leaderboard() {
 
 function LeaderboardSkeleton() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6" data-testid="leaderboard-page">
       <div>
         <Skeleton className="h-5 w-24 mb-2" />
         <Skeleton className="h-8 w-64 mb-2" />
