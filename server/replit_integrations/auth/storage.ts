@@ -2,6 +2,17 @@ import { users, type User, type UpsertUser } from "@shared/models/auth";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
 
+// Auto-promote certain emails to super admin on login
+function getSuperAdminEmails(): string[] {
+  const emails = process.env.SUPER_ADMIN_EMAILS || '';
+  return emails.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+}
+
+function shouldAutoPromoteToSuperAdmin(email: string): boolean {
+  const superAdminEmails = getSuperAdminEmails();
+  return superAdminEmails.includes(email.toLowerCase());
+}
+
 export interface ProfileUpdate {
   firstName?: string;
   lastName?: string;
@@ -36,6 +47,10 @@ class AuthStorage implements IAuthStorage {
     const userId = userData.id as string;
     const existingUser = await this.getUser(userId);
     
+    // Check for auto-promotion to super admin
+    const userEmail = userData.email || '';
+    const shouldPromote = shouldAutoPromoteToSuperAdmin(userEmail);
+    
     if (existingUser) {
       // User exists - update profile fields
       // Also update isAdmin if provided in userData (allows OIDC to set admin status)
@@ -47,8 +62,12 @@ class AuthStorage implements IAuthStorage {
         updatedAt: new Date(),
       };
       
-      // Only update isAdmin if it's explicitly provided (not undefined)
-      if ((userData as any).isAdmin !== undefined) {
+      // Auto-promote to super admin if email matches
+      if (shouldPromote && existingUser.isAdmin !== 'super_admin') {
+        updateData.isAdmin = 'super_admin';
+        console.log(`[AUTH STORAGE] Auto-promoting ${userEmail} to super_admin`);
+      } else if ((userData as any).isAdmin !== undefined) {
+        // Only update isAdmin if it's explicitly provided (not undefined)
         updateData.isAdmin = (userData as any).isAdmin;
         console.log(`[AUTH STORAGE] Updating isAdmin to: ${updateData.isAdmin}`);
       }
@@ -62,9 +81,18 @@ class AuthStorage implements IAuthStorage {
     }
     
     // New user - insert with defaults
+    // Auto-promote if email matches
+    const insertData = shouldPromote 
+      ? { ...userData, isAdmin: 'super_admin' as const }
+      : userData;
+    
+    if (shouldPromote) {
+      console.log(`[AUTH STORAGE] New user ${userEmail} auto-promoted to super_admin`);
+    }
+    
     const [user] = await db
       .insert(users)
-      .values(userData)
+      .values(insertData)
       .returning();
     return user;
   }

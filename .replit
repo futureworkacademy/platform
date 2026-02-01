@@ -45,5 +45,8 @@ integrations = ["javascript_log_in_with_replit:2.0.0", "javascript_database:1.0.
 
 [userenv.production]
 
+[userenv.shared]
+SUPER_ADMIN_EMAILS = "douglasemitchell@protonmail.com,demitchell@gmail.com"
+
 [objectStorage]
 defaultBucketID = "replit-objstore-8af107eb-1889-4b43-93fa-8930f6ab1b92"
