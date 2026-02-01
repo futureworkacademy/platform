@@ -2295,6 +2295,105 @@ Provide your consistency review in JSON format.`;
     }
   });
 
+  // Enter demo preview mode (super admin only)
+  app.post("/api/demo/preview/enter", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Only super admins can enter demo preview mode
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super admin access required" });
+      }
+
+      // Ensure demo org exists and get its ID
+      const demoOrgId = await demoService.ensureDemoOrganizationExists();
+
+      // Check if admin is already a member of demo org, if not add them as class_admin
+      const existingMember = await organizationStorage.getMember(userId, demoOrgId);
+      if (!existingMember) {
+        await organizationStorage.addMember({
+          userId,
+          organizationId: demoOrgId,
+          role: ROLES.CLASS_ADMIN,
+          status: "active",
+          approvedAt: new Date(),
+        });
+      }
+
+      // Set admin into demo preview mode
+      await db.update(users)
+        .set({ 
+          inDemoPreview: true, 
+          demoPreviewOrgId: demoOrgId, 
+          updatedAt: new Date() 
+        })
+        .where(eq(users.id, userId));
+
+      console.log("[Demo Preview] Admin entered demo preview mode:", { userId, demoOrgId });
+
+      res.json({ 
+        success: true, 
+        demoOrgId,
+        demoCode: demoService.getDemoOrgCode(),
+        message: "You are now viewing the platform as an evaluator would. Use the demo controls to exit when done."
+      });
+    } catch (error) {
+      console.error("[Demo Preview] Error entering:", error);
+      res.status(500).json({ error: "Failed to enter demo preview mode" });
+    }
+  });
+
+  // Exit demo preview mode
+  app.post("/api/demo/preview/exit", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Set admin out of demo preview mode
+      await db.update(users)
+        .set({ 
+          inDemoPreview: false, 
+          demoPreviewOrgId: null, 
+          updatedAt: new Date() 
+        })
+        .where(eq(users.id, userId));
+
+      console.log("[Demo Preview] Admin exited demo preview mode:", { userId });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Demo Preview] Error exiting:", error);
+      res.status(500).json({ error: "Failed to exit demo preview mode" });
+    }
+  });
+
+  // Get demo preview status
+  app.get("/api/demo/preview/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      
+      res.json({ 
+        inDemoPreview: user?.inDemoPreview || false,
+        demoPreviewOrgId: user?.demoPreviewOrgId || null,
+        demoCode: user?.inDemoPreview ? demoService.getDemoOrgCode() : undefined
+      });
+    } catch (error) {
+      console.error("[Demo Preview] Error getting status:", error);
+      res.status(500).json({ error: "Failed to get demo preview status" });
+    }
+  });
+
   // ==================== ORGANIZATION ROUTES ====================
   
   // Validate team code (public - for signup flow)
