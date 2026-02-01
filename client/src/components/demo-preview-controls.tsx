@@ -3,11 +3,16 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { X, Eye } from "lucide-react";
+import { X, Eye, PlayCircle, GraduationCap, Users } from "lucide-react";
+import { startInstructorTour, startDashboardTour, resetInstructorTourProgress, resetStudentTourProgress } from "@/lib/demo-tour";
 
-export function DemoPreviewControls() {
+interface DemoPreviewControlsProps {
+  demoOrgId?: string | null;
+}
+
+export function DemoPreviewControls({ demoOrgId }: DemoPreviewControlsProps) {
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const exitMutation = useMutation({
     mutationFn: async () => {
@@ -25,31 +30,76 @@ export function DemoPreviewControls() {
     },
   });
 
+  const handleStartInstructorTour = () => {
+    if (demoOrgId && !location.includes(`org=${demoOrgId}`)) {
+      setLocation(`/class-admin?org=${demoOrgId}`);
+      setTimeout(() => {
+        resetInstructorTourProgress();
+        startInstructorTour();
+      }, 500);
+    } else {
+      resetInstructorTourProgress();
+      startInstructorTour();
+    }
+  };
+
+  const handleStartStudentTour = () => {
+    if (demoOrgId) {
+      setLocation(`/class-admin?org=${demoOrgId}`);
+      toast({ 
+        title: "Student Preview", 
+        description: "Click 'Student Preview' in the Class Admin console to experience the student view with guided tour." 
+      });
+    }
+  };
+
   return (
     <div 
-      className="fixed bottom-4 right-4 z-50 bg-blue-600 dark:bg-blue-700 rounded-lg shadow-lg px-3 py-1.5 flex items-center gap-2" 
+      className="fixed bottom-4 right-4 z-50 bg-blue-600 dark:bg-blue-700 rounded-lg shadow-lg px-4 py-2 flex flex-col gap-2" 
       data-testid="demo-preview-controls"
     >
-      <Eye className="h-4 w-4 text-white" />
-      <span className="font-medium text-xs text-white">Evaluator Preview</span>
+      <div className="flex items-center gap-2">
+        <Eye className="h-4 w-4 text-white" />
+        <span className="font-medium text-sm text-white">Evaluator Preview</span>
+        
+        <div className="flex-1" />
+        
+        <Button 
+          size="sm" 
+          variant="secondary"
+          className="h-6 text-xs px-2"
+          onClick={() => exitMutation.mutate()}
+          disabled={exitMutation.isPending}
+          data-testid="button-exit-demo-preview"
+        >
+          <X className="h-3 w-3 mr-1" />
+          Exit Preview
+        </Button>
+      </div>
       
-      <div className="h-3 w-px bg-white/30" />
-      
-      <span className="text-xs text-white/80">Viewing as evaluator would see</span>
-      
-      <div className="h-3 w-px bg-white/30" />
-      
-      <Button 
-        size="sm" 
-        variant="secondary"
-        className="h-6 text-xs px-2"
-        onClick={() => exitMutation.mutate()}
-        disabled={exitMutation.isPending}
-        data-testid="button-exit-demo-preview"
-      >
-        <X className="h-3 w-3 mr-1" />
-        Exit Preview
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button 
+          size="sm" 
+          variant="outline"
+          className="h-7 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
+          onClick={handleStartInstructorTour}
+          data-testid="button-instructor-tour"
+        >
+          <GraduationCap className="h-3 w-3 mr-1" />
+          Instructor Tour
+        </Button>
+        
+        <Button 
+          size="sm" 
+          variant="outline"
+          className="h-7 text-xs bg-white/10 border-white/30 text-white hover:bg-white/20"
+          onClick={handleStartStudentTour}
+          data-testid="button-student-tour"
+        >
+          <Users className="h-3 w-3 mr-1" />
+          Student Tour
+        </Button>
+      </div>
     </div>
   );
 }

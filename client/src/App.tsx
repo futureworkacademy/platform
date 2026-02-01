@@ -320,10 +320,11 @@ function AppRouter() {
 function DemoPreviewWrapper() {
   const { user } = useAuth();
   const inDemoPreview = user?.inDemoPreview === true;
+  const demoOrgId = user?.demoPreviewOrgId;
   
   if (!inDemoPreview) return null;
   
-  return <DemoPreviewControls />;
+  return <DemoPreviewControls demoOrgId={demoOrgId} />;
 }
 
 function App() {

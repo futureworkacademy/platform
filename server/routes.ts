@@ -3406,6 +3406,11 @@ Provide your consistency review in JSON format.`;
       const userId = req.user?.claims?.sub;
       const memberships = await organizationStorage.getMembershipsByUser(userId);
       
+      // Check if user is in demo preview mode
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      const inDemoPreview = user?.inDemoPreview || false;
+      const demoPreviewOrgId = user?.demoPreviewOrgId;
+      
       // Get orgs where user is class admin or super admin
       const adminMemberships = memberships.filter(m => 
         m.role === ROLES.CLASS_ADMIN || m.role === ROLES.SUPER_ADMIN
@@ -3417,6 +3422,19 @@ Provide your consistency review in JSON format.`;
         const invites = await organizationStorage.getInvitesByOrganization(m.organizationId);
         return { ...org, memberCount: members.length, invites };
       }));
+      
+      // If in demo preview mode, ensure the demo org is included
+      if (inDemoPreview && demoPreviewOrgId) {
+        const hasDemoOrg = orgs.some(o => o?.id === demoPreviewOrgId);
+        if (!hasDemoOrg) {
+          const demoOrg = await organizationStorage.getOrganization(demoPreviewOrgId);
+          if (demoOrg) {
+            const members = await organizationStorage.getMembersByOrganization(demoPreviewOrgId);
+            const invites = await organizationStorage.getInvitesByOrganization(demoPreviewOrgId);
+            orgs.unshift({ ...demoOrg, memberCount: members.length, invites });
+          }
+        }
+      }
       
       res.json(orgs.filter(Boolean));
     } catch (error) {

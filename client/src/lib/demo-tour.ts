@@ -5,20 +5,51 @@ export interface TourConfig {
   steps: DriveStep[];
   onComplete?: () => void;
   onSkip?: () => void;
+  storageKey?: string;
 }
 
-const TOUR_STORAGE_KEY = "fwa_demo_tour_completed";
+const STUDENT_TOUR_KEY = "fwa_student_tour_completed";
+const INSTRUCTOR_TOUR_KEY = "fwa_instructor_tour_completed";
+
+export function hasStudentTourBeenCompleted(): boolean {
+  return localStorage.getItem(STUDENT_TOUR_KEY) === "true";
+}
+
+export function hasInstructorTourBeenCompleted(): boolean {
+  return localStorage.getItem(INSTRUCTOR_TOUR_KEY) === "true";
+}
 
 export function hasTourBeenCompleted(): boolean {
-  return localStorage.getItem(TOUR_STORAGE_KEY) === "true";
+  return hasStudentTourBeenCompleted();
+}
+
+export function markStudentTourCompleted(): void {
+  localStorage.setItem(STUDENT_TOUR_KEY, "true");
+}
+
+export function markInstructorTourCompleted(): void {
+  localStorage.setItem(INSTRUCTOR_TOUR_KEY, "true");
 }
 
 export function markTourCompleted(): void {
-  localStorage.setItem(TOUR_STORAGE_KEY, "true");
+  markStudentTourCompleted();
+}
+
+export function resetStudentTourProgress(): void {
+  localStorage.removeItem(STUDENT_TOUR_KEY);
+}
+
+export function resetInstructorTourProgress(): void {
+  localStorage.removeItem(INSTRUCTOR_TOUR_KEY);
 }
 
 export function resetTourProgress(): void {
-  localStorage.removeItem(TOUR_STORAGE_KEY);
+  resetStudentTourProgress();
+}
+
+export function resetAllTourProgress(): void {
+  resetStudentTourProgress();
+  resetInstructorTourProgress();
 }
 
 export const dashboardTourSteps: DriveStep[] = [
@@ -164,7 +195,80 @@ export const decisionsTourSteps: DriveStep[] = [
   },
 ];
 
-export function createTourDriver(config: TourConfig): Driver {
+export const instructorTourSteps: DriveStep[] = [
+  {
+    popover: {
+      title: "Welcome, Instructor!",
+      description: "This is your Instructor Console where you'll manage your simulation. Let's walk through the key features you'll use to run a successful course.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="tab-students"]',
+    popover: {
+      title: "Student Management",
+      description: "View and manage all enrolled students. You can add students individually, import via CSV, or have them self-enroll using your class code.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="tab-teams"]',
+    popover: {
+      title: "Team Organization",
+      description: "Organize students into teams. Teams compete against each other, fostering collaboration and healthy competition.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="tab-simulation"]',
+    popover: {
+      title: "Simulation Control",
+      description: "Start, pause, and advance the simulation week by week. You control the pace to align with your course schedule.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="tab-submissions"]',
+    popover: {
+      title: "Review Submissions",
+      description: "View student decisions and AI-graded responses. Each submission shows reasoning quality scores and detailed feedback.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="tab-analytics"]',
+    popover: {
+      title: "Performance Analytics",
+      description: "Track class-wide performance with charts and metrics. Identify trends and areas where students may need guidance.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: '[data-testid="button-student-preview"]',
+    popover: {
+      title: "Student Preview Mode",
+      description: "Experience the simulation exactly as your students see it. This creates a test student account so you can walk through briefings and decisions.",
+      side: "left",
+      align: "center",
+    },
+  },
+  {
+    popover: {
+      title: "Ready to Run Your Simulation!",
+      description: "You now have the tools to manage a successful simulation. Add students, organize teams, and when ready, start the simulation. Students will receive their first intelligence briefing immediately.",
+      side: "top",
+      align: "center",
+    },
+  },
+];
+
+export function createTourDriver(config: TourConfig, markComplete: () => void = markTourCompleted): Driver {
   const driverObj = driver({
     showProgress: true,
     showButtons: ["next", "previous", "close"],
@@ -175,14 +279,14 @@ export function createTourDriver(config: TourConfig): Driver {
     progressText: "{{current}} of {{total}}",
     popoverClass: "fwa-tour-popover",
     onDestroyStarted: () => {
-      markTourCompleted();
+      markComplete();
       if (config.onComplete) {
         config.onComplete();
       }
       driverObj.destroy();
     },
     onCloseClick: () => {
-      markTourCompleted();
+      markComplete();
       if (config.onSkip) {
         config.onSkip();
       }
@@ -198,7 +302,18 @@ export function startDashboardTour(onComplete?: () => void, onSkip?: () => void)
     steps: dashboardTourSteps,
     onComplete,
     onSkip,
-  });
+  }, markStudentTourCompleted);
+  
+  driverObj.drive();
+  return driverObj;
+}
+
+export function startInstructorTour(onComplete?: () => void, onSkip?: () => void): Driver {
+  const driverObj = createTourDriver({
+    steps: instructorTourSteps,
+    onComplete,
+    onSkip,
+  }, markInstructorTourCompleted);
   
   driverObj.drive();
   return driverObj;
