@@ -348,18 +348,31 @@ export function createTourDriver(config: TourConfig, markComplete: () => void = 
     progressText: "{{current}} of {{total}}",
     popoverClass: "fwa-tour-popover",
     onDestroyStarted: () => {
+      console.log("[Tour] onDestroyStarted called");
       markComplete();
       if (config.onComplete) {
+        console.log("[Tour] Calling onComplete callback");
         config.onComplete();
       }
       driverObj.destroy();
     },
     onCloseClick: () => {
+      console.log("[Tour] onCloseClick called");
       markComplete();
       if (config.onSkip) {
+        console.log("[Tour] Calling onSkip callback");
         config.onSkip();
       }
       driverObj.destroy();
+    },
+    onDestroyed: () => {
+      console.log("[Tour] onDestroyed called");
+      // Fallback: if onDestroyStarted wasn't called, trigger completion here
+      markComplete();
+      if (config.onComplete) {
+        console.log("[Tour] Calling onComplete from onDestroyed");
+        config.onComplete();
+      }
     },
   });
   
