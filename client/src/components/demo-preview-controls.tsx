@@ -113,7 +113,7 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
 
   return (
     <div 
-      className="fixed bottom-4 right-4 z-50 bg-blue-600 dark:bg-blue-700 rounded-lg shadow-lg px-4 py-2 flex flex-col gap-2" 
+      className="fixed bottom-20 right-4 z-50 bg-blue-600 dark:bg-blue-700 rounded-lg shadow-lg px-4 py-2 flex flex-col gap-2" 
       data-testid="demo-preview-controls"
     >
       <div className="flex items-center gap-2">

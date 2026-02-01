@@ -35,6 +35,12 @@ NAVIGATION:
 
 Keep responses concise (2-3 sentences max). Be helpful and encouraging.`;
 
+// Use OpenAI integration which supports chat completions
+const openai = new OpenAI({
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
+
 export function registerDemoQARoutes(app: Express) {
   app.post("/api/demo/ask-gemini", isAuthenticated, async (req: any, res: Response) => {
     try {
@@ -49,23 +55,15 @@ export function registerDemoQARoutes(app: Express) {
         return res.status(400).json({ error: "Question is required" });
       }
 
-      const baseUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
-      const apiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
-
-      if (!baseUrl || !apiKey) {
+      if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY || !process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) {
         return res.status(500).json({ 
           error: "AI integration not configured",
           answer: "I'm not fully configured yet. Please contact support." 
         });
       }
 
-      const client = new OpenAI({
-        apiKey,
-        baseURL: baseUrl,
-      });
-
-      const response = await client.chat.completions.create({
-        model: "gemini-2.5-flash",
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -87,7 +85,7 @@ export function registerDemoQARoutes(app: Express) {
         context: "demo_guide" 
       });
     } catch (error: any) {
-      console.error("Gemini Q&A error:", error);
+      console.error("Demo Q&A error:", error);
       return res.status(500).json({ 
         error: "Failed to get response",
         answer: "I'm having trouble right now. Please try again in a moment."

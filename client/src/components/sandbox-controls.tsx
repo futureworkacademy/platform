@@ -90,6 +90,7 @@ export function SandboxControls({ orgId, currentWeek }: SandboxControlsProps) {
   return (
     <div 
       className="fixed bottom-4 right-4 z-50 bg-amber-500 dark:bg-amber-600 rounded-lg shadow-lg px-3 py-1.5 flex items-center gap-2" 
+      style={{ bottom: '1rem' }}
       data-testid="sandbox-controls"
     >
       <FlaskConical className="h-4 w-4 text-white" />
