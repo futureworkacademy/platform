@@ -512,6 +512,7 @@ export async function startMultiPageStudentTour(
       case "dashboard":
         return [
           {
+            element: '[data-testid="dashboard-page"]',
             popover: {
               title: "Welcome to Future Work Academy",
               description: "You're about to step into the shoes of a CEO navigating AI transformation at Apex Manufacturing. This interactive tour will show you the key features of the simulation.",
@@ -547,8 +548,9 @@ export async function startMultiPageStudentTour(
             },
           },
           {
+            element: '[data-testid="button-briefing"]',
             popover: {
-              title: "Next: Intelligence Briefing →",
+              title: "Next: Intelligence Briefing",
               description: "Let's see what you'll read each week to inform your decisions. Click 'Next' to continue to the Briefing page.",
               side: "top",
               align: "center",
@@ -586,10 +588,11 @@ export async function startMultiPageStudentTour(
             },
           },
           {
+            element: '[data-testid="nav-decisions"]',
             popover: {
-              title: "Next: Decision Center →",
+              title: "Next: Decision Center",
               description: "Now let's see where you'll make your strategic choices—and preview a real simulation question. Click 'Next' to continue.",
-              side: "top",
+              side: "right",
               align: "center",
             },
           },
@@ -607,6 +610,7 @@ export async function startMultiPageStudentTour(
             },
           },
           {
+            element: '[data-testid="decisions-page"]',
             popover: {
               title: "Sample Question Preview",
               description: `<div style="text-align:left; font-size:13px; line-height:1.5;">
@@ -623,6 +627,7 @@ export async function startMultiPageStudentTour(
             },
           },
           {
+            element: '[data-testid="decisions-page"]',
             popover: {
               title: "Model Answer Example",
               description: `<div style="text-align:left; font-size:12px; line-height:1.5; max-height:280px; overflow-y:auto;">
@@ -640,10 +645,11 @@ export async function startMultiPageStudentTour(
             },
           },
           {
+            element: '[data-testid="nav-people-analytics"]',
             popover: {
-              title: "Next: People Analytics →",
+              title: "Next: People Analytics",
               description: "Let's see the analytics dashboard where students can understand workforce data.",
-              side: "top",
+              side: "right",
               align: "center",
             },
           },
@@ -652,27 +658,29 @@ export async function startMultiPageStudentTour(
       case "analytics":
         return [
           {
-            element: '[data-testid="nav-people-analytics"]',
+            element: '[data-testid="analytics-page"]',
             popover: {
               title: "People Analytics",
               description: "This dashboard shows workforce data—department headcounts, tenure distribution, and AI exposure risk by role. Students use this data to inform their transformation decisions.",
-              side: "right",
+              side: "top",
               align: "center",
             },
           },
           {
+            element: '[data-testid="avg-sentiment"]',
             popover: {
               title: "Data-Driven Decisions",
               description: "Effective leaders use data to anticipate how changes will affect different parts of the organization. This builds analytical skills essential for modern executives.",
-              side: "top",
+              side: "bottom",
               align: "center",
             },
           },
           {
+            element: '[data-testid="nav-leaderboard"]',
             popover: {
-              title: "Next: Leaderboard →",
+              title: "Next: Leaderboard",
               description: "Finally, let's see how teams compete on the leaderboard.",
-              side: "top",
+              side: "right",
               align: "center",
             },
           },
@@ -681,23 +689,25 @@ export async function startMultiPageStudentTour(
       case "leaderboard":
         return [
           {
-            element: '[data-testid="nav-leaderboard"]',
+            element: '[data-testid="leaderboard-page"]',
             popover: {
               title: "Competitive Leaderboard",
               description: "Teams compete for the top spot based on both financial performance and cultural health. This dual-scoring system prevents 'win at all costs' thinking.",
-              side: "right",
-              align: "center",
-            },
-          },
-          {
-            popover: {
-              title: "Healthy Competition",
-              description: "The leaderboard fosters engagement while teaching that sustainable success requires balancing multiple stakeholder interests—just like real business.",
               side: "top",
               align: "center",
             },
           },
           {
+            element: '[data-testid="your-rank"]',
+            popover: {
+              title: "Healthy Competition",
+              description: "The leaderboard fosters engagement while teaching that sustainable success requires balancing multiple stakeholder interests—just like real business.",
+              side: "bottom",
+              align: "center",
+            },
+          },
+          {
+            element: '[data-testid="leaderboard-page"]',
             popover: {
               title: "Tour Complete",
               description: `<div style="text-align:left; line-height:1.6;">
@@ -724,20 +734,24 @@ export async function startMultiPageStudentTour(
     await navigateToPage(page);
     
     // Extra wait for page elements to render
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     try {
       const waitSelector = page === "dashboard" 
-        ? '[data-testid="financial-score-card"]'
+        ? '[data-testid="dashboard-page"]'
         : page === "briefing"
         ? '[data-testid="briefing-page"]'
         : page === "decisions"
         ? '[data-testid="decisions-page"]'
         : page === "analytics"
-        ? '[data-testid="nav-people-analytics"]'
-        : '[data-testid="nav-leaderboard"]';
+        ? '[data-testid="analytics-page"]'
+        : '[data-testid="leaderboard-page"]';
       
-      await waitForElement(waitSelector, 3000);
+      await waitForElement(waitSelector, 5000);
+      // Extra wait to ensure element is fully rendered
+      await new Promise(resolve => setTimeout(resolve, 300));
     } catch (e) {
-      // Continue anyway
+      console.warn(`Tour: Could not find element for ${page}`, e);
     }
 
     return new Promise((resolve) => {
@@ -754,6 +768,11 @@ export async function startMultiPageStudentTour(
         progressText: `${page.charAt(0).toUpperCase() + page.slice(1).replace("-", " ")} • {{current}} of {{total}}`,
         popoverClass: "fwa-tour-popover",
         allowClose: true,
+        animate: true,
+        overlayColor: "rgba(0, 0, 0, 0.75)",
+        stagePadding: 10,
+        stageRadius: 8,
+        disableActiveInteraction: false,
         onDestroyStarted: () => {
           driverObj.destroy();
           if (isLastPage) {
