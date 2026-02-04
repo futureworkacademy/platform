@@ -1,22 +1,12 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
-import { Clock, LogOut, User, CheckCircle, AlertCircle, GraduationCap, MessageSquare, ChevronsUpDown, Check, Settings, KeyRound, Phone } from "lucide-react";
+import { LogOut, Settings, MessageSquare } from "lucide-react";
 import logoForLight from "@assets/logo-horizontal.png";
 import logoForDark from "@assets/logo-white.png";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
-import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
+import { EnrollmentWizard } from "@/components/enrollment-wizard";
 
 interface WaitingAssignmentProps {
   teamNotFound?: boolean;
@@ -24,11 +14,9 @@ interface WaitingAssignmentProps {
 
 export default function WaitingAssignment({ teamNotFound = false }: WaitingAssignmentProps) {
   const { user, logout } = useAuth();
-  const { toast } = useToast();
   const [, setLocation] = useLocation();
   
   // Redirect super admins to their dashboard
-  // Handle both boolean true AND string 'true'/'super_admin' for robustness (runtime type may differ)
   useEffect(() => {
     const adminValue = user?.isAdmin as unknown;
     const isAdmin = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
@@ -36,202 +24,59 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       setLocation('/super-admin');
     }
   }, [user, setLocation]);
-  
-  const [firstName, setFirstName] = useState(user?.firstName || '');
-  const [lastName, setLastName] = useState(user?.lastName || '');
-  const [institution, setInstitution] = useState(user?.institution || '');
-  const [institutionOpen, setInstitutionOpen] = useState(false);
-  const [schoolEmail, setSchoolEmail] = useState(user?.schoolEmail || '');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [showVerificationInput, setShowVerificationInput] = useState(false);
-  
-  const [teamCode, setTeamCode] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [smsConsent, setSmsConsent] = useState(false);
-  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
-  const [validatedOrgName, setValidatedOrgName] = useState('');
-  
-  const { data: institutions = [] } = useQuery<string[]>({
-    queryKey: ['/api/institutions'],
-  });
 
-  const updateProfileMutation = useMutation({
-    mutationFn: async (data: { firstName: string; lastName: string; institution: string }) => {
-      return apiRequest('PATCH', '/api/auth/profile', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been saved.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Failed to update profile",
-        description: "Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const requestVerificationMutation = useMutation({
-    mutationFn: async (email: string) => {
-      return apiRequest('POST', '/api/auth/request-verification', { schoolEmail: email });
-    },
-    onSuccess: () => {
-      setShowVerificationInput(true);
-      toast({
-        title: "Verification code sent",
-        description: "Check your school email for the verification code. If you don't see it, check your spam folder or contact your instructor.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Failed to send verification",
-        description: error.message || "Please enter a valid .edu email address.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const verifyCodeMutation = useMutation({
-    mutationFn: async (code: string) => {
-      return apiRequest('POST', '/api/auth/verify-email', { code });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-      setShowVerificationInput(false);
-      toast({
-        title: "Email verified!",
-        description: "Your school email has been verified successfully.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Invalid code",
-        description: "Please check the code and try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const validateTeamCodeMutation = useMutation({
-    mutationFn: async (code: string) => {
-      return apiRequest('POST', '/api/validate-team-code', { code });
-    },
-    onSuccess: (data: { valid: boolean; organizationName: string; privacyMode: boolean }) => {
-      setIsPrivacyMode(data.privacyMode || false);
-      setValidatedOrgName(data.organizationName || '');
-      if (data.privacyMode) {
-        toast({
-          title: "Privacy Mode Active",
-          description: `${data.organizationName} uses Privacy Mode - no email verification needed.`,
-        });
-      }
-    },
-    onError: () => {
-      setIsPrivacyMode(false);
-      setValidatedOrgName('');
-    }
-  });
-
-  const joinOrganizationMutation = useMutation({
-    mutationFn: async (data: { teamCode: string; phoneNumber?: string; smsConsent: boolean }) => {
-      return apiRequest('POST', '/api/join-organization', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/role'] });
-      toast({
-        title: "Welcome!",
-        description: "You've successfully joined the organization. Your instructor will assign you to a team soon.",
-      });
-      setLocation('/dashboard');
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Failed to join",
-        description: error.message || "Invalid team code or organization not found.",
-        variant: "destructive",
-      });
-    }
-  });
-  
-  // Validate team code when it changes to detect privacy mode
-  useEffect(() => {
-    if (teamCode.trim().length >= 6) {
-      validateTeamCodeMutation.mutate(teamCode.trim().toUpperCase());
-    } else {
-      setIsPrivacyMode(false);
-      setValidatedOrgName('');
-    }
-  }, [teamCode]);
-
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfileMutation.mutate({ firstName, lastName, institution });
+  const handleEnrollmentComplete = () => {
+    setLocation('/');
   };
 
-  const handleRequestVerification = () => {
-    if (!schoolEmail) {
-      toast({
-        title: "Email required",
-        description: "Please enter your school email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!schoolEmail.endsWith('.edu')) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a .edu email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-    requestVerificationMutation.mutate(schoolEmail);
-  };
+  // If team was not found (error state), show simplified message
+  if (teamNotFound) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
+            <img 
+              src={logoForLight} 
+              alt="Future Work Academy" 
+              className="h-16 w-auto block dark:hidden"
+              data-testid="img-header-logo-light"
+            />
+            <img 
+              src={logoForDark} 
+              alt="Future Work Academy" 
+              className="h-16 w-auto hidden dark:block"
+              data-testid="img-header-logo-dark"
+            />
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Button variant="outline" onClick={() => logout()} data-testid="button-logout">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </header>
 
-  const handleVerifyCode = () => {
-    if (!verificationCode) {
-      toast({
-        title: "Code required",
-        description: "Please enter the verification code.",
-        variant: "destructive",
-      });
-      return;
-    }
-    verifyCodeMutation.mutate(verificationCode);
-  };
-
-  const handleJoinOrganization = () => {
-    if (!teamCode.trim()) {
-      toast({
-        title: "Team code required",
-        description: "Please enter the team code provided by your instructor.",
-        variant: "destructive",
-      });
-      return;
-    }
-    // PRIVACY MODE: Skip email verification requirement
-    if (!isPrivacyMode && !isSchoolEmailVerified) {
-      toast({
-        title: "Email verification required",
-        description: "Please verify your .edu email before joining an organization.",
-        variant: "destructive",
-      });
-      return;
-    }
-    // PRIVACY MODE: Don't send phone number in privacy mode
-    joinOrganizationMutation.mutate({
-      teamCode: teamCode.trim().toUpperCase(),
-      phoneNumber: isPrivacyMode ? undefined : (phoneNumber.trim() || undefined),
-      smsConsent: isPrivacyMode ? false : smsConsent,
-    });
-  };
-
-  const isSchoolEmailVerified = user?.schoolEmailVerified === "true";
+        <main className="container mx-auto px-4 py-12 max-w-lg text-center">
+          <div className="space-y-6">
+            <div className="mx-auto h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center">
+              <MessageSquare className="h-10 w-10 text-destructive" />
+            </div>
+            <h1 className="text-2xl font-bold">Team Data Not Found</h1>
+            <p className="text-muted-foreground">
+              Your team data was not found. This may happen after a server restart. 
+              Please contact your instructor to reassign you to a team.
+            </p>
+            <Link href="/feedback">
+              <Button data-testid="link-contact-support">
+                Contact Support
+              </Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -267,344 +112,34 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
-        <Card className="bg-card">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Clock className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">
-              {teamNotFound ? "Team Data Not Found" : "Waiting for Team Assignment"}
-            </CardTitle>
-            <CardDescription className="text-base mt-2">
-              Welcome, {user?.firstName || user?.email}! Your account has been created successfully.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-muted/50 rounded-md p-4">
-              <p className="text-sm text-muted-foreground">
-                {teamNotFound 
-                  ? "Your team data was not found. This may happen after a server restart. Please contact your instructor to reassign you to a team."
-                  : "Your instructor will assign you to a team before the simulation begins. While you wait, please complete your profile below so your instructor can identify you."
-                }
-              </p>
-            </div>
-            
-            <div className="text-center text-sm text-muted-foreground pt-2">
-              <p>
-                Questions or issues?{" "}
-                <Link href="/feedback">
-                  <Button variant="ghost" className="p-0 h-auto text-primary" data-testid="link-feedback">
-                    <MessageSquare className="mr-1 h-3 w-3" />
-                    Contact us
-                  </Button>
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <KeyRound className="h-5 w-5" />
-              Join Your Class
-            </CardTitle>
-            <CardDescription>
-              Enter the team code provided by your instructor to join the simulation.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="teamCode">Team Code</Label>
-              <Input
-                id="teamCode"
-                value={teamCode}
-                onChange={(e) => setTeamCode(e.target.value.toUpperCase())}
-                placeholder="Enter code (e.g., ABC123)"
-                className="font-mono tracking-wider uppercase"
-                data-testid="input-teamCode"
-              />
-              <p className="text-xs text-muted-foreground">
-                Your instructor should have provided this code to you.
-              </p>
-            </div>
-            
-            {/* PRIVACY MODE: Show indicator when privacy mode is detected */}
-            {isPrivacyMode && validatedOrgName && (
-              <div className="flex items-start gap-2 p-3 bg-green-500/10 rounded-md border border-green-500/20" data-testid="privacy-mode-indicator">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-green-700 dark:text-green-400">Privacy Mode Active</p>
-                  <p className="text-muted-foreground">
-                    {validatedOrgName} uses anonymous enrollment. No email verification or phone number required.
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            {/* PRIVACY MODE: Hide phone/SMS fields when privacy mode is active */}
-            {!isPrivacyMode && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber" className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    Phone Number (Optional)
-                  </Label>
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+1 (555) 123-4567"
-                    data-testid="input-phoneNumber"
-                  />
-                </div>
-                
-                <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-md">
-                  <Checkbox
-                    id="smsConsent"
-                    checked={smsConsent}
-                    onCheckedChange={(checked) => setSmsConsent(checked === true)}
-                    data-testid="checkbox-smsConsent"
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor="smsConsent"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Receive SMS notifications
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                      Get text alerts about game updates and deadlines. Standard messaging rates may apply depending on your mobile carrier plan.
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-            
-            {/* PRIVACY MODE: Only show email verification warning when NOT in privacy mode */}
-            {!isPrivacyMode && !isSchoolEmailVerified && (
-              <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-md border border-yellow-500/20">
-                <AlertCircle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-yellow-700 dark:text-yellow-400">Email verification required</p>
-                  <p className="text-muted-foreground">
-                    Please verify your .edu email address below before joining an organization.
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            <Button
-              onClick={handleJoinOrganization}
-              disabled={joinOrganizationMutation.isPending || (!isPrivacyMode && !isSchoolEmailVerified)}
-              className="w-full"
-              data-testid="button-join-organization"
-            >
-              {joinOrganizationMutation.isPending ? "Joining..." : "Join Organization"}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <User className="h-5 w-5" />
-              Your Profile
-            </CardTitle>
-            <CardDescription>
-              Update your information so your instructor can identify you.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Your first name"
-                    data-testid="input-firstName"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Your last name"
-                    data-testid="input-lastName"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Institution</Label>
-                <Popover open={institutionOpen} onOpenChange={setInstitutionOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={institutionOpen}
-                      className="w-full justify-between font-normal"
-                      data-testid="select-institution"
-                    >
-                      {institution || "Select your institution..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search institutions..." />
-                      <CommandList>
-                        <CommandEmpty>No institution found.</CommandEmpty>
-                        <CommandGroup>
-                          {institutions.map((inst) => (
-                            <CommandItem
-                              key={inst}
-                              value={inst}
-                              onSelect={(currentValue) => {
-                                setInstitution(currentValue === institution ? "" : currentValue);
-                                setInstitutionOpen(false);
-                              }}
-                              data-testid={`option-institution-${inst.replace(/\s+/g, '-').toLowerCase()}`}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  institution === inst ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {inst}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2">
-                <Label>Login Email</Label>
-                <Input
-                  value={user?.email || ''}
-                  disabled
-                  className="bg-muted"
-                  data-testid="text-login-email"
-                />
-                <p className="text-xs text-muted-foreground">This is the email you used to sign in.</p>
-              </div>
-              <Button 
-                type="submit" 
-                disabled={updateProfileMutation.isPending}
-                data-testid="button-save-profile"
-              >
-                {updateProfileMutation.isPending ? "Saving..." : "Save Profile"}
+      <main className="container mx-auto px-4 py-8">
+        {/* Welcome message */}
+        <div className="text-center mb-8 max-w-xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">
+            Welcome{user?.firstName ? `, ${user.firstName}` : ''}!
+          </h1>
+          <p className="text-muted-foreground">
+            Complete the steps below to join your class simulation.
+          </p>
+        </div>
+        
+        {/* Enrollment Wizard */}
+        <EnrollmentWizard 
+          user={user} 
+          onComplete={handleEnrollmentComplete} 
+        />
+        
+        {/* Help link */}
+        <div className="text-center mt-8 text-sm text-muted-foreground">
+          <p>
+            Need help?{" "}
+            <Link href="/feedback">
+              <Button variant="link" className="p-0 h-auto text-primary" data-testid="link-feedback">
+                Contact support
               </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <GraduationCap className="h-5 w-5" />
-              School Email Verification
-              {isSchoolEmailVerified && (
-                <Badge className="ml-2 bg-green-500/10 text-green-600 border-green-500/20">
-                  <CheckCircle className="mr-1 h-3 w-3" />
-                  Verified
-                </Badge>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {isSchoolEmailVerified 
-                ? "Your school email has been verified."
-                : "Verify your .edu email address so your instructor can match you to their class roster."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {isSchoolEmailVerified ? (
-              <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-md border border-green-500/20">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
-                <div>
-                  <p className="font-medium text-sm">{user?.schoolEmail}</p>
-                  <p className="text-xs text-muted-foreground">Verified school email</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="schoolEmail">School Email (.edu required)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="schoolEmail"
-                      type="email"
-                      value={schoolEmail}
-                      onChange={(e) => setSchoolEmail(e.target.value)}
-                      placeholder="yourname@university.edu"
-                      disabled={showVerificationInput}
-                      data-testid="input-schoolEmail"
-                    />
-                    <Button 
-                      type="button"
-                      onClick={handleRequestVerification}
-                      disabled={requestVerificationMutation.isPending || showVerificationInput}
-                      data-testid="button-request-verification"
-                    >
-                      {requestVerificationMutation.isPending ? "Sending..." : "Verify"}
-                    </Button>
-                  </div>
-                </div>
-
-                {showVerificationInput && (
-                  <div className="space-y-3 p-4 bg-muted/50 rounded-md border">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-medium">Check your email</p>
-                        <p className="text-muted-foreground">
-                          We sent a verification code to <span className="font-mono">{schoolEmail}</span>. 
-                          Enter it below to verify your school email.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
-                        placeholder="Enter 6-digit code"
-                        maxLength={6}
-                        className="font-mono tracking-widest"
-                        data-testid="input-verificationCode"
-                      />
-                      <Button 
-                        type="button"
-                        onClick={handleVerifyCode}
-                        disabled={verifyCodeMutation.isPending}
-                        data-testid="button-verify-code"
-                      >
-                        {verifyCodeMutation.isPending ? "Verifying..." : "Submit"}
-                      </Button>
-                    </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setShowVerificationInput(false)}
-                      data-testid="button-change-email"
-                    >
-                      Use different email
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+            </Link>
+          </p>
+        </div>
       </main>
     </div>
   );
