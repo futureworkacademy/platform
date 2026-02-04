@@ -134,7 +134,7 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
           <p>
             Need help?{" "}
             <Link href="/feedback">
-              <Button variant="link" className="p-0 h-auto text-primary" data-testid="link-feedback">
+              <Button variant="ghost" className="p-0 h-auto text-primary" data-testid="link-feedback">
                 Contact support
               </Button>
             </Link>
