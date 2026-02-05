@@ -17,6 +17,7 @@ import { randomUUID } from "crypto";
 const DEMO_ORG_CODE = "DEMO2025";
 const DEMO_ORG_NAME = "Sandbox University - Demo Experience";
 const DEMO_EVALUATOR_EXPIRATION_DAYS = 30;
+const STUDENT_TRIAL_DAYS = 7;
 
 const FAKE_STUDENTS = [
   { firstName: "Alex", lastName: "Chen", email: "demo.student1@sandbox-university.edu" },
@@ -260,6 +261,82 @@ class DemoService {
     }
     
     return allowedOrgIds;
+  }
+
+  async provisionStudentTrial(userId: string, firstName: string, lastName: string): Promise<{ teamId: string; orgId: string; expiresAt: Date }> {
+    const demoOrgId = await this.ensureDemoOrganizationExists();
+    
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + STUDENT_TRIAL_DAYS);
+
+    await db.update(users)
+      .set({
+        demoAccess: DEMO_ACCESS.STUDENT_TRIAL,
+        demoExpiresAt: expiresAt,
+      })
+      .where(eq(users.id, userId));
+
+    const existingMember = await organizationStorage.getMember(userId, demoOrgId);
+    if (!existingMember) {
+      await organizationStorage.addMember({
+        userId,
+        organizationId: demoOrgId,
+        role: ROLES.STUDENT,
+        status: "active",
+        approvedAt: new Date(),
+      });
+    }
+
+    const trialTeamName = `Trial - ${firstName} ${lastName?.charAt(0) || ""}`.trim();
+    
+    const [existingTeam] = await db.select().from(teams)
+      .where(and(
+        eq(teams.organizationId, demoOrgId),
+        eq(teams.name, trialTeamName)
+      ));
+
+    let teamId: string;
+    if (existingTeam) {
+      teamId = existingTeam.id;
+    } else {
+      const [newTeam] = await db.insert(teams).values({
+        id: randomUUID(),
+        name: trialTeamName,
+        organizationId: demoOrgId,
+        currentWeek: 1,
+        totalWeeks: 8,
+        setupComplete: true,
+        researchComplete: true,
+        members: [{ id: userId, role: "member" }],
+        companyState: {
+          ...defaultCompanyState,
+          revenue: 120000000,
+          employees: 2500,
+          morale: 72,
+        },
+        decisions: [],
+        decisionRecords: [],
+        weeklyHistory: [],
+        viewedReportIds: [],
+      }).returning();
+      teamId = newTeam.id;
+    }
+
+    await db.update(users)
+      .set({ teamId })
+      .where(eq(users.id, userId));
+
+    return { teamId, orgId: demoOrgId, expiresAt };
+  }
+
+  async isStudentTrial(userId: string): Promise<boolean> {
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return false;
+    if (user.demoAccess !== DEMO_ACCESS.STUDENT_TRIAL) return false;
+    if (user.demoExpiresAt && new Date(user.demoExpiresAt) < new Date()) {
+      return false;
+    }
+    return true;
   }
 
   getDemoOrgCode(): string {

@@ -24,6 +24,7 @@ import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
+import ForStudents from "@/pages/for-students";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
@@ -40,7 +41,6 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
 import { DemoTourProvider } from "@/components/demo-tour-provider";
-import { GeminiQAWidget } from "@/components/gemini-qa-widget";
 
 function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
@@ -207,15 +207,15 @@ function AppRouter() {
   }
 
   if (!user) {
-    // Allow For Educators page without authentication
     if (location === "/for-educators") {
       return <ForEducators />;
     }
-    // Allow About page without authentication
+    if (location === "/for-students") {
+      return <ForStudents />;
+    }
     if (location === "/about") {
       return <About />;
     }
-    // Allow Privacy Policy page without authentication
     if (location === "/privacy") {
       return <Privacy />;
     }
@@ -277,9 +277,12 @@ function AppRouter() {
     return <Feedback />;
   }
 
-  // For Educators page accessible to any logged-in user
   if (location === "/for-educators") {
     return <ForEducators />;
+  }
+
+  if (location === "/for-students") {
+    return <ForStudents />;
   }
 
   // Super Admin - always redirect to admin dashboard if not already there
@@ -329,7 +332,6 @@ function App() {
           <DemoTourProvider>
             <AppRouter />
             <DemoPreviewWrapper />
-            <GeminiQAWidget />
           </DemoTourProvider>
           <Toaster />
         </TooltipProvider>

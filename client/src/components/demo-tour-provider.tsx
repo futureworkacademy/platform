@@ -51,8 +51,8 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     retry: false,
   });
 
-  // Show tour for evaluators OR users in demo preview mode (super admins testing)
-  const isDemoUser = user?.demoAccess === "evaluator" || user?.inDemoPreview === true;
+  // Show tour for evaluators, student trial users, OR users in demo preview mode (super admins testing)
+  const isDemoUser = user?.demoAccess === "evaluator" || user?.demoAccess === "student_trial" || user?.inDemoPreview === true;
 
   useEffect(() => {
     if (isDemoUser && !hasCompletedTour && !isTourActive) {

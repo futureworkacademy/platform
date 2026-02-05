@@ -1,20 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useDemoTour } from "./demo-tour-provider";
 import { 
-  MessageCircle, 
-  X, 
   Send, 
   Sparkles, 
   Loader2,
   HelpCircle,
-  ChevronDown
+  ChevronUp,
+  X
 } from "lucide-react";
 
 interface Message {
@@ -35,10 +32,9 @@ const QUICK_QUESTIONS = [
   "What happens when the week advances?",
 ];
 
-export function GeminiQAWidget() {
+export function GeminiQASidebar() {
   const { isDemoUser } = useDemoTour();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -84,10 +80,10 @@ export function GeminiQAWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current) {
+    if (isExpanded && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen, isMinimized]);
+  }, [isExpanded]);
 
   const handleSend = () => {
     if (!question.trim() || askMutation.isPending) return;
@@ -123,147 +119,121 @@ export function GeminiQAWidget() {
 
   if (!isDemoUser) return null;
 
-  if (!isOpen) {
+  if (!isExpanded) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          size="icon"
-          className="rounded-full shadow-lg"
-          onClick={() => setIsOpen(true)}
-          data-testid="button-open-gemini-qa"
-        >
-          <Sparkles className="h-5 w-5" />
-        </Button>
-        <Badge 
-          className="absolute -top-1 -right-1 text-[10px]"
-          data-testid="badge-ask-ai"
-        >
-          Ask AI
-        </Badge>
-      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full bg-primary/10 border-primary/20 text-primary"
+        onClick={() => setIsExpanded(true)}
+        data-testid="button-open-gemini-qa"
+      >
+        <Sparkles className="h-4 w-4 mr-2" />
+        Ask AI Guide
+      </Button>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <Card className="w-[380px] shadow-2xl border-primary/20" data-testid="card-gemini-qa">
-        <CardHeader className="pb-2 border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold">Demo Guide</CardTitle>
-                <p className="text-xs text-muted-foreground">Powered by Gemini</p>
+    <div className="flex flex-col border border-sidebar-border rounded-md bg-sidebar-accent/30 overflow-hidden" data-testid="card-gemini-qa">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-sidebar-border">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-semibold text-sidebar-foreground">AI Guide</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-6 w-6"
+            onClick={() => setIsExpanded(false)}
+            data-testid="button-close-qa"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+
+      <ScrollArea className="h-[200px] p-2" ref={scrollRef}>
+        <div className="space-y-2">
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[90%] rounded-md px-2 py-1.5 text-xs ${
+                  msg.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+                data-testid={`message-${msg.role}-${idx}`}
+              >
+                {msg.content}
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setIsMinimized(!isMinimized)}
-                data-testid="button-minimize-qa"
-              >
-                <ChevronDown className={`h-4 w-4 transition-transform ${isMinimized ? "rotate-180" : ""}`} />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setIsOpen(false)}
-                data-testid="button-close-qa"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+          ))}
+          {askMutation.isPending && (
+            <div className="flex justify-start">
+              <div className="bg-muted rounded-md px-2 py-1.5 text-xs flex items-center gap-1 text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Thinking...
+              </div>
             </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {messages.length === 1 && (
+        <div className="px-2 pb-1">
+          <p className="text-[10px] text-muted-foreground mb-1 flex items-center gap-1">
+            <HelpCircle className="h-2.5 w-2.5" />
+            Try asking:
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {QUICK_QUESTIONS.map((q, idx) => (
+              <Button
+                key={idx}
+                size="sm"
+                variant="outline"
+                className="text-[10px] h-auto py-0.5 px-1.5"
+                onClick={() => handleQuickQuestion(q)}
+                disabled={askMutation.isPending}
+                data-testid={`button-quick-question-${idx}`}
+              >
+                {q}
+              </Button>
+            ))}
           </div>
-        </CardHeader>
+        </div>
+      )}
 
-        {!isMinimized && (
-          <CardContent className="p-0">
-            <ScrollArea className="h-[300px] p-4" ref={scrollRef}>
-              <div className="space-y-4">
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                        msg.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                      data-testid={`message-${msg.role}-${idx}`}
-                    >
-                      {msg.content}
-                    </div>
-                  </div>
-                ))}
-                {askMutation.isPending && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-lg px-3 py-2 text-sm flex items-center gap-2">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Thinking...
-                    </div>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-
-            {messages.length === 1 && (
-              <div className="px-4 pb-2">
-                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                  <HelpCircle className="h-3 w-3" />
-                  Quick questions:
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {QUICK_QUESTIONS.map((q, idx) => (
-                    <Button
-                      key={idx}
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={() => handleQuickQuestion(q)}
-                      disabled={askMutation.isPending}
-                      data-testid={`button-quick-question-${idx}`}
-                    >
-                      {q}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+      <div className="p-2 border-t border-sidebar-border">
+        <div className="flex gap-1.5">
+          <Textarea
+            ref={inputRef}
+            placeholder="Ask about the simulation..."
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-[32px] max-h-[60px] resize-none text-xs"
+            disabled={askMutation.isPending}
+            data-testid="input-gemini-question"
+          />
+          <Button
+            size="icon"
+            onClick={handleSend}
+            disabled={!question.trim() || askMutation.isPending}
+            data-testid="button-send-question"
+          >
+            {askMutation.isPending ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Send className="h-3 w-3" />
             )}
-
-            <div className="p-3 border-t">
-              <div className="flex gap-2">
-                <Textarea
-                  ref={inputRef}
-                  placeholder="Ask about the simulation..."
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="min-h-[40px] max-h-[100px] resize-none text-sm"
-                  disabled={askMutation.isPending}
-                  data-testid="input-gemini-question"
-                />
-                <Button
-                  size="icon"
-                  onClick={handleSend}
-                  disabled={!question.trim() || askMutation.isPending}
-                  data-testid="button-send-question"
-                >
-                  {askMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

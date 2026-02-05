@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useDemoTour } from "@/components/demo-tour-provider";
 import { Button } from "@/components/ui/button";
+import { GeminiQASidebar } from "@/components/gemini-qa-widget";
 import logoForLight from "@assets/favicon.png";
 import logoForDark from "@assets/logo-white.png";
 import {
@@ -229,11 +230,12 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
         <div className="flex flex-col gap-3">
+          <GeminiQASidebar />
           {isDemoUser && (
             <Button
               variant="outline"
               size="sm"
-              className="w-full bg-sidebar-accent/50 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
+              className="w-full bg-sidebar-accent/50 border-sidebar-border text-sidebar-foreground"
               onClick={() => {
                 resetTour();
                 setTimeout(() => startTour(), 100);

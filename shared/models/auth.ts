@@ -21,6 +21,7 @@ export const ORG_STATUS = {
 export const DEMO_ACCESS = {
   NONE: "none",           // Regular user - no demo restrictions
   EVALUATOR: "evaluator", // Demo-only access for prospective faculty
+  STUDENT_TRIAL: "student_trial", // 7-day trial for students who discover the platform
 } as const;
 
 export type DemoAccess = typeof DEMO_ACCESS[keyof typeof DEMO_ACCESS];
@@ -188,6 +189,7 @@ export const educatorInquiries = pgTable("educator_inquiries", {
   message: text("message").notNull(),
   status: varchar("status").notNull().default("new"), // new, contacted, resolved
   notes: text("notes"), // Admin notes
+  referralSource: varchar("referral_source"), // e.g. "student_trial_abc123" for student referrals
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

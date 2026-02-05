@@ -2299,6 +2299,62 @@ Provide your consistency review in JSON format.`;
     }
   });
   
+  // Student trial - provision 7-day trial for authenticated students
+  app.post("/api/demo/student-trial", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (user.demoAccess === "student_trial" && user.demoExpiresAt && new Date(user.demoExpiresAt) > new Date()) {
+        return res.json({
+          success: true,
+          alreadyActive: true,
+          expiresAt: user.demoExpiresAt,
+          message: "Your trial is already active!"
+        });
+      }
+
+      if (user.demoAccess === "student_trial" && user.demoExpiresAt && new Date(user.demoExpiresAt) < new Date()) {
+        return res.status(403).json({ error: "Your 7-day trial has expired. Ask your instructor about getting full access." });
+      }
+
+      const firstName = user.firstName || "Student";
+      const lastName = user.lastName || "";
+
+      console.log("[Student Trial] Provisioning trial:", { userId, firstName, lastName });
+
+      const result = await demoService.provisionStudentTrial(userId, firstName, lastName);
+
+      await storage.logActivity({
+        eventType: "student_trial_provisioned",
+        userId,
+        userEmail: user.email || undefined,
+        userName: `${firstName} ${lastName}`.trim(),
+        details: {
+          expiresAt: result.expiresAt.toISOString(),
+          teamId: result.teamId,
+          demoOrgId: result.orgId,
+        },
+      });
+
+      res.json({
+        success: true,
+        expiresAt: result.expiresAt.toISOString(),
+        message: "Your 7-day trial is active! Dive into the simulation and experience AI leadership firsthand."
+      });
+    } catch (error) {
+      console.error("[Student Trial] Error:", error);
+      res.status(500).json({ error: "Failed to provision student trial" });
+    }
+  });
+
   // Check if user has demo access (authenticated)
   app.get("/api/demo/status", isAuthenticated, async (req: any, res) => {
     try {
