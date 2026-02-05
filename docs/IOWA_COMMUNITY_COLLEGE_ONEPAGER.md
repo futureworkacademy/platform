@@ -142,7 +142,7 @@ Custom scenario featuring:
 Future Work Academy
 
 **Email:** doug@futureworkacademy.com  
-**Web:** futureworkacademy.com/academia  
+**Web:** futureworkacademy.com/for-educators  
 **Phone:** [Available upon request]
 
 ---

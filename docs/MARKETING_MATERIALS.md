@@ -560,7 +560,7 @@ A custom Iowa-specific scenario featuring:
 **Doug Mitchell, Founder**  
 Future Work Academy  
 Email: doug@futureworkacademy.com  
-Web: futureworkacademy.com/academia
+Web: futureworkacademy.com/for-educators
 
 **Additional Iowa Materials:**
 - [Iowa Grant Proposal Outline](./IOWA_GRANT_PROPOSAL_OUTLINE.md)

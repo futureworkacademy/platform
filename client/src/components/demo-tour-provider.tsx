@@ -90,7 +90,7 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
   };
 
   const handleContactUs = () => {
-    setLocation("/academia");
+    setLocation("/for-educators");
   };
 
   return (

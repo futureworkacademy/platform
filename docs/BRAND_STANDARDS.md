@@ -122,7 +122,7 @@
 
 | Location | Tailwind Class | Pixel Height | Logo Type |
 |----------|----------------|--------------|-----------|
-| Main page headers (landing, academia, for-educators) | h-16 | 64px | Horizontal (with text) |
+| Main page headers (landing, for-educators) | h-16 | 64px | Horizontal (with text) |
 | Secondary page headers (about, privacy) | h-14 | 56px | Horizontal (with text) |
 | Sidebar (collapsed state) | h-10 | 40px | Icon only |
 | Favicon | - | 32px | Icon only |

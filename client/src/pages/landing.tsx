@@ -76,7 +76,7 @@ export default function Landing() {
               About FWA
             </a>
             <a 
-              href="/academia"
+              href="/for-educators"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
               data-testid="link-educator-inquiry"
             >

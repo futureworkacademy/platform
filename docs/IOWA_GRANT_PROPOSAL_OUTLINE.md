@@ -210,7 +210,7 @@ Multi-company consortiums (5+ companies, 2+ community college districts) receive
 **Doug Mitchell, Founder**  
 Future Work Academy  
 Email: doug@futureworkacademy.com  
-Web: futureworkacademy.com/academia
+Web: futureworkacademy.com/for-educators
 
 ### Recommended Next Steps
 

@@ -64,7 +64,7 @@ Would you have 15 minutes for a quick demo? I can set you up with a sandbox acco
 Best,
 Doug Mitchell
 Future Work Academy
-futureworkacademy.com/academia
+futureworkacademy.com/for-educators
 
 ---
 
@@ -181,7 +181,7 @@ What questions do you have?"
 *Coming Soon*
 
 We're planning a self-service flow where educators can:
-1. Request demo access via the /academia page
+1. Request demo access via the /for-educators page
 2. Automatically receive a limited "Evaluator" account
 3. Access a pre-populated demo organization
 4. Experience sandbox mode without manual setup

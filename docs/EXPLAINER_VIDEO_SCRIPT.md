@@ -98,7 +98,7 @@ Click the link below to schedule a 15-minute walkthrough, or jump right into you
 
 **TEXT ON SCREEN:**
 - Future Work Academy
-- futureworkacademy.com/academia
+- futureworkacademy.com/for-educators
 - doug@futureworkacademy.com
 
 **NARRATION:**

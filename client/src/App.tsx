@@ -24,7 +24,6 @@ import About from "@/pages/about";
 import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
-import Academia from "@/pages/academia";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
@@ -212,10 +211,6 @@ function AppRouter() {
     if (location === "/for-educators") {
       return <ForEducators />;
     }
-    // Allow Academia page without authentication
-    if (location === "/academia") {
-      return <Academia />;
-    }
     // Allow About page without authentication
     if (location === "/about") {
       return <About />;
@@ -287,11 +282,6 @@ function AppRouter() {
     return <ForEducators />;
   }
 
-  // Academia page accessible to any logged-in user
-  if (location === "/academia") {
-    return <Academia />;
-  }
-
   // Super Admin - always redirect to admin dashboard if not already there
   // This check happens BEFORE the teamId check to ensure admins never see WaitingAssignment
   // Handle both boolean true AND string 'true'/'super_admin' for robustness (runtime type may differ)
@@ -306,7 +296,7 @@ function AppRouter() {
   
   // IMPORTANT: If admin is in sandbox mode or demo preview mode, allow them to access other pages
   if (isAdminUser && !isInSandboxMode && !isInDemoPreview) {
-    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/academia' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
   }
