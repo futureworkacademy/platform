@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,6 +67,11 @@ const INQUIRY_TYPES = [
 export default function ForEducators() {
   const { toast } = useToast();
 
+  const referralSource = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("ref") || null;
+  }, []);
+
   const [demoProvisioned, setDemoProvisioned] = useState(false);
   const [demoCode, setDemoCode] = useState('');
   const [demoExpiresAt, setDemoExpiresAt] = useState('');
@@ -89,6 +94,7 @@ export default function ForEducators() {
       name: string;
       institution?: string;
       message?: string;
+      referralSource?: string;
     }) => {
       const response = await apiRequest('POST', '/api/demo/request-access', data);
       return response.json();
@@ -120,6 +126,7 @@ export default function ForEducators() {
       institution?: string;
       inquiryType: string;
       message: string;
+      referralSource?: string;
     }) => {
       return apiRequest('POST', '/api/educator-inquiry', data);
     },
@@ -149,7 +156,8 @@ export default function ForEducators() {
       name: demoName,
       email: demoEmailInput,
       institution: demoInstitution || undefined,
-      message: `Instant demo request from educator page`
+      message: `Instant demo request from educator page`,
+      referralSource: referralSource || undefined,
     });
   };
 
@@ -169,7 +177,8 @@ export default function ForEducators() {
       phone: contactPhone || undefined,
       institution: contactInstitution || undefined,
       inquiryType,
-      message: contactMessage
+      message: contactMessage,
+      referralSource: referralSource || undefined,
     });
   };
 

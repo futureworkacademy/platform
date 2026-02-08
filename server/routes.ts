@@ -2128,7 +2128,7 @@ Provide your consistency review in JSON format.`;
   // Educator inquiry (public - from "For Educators" page)
   app.post("/api/educator-inquiry", async (req, res) => {
     try {
-      const { name, email, phone, institution, inquiryType, message } = req.body;
+      const { name, email, phone, institution, inquiryType, message, referralSource } = req.body;
       
       if (!name || !email || !message) {
         return res.status(400).json({ error: "Name, email, and message are required" });
@@ -2157,7 +2157,6 @@ Provide your consistency review in JSON format.`;
         message: message.substring(0, 100) + "..." 
       });
       
-      // Store in database
       const inquiry = await storage.createEducatorInquiry({
         name,
         email,
@@ -2165,6 +2164,7 @@ Provide your consistency review in JSON format.`;
         institution: institution || null,
         inquiryType: inquiryType || 'general',
         message,
+        referralSource: referralSource || null,
       });
       
       // Log activity
@@ -2223,7 +2223,7 @@ Provide your consistency review in JSON format.`;
   // Request demo access (public - auto-provisions evaluator account)
   app.post("/api/demo/request-access", async (req, res) => {
     try {
-      const { email, name, institution, message } = req.body;
+      const { email, name, institution, message, referralSource } = req.body;
       
       if (!email || !name) {
         return res.status(400).json({ error: "Email and name are required" });
@@ -2256,6 +2256,7 @@ Provide your consistency review in JSON format.`;
         details: { 
           institution, 
           message, 
+          referralSource: referralSource || null,
           expiresAt: result.expiresAt.toISOString(),
           demoOrgId: result.orgId 
         },

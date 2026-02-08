@@ -99,7 +99,7 @@ export interface IStorage {
   exportActivityLogs(format: "csv" | "json"): Promise<string>;
   
   // Educator inquiries
-  createEducatorInquiry(inquiry: { name: string; email: string; phone?: string | null; institution?: string | null; inquiryType: string; message: string }): Promise<{ id: string }>;
+  createEducatorInquiry(inquiry: { name: string; email: string; phone?: string | null; institution?: string | null; inquiryType: string; message: string; referralSource?: string | null }): Promise<{ id: string }>;
   
   // Platform settings (Super Admin)
   getPlatformSettings(): Promise<PlatformSettings>;
@@ -2654,7 +2654,8 @@ export class MemStorage implements IStorage {
     phone?: string | null; 
     institution?: string | null; 
     inquiryType: string; 
-    message: string 
+    message: string;
+    referralSource?: string | null;
   }): Promise<{ id: string }> {
     const { db } = await import("./db");
     const { educatorInquiries } = await import("@shared/models/auth");
@@ -2666,6 +2667,7 @@ export class MemStorage implements IStorage {
       institution: inquiry.institution || null,
       inquiryType: inquiry.inquiryType,
       message: inquiry.message,
+      referralSource: inquiry.referralSource || null,
     }).returning({ id: educatorInquiries.id });
     
     return { id: result.id };
