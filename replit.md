@@ -28,6 +28,10 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 ## Recent Updates (February 2026)
 
+**Unified Role Preview System:** Consolidated three separate preview modes (demo/evaluator, instructor, student sandbox) into a single "Role Switcher" on the Super Admin Console. Super admins can click "Preview as Educator" or "Preview as Student" on any organization to fully experience that role. A persistent blue banner shows the current preview role with an exit button. Uses unified DB fields (`previewRole`, `previewOrgId`) and API endpoints (`/api/preview/enter`, `/api/preview/exit`). Old preview flags (`inDemoPreview`, `inInstructorPreview`) preserved for backward compatibility.
+
+**Evaluator Access Management:** Super admins can grant "Evaluator" access to trusted colleagues via email (Settings tab > Evaluator Access). Evaluators can preview the demo organization as educator or student but have no admin privileges. Managed via `/api/evaluators/grant` and `/api/evaluators/revoke` endpoints.
+
 **Content Consistency Dashboard:** Super Admin dashboard at `/content-validation` validates all simulation content (briefings, decisions, voicemails, intel articles, advisors) against `docs/canonical.json` as the source of truth. Ensures 17 characters, 8 weeks, and company details are consistent across all content.
 
 **Phone-a-Friend Advisor System:** 9 specialized advisors provide AI-generated strategic guidance (3 credits per semester). Advisors include CEO Coach, HR Expert, CFO Strategist, and more with stakeholder awareness integration.

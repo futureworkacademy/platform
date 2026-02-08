@@ -99,6 +99,8 @@ interface RoleInfo {
   isClassAdmin: boolean;
   inInstructorPreview?: boolean;
   instructorPreviewOrgId?: string | null;
+  previewRole?: string | null;
+  previewOrgId?: string | null;
   membershipCount: number;
   memberships: OrganizationMember[];
 }
@@ -311,18 +313,18 @@ export default function ClassAdminPage() {
     },
   });
 
-  const exitInstructorPreviewMutation = useMutation({
+  const exitPreviewMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", "/api/instructor-preview/exit", {});
+      return apiRequest("POST", "/api/preview/exit", {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({ title: "Exited instructor preview", description: "You are back to Super Admin view" });
+      toast({ title: "Preview ended", description: "You are back to your normal view" });
       setLocation("/super-admin");
     },
     onError: (error: any) => {
-      toast({ title: "Error exiting instructor preview", description: error.message, variant: "destructive" });
+      toast({ title: "Error exiting preview", description: error.message, variant: "destructive" });
     },
   });
 
@@ -786,29 +788,10 @@ export default function ClassAdminPage() {
     );
   }
 
-  const isInInstructorPreview = roleInfo?.inInstructorPreview === true;
+  const isInPreviewMode = roleInfo?.previewRole === "educator" || roleInfo?.inInstructorPreview === true;
 
   return (
     <div className="min-h-screen bg-background">
-      {isInInstructorPreview && (
-        <div className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2.5 flex items-center justify-center gap-4 text-sm font-medium sticky top-0 z-50" data-testid="banner-instructor-preview">
-          <GraduationCap className="h-4 w-4" />
-          <span>INSTRUCTOR PREVIEW - You are viewing this page as an instructor would</span>
-          <span className="text-blue-200">|</span>
-          <span className="text-blue-100">Super Admin features are hidden</span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-4 bg-transparent border-white/40 text-white"
-            onClick={() => exitInstructorPreviewMutation.mutate()}
-            disabled={exitInstructorPreviewMutation.isPending}
-            data-testid="button-exit-instructor-preview"
-          >
-            <ArrowLeft className="mr-1 h-3 w-3" />
-            {exitInstructorPreviewMutation.isPending ? "Exiting..." : "Exit to Super Admin"}
-          </Button>
-        </div>
-      )}
       <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -817,11 +800,11 @@ export default function ClassAdminPage() {
               <GraduationCap className="h-8 w-8 text-primary" />
               {currentOrg?.name || "Class Admin Console"}
               <Badge 
-                variant={isInInstructorPreview ? "secondary" : "default"} 
+                variant={isInPreviewMode ? "secondary" : "default"} 
                 className="text-xs ml-2" 
                 data-testid="badge-role"
               >
-                {isInInstructorPreview ? "Instructor Preview" : roleInfo?.isSuperAdmin ? "Super Admin" : "Instructor"}
+                {isInPreviewMode ? "Educator Preview" : roleInfo?.isSuperAdmin ? "Super Admin" : "Instructor"}
               </Badge>
             </h1>
             <p className="text-muted-foreground">
@@ -901,7 +884,7 @@ export default function ClassAdminPage() {
               <RefreshCw className={`mr-2 h-4 w-4 ${membersFetching || teamsFetching ? 'animate-spin' : ''}`} />
               {membersFetching || teamsFetching ? 'Refreshing...' : 'Refresh'}
             </Button>
-            {!isInInstructorPreview && myOrganizations.length > 1 && (
+            {!isInPreviewMode && myOrganizations.length > 1 && (
               <Button variant="outline" onClick={() => setLocation("/class-admin")} data-testid="button-switch-org">
                 Switch Org
               </Button>
@@ -912,7 +895,7 @@ export default function ClassAdminPage() {
                 Profile
               </Button>
             </Link>
-            {!isInInstructorPreview && (
+            {!isInPreviewMode && (
               <Link href="/">
                 <Button variant="outline" data-testid="button-back">
                   <ArrowLeft className="mr-2 h-4 w-4" />

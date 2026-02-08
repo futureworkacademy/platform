@@ -35,6 +35,7 @@ import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
 import { DemoPreviewControls } from "@/components/demo-preview-controls";
+import { PreviewBanner } from "@/components/preview-banner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical, Eye } from "lucide-react";
 import { useEffect } from "react";
@@ -58,9 +59,10 @@ function GameLayout() {
   
   const isAdmin = user?.isAdmin === "true";
   
-  // Check if user is in sandbox mode
-  const inSandboxMode = user?.inStudentPreview === true;
-  const previewModeOrgId = user?.previewModeOrgId as string | null;
+  const previewRole = user?.previewRole as string | null;
+  const previewOrgId = user?.previewOrgId as string | null;
+  const inSandboxMode = previewRole === "student" || user?.inStudentPreview === true;
+  const sandboxOrgId = previewOrgId || (user?.previewModeOrgId as string | null);
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -139,9 +141,9 @@ function GameLayout() {
           </main>
           
           {/* Sandbox Mode Controls - shown when admin is testing as student */}
-          {inSandboxMode && previewModeOrgId && team && (
+          {inSandboxMode && sandboxOrgId && team && (
             <SandboxControls 
-              orgId={previewModeOrgId}
+              orgId={sandboxOrgId}
               currentWeek={team.currentWeek}
             />
           )}
@@ -291,26 +293,40 @@ function AppRouter() {
   const adminValue = user.isAdmin as unknown;
   const isAdminUser = adminValue === true || adminValue === 'true' || adminValue === 'super_admin';
   
-  // Check if admin is in sandbox mode (previewing student experience)
+  // Unified preview mode check
+  const previewRole = user.previewRole as string | null;
+  const previewOrgId = user.previewOrgId as string | null;
+  const isInPreviewMode = !!previewRole && !!previewOrgId;
+  
+  // Legacy preview checks (for backward compat during transition)
   const isInSandboxMode = user.inStudentPreview === true;
-  
-  // Check if admin is in demo preview mode (viewing as evaluator would)
   const isInDemoPreview = user.inDemoPreview === true;
-  
-  // Check if admin is in instructor preview mode
   const isInInstructorPreview = user.inInstructorPreview === true;
-  const instructorPreviewOrgId = user.instructorPreviewOrgId as string | null;
+  const isInAnyPreview = isInPreviewMode || isInSandboxMode || isInDemoPreview || isInInstructorPreview;
   
-  // IMPORTANT: If admin is in sandbox mode, demo preview, or instructor preview, allow them to access other pages
-  if (isAdminUser && !isInSandboxMode && !isInDemoPreview && !isInInstructorPreview) {
+  // If admin is NOT in any preview mode, constrain to admin pages
+  if (isAdminUser && !isInAnyPreview) {
     if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
   }
   
-  // If in instructor preview mode, redirect to class-admin for that org
-  if (isAdminUser && isInInstructorPreview && instructorPreviewOrgId) {
+  // If in educator preview, redirect to class-admin for that org
+  if (isAdminUser && isInPreviewMode && previewRole === "educator") {
     if (location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin')) {
+      return <Redirect to={`/class-admin?org=${previewOrgId}`} />;
+    }
+  }
+  
+  // If in student preview, allow access to student pages (dashboard, briefing, etc.)
+  if (isAdminUser && isInPreviewMode && previewRole === "student") {
+    // Student preview allows all non-admin pages
+  }
+  
+  // Legacy instructor preview redirect (for users who entered before this update)
+  if (isAdminUser && isInInstructorPreview && !isInPreviewMode) {
+    const instructorPreviewOrgId = user.instructorPreviewOrgId as string | null;
+    if (instructorPreviewOrgId && location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin')) {
       return <Redirect to={`/class-admin?org=${instructorPreviewOrgId}`} />;
     }
   }
@@ -323,16 +339,35 @@ function AppRouter() {
   return <AuthenticatedApp />;
 }
 
-function DemoPreviewWrapper() {
+function PreviewBannerWrapper() {
   const { user } = useAuth();
+  const previewRole = user?.previewRole as string | null;
+  const previewOrgId = user?.previewOrgId as string | null;
+  const isInPreviewMode = !!previewRole && !!previewOrgId;
+  
+  const { data: roleData } = useQuery<{
+    organizations?: Array<{ id: string; name: string }>;
+  }>({
+    queryKey: ["/api/my-role"],
+    enabled: isInPreviewMode,
+  });
+  
+  const orgName = roleData?.organizations?.find(o => o.id === previewOrgId)?.name;
+  
+  // Also handle legacy demo preview
   const inDemoPreview = user?.inDemoPreview === true;
   const demoOrgId = user?.demoPreviewOrgId;
-  // Show CTA for both real evaluators AND super admins previewing the evaluator experience
   const isEvaluator = user?.demoAccess === "evaluator" || inDemoPreview;
   
-  if (!inDemoPreview) return null;
+  if (isInPreviewMode) {
+    return <PreviewBanner previewRole={previewRole!} previewOrgId={previewOrgId!} orgName={orgName} />;
+  }
   
-  return <DemoPreviewControls demoOrgId={demoOrgId} isEvaluator={isEvaluator} />;
+  if (inDemoPreview) {
+    return <DemoPreviewControls demoOrgId={demoOrgId} isEvaluator={isEvaluator} />;
+  }
+  
+  return null;
 }
 
 function App() {
@@ -342,7 +377,7 @@ function App() {
         <TooltipProvider>
           <DemoTourProvider>
             <AppRouter />
-            <DemoPreviewWrapper />
+            <PreviewBannerWrapper />
           </DemoTourProvider>
           <Toaster />
         </TooltipProvider>

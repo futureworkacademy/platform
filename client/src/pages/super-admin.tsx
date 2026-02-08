@@ -32,7 +32,8 @@ import {
   FileText,
   CheckCircle,
   Eye,
-  GraduationCap
+  GraduationCap,
+  X
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "wouter";
@@ -290,6 +291,131 @@ function GoogleDocsSyncCard() {
               </div>
             </div>
           </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function EvaluatorManagement() {
+  const { toast } = useToast();
+  const [newEvaluatorEmail, setNewEvaluatorEmail] = useState("");
+
+  const { data: evaluators, isLoading } = useQuery<Array<{
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    demoAccess: string;
+    createdAt: string;
+  }>>({
+    queryKey: ["/api/evaluators"],
+  });
+
+  const grantMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest("POST", "/api/evaluators/grant", { email });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/evaluators"] });
+      toast({ title: "Evaluator access granted", description: `${data.email} can now preview the platform` });
+      setNewEvaluatorEmail("");
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to grant access", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async (evaluatorId: string) => {
+      const response = await apiRequest("POST", "/api/evaluators/revoke", { evaluatorId });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/evaluators"] });
+      toast({ title: "Evaluator access revoked" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to revoke access", description: error.message, variant: "destructive" });
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          Evaluator Access
+        </CardTitle>
+        <CardDescription>
+          Grant trusted colleagues access to preview the platform as an educator or student. Evaluators can explore the demo organization but have no admin privileges.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex gap-2">
+          <Input
+            placeholder="colleague@example.com"
+            value={newEvaluatorEmail}
+            onChange={(e) => setNewEvaluatorEmail(e.target.value)}
+            type="email"
+            data-testid="input-evaluator-email"
+          />
+          <Button
+            onClick={() => {
+              if (newEvaluatorEmail.trim()) {
+                grantMutation.mutate(newEvaluatorEmail.trim());
+              }
+            }}
+            disabled={!newEvaluatorEmail.trim() || grantMutation.isPending}
+            data-testid="button-grant-evaluator"
+          >
+            {grantMutation.isPending ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <UserPlus className="h-4 w-4 mr-2" />
+            )}
+            Grant Access
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : evaluators && evaluators.length > 0 ? (
+          <div className="space-y-2">
+            {evaluators.map((evaluator) => (
+              <div 
+                key={evaluator.id} 
+                className="flex items-center justify-between p-3 border rounded-md"
+                data-testid={`evaluator-row-${evaluator.id}`}
+              >
+                <div>
+                  <p className="font-medium text-sm">
+                    {evaluator.firstName && evaluator.lastName 
+                      ? `${evaluator.firstName} ${evaluator.lastName}` 
+                      : evaluator.email}
+                  </p>
+                  {evaluator.firstName && <p className="text-xs text-muted-foreground">{evaluator.email}</p>}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => revokeMutation.mutate(evaluator.id)}
+                  disabled={revokeMutation.isPending}
+                  data-testid={`button-revoke-${evaluator.id}`}
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Revoke
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No evaluators yet. Enter an email above to grant preview access.
+          </p>
         )}
       </CardContent>
     </Card>
@@ -655,44 +781,31 @@ export default function SuperAdminPage() {
 
   const [, setLocation] = useLocation();
   
-  // Enter demo preview mode mutation
-  const enterDemoPreviewMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/demo/preview/enter", {});
+  const enterPreviewMutation = useMutation({
+    mutationFn: async ({ role, orgId }: { role: string; orgId: string }) => {
+      const response = await apiRequest("POST", "/api/preview/enter", { role, orgId });
       return response.json();
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({ 
-        title: "Demo Preview Mode Active", 
-        description: "You are now viewing as an evaluator would. Use the controls at the bottom to exit." 
-      });
-      setLocation("/class-admin");
+      if (data.role === "educator") {
+        toast({ 
+          title: "Educator Preview Active", 
+          description: `You are now viewing as an educator for ${data.orgName}. Use the banner to exit.` 
+        });
+        setLocation(`/class-admin?org=${data.orgId}`);
+      } else {
+        toast({ 
+          title: "Student Preview Active", 
+          description: `You are now viewing as a student in ${data.orgName}. Use the banner to exit.` 
+        });
+        setLocation("/");
+      }
     },
     onError: (error: any) => {
-      toast({ title: "Failed to enter demo preview", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // Enter instructor preview mode mutation
-  const enterInstructorPreviewMutation = useMutation({
-    mutationFn: async (orgId: string) => {
-      const response = await apiRequest("POST", "/api/instructor-preview/enter", { orgId });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({ 
-        title: "Instructor Preview Active", 
-        description: "You are now viewing as an instructor would. A banner will appear to exit." 
-      });
-      setLocation(`/class-admin?org=${data.orgId}`);
-    },
-    onError: (error: any) => {
-      toast({ title: "Failed to enter instructor preview", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to enter preview", description: error.message, variant: "destructive" });
     },
   });
 
@@ -769,15 +882,6 @@ export default function SuperAdminPage() {
             <p className="text-muted-foreground">Platform-wide management and organization control</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button 
-              variant="default" 
-              onClick={() => enterDemoPreviewMutation.mutate()}
-              disabled={enterDemoPreviewMutation.isPending}
-              data-testid="button-enter-demo-preview"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              {enterDemoPreviewMutation.isPending ? "Entering..." : "Preview as Evaluator"}
-            </Button>
             <Button variant="outline" onClick={handleRefresh} data-testid="button-refresh">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
@@ -1172,12 +1276,22 @@ export default function SuperAdminPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => enterInstructorPreviewMutation.mutate(org.id)}
-                            disabled={enterInstructorPreviewMutation.isPending}
-                            data-testid={`button-act-instructor-${org.id}`}
+                            onClick={() => enterPreviewMutation.mutate({ role: "educator", orgId: org.id })}
+                            disabled={enterPreviewMutation.isPending}
+                            data-testid={`button-preview-educator-${org.id}`}
                           >
                             <GraduationCap className="mr-2 h-3 w-3" />
-                            Act as Instructor
+                            Preview as Educator
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => enterPreviewMutation.mutate({ role: "student", orgId: org.id })}
+                            disabled={enterPreviewMutation.isPending}
+                            data-testid={`button-preview-student-${org.id}`}
+                          >
+                            <Users className="mr-2 h-3 w-3" />
+                            Preview as Student
                           </Button>
                         </div>
                       </div>
@@ -2000,6 +2114,8 @@ export default function SuperAdminPage() {
                     </div>
                   </CardFooter>
                 </Card>
+
+                <EvaluatorManagement />
               </>
             )}
           </TabsContent>

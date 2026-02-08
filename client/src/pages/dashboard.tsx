@@ -41,8 +41,9 @@ export default function Dashboard() {
     queryKey: ["/api/team"],
   });
 
-  // Check if current user is an admin in preview mode
   const { data: userInfo } = useQuery<{ 
+    previewRole?: string | null;
+    previewOrgId?: string | null;
     inStudentPreview?: boolean;
     isClassAdmin?: boolean;
     isSuperAdmin?: boolean;
@@ -52,18 +53,18 @@ export default function Dashboard() {
     queryKey: ["/api/my-role"],
   });
 
-  const isInPreviewMode = userInfo?.inStudentPreview === true;
-  // Use the specific org being previewed (not just first org)
-  const adminOrgId = userInfo?.previewModeOrgId || userInfo?.organizations?.[0]?.id;
+  const isInPreviewMode = !!userInfo?.previewRole || userInfo?.inStudentPreview === true;
+  const adminOrgId = userInfo?.previewOrgId || userInfo?.previewModeOrgId || userInfo?.organizations?.[0]?.id;
 
   const exitPreviewModeMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", `/api/class-admin/organizations/${adminOrgId}/preview-mode/exit`, {});
+      return apiRequest("POST", "/api/preview/exit", {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({ title: "Exited preview mode", description: "Returning to admin view" });
-      setLocation("/class-admin");
+      setLocation("/super-admin");
     },
     onError: (error: any) => {
       toast({ title: "Error exiting preview mode", description: error.message, variant: "destructive" });

@@ -56,8 +56,7 @@ export default function Research() {
   const { user } = useAuth();
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   
-  // Check if user is in sandbox mode - skip redirects in sandbox
-  const inSandboxMode = user?.inStudentPreview === true;
+  const inSandboxMode = (user?.previewRole as string | null) === "student" || user?.inStudentPreview === true;
 
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
@@ -747,8 +746,8 @@ END OF RESEARCH MATERIALS
       </div>
       
       {/* Sandbox Controls - Fixed at bottom when in sandbox mode */}
-      {inSandboxMode && user?.previewModeOrgId && team && (
-        <SandboxControls orgId={user.previewModeOrgId} currentWeek={team.currentWeek || 1} />
+      {inSandboxMode && ((user?.previewOrgId as string | null) || (user?.previewModeOrgId as string | null)) && team && (
+        <SandboxControls orgId={((user?.previewOrgId as string | null) || (user?.previewModeOrgId as string | null))!} currentWeek={team.currentWeek || 1} />
       )}
     </div>
   );

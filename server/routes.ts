@@ -4310,6 +4310,8 @@ Provide your consistency review in JSON format.`;
         demoPreviewOrgId,
         inInstructorPreview,
         instructorPreviewOrgId,
+        previewRole: user?.previewRole || null,
+        previewOrgId: user?.previewOrgId || null,
         organizations: adminOrgs,
         membershipCount: memberships.length,
         memberships,
@@ -4828,7 +4830,300 @@ Provide your consistency review in JSON format.`;
     }
   });
 
-  // Enter student preview mode (sandbox mode)
+  // ==================== UNIFIED ROLE PREVIEW ====================
+
+  app.post("/api/preview/enter", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { role, orgId } = req.body;
+
+      if (!role || !["educator", "student"].includes(role)) {
+        return res.status(400).json({ error: "role must be 'educator' or 'student'" });
+      }
+      if (!orgId) {
+        return res.status(400).json({ error: "orgId is required" });
+      }
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const isEvaluator = await (async () => {
+        const [user] = await db.select().from(users).where(eq(users.id, userId));
+        return user?.demoAccess === "evaluator";
+      })();
+
+      if (!isSuperAdmin && !isEvaluator) {
+        return res.status(403).json({ error: "Super Admin or Evaluator access required" });
+      }
+
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+      if (!org) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+
+      if (isEvaluator && !isSuperAdmin) {
+        const demoOrgId = await demoService.ensureDemoOrganizationExists();
+        if (orgId !== demoOrgId) {
+          return res.status(403).json({ error: "Evaluators can only preview the demo organization" });
+        }
+      }
+
+      if (role === "student") {
+        let [testStudent] = await db.select().from(users)
+          .where(and(
+            eq(users.testStudentOwnerId, userId),
+            eq(users.testStudentOwnerOrgId, orgId)
+          ));
+
+        if (!testStudent) {
+          const testStudentId = randomUUID();
+          const testEmail = `test-student-${userId.substring(0, 8)}-${orgId.substring(0, 6)}@preview.local`;
+          const [adminUser] = await db.select().from(users).where(eq(users.id, userId));
+          
+          await db.insert(users).values({
+            id: testStudentId,
+            email: testEmail,
+            firstName: "Test",
+            lastName: "Student (Preview)",
+            isAdmin: "false",
+            isTestStudent: true,
+            testStudentOwnerId: userId,
+            testStudentOwnerOrgId: orgId,
+            institution: adminUser?.institution,
+          });
+
+          [testStudent] = await db.select().from(users).where(eq(users.id, testStudentId));
+        }
+
+        let testTeam = null;
+        if (testStudent.teamId) {
+          const [existing] = await db.select().from(teams).where(eq(teams.id, testStudent.teamId));
+          testTeam = existing;
+        }
+
+        if (!testTeam) {
+          const teamName = `[Preview] Test Team - ${org.name}`;
+          const testTeamId = randomUUID();
+          await db.insert(teams).values({
+            id: testTeamId,
+            name: teamName,
+            organizationId: orgId,
+            members: [testStudent.id],
+            companyState: defaultCompanyState,
+            currentWeek: 1,
+            totalWeeks: 8,
+            setupComplete: true,
+            researchComplete: true,
+          });
+
+          await db.update(users)
+            .set({ teamId: testTeamId, updatedAt: new Date() })
+            .where(eq(users.id, testStudent.id));
+
+          [testTeam] = await db.select().from(teams).where(eq(teams.id, testTeamId));
+        }
+
+        const [existingMember] = await db.select().from(organizationMembers)
+          .where(and(
+            eq(organizationMembers.userId, testStudent.id),
+            eq(organizationMembers.organizationId, orgId)
+          ));
+        if (!existingMember) {
+          await organizationStorage.addMember({
+            userId: testStudent.id,
+            organizationId: orgId,
+            role: ROLES.STUDENT,
+            status: "active",
+            approvedAt: new Date(),
+          });
+        }
+
+        await db.update(users)
+          .set({ 
+            previewRole: "student",
+            previewOrgId: orgId,
+            inStudentPreview: true,
+            previewModeOrgId: orgId,
+            updatedAt: new Date() 
+          })
+          .where(eq(users.id, userId));
+
+        console.log("[Preview] Entered student preview:", { userId, orgId, testStudentId: testStudent.id });
+        res.json({ success: true, role: "student", orgId, orgName: org.name, testStudentId: testStudent.id, teamId: testStudent.teamId });
+      } else {
+        const existingMember = await organizationStorage.getMember(userId, orgId);
+        if (!existingMember) {
+          await organizationStorage.addMember({
+            userId,
+            organizationId: orgId,
+            role: ROLES.CLASS_ADMIN,
+            status: "active",
+            approvedAt: new Date(),
+          });
+        }
+
+        await db.update(users)
+          .set({ 
+            previewRole: "educator",
+            previewOrgId: orgId,
+            updatedAt: new Date() 
+          })
+          .where(eq(users.id, userId));
+
+        console.log("[Preview] Entered educator preview:", { userId, orgId });
+        res.json({ success: true, role: "educator", orgId, orgName: org.name });
+      }
+    } catch (error) {
+      console.error("[Preview] Error entering:", error);
+      res.status(500).json({ error: "Failed to enter preview mode" });
+    }
+  });
+
+  app.post("/api/preview/exit", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      await db.update(users)
+        .set({ 
+          previewRole: null,
+          previewOrgId: null,
+          inStudentPreview: false,
+          previewModeOrgId: null,
+          inInstructorPreview: false,
+          instructorPreviewOrgId: null,
+          inDemoPreview: false,
+          demoPreviewOrgId: null,
+          updatedAt: new Date() 
+        })
+        .where(eq(users.id, userId));
+
+      console.log("[Preview] Exited preview mode:", { userId });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Preview] Error exiting:", error);
+      res.status(500).json({ error: "Failed to exit preview mode" });
+    }
+  });
+
+  // ==================== EVALUATOR ACCESS MANAGEMENT ====================
+
+  app.get("/api/evaluators", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const evaluators = await db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        demoAccess: users.demoAccess,
+        demoExpiresAt: users.demoExpiresAt,
+        createdAt: users.createdAt,
+      }).from(users).where(eq(users.demoAccess, "evaluator"));
+
+      res.json(evaluators);
+    } catch (error) {
+      console.error("[Evaluators] Error listing:", error);
+      res.status(500).json({ error: "Failed to list evaluators" });
+    }
+  });
+
+  app.post("/api/evaluators/grant", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      const [existingUser] = await db.select().from(users).where(eq(users.email, email));
+      
+      if (existingUser) {
+        await db.update(users)
+          .set({ demoAccess: "evaluator", demoExpiresAt: null, updatedAt: new Date() })
+          .where(eq(users.id, existingUser.id));
+        
+        const demoOrgId = await demoService.ensureDemoOrganizationExists();
+        const existingMember = await organizationStorage.getMember(existingUser.id, demoOrgId);
+        if (!existingMember) {
+          await organizationStorage.addMember({
+            userId: existingUser.id,
+            organizationId: demoOrgId,
+            role: ROLES.CLASS_ADMIN,
+            status: "active",
+            approvedAt: new Date(),
+          });
+        }
+
+        console.log("[Evaluators] Granted evaluator access to existing user:", email);
+        res.json({ success: true, email, status: "updated" });
+      } else {
+        const newUserId = randomUUID();
+        await db.insert(users).values({
+          id: newUserId,
+          email,
+          demoAccess: "evaluator",
+          isAdmin: "false",
+        });
+
+        const demoOrgId = await demoService.ensureDemoOrganizationExists();
+        await organizationStorage.addMember({
+          userId: newUserId,
+          organizationId: demoOrgId,
+          role: ROLES.CLASS_ADMIN,
+          status: "active",
+          approvedAt: new Date(),
+        });
+
+        console.log("[Evaluators] Created new evaluator user:", email);
+        res.json({ success: true, email, status: "created" });
+      }
+    } catch (error) {
+      console.error("[Evaluators] Error granting access:", error);
+      res.status(500).json({ error: "Failed to grant evaluator access" });
+    }
+  });
+
+  app.post("/api/evaluators/revoke", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      const { evaluatorId } = req.body;
+      if (!evaluatorId) {
+        return res.status(400).json({ error: "evaluatorId is required" });
+      }
+
+      await db.update(users)
+        .set({ demoAccess: "none", updatedAt: new Date() })
+        .where(eq(users.id, evaluatorId));
+
+      console.log("[Evaluators] Revoked evaluator access:", evaluatorId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Evaluators] Error revoking access:", error);
+      res.status(500).json({ error: "Failed to revoke evaluator access" });
+    }
+  });
+
+  // Enter student preview mode (sandbox mode) - LEGACY
   app.post("/api/class-admin/organizations/:orgId/preview-mode/enter", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;

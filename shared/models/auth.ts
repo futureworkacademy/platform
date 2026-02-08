@@ -26,6 +26,14 @@ export const DEMO_ACCESS = {
 
 export type DemoAccess = typeof DEMO_ACCESS[keyof typeof DEMO_ACCESS];
 
+// Unified preview roles for role switching
+export const PREVIEW_ROLES = {
+  EDUCATOR: "educator",
+  STUDENT: "student",
+} as const;
+
+export type PreviewRole = typeof PREVIEW_ROLES[keyof typeof PREVIEW_ROLES];
+
 export type OrgStatus = typeof ORG_STATUS[keyof typeof ORG_STATUS];
 
 // Session storage table.
@@ -69,6 +77,8 @@ export const users = pgTable("users", {
   instructorPreviewOrgId: varchar("instructor_preview_org_id"),
   inDemoPreview: boolean("in_demo_preview").default(false), // Super admin viewing as evaluator
   demoPreviewOrgId: varchar("demo_preview_org_id"), // Demo org being previewed
+  previewRole: varchar("preview_role"), // Unified preview: "educator" | "student" | null
+  previewOrgId: varchar("preview_org_id"), // Org being previewed in unified mode
   demoAccess: varchar("demo_access").default("none"), // none, evaluator - restricts to demo orgs only
   demoExpiresAt: timestamp("demo_expires_at"), // When evaluator access expires
   createdAt: timestamp("created_at").defaultNow(),
