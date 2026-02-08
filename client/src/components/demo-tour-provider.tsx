@@ -93,6 +93,10 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
     setLocation("/for-educators");
   };
 
+  const ctaUserType: "evaluator" | "student_trial" | "preview" = 
+    user?.demoAccess === "student_trial" ? "student_trial" :
+    user?.inDemoPreview ? "preview" : "evaluator";
+
   return (
     <DemoTourContext.Provider
       value={{
@@ -108,6 +112,7 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
       <EducatorCtaModal
         open={ctaModalOpen}
         onOpenChange={setCtaModalOpen}
+        userType={ctaUserType}
         onContactUs={handleContactUs}
       />
     </DemoTourContext.Provider>
