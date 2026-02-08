@@ -77,16 +77,16 @@ export function CharacterProfileModal({ isOpen, onClose, character, isLoading = 
             
             {/* Profile Info */}
             <div className="px-6 pb-4">
-              <div className="flex items-end gap-4 -mt-12">
-                <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+              <div className="flex items-start gap-4 -mt-12">
+                <Avatar className="h-24 w-24 border-4 border-background shadow-lg shrink-0">
                   <AvatarImage src={character.headshotUrl} alt={character.name} />
                   <AvatarFallback className="text-2xl bg-muted">
                     {character.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
-                <div className="pb-2">
-                  <h2 className="text-xl font-bold">{character.name}</h2>
-                  <p className="text-muted-foreground">
+                <div className="pt-1 min-w-0">
+                  <h2 className="text-xl font-bold text-white drop-shadow-sm">{character.name}</h2>
+                  <p className="text-white/80 text-sm">
                     {socialProfile?.headline || character.title || character.role}
                   </p>
                 </div>

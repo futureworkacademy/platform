@@ -20,6 +20,8 @@ import {
   Lightbulb,
   Briefcase,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { AdvisorPlayer } from "./advisor-player";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -77,6 +79,7 @@ const categoryConfig = {
 export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPickerProps) {
   const [selectedAdvisor, setSelectedAdvisor] = useState<string | null>(null);
   const [showPlayer, setShowPlayer] = useState(false);
+  const [expandedBios, setExpandedBios] = useState<Set<string>>(new Set());
 
   const { data: advisorsData, isLoading: advisorsLoading } = useQuery<AdvisorsResponse>({
     queryKey: ["/api/advisors"],
@@ -238,19 +241,37 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
                                   </Badge>
                                 </div>
                                 
-                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                  {advisor.bio}
-                                </p>
+                                <div className="mt-2">
+                                  <p className={`text-sm text-muted-foreground ${expandedBios.has(advisor.id) ? '' : 'line-clamp-2'}`}>
+                                    {advisor.bio}
+                                  </p>
+                                  <button
+                                    onClick={() => setExpandedBios(prev => {
+                                      const next = new Set(prev);
+                                      if (next.has(advisor.id)) next.delete(advisor.id);
+                                      else next.add(advisor.id);
+                                      return next;
+                                    })}
+                                    className="text-xs text-primary mt-1 flex items-center gap-0.5"
+                                    data-testid={`button-expand-bio-${advisor.id}`}
+                                  >
+                                    {expandedBios.has(advisor.id) ? (
+                                      <>Show less <ChevronUp className="w-3 h-3" /></>
+                                    ) : (
+                                      <>Read more <ChevronDown className="w-3 h-3" /></>
+                                    )}
+                                  </button>
+                                </div>
                                 
-                                <div className="flex items-center justify-between mt-3">
-                                  <div className="flex gap-2">
-                                    {advisor.keyInsights?.slice(0, 2).map((insight, idx) => (
-                                      <Badge key={idx} variant="outline" className="text-xs max-w-[150px] truncate">
-                                        {insight}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                  
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                  {advisor.keyInsights?.slice(0, 3).map((insight, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-xs">
+                                      {insight}
+                                    </Badge>
+                                  ))}
+                                </div>
+
+                                <div className="flex justify-end mt-3">
                                   <Button
                                     size="sm"
                                     onClick={() => handleCallAdvisor(advisor.id)}

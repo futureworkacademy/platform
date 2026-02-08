@@ -286,6 +286,35 @@ export async function registerRoutes(
     }
   });
 
+  async function resolveTeamIdForUser(userId: string): Promise<string | null> {
+    const user = await authStorage.getUser(userId);
+    if (!user) return null;
+    
+    let teamId = user.teamId;
+    
+    if (user.previewRole === "student" && user.previewOrgId) {
+      const [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, user.previewOrgId)
+        ));
+      if (testStudent?.teamId) {
+        teamId = testStudent.teamId;
+      }
+    } else if (user.inStudentPreview && user.previewModeOrgId) {
+      const [testStudent] = await db.select().from(users)
+        .where(and(
+          eq(users.testStudentOwnerId, userId),
+          eq(users.testStudentOwnerOrgId, user.previewModeOrgId)
+        ));
+      if (testStudent?.teamId) {
+        teamId = testStudent.teamId;
+      }
+    }
+    
+    return teamId || null;
+  }
+
   // Advisor API - Call an advisor (use a credit)
   const advisorCallSchema = z.object({
     advisorId: z.string().uuid("Invalid advisor ID"),
@@ -294,7 +323,9 @@ export async function registerRoutes(
   app.post("/api/advisor-calls", isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      if (!user?.teamId) {
+      const userId = user?.claims?.sub;
+      const teamId = await resolveTeamIdForUser(userId);
+      if (!teamId) {
         return res.status(400).json({ error: "User not on a team" });
       }
 
@@ -323,7 +354,7 @@ export async function registerRoutes(
       const [team] = await db
         .select()
         .from(teams)
-        .where(eq(teams.id, user.teamId))
+        .where(eq(teams.id, teamId))
         .limit(1);
 
       if (!team) {
@@ -335,7 +366,7 @@ export async function registerRoutes(
         .select()
         .from(advisorCalls)
         .where(and(
-          eq(advisorCalls.teamId, team.id),
+          eq(advisorCalls.teamId, teamId),
           eq(advisorCalls.advisorId, advisorId)
         ))
         .limit(1);
@@ -389,8 +420,10 @@ export async function registerRoutes(
   app.get("/api/advisor-calls", isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      if (!user?.teamId) {
-        return res.status(400).json({ error: "User not on a team" });
+      const userId = user?.claims?.sub;
+      const teamId = await resolveTeamIdForUser(userId);
+      if (!teamId) {
+        return res.json({ calls: [] });
       }
 
       const calls = await db
@@ -400,7 +433,7 @@ export async function registerRoutes(
           calledAt: advisorCalls.calledAt,
         })
         .from(advisorCalls)
-        .where(eq(advisorCalls.teamId, user.teamId));
+        .where(eq(advisorCalls.teamId, teamId));
 
       res.json({ calls });
     } catch (error) {
@@ -691,7 +724,7 @@ export async function registerRoutes(
   app.post("/api/content-views", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const user = await authStorage.getUser(userId);
+      const resolvedTeamId = await resolveTeamIdForUser(userId);
       
       const parseResult = recordContentViewSchema.safeParse(req.body);
       if (!parseResult.success) {
@@ -702,7 +735,7 @@ export async function registerRoutes(
       
       const view = await storage.recordContentView({
         userId,
-        teamId: user?.teamId || null,
+        teamId: resolvedTeamId || null,
         contentType,
         contentId,
         weekNumber: weekNumber ?? null,
@@ -719,12 +752,12 @@ export async function registerRoutes(
   app.get("/api/content-views", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const user = await authStorage.getUser(userId);
+      const resolvedTeamId = await resolveTeamIdForUser(userId);
       const { contentType, weekNumber } = req.query;
       
       const views = await storage.getContentViews(
         userId,
-        user?.teamId || undefined,
+        resolvedTeamId || undefined,
         contentType as string | undefined,
         weekNumber ? parseInt(weekNumber as string, 10) : undefined
       );

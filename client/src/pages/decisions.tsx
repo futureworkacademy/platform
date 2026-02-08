@@ -910,18 +910,25 @@ export default function Decisions() {
             </p>
           </div>
           {team && (
-            <Button
-              variant="outline"
-              onClick={() => setShowAdvisorPicker(true)}
-              className="gap-2"
-              data-testid="button-phone-advisor"
-            >
-              <Phone className="w-4 h-4" />
-              Phone an Advisor
-              <Badge variant="secondary" className="ml-1">
-                {team.advisorCreditsRemaining ?? 3}
-              </Badge>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAdvisorPicker(true)}
+                  className="gap-2"
+                  data-testid="button-phone-advisor"
+                >
+                  <Phone className="w-4 h-4" />
+                  Phone an Advisor
+                  <Badge variant="secondary" className="ml-1">
+                    {team.advisorCreditsRemaining ?? 3}
+                  </Badge>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>You only have {team.advisorCreditsRemaining ?? 3} advisor calls for the entire simulation — use them wisely!</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
 
@@ -1021,7 +1028,7 @@ export default function Decisions() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-4 mb-2">
                   <div className="text-sm text-muted-foreground">
-                    Option Decision {currentStep + 1} of {allDecisions.length}
+                    Decision {currentStep + 1} of {allDecisions.length} — complete all to advance
                   </div>
                   <div className="flex items-center gap-2">
                     {allDecisions.map((_, idx) => (

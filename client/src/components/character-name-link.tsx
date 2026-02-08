@@ -69,14 +69,14 @@ export function CharacterNameLink({ name, showIcon = true, className = "" }: Cha
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center justify-center h-5 w-5 rounded hover-elevate text-muted-foreground"
+                className="inline-flex items-center justify-center h-6 w-6 rounded-md hover-elevate text-primary/70 hover:text-primary border border-transparent hover:border-primary/20 transition-colors cursor-pointer"
                 data-testid={`button-view-profile-${name.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                <IdCard className="h-3.5 w-3.5" />
+                <IdCard className="h-4 w-4" />
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>View Profile</p>
+              <p>View {name}'s Profile</p>
             </TooltipContent>
           </Tooltip>
         )}
