@@ -139,10 +139,10 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
           size="sm" 
           variant="secondary"
           onClick={handleStartInstructorTour}
-          data-testid="button-instructor-tour"
+          data-testid="button-educator-tour"
         >
           <GraduationCap className="h-3 w-3 mr-1" />
-          Instructor Tour
+          Guided Educator Tour
         </Button>
         
         <Button 
@@ -157,7 +157,7 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
           ) : (
             <Users className="h-3 w-3 mr-1" />
           )}
-          {enterSandboxMutation.isPending ? "Loading..." : "Student Tour"}
+          {enterSandboxMutation.isPending ? "Loading..." : "Guided Student Tour"}
         </Button>
       </div>
     </div>

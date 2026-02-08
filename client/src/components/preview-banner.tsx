@@ -91,10 +91,10 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
               size="sm" 
               variant="secondary"
               onClick={handleStartInstructorTour}
-              data-testid="button-instructor-tour"
+              data-testid="button-educator-tour"
             >
               <GraduationCap className="h-3 w-3 mr-1" />
-              Instructor Tour
+              Guided Educator Tour
             </Button>
           )}
           {previewRole === "student" && (
@@ -105,7 +105,7 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
               data-testid="button-student-tour"
             >
               <Users className="h-3 w-3 mr-1" />
-              Student Tour
+              Guided Student Tour
             </Button>
           )}
           <Button 
