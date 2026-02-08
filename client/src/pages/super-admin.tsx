@@ -33,10 +33,12 @@ import {
   CheckCircle,
   Eye,
   GraduationCap,
-  X
+  X,
+  LogOut
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -423,6 +425,7 @@ function EvaluatorManagement() {
 }
 
 export default function SuperAdminPage() {
+  const { logout, isLoggingOut } = useAuth();
   const { toast } = useToast();
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgDescription, setNewOrgDescription] = useState("");
@@ -898,6 +901,10 @@ export default function SuperAdminPage() {
                 Back
               </Button>
             </Link>
+            <Button variant="outline" onClick={() => logout()} disabled={isLoggingOut} data-testid="button-logout">
+              <LogOut className="mr-2 h-4 w-4" />
+              {isLoggingOut ? "Logging out..." : "Log Out"}
+            </Button>
           </div>
         </div>
 
