@@ -1,7 +1,7 @@
 # Future Work Academy - Technical Architecture
 
-**Document Version:** 1.0  
-**Last Updated:** January 2026  
+**Document Version:** 1.1  
+**Last Updated:** February 2026  
 **Purpose:** Technical reference for developers and stakeholders. Each section includes a plain-language summary explaining what it covers.
 
 ---
@@ -310,7 +310,8 @@ client/src/
 │   └── ...
 ├── hooks/                 # Custom React hooks
 ├── lib/
-│   └── queryClient.ts     # TanStack Query setup
+│   ├── queryClient.ts     # TanStack Query setup
+│   └── guide-pdf-export.ts # PDF generation for public guide pages
 └── App.tsx                # Route definitions
 ```
 
@@ -324,6 +325,9 @@ client/src/
   <Route path="/decisions" component={Decisions} />
   <Route path="/class-admin" component={ClassAdmin} />
   <Route path="/super-admin" component={SuperAdmin} />
+  <Route path="/guides/student" component={StudentGuide} />
+  <Route path="/guides/instructor" component={InstructorGuide} />
+  <Route path="/content-validation" component={ContentValidation} />
   {/* ... */}
 </Switch>
 ```
@@ -408,26 +412,40 @@ interface CompanyState {
 - **Standard** (Corporate): Balanced challenge
 - **Advanced** (MBA): Realistic complexity, harsher tradeoffs
 
-### 6.2 Preview Mode
+### 6.2 Unified Role Preview System
 
-**Purpose:** Let Class Admins "walk in students' shoes" to experience the simulation before running it with their class.
+**Purpose:** Let Super Admins preview the platform as any role (Educator or Student) on any organization, consolidating the previous separate sandbox, demo, and instructor preview modes into a single "Role Switcher."
 
 **How it works:**
-1. Admin creates a "test student" account linked to their org
-2. System flags user: `inStudentPreview: true`, `previewModeOrgId: "xyz"`
-3. Admin sees exactly what students see
-4. All progress is sandboxed—doesn't affect real class data
+1. Super Admin opens the Role Switcher on the Super Admin Console
+2. Selects a target role (`educator` or `student`) and a target organization
+3. System sets unified DB fields: `previewRole` and `previewOrgId` on the user record
+4. Admin sees exactly what the selected role sees for that organization
+5. All preview activity is sandboxed—doesn't affect real class data
+6. Admin exits preview via the persistent preview banner
 
-### 6.3 Demo/Evaluator Access
+**API Endpoints:**
+```
+POST /api/preview/enter   → Start previewing (body: { role, orgId })
+POST /api/preview/exit    → Exit preview mode, clear previewRole/previewOrgId
+```
 
-**Purpose:** Prospective faculty can explore the platform before committing.
+**Database Fields (on `users` table):**
+- `previewRole` — The role being previewed (`educator`, `student`, or `null`)
+- `previewOrgId` — The organization being previewed (foreign key or `null`)
+
+**Key change from v1.0:** The previous approach used three separate preview mechanisms (sandbox mode, demo preview, instructor preview) with different flags (`inStudentPreview`, `previewModeOrgId`, sandbox-specific logic). These have been consolidated into the unified `previewRole` / `previewOrgId` system.
+
+### 6.3 Evaluator Access Management
+
+**Purpose:** Super Admins can grant "Evaluator" access to prospective faculty so they can explore the platform without admin privileges.
 
 **Implementation:**
-1. Faculty requests demo access via `/api/demo/request-access`
-2. Super Admin reviews and approves
-3. User gets `demoAccess: "evaluator"` with expiration date
-4. Evaluator can ONLY access organizations marked `isDemo: true`
-5. After expiration, demo access is revoked
+1. Super Admin grants Evaluator access via email in the Settings tab of the Super Admin Console
+2. User gets `demoAccess: "evaluator"` with optional expiration date (`demoExpiresAt`)
+3. Evaluators can preview demo organizations as educator or student using the Role Preview system
+4. Evaluators have no admin privileges—cannot modify organizations, users, or settings
+5. After expiration, evaluator access is revoked
 
 ### 6.4 Organization Management
 
@@ -494,7 +512,10 @@ When `privacyMode: true` on an organization:
 - Simulation reminders
 - Custom email templates (editable by admin)
 
+**Dynamic URL Resolution:** Email links use `getBaseUrl()` (in `server/services/email.ts`) for correct domain resolution across development and production environments, replacing previously hardcoded URLs.
+
 **Files:**
+- `server/services/email.ts` — Email sending logic with `getBaseUrl()` helper
 - Uses Replit's SendGrid integration
 - Template storage in `email_templates` table
 
@@ -622,4 +643,4 @@ Schema changes go in:
 
 ---
 
-*This document is maintained alongside the codebase. Last comprehensive review: January 2026.*
+*This document is maintained alongside the codebase. Last comprehensive review: February 2026.*

@@ -1,7 +1,7 @@
 # Future Work Academy - Product Roadmap
 
 **Version:** 1.3  
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 > **What this document covers:** Our product development timeline—what features exist today, what we're building in the next 6 months, and our long-term vision. This helps partners understand where the platform is headed.
 
@@ -13,7 +13,7 @@ Future Work Academy will become the leading platform for AI-powered business sim
 
 ---
 
-## Current Capabilities (v1.2) - January 2026
+## Current Capabilities (v1.3) - February 2026
 
 > **What this section covers:** Everything the platform can do today—simulation engine, AI grading, character profiles, multimedia content, instructor tools, and notifications. These features are fully implemented and available.
 
@@ -37,6 +37,8 @@ Future Work Academy will become the leading platform for AI-powered business sim
 - Weekly intelligence briefings with curated content
 - Team-based competition with live leaderboards
 - Mobile-responsive design
+- Logout available on all authenticated pages (Super Admin, Class Admin, Admin, Profile, and student sidebar)
+- Public Student Guide and Instructor Guide pages (no authentication required, with PDF download)
 
 ### Multi-Tenant Architecture
 - Three-tier role system: Super Admin → Class Admin → Student
@@ -45,10 +47,11 @@ Future Work Academy will become the leading platform for AI-powered business sim
 - CSV bulk import for up to 500 students
 
 ### Instructor Tools
-- Sandbox Mode: Test complete student experience
-- Jump to any week (1-8) in sandbox
+- Unified Role Preview system: Super Admins preview as Educator or Student on any organization via a single "Role Switcher" (replaces separate sandbox/demo/instructor preview modes)
+- Public guide pages with PDF export: Student Guide at `/guides/student` and Instructor Guide at `/guides/instructor`
+- Jump to any week (1-8) in preview
 - Submit decisions and receive AI feedback
-- Reset sandbox data without affecting real students
+- Reset preview data without affecting real students
 - Activity logging with CSV/JSON export
 - Scheduled email reminders
 
@@ -74,6 +77,7 @@ Future Work Academy will become the leading platform for AI-powered business sim
 
 ### Phone-a-Friend Advisor System
 - 9 specialized advisor categories: Finance, HR, Operations, Legal, Union Relations, Technology, Marketing, Strategy, Ethics
+- AI-generated professional headshots for all 9 advisors (stored in object storage)
 - 3-use lifetime limit per student per simulation (creates strategic decision-making)
 - AI-generated contextual advice using GPT-4o-mini
 - Advisor availability tracking with cooldown periods
@@ -89,6 +93,8 @@ Future Work Academy will become the leading platform for AI-powered business sim
 
 ### Platform Administration
 - Super Admin dashboard for global settings
+- Content Consistency Dashboard at `/content-validation` — validates simulation content against `docs/canonical.json`
+- Evaluator Access Management — Super Admins grant "Evaluator" access via email in Settings tab; evaluators preview demo org as educator/student but have no admin privileges
 - Configurable enrollment requirements (.edu verification)
 - Competition modes and scoring weight adjustments
 - Simulation lifecycle management (draft, active, completed)
@@ -380,6 +386,7 @@ This roadmap is a living document informed by:
 | 1.0 | January 2026 | Initial roadmap document |
 | 1.1 | January 2026 | Added Content Engagement Enhancements section, updated current capabilities |
 | 1.2 | January 2026 | Added Character Profiles with AI headshots, Triggered Voicemails, Phone-a-Friend advisor system, multimedia content support - major immersion update |
+| 1.3 | February 2026 | Unified Role Preview system, public guide pages with PDF export, logout on all pages, Evaluator Access Management, Content Consistency Dashboard, AI-generated advisor headshots, email dynamic URL resolution |
 
 ---
 
