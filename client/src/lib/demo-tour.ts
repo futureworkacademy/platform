@@ -27,14 +27,14 @@ My implementation plan: First, hold town halls with union leadership to preview 
 };
 
 const STUDENT_TOUR_KEY = "fwa_student_tour_completed";
-const INSTRUCTOR_TOUR_KEY = "fwa_instructor_tour_completed";
+const EDUCATOR_TOUR_KEY = "fwa_educator_tour_completed";
 
 export function hasStudentTourBeenCompleted(): boolean {
   return localStorage.getItem(STUDENT_TOUR_KEY) === "true";
 }
 
-export function hasInstructorTourBeenCompleted(): boolean {
-  return localStorage.getItem(INSTRUCTOR_TOUR_KEY) === "true";
+export function hasEducatorTourBeenCompleted(): boolean {
+  return localStorage.getItem(EDUCATOR_TOUR_KEY) === "true";
 }
 
 export function hasTourBeenCompleted(): boolean {
@@ -45,8 +45,8 @@ export function markStudentTourCompleted(): void {
   localStorage.setItem(STUDENT_TOUR_KEY, "true");
 }
 
-export function markInstructorTourCompleted(): void {
-  localStorage.setItem(INSTRUCTOR_TOUR_KEY, "true");
+export function markEducatorTourCompleted(): void {
+  localStorage.setItem(EDUCATOR_TOUR_KEY, "true");
 }
 
 export function markTourCompleted(): void {
@@ -57,8 +57,8 @@ export function resetStudentTourProgress(): void {
   localStorage.removeItem(STUDENT_TOUR_KEY);
 }
 
-export function resetInstructorTourProgress(): void {
-  localStorage.removeItem(INSTRUCTOR_TOUR_KEY);
+export function resetEducatorTourProgress(): void {
+  localStorage.removeItem(EDUCATOR_TOUR_KEY);
 }
 
 export function resetTourProgress(): void {
@@ -67,7 +67,7 @@ export function resetTourProgress(): void {
 
 export function resetAllTourProgress(): void {
   resetStudentTourProgress();
-  resetInstructorTourProgress();
+  resetEducatorTourProgress();
 }
 
 export const dashboardTourSteps: DriveStep[] = [
@@ -213,10 +213,10 @@ export const decisionsTourSteps: DriveStep[] = [
   },
 ];
 
-export const instructorTourSteps: DriveStep[] = [
+export const educatorTourSteps: DriveStep[] = [
   {
     popover: {
-      title: "Welcome to Your Instructor Console",
+      title: "Welcome to Your Educator Console",
       description: `<div style="text-align:left; line-height:1.6;">
         This is your command center for managing the AI workforce transformation simulation.<br><br>
         <strong>What you'll learn:</strong><br>
@@ -384,12 +384,12 @@ export function startDashboardTour(onComplete?: () => void, onSkip?: () => void)
   return driverObj;
 }
 
-export function startInstructorTour(onComplete?: () => void, onSkip?: () => void): Driver {
+export function startEducatorTour(onComplete?: () => void, onSkip?: () => void): Driver {
   const driverObj = createTourDriver({
-    steps: instructorTourSteps,
+    steps: educatorTourSteps,
     onComplete,
     onSkip,
-  }, markInstructorTourCompleted);
+  }, markEducatorTourCompleted);
   
   driverObj.drive();
   return driverObj;

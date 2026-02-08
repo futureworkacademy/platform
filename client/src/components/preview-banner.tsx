@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
-import { startInstructorTour, startMultiPageStudentTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
+import { startEducatorTour, startMultiPageStudentTour, resetEducatorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
 import { useDemoTour } from "./demo-tour-provider";
 
 interface PreviewBannerProps {
@@ -35,20 +35,20 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
     },
   });
 
-  const handleStartInstructorTour = async () => {
+  const handleStartEducatorTour = async () => {
     if (previewOrgId && !location.includes(`org=${previewOrgId}`)) {
       setLocation(`/class-admin?org=${previewOrgId}`);
       try {
         await waitForElement('[data-testid="tab-students"], [data-testid="tab-simulation"]', 5000);
-        resetInstructorTourProgress();
-        startInstructorTour(() => {}, () => {});
+        resetEducatorTourProgress();
+        startEducatorTour(() => {}, () => {});
       } catch (e) {
-        resetInstructorTourProgress();
-        startInstructorTour(() => {}, () => {});
+        resetEducatorTourProgress();
+        startEducatorTour(() => {}, () => {});
       }
     } else {
-      resetInstructorTourProgress();
-      startInstructorTour(() => {}, () => {});
+      resetEducatorTourProgress();
+      startEducatorTour(() => {}, () => {});
     }
   };
 
@@ -90,7 +90,7 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
             <Button 
               size="sm" 
               variant="secondary"
-              onClick={handleStartInstructorTour}
+              onClick={handleStartEducatorTour}
               data-testid="button-educator-tour"
             >
               <GraduationCap className="h-3 w-3 mr-1" />

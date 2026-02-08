@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { X, Eye, GraduationCap, Users, Loader2 } from "lucide-react";
-import { startInstructorTour, startMultiPageStudentTour, resetInstructorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
+import { startEducatorTour, startMultiPageStudentTour, resetEducatorTourProgress, resetStudentTourProgress, waitForElement } from "@/lib/demo-tour";
 import { useDemoTour } from "./demo-tour-provider";
 
 interface DemoPreviewControlsProps {
@@ -74,7 +74,7 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
     },
   });
 
-  const handleStartInstructorTour = async () => {
+  const handleStartEducatorTour = async () => {
     const onTourComplete = () => {
       if (isEvaluator) {
         showCtaModal();
@@ -83,19 +83,17 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
     
     if (demoOrgId && !location.includes(`org=${demoOrgId}`)) {
       setLocation(`/class-admin?org=${demoOrgId}`);
-      // Wait for class admin page to render before starting tour
       try {
         await waitForElement('[data-testid="tab-students"], [data-testid="tab-simulation"]', 5000);
-        resetInstructorTourProgress();
-        startInstructorTour(onTourComplete, onTourComplete);
+        resetEducatorTourProgress();
+        startEducatorTour(onTourComplete, onTourComplete);
       } catch (e) {
-        // Page loaded but elements not found - start tour anyway
-        resetInstructorTourProgress();
-        startInstructorTour(onTourComplete, onTourComplete);
+        resetEducatorTourProgress();
+        startEducatorTour(onTourComplete, onTourComplete);
       }
     } else {
-      resetInstructorTourProgress();
-      startInstructorTour(onTourComplete, onTourComplete);
+      resetEducatorTourProgress();
+      startEducatorTour(onTourComplete, onTourComplete);
     }
   };
 
@@ -138,7 +136,7 @@ export function DemoPreviewControls({ demoOrgId, isEvaluator = false }: DemoPrev
         <Button 
           size="sm" 
           variant="secondary"
-          onClick={handleStartInstructorTour}
+          onClick={handleStartEducatorTour}
           data-testid="button-educator-tour"
         >
           <GraduationCap className="h-3 w-3 mr-1" />
