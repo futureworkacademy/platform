@@ -4284,6 +4284,10 @@ Provide your consistency review in JSON format.`;
       // Demo preview mode - allows super admins to experience evaluator view
       const inDemoPreview = user?.inDemoPreview || false;
       const demoPreviewOrgId = user?.demoPreviewOrgId || null;
+      
+      // Instructor preview mode
+      const inInstructorPreview = user?.inInstructorPreview || false;
+      const instructorPreviewOrgId = user?.instructorPreviewOrgId || null;
 
       // Get organizations where user is admin (for preview mode exit)
       const adminOrgs: Array<{ id: string; name: string }> = [];
@@ -4304,6 +4308,8 @@ Provide your consistency review in JSON format.`;
         previewModeOrgId,
         inDemoPreview,
         demoPreviewOrgId,
+        inInstructorPreview,
+        instructorPreviewOrgId,
         organizations: adminOrgs,
         membershipCount: memberships.length,
         memberships,
@@ -4772,6 +4778,53 @@ Provide your consistency review in JSON format.`;
     } catch (error) {
       console.error("Error getting preview mode status:", error);
       res.status(500).json({ error: "Failed to get preview mode status" });
+    }
+  });
+
+  // ==================== INSTRUCTOR PREVIEW MODE ====================
+  
+  app.post("/api/instructor-preview/enter", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { orgId } = req.body;
+
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        return res.status(403).json({ error: "Super Admin access required" });
+      }
+
+      if (!orgId) {
+        return res.status(400).json({ error: "orgId is required" });
+      }
+
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+      if (!org) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+
+      await db.update(users)
+        .set({ inInstructorPreview: true, instructorPreviewOrgId: orgId, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+
+      res.json({ success: true, orgId, orgName: org.name });
+    } catch (error) {
+      console.error("Error entering instructor preview:", error);
+      res.status(500).json({ error: "Failed to enter instructor preview mode" });
+    }
+  });
+
+  app.post("/api/instructor-preview/exit", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+
+      await db.update(users)
+        .set({ inInstructorPreview: false, instructorPreviewOrgId: null, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error exiting instructor preview:", error);
+      res.status(500).json({ error: "Failed to exit instructor preview mode" });
     }
   });
 

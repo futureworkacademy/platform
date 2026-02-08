@@ -31,7 +31,8 @@ import {
   Trash2,
   FileText,
   CheckCircle,
-  Eye
+  Eye,
+  GraduationCap
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "wouter";
@@ -675,6 +676,26 @@ export default function SuperAdminPage() {
     },
   });
 
+  // Enter instructor preview mode mutation
+  const enterInstructorPreviewMutation = useMutation({
+    mutationFn: async (orgId: string) => {
+      const response = await apiRequest("POST", "/api/instructor-preview/enter", { orgId });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ 
+        title: "Instructor Preview Active", 
+        description: "You are now viewing as an instructor would. A banner will appear to exit." 
+      });
+      setLocation(`/class-admin?org=${data.orgId}`);
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to enter instructor preview", description: error.message, variant: "destructive" });
+    },
+  });
+
   // Helper to open edit user dialog
   const openEditUserDialog = (person: UnifiedPerson) => {
     setEditingPerson(person);
@@ -741,6 +762,9 @@ export default function SuperAdminPage() {
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Shield className="h-8 w-8 text-primary" />
               Super Admin Console
+              <Badge variant="default" className="text-xs ml-2" data-testid="badge-role">
+                Super Admin
+              </Badge>
             </h1>
             <p className="text-muted-foreground">Platform-wide management and organization control</p>
           </div>
@@ -1145,6 +1169,16 @@ export default function SuperAdminPage() {
                               Manage
                             </Button>
                           </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => enterInstructorPreviewMutation.mutate(org.id)}
+                            disabled={enterInstructorPreviewMutation.isPending}
+                            data-testid={`button-act-instructor-${org.id}`}
+                          >
+                            <GraduationCap className="mr-2 h-3 w-3" />
+                            Act as Instructor
+                          </Button>
                         </div>
                       </div>
                     </CardContent>

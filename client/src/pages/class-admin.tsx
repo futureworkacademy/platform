@@ -32,7 +32,10 @@ import {
   RotateCw,
   Eye,
   X,
-  Trash2
+  Trash2,
+  Copy,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useSearch, useLocation } from "wouter";
@@ -94,6 +97,8 @@ interface RoleInfo {
   role: string;
   isSuperAdmin: boolean;
   isClassAdmin: boolean;
+  inInstructorPreview?: boolean;
+  instructorPreviewOrgId?: string | null;
   membershipCount: number;
   memberships: OrganizationMember[];
 }
@@ -206,6 +211,9 @@ export default function ClassAdminPage() {
   // Sandbox mode state
   const [sandboxDialogOpen, setSandboxDialogOpen] = useState(false);
   const [sandboxStartWeek, setSandboxStartWeek] = useState(1);
+  
+  // Expanded team cards state
+  const [expandedTeamIds, setExpandedTeamIds] = useState<Set<string>>(new Set());
 
   const { data: roleInfo, isLoading: roleLoading } = useQuery<RoleInfo>({
     queryKey: ["/api/my-role"],
@@ -303,6 +311,21 @@ export default function ClassAdminPage() {
     },
   });
 
+  const exitInstructorPreviewMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/instructor-preview/exit", {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Exited instructor preview", description: "You are back to Super Admin view" });
+      setLocation("/super-admin");
+    },
+    onError: (error: any) => {
+      toast({ title: "Error exiting instructor preview", description: error.message, variant: "destructive" });
+    },
+  });
+
   const createTeamMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
       return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/teams`, {
@@ -335,6 +358,36 @@ export default function ClassAdminPage() {
       toast({ title: "Error assigning team", description: error.message, variant: "destructive" });
     },
   });
+
+  const removeFromTeamMutation = useMutation({
+    mutationFn: async (data: { memberId: string }) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/assign-team`, { memberId: data.memberId, teamId: null });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", selectedOrgId, "members"] });
+      toast({ title: "Student removed from team" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error removing from team", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const toggleTeamExpanded = (teamId: string) => {
+    setExpandedTeamIds(prev => {
+      const next = new Set(prev);
+      if (next.has(teamId)) {
+        next.delete(teamId);
+      } else {
+        next.add(teamId);
+      }
+      return next;
+    });
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard" });
+  };
 
   const approveMemberMutation = useMutation({
     mutationFn: async (memberId: string) => {
@@ -733,18 +786,63 @@ export default function ClassAdminPage() {
     );
   }
 
+  const isInInstructorPreview = roleInfo?.inInstructorPreview === true;
+
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background">
+      {isInInstructorPreview && (
+        <div className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2.5 flex items-center justify-center gap-4 text-sm font-medium sticky top-0 z-50" data-testid="banner-instructor-preview">
+          <GraduationCap className="h-4 w-4" />
+          <span>INSTRUCTOR PREVIEW - You are viewing this page as an instructor would</span>
+          <span className="text-blue-200">|</span>
+          <span className="text-blue-100">Super Admin features are hidden</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-4 bg-transparent border-white/40 text-white"
+            onClick={() => exitInstructorPreviewMutation.mutate()}
+            disabled={exitInstructorPreviewMutation.isPending}
+            data-testid="button-exit-instructor-preview"
+          >
+            <ArrowLeft className="mr-1 h-3 w-3" />
+            {exitInstructorPreviewMutation.isPending ? "Exiting..." : "Exit to Super Admin"}
+          </Button>
+        </div>
+      )}
+      <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <GraduationCap className="h-8 w-8 text-primary" />
               {currentOrg?.name || "Class Admin Console"}
+              <Badge 
+                variant={isInInstructorPreview ? "secondary" : "default"} 
+                className="text-xs ml-2" 
+                data-testid="badge-role"
+              >
+                {isInInstructorPreview ? "Instructor Preview" : roleInfo?.isSuperAdmin ? "Super Admin" : "Instructor"}
+              </Badge>
             </h1>
             <p className="text-muted-foreground">
               Manage students and teams for this class
             </p>
+            {currentOrg?.code && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-muted-foreground">Enrollment Code:</span>
+                <code className="bg-muted px-3 py-1 rounded-md font-mono text-sm font-semibold" data-testid="text-enrollment-code">
+                  {currentOrg.code}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard(currentOrg.code)}
+                  data-testid="button-copy-enrollment-code"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
           <div className="flex gap-2 flex-wrap">
             <Dialog open={sandboxDialogOpen} onOpenChange={setSandboxDialogOpen}>
@@ -803,7 +901,7 @@ export default function ClassAdminPage() {
               <RefreshCw className={`mr-2 h-4 w-4 ${membersFetching || teamsFetching ? 'animate-spin' : ''}`} />
               {membersFetching || teamsFetching ? 'Refreshing...' : 'Refresh'}
             </Button>
-            {myOrganizations.length > 1 && (
+            {!isInInstructorPreview && myOrganizations.length > 1 && (
               <Button variant="outline" onClick={() => setLocation("/class-admin")} data-testid="button-switch-org">
                 Switch Org
               </Button>
@@ -814,12 +912,14 @@ export default function ClassAdminPage() {
                 Profile
               </Button>
             </Link>
-            <Link href="/">
-              <Button variant="outline" data-testid="button-back">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
-            </Link>
+            {!isInInstructorPreview && (
+              <Link href="/">
+                <Button variant="outline" data-testid="button-back">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -1280,35 +1380,106 @@ export default function ClassAdminPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4">
                 {teams.map((team) => {
                   const teamMembers = activeMembers.filter(m => m.user?.teamId === team.id);
+                  const isExpanded = expandedTeamIds.has(team.id);
                   return (
                     <Card key={team.id} data-testid={`card-team-${team.id}`}>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">{team.name}</CardTitle>
-                        <CardDescription>Week {team.currentWeek}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <p className="text-sm">
-                            <span className="text-muted-foreground">Members: </span>
-                            <span className="font-medium">{teamMembers.length}</span>
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            {teamMembers.slice(0, 3).map((m) => (
-                              <Badge key={m.id} variant="secondary" className="text-xs">
-                                {m.user?.firstName}
-                              </Badge>
-                            ))}
-                            {teamMembers.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{teamMembers.length - 3} more
-                              </Badge>
+                      <CardHeader
+                        className="pb-2 cursor-pointer select-none"
+                        onClick={() => toggleTeamExpanded(team.id)}
+                        data-testid={`button-toggle-team-${team.id}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <div>
+                              <CardTitle className="text-lg">{team.name}</CardTitle>
+                              <CardDescription>Week {team.currentWeek}</CardDescription>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="secondary" className="text-xs">
+                              {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"}
+                            </Badge>
+                            {!isExpanded && teamMembers.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {teamMembers.slice(0, 3).map((m) => (
+                                  <Badge key={m.id} variant="outline" className="text-xs">
+                                    {m.user?.firstName}
+                                  </Badge>
+                                ))}
+                                {teamMembers.length > 3 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{teamMembers.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>
-                      </CardContent>
+                      </CardHeader>
+                      {isExpanded && (
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Team ID: </span>
+                                <code className="bg-muted px-2 py-0.5 rounded font-mono text-xs">{team.id}</code>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Current Week: </span>
+                                <span className="font-medium">{team.currentWeek}</span>
+                              </div>
+                            </div>
+                            {teamMembers.length === 0 ? (
+                              <p className="text-sm text-muted-foreground py-2">No members assigned to this team yet.</p>
+                            ) : (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {teamMembers.map((member) => (
+                                    <TableRow key={member.id} data-testid={`row-team-member-${member.id}`}>
+                                      <TableCell className="font-medium">
+                                        {member.user?.firstName} {member.user?.lastName}
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        {member.user?.schoolEmail || member.user?.email}
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeFromTeamMutation.mutate({ memberId: member.id });
+                                          }}
+                                          disabled={removeFromTeamMutation.isPending}
+                                          data-testid={`button-remove-member-${member.id}`}
+                                        >
+                                          <UserMinus className="mr-1 h-3 w-3" />
+                                          Remove
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            )}
+                          </div>
+                        </CardContent>
+                      )}
                     </Card>
                   );
                 })}
@@ -1876,6 +2047,7 @@ export default function ClassAdminPage() {
             </Card>
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </div>
   );

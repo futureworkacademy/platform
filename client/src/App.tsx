@@ -297,10 +297,21 @@ function AppRouter() {
   // Check if admin is in demo preview mode (viewing as evaluator would)
   const isInDemoPreview = user.inDemoPreview === true;
   
-  // IMPORTANT: If admin is in sandbox mode or demo preview mode, allow them to access other pages
-  if (isAdminUser && !isInSandboxMode && !isInDemoPreview) {
+  // Check if admin is in instructor preview mode
+  const isInInstructorPreview = user.inInstructorPreview === true;
+  const instructorPreviewOrgId = user.instructorPreviewOrgId as string | null;
+  
+  // IMPORTANT: If admin is in sandbox mode, demo preview, or instructor preview, allow them to access other pages
+  if (isAdminUser && !isInSandboxMode && !isInDemoPreview && !isInInstructorPreview) {
     if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
+    }
+  }
+  
+  // If in instructor preview mode, redirect to class-admin for that org
+  if (isAdminUser && isInInstructorPreview && instructorPreviewOrgId) {
+    if (location !== '/profile' && location !== '/about' && !location.startsWith('/class-admin')) {
+      return <Redirect to={`/class-admin?org=${instructorPreviewOrgId}`} />;
     }
   }
 

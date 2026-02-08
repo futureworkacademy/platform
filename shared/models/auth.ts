@@ -65,6 +65,8 @@ export const users = pgTable("users", {
   testStudentOwnerOrgId: varchar("test_student_owner_org_id"),
   inStudentPreview: boolean("in_student_preview").default(false),
   previewModeOrgId: varchar("preview_mode_org_id"),
+  inInstructorPreview: boolean("in_instructor_preview").default(false),
+  instructorPreviewOrgId: varchar("instructor_preview_org_id"),
   inDemoPreview: boolean("in_demo_preview").default(false), // Super admin viewing as evaluator
   demoPreviewOrgId: varchar("demo_preview_org_id"), // Demo org being previewed
   demoAccess: varchar("demo_access").default("none"), // none, evaluator - restricts to demo orgs only
