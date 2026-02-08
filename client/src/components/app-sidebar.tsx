@@ -82,7 +82,7 @@ const navigationItems = [
   },
   {
     title: "Student Guide",
-    url: "/student-guide",
+    url: "/guides/student",
     icon: HelpCircle,
   },
   {

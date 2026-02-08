@@ -38,6 +38,16 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Documentation Auto-Sync:** All markdown files in `docs/` folder automatically sync to Google Docs in the "Future Work Academy" folder. Supports 20+ documents including business plan, game design, brand standards, and test checklists.
 
+**Public Guide Pages:** Student Guide (`/guides/student`) and Instructor Guide (`/guides/instructor`) are public-facing, no-auth-required pages with comprehensive onboarding content and PDF download. The old `/student-guide` route redirects to `/guides/student`. Email templates dynamically link to the correct guide URLs via `getBaseUrl()` in `server/services/email.ts`.
+
+## Pre-Publish Checklist
+Before each production publish, review the following:
+1. **Student Guide** (`client/src/pages/guides/student-guide.tsx` and `client/src/lib/guide-pdf-export.ts`): Verify all content matches current simulation features (weekly workflow, scoring, advisor credits, character count, etc.)
+2. **Instructor Guide** (`client/src/pages/guides/instructor-guide.tsx` and `client/src/lib/guide-pdf-export.ts`): Verify class management steps, simulation controls, difficulty levels, and communication tools are accurate.
+3. **Email Templates** (`server/services/email.ts`): Confirm all links point to correct pages and `getBaseUrl()` resolves properly in production.
+4. **Advisor Data**: Confirm 9 advisors with headshots in `/images/advisors/` and correct database records.
+5. **Character Data**: Confirm 17 characters with headshots and accurate trait data.
+
 ## External Dependencies
 
 - **Authentication:** Replit OIDC Auth

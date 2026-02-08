@@ -30,7 +30,8 @@ import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
 import ContentValidation from "@/pages/content-validation";
-import StudentGuide from "@/pages/student-guide";
+import StudentGuidePage from "@/pages/guides/student-guide";
+import InstructorGuidePage from "@/pages/guides/instructor-guide";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -136,7 +137,7 @@ function GameLayout() {
               <Route path="/week-results" component={WeekResults} />
               <Route path="/about" component={About} />
               <Route path="/profile" component={Profile} />
-              <Route path="/student-guide" component={StudentGuide} />
+              <Route path="/student-guide">{() => <Redirect to="/guides/student" />}</Route>
               <Route component={NotFound} />
             </Switch>
           </main>
@@ -222,6 +223,15 @@ function AppRouter() {
     if (location === "/privacy") {
       return <Privacy />;
     }
+    if (location === "/student-guide") {
+      return <Redirect to="/guides/student" />;
+    }
+    if (location === "/guides/student") {
+      return <StudentGuidePage />;
+    }
+    if (location === "/guides/instructor") {
+      return <InstructorGuidePage />;
+    }
     return <Landing />;
   }
 
@@ -286,6 +296,18 @@ function AppRouter() {
 
   if (location === "/for-students") {
     return <ForStudents />;
+  }
+
+  if (location === "/student-guide") {
+    return <Redirect to="/guides/student" />;
+  }
+
+  if (location === "/guides/student") {
+    return <StudentGuidePage />;
+  }
+
+  if (location === "/guides/instructor") {
+    return <InstructorGuidePage />;
   }
 
   // Super Admin - always redirect to admin dashboard if not already there

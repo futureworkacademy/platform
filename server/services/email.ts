@@ -1,6 +1,16 @@
 // SendGrid Email Service - using Replit SendGrid integration
 import sgMail from '@sendgrid/mail';
 
+function getBaseUrl(): string {
+  if (process.env.REPLIT_DEPLOYMENT_URL) {
+    return `https://${process.env.REPLIT_DEPLOYMENT_URL}`;
+  }
+  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+  }
+  return 'https://futureworkacademy.com';
+}
+
 let connectionSettings: any;
 
 async function getCredentials() {
@@ -97,7 +107,7 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
               <div style="background-color: #f8fafc; padding: 16px; margin-top: 24px; border-radius: 6px; border: 1px solid #e2e8f0;">
                 <p style="color: #475569; margin: 0 0 8px 0; font-weight: 600;">Need Help Getting Started?</p>
                 <p style="color: #64748b; font-size: 14px; margin: 0;">
-                  Check out our <a href="https://futureworkacademy.com/student-guide" style="color: #22c55e; text-decoration: underline;">Student Guide</a> 
+                  Check out our <a href="${getBaseUrl()}/guides/student" style="color: #22c55e; text-decoration: underline;">Student Guide</a> 
                   for tips on navigating the simulation, understanding how you're scored, and making the most of your experience.
                 </p>
               </div>
@@ -125,7 +135,7 @@ To get started, visit: ${data.loginUrl}
 
 Make sure to use this email address (${data.toEmail}) when signing in.
 
-Need help? Check out our Student Guide: https://futureworkacademy.com/student-guide
+Need help? Check out our Student Guide: ${getBaseUrl()}/guides/student
 
 - The Future of Work Team
       `.trim()
@@ -220,7 +230,7 @@ export async function sendReminderEmail(data: ReminderEmailData): Promise<boolea
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://futureworkacademy.com" 
+                <a href="${getBaseUrl()}" 
                    style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
                           text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
                   Go to Dashboard
@@ -244,7 +254,7 @@ Hi ${data.studentName},
 
 ${data.message}
 
-Visit your dashboard: https://futureworkacademy.com
+Visit your dashboard: ${getBaseUrl()}
 
 - The Future of Work Team
       `.trim()
@@ -313,7 +323,7 @@ export async function sendWeekResultsEmail(data: WeekResultsEmailData): Promise<
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://futureworkacademy.com/week-results" 
+                <a href="${getBaseUrl()}/week-results" 
                    style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 32px; 
                           text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
                   View Your Results
@@ -345,7 +355,7 @@ Your Week ${data.weekNumber} results are now available. Log in to see your detai
 What's Next?
 Week ${data.nextWeekNumber} is now available. Review your results and prepare for new strategic challenges!
 
-View your results at: https://futureworkacademy.com/week-results
+View your results at: ${getBaseUrl()}/week-results
 
 - The Future of Work Team
       `.trim()
