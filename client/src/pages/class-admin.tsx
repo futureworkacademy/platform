@@ -36,8 +36,10 @@ import {
   Copy,
   ChevronDown,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/use-auth";
 import { Link, useSearch, useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -189,6 +191,7 @@ Thank you for your engagement and participation!`,
 };
 
 export default function ClassAdminPage() {
+  const { logout, isLoggingOut } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
@@ -903,6 +906,10 @@ export default function ClassAdminPage() {
                 </Button>
               </Link>
             )}
+            <Button variant="outline" onClick={() => logout()} disabled={isLoggingOut} data-testid="button-logout">
+              <LogOut className="mr-2 h-4 w-4" />
+              {isLoggingOut ? "Logging out..." : "Log Out"}
+            </Button>
           </div>
         </div>
 

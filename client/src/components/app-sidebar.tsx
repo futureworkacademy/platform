@@ -13,7 +13,9 @@ import {
   ClipboardCheck,
   PlayCircle,
   HelpCircle,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { useDemoTour } from "@/components/demo-tour-provider";
 import { Button } from "@/components/ui/button";
 import { GeminiQASidebar } from "@/components/gemini-qa-widget";
@@ -106,6 +108,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false }: AppSidebarProps) {
   const [location] = useLocation();
+  const { logout, isLoggingOut } = useAuth();
   const { isDemoUser, startTour, resetTour } = useDemoTour();
   
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>({
@@ -274,6 +277,17 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
               style={{ width: `${(currentWeek / totalWeeks) * 100}%` }}
             />
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-muted-foreground"
+            onClick={() => logout()}
+            disabled={isLoggingOut}
+            data-testid="button-logout"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            {isLoggingOut ? "Logging out..." : "Log Out"}
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>

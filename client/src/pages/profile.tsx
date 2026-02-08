@@ -15,11 +15,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell, MessageSquare } from "lucide-react";
+import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell, MessageSquare, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { profileUpdateSchema, type ProfileUpdate } from "@shared/schema";
 
 interface Profile {
@@ -48,6 +49,7 @@ const profileFormSchema = profileUpdateSchema.omit({ profileImageUrl: true });
 type ProfileFormData = ProfileUpdate;
 
 export default function Profile() {
+  const { logout, isLoggingOut } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -143,18 +145,24 @@ export default function Profile() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/">
-          <Button variant="ghost" size="icon" data-testid="button-back">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold" data-testid="text-profile-title">Your Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your personal and professional information
-          </p>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="icon" data-testid="button-back">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold" data-testid="text-profile-title">Your Profile</h1>
+            <p className="text-muted-foreground">
+              Manage your personal and professional information
+            </p>
+          </div>
         </div>
+        <Button variant="outline" onClick={() => logout()} disabled={isLoggingOut} data-testid="button-logout">
+          <LogOut className="mr-2 h-4 w-4" />
+          {isLoggingOut ? "Logging out..." : "Log Out"}
+        </Button>
       </div>
 
       <Form {...form}>

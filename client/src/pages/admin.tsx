@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Users, Plus, Shield, ArrowLeft, LayoutDashboard, User as UserIcon, FileText, BarChart3, Trophy } from "lucide-react";
+import { Users, Plus, Shield, ArrowLeft, LayoutDashboard, User as UserIcon, FileText, BarChart3, Trophy, LogOut } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 interface UserData {
   id: string;
@@ -32,6 +33,7 @@ interface Team {
 }
 
 export default function AdminPage() {
+  const { logout, isLoggingOut } = useAuth();
   const { toast } = useToast();
   const [newTeamName, setNewTeamName] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
@@ -113,12 +115,18 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold">Admin Console</h1>
             <p className="text-muted-foreground">Manage teams and user assignments</p>
           </div>
-          <Link href="/">
-            <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/">
+              <Button variant="outline" data-testid="button-back">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+            </Link>
+            <Button variant="outline" onClick={() => logout()} disabled={isLoggingOut} data-testid="button-logout">
+              <LogOut className="mr-2 h-4 w-4" />
+              {isLoggingOut ? "Logging out..." : "Log Out"}
             </Button>
-          </Link>
+          </div>
         </div>
 
         <Card>
