@@ -57,6 +57,7 @@ export default function Research() {
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   
   const inSandboxMode = (user?.previewRole as string | null) === "student" || user?.inStudentPreview === true;
+  const isUnifiedPreview = !!(user?.previewRole as string | null);
 
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
@@ -241,8 +242,8 @@ END OF RESEARCH MATERIALS
 
   return (
     <div className="min-h-screen bg-background" data-testid="research-page">
-      {/* Sandbox Mode Banner - Prominent at top */}
-      {inSandboxMode && (
+      {/* Legacy Sandbox Mode Banner - only for old sandbox flow, not unified preview */}
+      {inSandboxMode && !isUnifiedPreview && (
         <div className="bg-amber-500 text-black py-3 px-4" data-testid="sandbox-banner">
           <div className="container mx-auto flex items-center justify-center gap-3">
             <FlaskConical className="h-5 w-5" />
@@ -251,7 +252,7 @@ END OF RESEARCH MATERIALS
           </div>
         </div>
       )}
-      <div className={`border-b bg-card ${inSandboxMode ? 'border-amber-500/50' : ''}`}>
+      <div className={`border-b bg-card ${inSandboxMode && !isUnifiedPreview ? 'border-amber-500/50' : ''}`}>
         <div className="container mx-auto px-6 py-4">
           {/* Navigation breadcrumbs */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -745,8 +746,8 @@ END OF RESEARCH MATERIALS
         </Tabs>
       </div>
       
-      {/* Sandbox Controls - Fixed at bottom when in sandbox mode */}
-      {inSandboxMode && ((user?.previewOrgId as string | null) || (user?.previewModeOrgId as string | null)) && team && (
+      {/* Legacy Sandbox Controls - only for old sandbox flow, not unified preview */}
+      {inSandboxMode && !isUnifiedPreview && ((user?.previewOrgId as string | null) || (user?.previewModeOrgId as string | null)) && team && (
         <SandboxControls orgId={((user?.previewOrgId as string | null) || (user?.previewModeOrgId as string | null))!} currentWeek={team.currentWeek || 1} />
       )}
     </div>

@@ -63,6 +63,7 @@ function GameLayout() {
   const previewOrgId = user?.previewOrgId as string | null;
   const inSandboxMode = previewRole === "student" || user?.inStudentPreview === true;
   const sandboxOrgId = previewOrgId || (user?.previewModeOrgId as string | null);
+  const isUnifiedPreview = !!previewRole;
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -103,8 +104,8 @@ function GameLayout() {
           isAdmin={isAdmin}
         />
         <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Sandbox Mode Banner - prominent visual indicator */}
-          {inSandboxMode && (
+          {/* Legacy Sandbox Mode Banner - only shown for old sandbox flow, not unified preview */}
+          {inSandboxMode && !isUnifiedPreview && (
             <div className="bg-amber-500 dark:bg-amber-600 text-white px-4 py-2 flex items-center justify-center gap-3 text-sm font-medium">
               <FlaskConical className="h-4 w-4" />
               <span>SANDBOX MODE - You are previewing the student experience</span>
@@ -112,7 +113,7 @@ function GameLayout() {
               <span>Use controls at bottom to navigate weeks</span>
             </div>
           )}
-          <header className={`flex items-center justify-between gap-4 p-3 border-b backdrop-blur-sm sticky top-0 z-50 ${inSandboxMode ? 'bg-amber-100/50 dark:bg-amber-900/20' : 'bg-card/50'}`}>
+          <header className={`flex items-center justify-between gap-4 p-3 border-b backdrop-blur-sm sticky top-0 z-50 ${inSandboxMode && !isUnifiedPreview ? 'bg-amber-100/50 dark:bg-amber-900/20' : 'bg-card/50'}`}>
             <div className="flex items-center gap-3">
               <SidebarTrigger data-testid="button-sidebar-toggle" />
               <div className="h-4 w-px bg-border" />
@@ -140,8 +141,8 @@ function GameLayout() {
             </Switch>
           </main>
           
-          {/* Sandbox Mode Controls - shown when admin is testing as student */}
-          {inSandboxMode && sandboxOrgId && team && (
+          {/* Legacy Sandbox Controls - only shown for old sandbox flow, not unified preview */}
+          {inSandboxMode && !isUnifiedPreview && sandboxOrgId && team && (
             <SandboxControls 
               orgId={sandboxOrgId}
               currentWeek={team.currentWeek}
