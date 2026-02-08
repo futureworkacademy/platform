@@ -104,6 +104,28 @@ export async function registerRoutes(
   });
 
   // Character profiles API
+  const roleToCharacterMap: Record<string, string> = {
+    "Board of Directors": "Victoria Hartwell",
+    "Board Member": "William Thornton III",
+    "CFO": "David Chen",
+    "HR Director": "Sandra Williams",
+    "Operations Manager": "Frank Torres",
+    "UAW Organizer": "Marcus Webb",
+    "General Counsel": "Robert Nakamura",
+    "Sales VP": "Jennifer Park",
+    "Master Moldmaker": "Frank Torres",
+    "Lead Moldmaker": "Frank Torres",
+    "Medical Device Customer": "Thomas Richardson",
+    "Medical Device Quality Director": "Thomas Richardson",
+    "Aerospace Customer": "Thomas Richardson",
+    "Major Customer": "Thomas Richardson",
+    "Community College Dean": "Dr. Helen Mercer",
+    "Procurement Director": "Margaret O'Brien",
+    "Logistics Manager": "Margaret O'Brien",
+    "QA Manager": "Frank Torres",
+    "Board Member (PE)": "William Thornton III",
+  };
+
   app.get("/api/characters/by-name", async (req, res) => {
     try {
       const name = req.query.name as string;
@@ -111,11 +133,22 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Name parameter required" });
       }
 
-      const [character] = await db
+      let [character] = await db
         .select()
         .from(characterProfiles)
         .where(eq(characterProfiles.name, name))
         .limit(1);
+
+      if (!character) {
+        const mappedName = roleToCharacterMap[name];
+        if (mappedName) {
+          [character] = await db
+            .select()
+            .from(characterProfiles)
+            .where(eq(characterProfiles.name, mappedName))
+            .limit(1);
+        }
+      }
 
       if (!character) {
         return res.status(404).json({ error: "Character not found" });

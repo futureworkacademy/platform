@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -36,6 +37,7 @@ import {
 import type { Team, WeeklyScenario, WeeklyBriefing } from "@shared/schema";
 import { CharacterNameLink } from "@/components/character-name-link";
 import { VoicemailPlayer, VoicemailNotification } from "@/components/voicemail-player";
+import { generateWeeklyPDF } from "@/lib/pdf-export";
 
 interface ContentViewProgress {
   briefing: { viewed: number; total: number; percentage: number };
@@ -208,6 +210,31 @@ export default function Briefing() {
               weekNumber={team.currentWeek} 
               onClick={() => setShowVoicemail(true)} 
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => generateWeeklyPDF({
+                    weekNumber: team.currentWeek,
+                    totalWeeks: team.totalWeeks,
+                    scenarioTitle: scenario.title,
+                    narrative: scenario.narrative,
+                    keyQuestion: scenario.keyQuestion,
+                    pressures: scenario.pressures,
+                    companyState: team.companyState,
+                    articles: briefing?.articles as any[],
+                    teamName: team.name || undefined,
+                  })}
+                  data-testid="button-download-pdf"
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Download Week as PDF</p>
+              </TooltipContent>
+            </Tooltip>
             <Link href="/decisions">
               <Button data-testid="button-go-to-decisions">
                 Make Decisions
@@ -304,23 +331,30 @@ export default function Briefing() {
           <Card 
             onMouseEnter={() => recordSectionView(`keyquestion-${team.currentWeek}`)}
             data-testid="card-key-question"
+            className="border-primary/30 bg-primary/[0.03] dark:bg-primary/[0.06] ring-1 ring-primary/10"
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-blue-400" />
-                  <CardTitle className="text-lg">Key Question</CardTitle>
+                  <div className="p-1.5 rounded-md bg-primary/10">
+                    <Target className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Key Question</CardTitle>
+                    <CardDescription>This week's central challenge</CardDescription>
+                  </div>
                 </div>
                 {isViewed(`keyquestion-${team.currentWeek}`) && (
                   <CheckCircle2 className="w-4 h-4 text-success" data-testid="icon-keyquestion-viewed" />
                 )}
               </div>
-              <CardDescription>This week's central challenge</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-lg font-medium text-foreground mb-4" data-testid="text-key-question">
-                {scenario.keyQuestion}
-              </p>
+              <div className="pl-4 border-l-2 border-primary/40 mb-4">
+                <p className="text-lg font-semibold text-foreground italic leading-relaxed" data-testid="text-key-question">
+                  {scenario.keyQuestion}
+                </p>
+              </div>
               
               <Separator className="my-4" />
               
