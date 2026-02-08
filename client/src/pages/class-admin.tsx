@@ -688,7 +688,7 @@ export default function ClassAdminPage() {
   const pendingMembers = members.filter(m => m.status === "pending");
   const activeMembers = members.filter(m => m.status === "active");
   const deactivatedMembers = members.filter(m => m.status === "deactivated");
-  const studentMembers = activeMembers.filter(m => m.role === "STUDENT");
+  const studentMembers = activeMembers.filter(m => m.role?.toUpperCase() === "STUDENT");
 
   if (roleLoading) {
     return (
@@ -1202,8 +1202,8 @@ export default function ClassAdminPage() {
                           </TableCell>
                           <TableCell>{member.user?.email || member.user?.schoolEmail}</TableCell>
                           <TableCell>
-                            <Badge variant={member.role === "CLASS_ADMIN" ? "default" : "secondary"}>
-                              {member.role === "CLASS_ADMIN" ? "Instructor" : "Student"}
+                            <Badge variant={member.role?.toUpperCase() === "CLASS_ADMIN" ? "default" : "secondary"}>
+                              {member.role?.toUpperCase() === "CLASS_ADMIN" ? "Instructor" : "Student"}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -1217,7 +1217,7 @@ export default function ClassAdminPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              {member.role === "STUDENT" && (
+                              {member.role?.toUpperCase() === "STUDENT" && (
                                 <Select
                                   value={member.user?.teamId || ""}
                                   onValueChange={(value) => {
@@ -1286,7 +1286,7 @@ export default function ClassAdminPage() {
                             <TableCell>{member.user?.email || member.user?.schoolEmail}</TableCell>
                             <TableCell>
                               <Badge variant="outline">
-                                {member.role === "CLASS_ADMIN" ? "Instructor" : "Student"}
+                                {member.role?.toUpperCase() === "CLASS_ADMIN" ? "Instructor" : "Student"}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
