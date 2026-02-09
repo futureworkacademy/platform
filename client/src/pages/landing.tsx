@@ -234,6 +234,22 @@ export default function Landing() {
                 </a>
                 <span className="opacity-50">|</span>
                 <a 
+                  href="/guides/student" 
+                  className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
+                  data-testid="link-student-guide"
+                >
+                  Student Guide
+                </a>
+                <span className="opacity-50">|</span>
+                <a 
+                  href="/guides/instructor" 
+                  className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
+                  data-testid="link-instructor-guide"
+                >
+                  Instructor Guide
+                </a>
+                <span className="opacity-50">|</span>
+                <a 
                   href="/privacy" 
                   className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity"
                   data-testid="link-privacy-policy"

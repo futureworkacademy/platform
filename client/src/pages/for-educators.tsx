@@ -660,6 +660,46 @@ export default function ForEducators() {
           </div>
         </section>
 
+        {/* GUIDES - Quick resource links */}
+        <section className="py-10 px-4" data-testid="section-guides">
+          <div className="container mx-auto max-w-5xl">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold mb-1">Platform Guides</h2>
+              <p className="text-sm text-muted-foreground">
+                Share these public guides with your students and teaching assistants — no login required.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+              <a href="/guides/student" data-testid="link-student-guide-card">
+                <Card className="hover-elevate h-full">
+                  <CardContent className="pt-6 flex items-start gap-3">
+                    <BookOpen className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+                    <div>
+                      <p className="font-semibold text-sm">Student Guide</p>
+                      <p className="text-xs text-muted-foreground">
+                        Getting started, weekly workflow, scoring, and advisor system
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </a>
+              <a href="/guides/instructor" data-testid="link-instructor-guide-card">
+                <Card className="hover-elevate h-full">
+                  <CardContent className="pt-6 flex items-start gap-3">
+                    <GraduationCap className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+                    <div>
+                      <p className="font-semibold text-sm">Instructor Guide</p>
+                      <p className="text-xs text-muted-foreground">
+                        Class setup, team management, simulation controls, and grading
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* SECONDARY CTA: Doug's bio + Contact Form - Action (deliberative path) */}
         <section className="py-12 px-4" id="contact">
           <div className="container mx-auto max-w-5xl">
