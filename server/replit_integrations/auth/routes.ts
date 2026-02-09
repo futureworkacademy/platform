@@ -86,7 +86,32 @@ export function registerAuthRoutes(app: Express): void {
       res.set('Expires', '0');
       res.set('Surrogate-Control', 'no-store');
       
-      res.json(user);
+      const sessionPreview = (req.session as any)?.preview;
+      const hasSessionPreview = sessionPreview?.role != null;
+      const userResponse = user ? {
+        ...user,
+        previewRole: hasSessionPreview ? sessionPreview.role : (user.previewRole || null),
+        previewOrgId: hasSessionPreview ? sessionPreview.orgId : (user.previewOrgId || null),
+        inStudentPreview: hasSessionPreview 
+          ? sessionPreview.role === "student" 
+          : (user.inStudentPreview || false),
+        previewModeOrgId: hasSessionPreview 
+          ? (sessionPreview.role === "student" ? sessionPreview.orgId : null)
+          : (user.previewModeOrgId || null),
+        inInstructorPreview: hasSessionPreview 
+          ? sessionPreview.role === "educator" 
+          : (user.inInstructorPreview || false),
+        instructorPreviewOrgId: hasSessionPreview 
+          ? (sessionPreview.role === "educator" ? sessionPreview.orgId : null)
+          : (user.instructorPreviewOrgId || null),
+        inDemoPreview: hasSessionPreview 
+          ? sessionPreview.role === "demo" 
+          : (user.inDemoPreview || false),
+        demoPreviewOrgId: hasSessionPreview 
+          ? (sessionPreview.role === "demo" ? sessionPreview.orgId : null)
+          : (user.demoPreviewOrgId || null),
+      } : user;
+      res.json(userResponse);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });

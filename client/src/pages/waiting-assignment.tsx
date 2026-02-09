@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
-import { LogOut, Settings, MessageSquare } from "lucide-react";
+import { LogOut, Settings, MessageSquare, Loader2 } from "lucide-react";
 import logoForLight from "@assets/logo-horizontal.png";
 import logoForDark from "@assets/logo-white.png";
 import { Link, useLocation } from "wouter";
 import { EnrollmentWizard } from "@/components/enrollment-wizard";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface WaitingAssignmentProps {
   teamNotFound?: boolean;
@@ -15,6 +17,8 @@ interface WaitingAssignmentProps {
 export default function WaitingAssignment({ teamNotFound = false }: WaitingAssignmentProps) {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [autoJoining, setAutoJoining] = useState(false);
   
   // Redirect super admins to their dashboard
   useEffect(() => {
@@ -25,9 +29,46 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     }
   }, [user, setLocation]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const joinCode = params.get("joinCode");
+    if (!joinCode || autoJoining) return;
+
+    setAutoJoining(true);
+    (async () => {
+      try {
+        const res = await apiRequest("POST", "/api/join/complete", {});
+        const data = await res.json();
+        if (data.success) {
+          toast({ title: data.alreadyMember ? "Already a member" : "Joined successfully", description: `Organization: ${data.organizationName}` });
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+          window.history.replaceState({}, "", "/");
+          setLocation("/");
+        }
+      } catch (error: any) {
+        toast({ title: "Could not auto-join", description: error.message || "Please enter your team code manually.", variant: "destructive" });
+        window.history.replaceState({}, "", "/");
+      } finally {
+        setAutoJoining(false);
+      }
+    })();
+  }, []);
+
   const handleEnrollmentComplete = () => {
     setLocation('/');
   };
+
+  if (autoJoining) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Joining your class...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If team was not found (error state), show simplified message
   if (teamNotFound) {

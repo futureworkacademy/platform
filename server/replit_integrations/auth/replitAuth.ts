@@ -207,6 +207,13 @@ export async function setupAuth(app: Express) {
               return res.redirect('/super-admin');
             }
             
+            // Check for pending magic invite link join code
+            const pendingJoinCode = (req.session as any)?.pendingJoinCode;
+            if (pendingJoinCode) {
+              console.log(`[AUTH CALLBACK] Pending join code found: ${pendingJoinCode}, redirecting with joinCode`);
+              return res.redirect(`/?joinCode=${pendingJoinCode}`);
+            }
+            
             // Default redirect for non-admins or if dbUser is missing
             console.log(`[AUTH CALLBACK] Non-admin or missing dbUser, redirecting to /`);
             return res.redirect('/');

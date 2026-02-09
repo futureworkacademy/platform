@@ -286,17 +286,20 @@ export async function registerRoutes(
     }
   });
 
-  async function resolveTeamIdForUser(userId: string): Promise<string | null> {
+  async function resolveTeamIdForUser(userId: string, sessionPreview?: { role: string; orgId: string } | null): Promise<string | null> {
     const user = await authStorage.getUser(userId);
     if (!user) return null;
     
     let teamId = user.teamId;
     
-    if (user.previewRole === "student" && user.previewOrgId) {
+    const previewRole = sessionPreview?.role || user.previewRole;
+    const previewOrgId = sessionPreview?.orgId || user.previewOrgId;
+    
+    if (previewRole === "student" && previewOrgId) {
       const [testStudent] = await db.select().from(users)
         .where(and(
           eq(users.testStudentOwnerId, userId),
-          eq(users.testStudentOwnerOrgId, user.previewOrgId)
+          eq(users.testStudentOwnerOrgId, previewOrgId)
         ));
       if (testStudent?.teamId) {
         teamId = testStudent.teamId;
@@ -324,7 +327,7 @@ export async function registerRoutes(
     try {
       const user = req.user as any;
       const userId = user?.claims?.sub;
-      const teamId = await resolveTeamIdForUser(userId);
+      const teamId = await resolveTeamIdForUser(userId, (req.session as any)?.preview);
       if (!teamId) {
         return res.status(400).json({ error: "User not on a team" });
       }
@@ -421,7 +424,7 @@ export async function registerRoutes(
     try {
       const user = req.user as any;
       const userId = user?.claims?.sub;
-      const teamId = await resolveTeamIdForUser(userId);
+      const teamId = await resolveTeamIdForUser(userId, (req.session as any)?.preview);
       if (!teamId) {
         return res.json({ calls: [] });
       }
@@ -451,21 +454,21 @@ export async function registerRoutes(
       
       const user = await authStorage.getUser(userId);
       
-      // If user is in student preview mode, get the test student's team instead
       let teamId = user?.teamId;
       let orgId: string | null = null;
       
-      if (user?.inStudentPreview && user?.previewModeOrgId) {
-        // Find the test student for this admin and org
+      const sessionPreview = (req.session as any)?.preview;
+      if ((sessionPreview?.role === "student" && sessionPreview?.orgId) || (user?.inStudentPreview && user?.previewModeOrgId)) {
+        const previewOrgId = sessionPreview?.orgId || user?.previewModeOrgId;
         const [testStudent] = await db.select().from(users)
           .where(and(
             eq(users.testStudentOwnerId, userId),
-            eq(users.testStudentOwnerOrgId, user.previewModeOrgId)
+            eq(users.testStudentOwnerOrgId, previewOrgId!)
           ));
         
         if (testStudent?.teamId) {
           teamId = testStudent.teamId;
-          orgId = user.previewModeOrgId;
+          orgId = previewOrgId!;
         }
       }
       
@@ -724,7 +727,7 @@ export async function registerRoutes(
   app.post("/api/content-views", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const resolvedTeamId = await resolveTeamIdForUser(userId);
+      const resolvedTeamId = await resolveTeamIdForUser(userId, (req.session as any)?.preview);
       
       const parseResult = recordContentViewSchema.safeParse(req.body);
       if (!parseResult.success) {
@@ -752,7 +755,7 @@ export async function registerRoutes(
   app.get("/api/content-views", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const resolvedTeamId = await resolveTeamIdForUser(userId);
+      const resolvedTeamId = await resolveTeamIdForUser(userId, (req.session as any)?.preview);
       const { contentType, weekNumber } = req.query;
       
       const views = await storage.getContentViews(
@@ -986,6 +989,20 @@ export async function registerRoutes(
       if (!user?.teamId) {
         return res.status(404).json({ error: "No team assigned" });
       }
+
+      const expectedWeek = req.body.expectedWeek;
+      if (expectedWeek !== undefined) {
+        const team = await storage.getTeam(user.teamId);
+        const currentWeek = team?.currentWeek || 1;
+        if (expectedWeek !== currentWeek) {
+          return res.status(409).json({ 
+            error: "Week has changed since you loaded this page. Please refresh and try again.",
+            currentWeek,
+            expectedWeek 
+          });
+        }
+      }
+
       const decision = await storage.addDecision(user.teamId, validationResult.data);
       res.json(decision);
     } catch (error) {
@@ -1002,6 +1019,15 @@ export async function registerRoutes(
       }
       const team = await storage.getTeam(user.teamId);
       const previousWeek = team?.currentWeek || 1;
+
+      const expectedWeek = req.body?.expectedWeek;
+      if (expectedWeek !== undefined && expectedWeek !== previousWeek) {
+        return res.status(409).json({ 
+          error: "Week has already been advanced. Please refresh the page.",
+          currentWeek: previousWeek,
+          expectedWeek 
+        });
+      }
       
       const updatedTeam = await storage.advanceWeek(user.teamId);
       if (!updatedTeam) {
@@ -1128,6 +1154,15 @@ export async function registerRoutes(
       const user = await authStorage.getUser(userId);
       const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
       const weekNumber = team?.currentWeek || 1;
+
+      const expectedWeek = req.body.expectedWeek;
+      if (expectedWeek !== undefined && expectedWeek !== weekNumber) {
+        return res.status(409).json({ 
+          error: "Week has changed since you loaded this page. Please refresh and try again.",
+          currentWeek: weekNumber,
+          expectedWeek 
+        });
+      }
       
       // Get decision context for LLM evaluation
       const decisions = await storage.getEnhancedDecisions(weekNumber);
@@ -2473,14 +2508,7 @@ Provide your consistency review in JSON format.`;
         });
       }
 
-      // Set admin into demo preview mode
-      await db.update(users)
-        .set({ 
-          inDemoPreview: true, 
-          demoPreviewOrgId: demoOrgId, 
-          updatedAt: new Date() 
-        })
-        .where(eq(users.id, userId));
+      (req.session as any).preview = { role: "demo", orgId: demoOrgId };
 
       console.log("[Demo Preview] Admin entered demo preview mode:", { userId, demoOrgId });
 
@@ -2504,7 +2532,7 @@ Provide your consistency review in JSON format.`;
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      // Set admin out of demo preview mode
+      delete (req.session as any).preview;
       await db.update(users)
         .set({ 
           inDemoPreview: false, 
@@ -2530,16 +2558,94 @@ Provide your consistency review in JSON format.`;
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      const [user] = await db.select().from(users).where(eq(users.id, userId));
-      
+      const sessionPreview = (req.session as any)?.preview;
+      const inDemoPreview = sessionPreview?.role === "demo";
+      const demoPreviewOrgId = inDemoPreview ? sessionPreview?.orgId : null;
+
       res.json({ 
-        inDemoPreview: user?.inDemoPreview || false,
-        demoPreviewOrgId: user?.demoPreviewOrgId || null,
-        demoCode: user?.inDemoPreview ? demoService.getDemoOrgCode() : undefined
+        inDemoPreview,
+        demoPreviewOrgId,
+        demoCode: inDemoPreview ? demoService.getDemoOrgCode() : undefined
       });
     } catch (error) {
       console.error("[Demo Preview] Error getting status:", error);
       res.status(500).json({ error: "Failed to get demo preview status" });
+    }
+  });
+
+  // ==================== MAGIC INVITE LINKS ====================
+
+  app.get("/join/:code", (req: any, res) => {
+    const code = req.params.code?.toUpperCase();
+    if (!code) {
+      return res.redirect("/?error=invalid_code");
+    }
+    (req.session as any).pendingJoinCode = code;
+    if (req.isAuthenticated?.()) {
+      return res.redirect(`/?joinCode=${code}`);
+    }
+    return res.redirect("/api/login");
+  });
+
+  app.get("/api/join/pending", isAuthenticated, async (req: any, res) => {
+    const pendingCode = (req.session as any)?.pendingJoinCode;
+    if (!pendingCode) {
+      return res.json({ pending: false });
+    }
+    res.json({ pending: true, code: pendingCode });
+  });
+
+  app.post("/api/join/complete", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await authStorage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const pendingCode = (req.session as any)?.pendingJoinCode;
+      if (!pendingCode) {
+        return res.status(400).json({ error: "No pending join code" });
+      }
+
+      delete (req.session as any).pendingJoinCode;
+
+      const result = await organizationStorage.validateInviteCode(pendingCode);
+      if (!result.valid || !result.invite || !result.organization) {
+        return res.status(400).json({ error: result.error || "Invalid or expired team code" });
+      }
+
+      const targetOrgId = result.organization.id;
+      const targetOrgName = result.organization.name;
+
+      const existingMember = await organizationStorage.getMember(userId, targetOrgId);
+      if (existingMember) {
+        return res.json({ success: true, alreadyMember: true, organizationName: targetOrgName });
+      }
+
+      await organizationStorage.addMember({
+        userId,
+        organizationId: targetOrgId,
+        role: ROLES.STUDENT,
+        status: "active",
+      });
+
+      await organizationStorage.incrementInviteUsage(result.invite.id);
+
+      const isPrivacyMode = result.organization.privacyMode === true;
+      if (!isPrivacyMode) {
+        const userEmail = user.schoolEmail || user.email || "";
+        await organizationStorage.notifyAdminsOfSignup(targetOrgId, {
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: userEmail,
+        });
+      }
+
+      res.json({ success: true, organizationName: targetOrgName });
+    } catch (error) {
+      console.error("[Magic Join] Error:", error);
+      res.status(500).json({ error: "Failed to join organization" });
     }
   });
 
@@ -4342,18 +4448,16 @@ Provide your consistency review in JSON format.`;
       const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
       const isClassAdmin = await organizationStorage.isClassAdmin(userId);
       
-      // Get user's preview mode status
       const [user] = await db.select().from(users).where(eq(users.id, userId));
-      const inStudentPreview = user?.inStudentPreview || false;
-      const previewModeOrgId = user?.previewModeOrgId || null;
+      const sessionPreview = (req.session as any)?.preview;
+      const inStudentPreview = sessionPreview?.role === "student";
+      const previewModeOrgId = inStudentPreview ? sessionPreview?.orgId : null;
       
-      // Demo preview mode - allows super admins to experience evaluator view
-      const inDemoPreview = user?.inDemoPreview || false;
-      const demoPreviewOrgId = user?.demoPreviewOrgId || null;
+      const inDemoPreview = sessionPreview?.role === "demo";
+      const demoPreviewOrgId = inDemoPreview ? sessionPreview?.orgId : null;
       
-      // Instructor preview mode
-      const inInstructorPreview = user?.inInstructorPreview || false;
-      const instructorPreviewOrgId = user?.instructorPreviewOrgId || null;
+      const inInstructorPreview = sessionPreview?.role === "educator";
+      const instructorPreviewOrgId = inInstructorPreview ? sessionPreview?.orgId : null;
 
       // Get organizations where user is admin (for preview mode exit)
       const adminOrgs: Array<{ id: string; name: string }> = [];
@@ -4376,8 +4480,8 @@ Provide your consistency review in JSON format.`;
         demoPreviewOrgId,
         inInstructorPreview,
         instructorPreviewOrgId,
-        previewRole: user?.previewRole || null,
-        previewOrgId: user?.previewOrgId || null,
+        previewRole: sessionPreview?.role || null,
+        previewOrgId: sessionPreview?.orgId || null,
         organizations: adminOrgs,
         membershipCount: memberships.length,
         memberships,
@@ -4829,7 +4933,7 @@ Provide your consistency review in JSON format.`;
       }
 
       res.json({
-        inPreviewMode: adminUser?.inStudentPreview || false,
+        inPreviewMode: (req.session as any)?.preview?.role === "student" || adminUser?.inStudentPreview || false,
         testStudent: testStudent ? {
           id: testStudent.id,
           email: testStudent.email,
@@ -4870,9 +4974,7 @@ Provide your consistency review in JSON format.`;
         return res.status(404).json({ error: "Organization not found" });
       }
 
-      await db.update(users)
-        .set({ inInstructorPreview: true, instructorPreviewOrgId: orgId, updatedAt: new Date() })
-        .where(eq(users.id, userId));
+      (req.session as any).preview = { role: "educator", orgId };
 
       res.json({ success: true, orgId, orgName: org.name });
     } catch (error) {
@@ -4885,6 +4987,7 @@ Provide your consistency review in JSON format.`;
     try {
       const userId = req.user?.claims?.sub;
 
+      delete (req.session as any).preview;
       await db.update(users)
         .set({ inInstructorPreview: false, instructorPreviewOrgId: null, updatedAt: new Date() })
         .where(eq(users.id, userId));
@@ -5006,15 +5109,7 @@ Provide your consistency review in JSON format.`;
           });
         }
 
-        await db.update(users)
-          .set({ 
-            previewRole: "student",
-            previewOrgId: orgId,
-            inStudentPreview: true,
-            previewModeOrgId: orgId,
-            updatedAt: new Date() 
-          })
-          .where(eq(users.id, userId));
+        (req.session as any).preview = { role: "student", orgId };
 
         console.log("[Preview] Entered student preview:", { userId, orgId, testStudentId: testStudent.id });
         res.json({ success: true, role: "student", orgId, orgName: org.name, testStudentId: testStudent.id, teamId: testStudent.teamId });
@@ -5030,13 +5125,7 @@ Provide your consistency review in JSON format.`;
           });
         }
 
-        await db.update(users)
-          .set({ 
-            previewRole: "educator",
-            previewOrgId: orgId,
-            updatedAt: new Date() 
-          })
-          .where(eq(users.id, userId));
+        (req.session as any).preview = { role: "educator", orgId };
 
         console.log("[Preview] Entered educator preview:", { userId, orgId });
         res.json({ success: true, role: "educator", orgId, orgName: org.name });
@@ -5054,6 +5143,7 @@ Provide your consistency review in JSON format.`;
         return res.status(401).json({ error: "Unauthorized" });
       }
 
+      delete (req.session as any).preview;
       await db.update(users)
         .set({ 
           previewRole: null,
@@ -5296,10 +5386,7 @@ Provide your consistency review in JSON format.`;
         });
       }
 
-      // Set admin into preview mode and track which org they are previewing
-      await db.update(users)
-        .set({ inStudentPreview: true, previewModeOrgId: orgId, updatedAt: new Date() })
-        .where(eq(users.id, userId));
+      (req.session as any).preview = { role: "student", orgId };
 
       res.json({
         success: true,
@@ -5335,7 +5422,7 @@ Provide your consistency review in JSON format.`;
         return res.status(403).json({ error: "Admin access required" });
       }
 
-      // Set admin out of preview mode and clear the org being previewed
+      delete (req.session as any).preview;
       await db.update(users)
         .set({ inStudentPreview: false, previewModeOrgId: null, updatedAt: new Date() })
         .where(eq(users.id, userId));
