@@ -11,6 +11,8 @@ export function registerAuthRoutes(app: Express): void {
     const isAuth = req.isAuthenticated?.() || false;
     let dbUser = null;
     let repaired = false;
+    let repairError: string | null = null;
+    const claims = req.user?.claims;
     
     if (userId) {
       try {
@@ -18,21 +20,21 @@ export function registerAuthRoutes(app: Express): void {
       } catch (e) {}
       
       // If user is authenticated but has no DB record, create one from session claims
-      if (!dbUser && isAuth && req.user?.claims) {
+      if (!dbUser && isAuth && claims) {
         try {
-          const claims = req.user.claims;
           console.log(`[SESSION-CHECK] Repairing missing DB record for user ${userId} (${claims.email})`);
           dbUser = await authStorage.upsertUser({
             id: userId,
-            email: claims.email,
-            firstName: claims.first_name,
-            lastName: claims.last_name,
+            email: claims.email || `unknown-${userId}@replit.user`,
+            firstName: claims.first_name || 'Unknown',
+            lastName: claims.last_name || 'User',
             profileImageUrl: claims.profile_image_url,
           });
           repaired = true;
           console.log(`[SESSION-CHECK] Successfully created DB record for user ${userId}`);
         } catch (upsertErr: any) {
-          console.error(`[SESSION-CHECK] Failed to repair DB record:`, upsertErr?.message || upsertErr);
+          repairError = upsertErr?.message || String(upsertErr);
+          console.error(`[SESSION-CHECK] Failed to repair DB record:`, repairError);
         }
       }
     }
@@ -44,7 +46,11 @@ export function registerAuthRoutes(app: Express): void {
       isAuthenticated: isAuth,
       hasUser: !!req.user,
       userId: userId || null,
+      hasClaims: !!claims,
+      claimsKeys: claims ? Object.keys(claims) : [],
+      claimsEmail: claims?.email || null,
       repaired,
+      repairError,
       dbUser: dbUser ? {
         id: dbUser.id,
         email: dbUser.email,
