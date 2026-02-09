@@ -2687,20 +2687,6 @@ Provide your consistency review in JSON format.`;
 
   // ==================== ORGANIZATION ROUTES ====================
 
-  // Temporary admin toggle (remove after use)
-  app.post("/api/admin-toggle-privacy", async (req, res) => {
-    const { orgId, secret } = req.body;
-    if (secret !== "toggle-privacy-temp-2026") {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    try {
-      const org = await organizationStorage.updateOrganization(orgId, { privacyMode: true });
-      res.json({ success: true, name: org?.name, privacyMode: org?.privacyMode });
-    } catch (err: any) {
-      res.status(500).json({ error: err?.message });
-    }
-  });
-
   // Validate team code (public - for signup flow)
   app.post("/api/validate-team-code", async (req, res) => {
     try {
