@@ -28,7 +28,8 @@ import {
   Rocket,
   PlayCircle,
   FileText,
-  Lightbulb
+  Lightbulb,
+  Info
 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -500,12 +501,20 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
 
             {/* Privacy Mode: No email verification needed */}
             {isPrivacyMode && (
-              <div className="flex items-start gap-3 p-4 bg-green-500/10 rounded-md border border-green-500/20">
-                <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-green-700 dark:text-green-400">Privacy Mode Active</p>
-                  <p className="text-muted-foreground">
-                    {validatedOrgName} uses anonymous enrollment. Your identity remains private.
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-4 bg-green-500/10 rounded-md border border-green-500/20">
+                  <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-green-700 dark:text-green-400">Privacy Mode Active</p>
+                    <p className="text-muted-foreground">
+                      {validatedOrgName} uses anonymous enrollment. Your identity remains private.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-md" data-testid="privacy-email-nudge">
+                  <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    For maximum privacy, consider using a personal email for your Replit account. Your instructor will match your participation using an offline roster.
                   </p>
                 </div>
               </div>
