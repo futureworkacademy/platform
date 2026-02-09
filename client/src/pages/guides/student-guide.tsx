@@ -64,7 +64,7 @@ function SectionAnchor({ id }: { id: string }) {
 
 function NumberCircle({ n }: { n: number }) {
   return (
-    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#22c55e] text-white flex items-center justify-center text-sm font-bold">
+    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold">
       {n}
     </span>
   );
@@ -157,7 +157,7 @@ export default function StudentGuidePage() {
         <Card className="mb-10" data-testid="card-table-of-contents">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 flex-wrap">
-              <ListChecks className="h-5 w-5 text-[#22c55e]" />
+              <ListChecks className="h-5 w-5 text-accent" />
               Table of Contents
             </CardTitle>
           </CardHeader>
@@ -184,7 +184,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-getting-started">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <LogIn className="h-5 w-5 text-[#1e3a5f]" />
+                <LogIn className="h-5 w-5 text-primary" />
                 Getting Started
               </CardTitle>
             </CardHeader>
@@ -227,8 +227,9 @@ export default function StudentGuidePage() {
                     </li>
                   </ul>
                   <p className="text-sm text-muted-foreground">
-                    Either way, you will immediately be assigned to your team
-                    and placed into the simulation.
+                    Either way, you will be enrolled in the class. Your
+                    instructor will then assign you to a team — once assigned,
+                    you can begin exploring the simulation.
                   </p>
                 </div>
               </div>
@@ -256,7 +257,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-weekly-workflow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <FileText className="h-5 w-5 text-[#1e3a5f]" />
+                <FileText className="h-5 w-5 text-primary" />
                 Weekly Workflow
               </CardTitle>
             </CardHeader>
@@ -335,7 +336,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-dashboard">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <LayoutDashboard className="h-5 w-5 text-[#1e3a5f]" />
+                <LayoutDashboard className="h-5 w-5 text-primary" />
                 Understanding Your Dashboard
               </CardTitle>
             </CardHeader>
@@ -360,7 +361,7 @@ export default function StudentGuidePage() {
                       className="flex items-start gap-3 p-3 rounded-md bg-muted/50"
                       data-testid={`metric-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}
                     >
-                      <metric.icon className="h-4 w-4 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <metric.icon className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium">{metric.label}</p>
                         <p className="text-xs text-muted-foreground">{metric.desc}</p>
@@ -397,7 +398,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-decision-process">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <PenTool className="h-5 w-5 text-[#1e3a5f]" />
+                <PenTool className="h-5 w-5 text-primary" />
                 The Decision Process
               </CardTitle>
             </CardHeader>
@@ -435,7 +436,7 @@ export default function StudentGuidePage() {
                     data-testid={`decision-info-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     <div className="flex items-center gap-2 flex-wrap">
-                      <item.icon className="h-4 w-4 text-[#1e3a5f]" />
+                      <item.icon className="h-4 w-4 text-primary" />
                       <p className="font-semibold text-sm">{item.title}</p>
                     </div>
                     <p className="text-xs text-muted-foreground">{item.text}</p>
@@ -450,7 +451,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-advisors">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Phone className="h-5 w-5 text-[#1e3a5f]" />
+                <Phone className="h-5 w-5 text-primary" />
                 Phone-a-Friend Advisors
               </CardTitle>
             </CardHeader>
@@ -464,12 +465,12 @@ export default function StudentGuidePage() {
                 {[
                   {
                     category: "Strategy Consultants",
-                    color: "bg-[#1e3a5f]",
+                    color: "bg-primary",
                     desc: "Big-picture thinkers who help you frame problems and evaluate trade-offs at the executive level.",
                   },
                   {
                     category: "Industry Experts",
-                    color: "bg-[#22c55e]",
+                    color: "bg-accent",
                     desc: "Specialists in manufacturing, automation, and labor relations who offer domain-specific insight.",
                   },
                   {
@@ -493,7 +494,7 @@ export default function StudentGuidePage() {
               </div>
               <div className="p-4 rounded-md border border-dashed space-y-2" data-testid="advisor-credits-info">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Star className="h-4 w-4 text-[#22c55e]" />
+                  <Star className="h-4 w-4 text-accent" />
                   <p className="font-semibold text-sm">3 Credits for the Entire Simulation</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -514,7 +515,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-scoring">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Trophy className="h-5 w-5 text-[#1e3a5f]" />
+                <Trophy className="h-5 w-5 text-primary" />
                 How You're Scored
               </CardTitle>
             </CardHeader>
@@ -526,40 +527,40 @@ export default function StudentGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-3" data-testid="scoring-financial">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <DollarSign className="h-4 w-4 text-[#22c55e]" />
+                    <DollarSign className="h-4 w-4 text-accent" />
                     <p className="font-semibold">Financial Score</p>
                   </div>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Revenue growth over the 8-week period
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Cost management and debt control
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Return on investment from automation spending
                     </li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-3" data-testid="scoring-cultural">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Heart className="h-4 w-4 text-[#22c55e]" />
+                    <Heart className="h-4 w-4 text-accent" />
                     <p className="font-semibold">Cultural Score</p>
                   </div>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Employee morale and engagement levels
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Union relations and avoidance of forced bargaining
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Workforce adaptability and reskilling success
                     </li>
                   </ul>
@@ -567,7 +568,7 @@ export default function StudentGuidePage() {
               </div>
               <div className="p-4 rounded-md border space-y-3" data-testid="scoring-essay">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Award className="h-4 w-4 text-[#1e3a5f]" />
+                  <Award className="h-4 w-4 text-primary" />
                   <p className="font-semibold">Essay Evaluation Criteria</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -621,7 +622,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-characters">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <UserCheck className="h-5 w-5 text-[#1e3a5f]" />
+                <UserCheck className="h-5 w-5 text-primary" />
                 Character Profiles
               </CardTitle>
             </CardHeader>
@@ -635,7 +636,7 @@ export default function StudentGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="characters-access">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <BookOpen className="h-4 w-4 text-[#1e3a5f]" />
+                    <BookOpen className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">How to Access Profiles</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -648,24 +649,24 @@ export default function StudentGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="characters-traits">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <BarChart3 className="h-4 w-4 text-[#1e3a5f]" />
+                    <BarChart3 className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Key Traits to Watch</p>
                   </div>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       <span><strong>Influence</strong> — how much sway they hold over outcomes</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       <span><strong>Hostility</strong> — their resistance to change and AI adoption</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       <span><strong>Flexibility</strong> — willingness to compromise or adapt</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       <span><strong>Risk Tolerance</strong> — appetite for bold, high-stakes moves</span>
                     </li>
                   </ul>
@@ -686,7 +687,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-tips">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Lightbulb className="h-5 w-5 text-[#22c55e]" />
+                <Lightbulb className="h-5 w-5 text-accent" />
                 Tips for Success
               </CardTitle>
             </CardHeader>
@@ -729,7 +730,7 @@ export default function StudentGuidePage() {
                     className="flex items-start gap-3 p-3 rounded-md bg-muted/50"
                     data-testid={`tip-${item.tip.toLowerCase().replace(/\s+/g, "-")}`}
                   >
-                    <item.icon className="h-4 w-4 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                    <item.icon className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{item.tip}</p>
                       <p className="text-xs text-muted-foreground">{item.detail}</p>
@@ -745,7 +746,7 @@ export default function StudentGuidePage() {
           <Card data-testid="card-need-help">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <HelpCircle className="h-5 w-5 text-[#1e3a5f]" />
+                <HelpCircle className="h-5 w-5 text-primary" />
                 Need Help?
               </CardTitle>
             </CardHeader>
@@ -753,7 +754,7 @@ export default function StudentGuidePage() {
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="help-academic">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <GraduationCap className="h-4 w-4 text-[#1e3a5f]" />
+                    <GraduationCap className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Academic Questions</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -765,7 +766,7 @@ export default function StudentGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="help-technical">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Mail className="h-4 w-4 text-[#22c55e]" />
+                    <Mail className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Technical Issues</p>
                   </div>
                   <p className="text-xs text-muted-foreground">

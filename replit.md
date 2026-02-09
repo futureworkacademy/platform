@@ -40,6 +40,12 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Public Guide Pages:** Student Guide (`/guides/student`) and Instructor Guide (`/guides/instructor`) are public-facing, no-auth-required pages with comprehensive onboarding content and PDF download. The old `/student-guide` route redirects to `/guides/student`. Email templates dynamically link to the correct guide URLs via `getBaseUrl()` in `server/services/email.ts`.
 
+**Welcome Modal & Enrollment UX (Feb 2026):** After successful enrollment, students see a full-screen welcome modal (replaces the previous toast notification) with a celebratory rocket icon, video placeholder for a future narrated walkthrough (16:9 aspect ratio, supports MP4/H.264), "What happens next" steps, and a pro tip linking to the Student Guide. In Privacy Mode, a nudge suggests students use a personal email for their Replit account. All enrollment UI uses semantic design tokens (`text-primary`, `text-accent`, `bg-primary/10`, `bg-accent/10`) instead of hard-coded hex colors for dark mode safety.
+
+**Human Grading Disclaimer:** Both guides include a note that AI essay scores are formative feedback only — instructors retain full authority to review, adjust, or override AI-assigned scores before finalizing grades.
+
+**Design Token Cleanup (Feb 2026):** All hard-coded hex colors (`#1e3a5f`, `#22c55e`) in the Student Guide, Instructor Guide, and enrollment wizard have been replaced with semantic design tokens (`text-primary`, `text-accent`, `bg-primary`, `bg-accent`) for consistent dark mode behavior.
+
 ## Pre-Publish Checklist
 Before each production publish, review the following:
 1. **Student Guide** (`client/src/pages/guides/student-guide.tsx` and `client/src/lib/guide-pdf-export.ts`): Verify all content matches current simulation features (weekly workflow, scoring, advisor credits, character count, etc.)

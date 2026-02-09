@@ -74,7 +74,7 @@ function SectionAnchor({ id }: { id: string }) {
 
 function NumberCircle({ n }: { n: number }) {
   return (
-    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#22c55e] text-white flex items-center justify-center text-sm font-bold">
+    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold">
       {n}
     </span>
   );
@@ -142,7 +142,7 @@ export default function InstructorGuidePage() {
         <Card className="mb-10" data-testid="card-table-of-contents">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 flex-wrap">
-              <ListChecks className="h-5 w-5 text-[#22c55e]" />
+              <ListChecks className="h-5 w-5 text-accent" />
               Table of Contents
             </CardTitle>
           </CardHeader>
@@ -169,7 +169,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-getting-started">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <LogIn className="h-5 w-5 text-[#1e3a5f]" />
+                <LogIn className="h-5 w-5 text-primary" />
                 Getting Started as an Instructor
               </CardTitle>
             </CardHeader>
@@ -247,12 +247,18 @@ export default function InstructorGuidePage() {
                   <p className="text-sm text-muted-foreground">
                     For institutions that require heightened data privacy, you can
                     enable <strong>Privacy Mode</strong> on your organization. When
-                    activated, student enrollment is fully anonymized — no .edu email
-                    verification is required, no personally identifiable information
-                    (PII) is collected, and students are identified only by their
-                    Replit username. This is ideal for community colleges,
-                    non-traditional programs, or any setting where FERPA compliance
-                    demands minimal data collection.
+                    activated: no .edu email verification is required, phone numbers
+                    are not collected, email/SMS notifications are disabled, and
+                    students are identified by pseudonymous IDs (e.g.,{" "}
+                    <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                      Student_abc12345
+                    </code>
+                    ). Download the offline roster template from your Class Admin
+                    dashboard to map pseudonyms to real student identities. Students
+                    are also encouraged to use a personal email for their Replit
+                    account for maximum privacy. This is ideal for community
+                    colleges, non-traditional programs, or any setting where FERPA
+                    compliance demands minimal data collection.
                   </p>
                 </div>
               </div>
@@ -263,7 +269,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-managing-class">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Users className="h-5 w-5 text-[#1e3a5f]" />
+                <Users className="h-5 w-5 text-primary" />
                 Managing Your Class
               </CardTitle>
             </CardHeader>
@@ -277,7 +283,7 @@ export default function InstructorGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="manage-dashboard-overview">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <LayoutDashboard className="h-4 w-4 text-[#1e3a5f]" />
+                    <LayoutDashboard className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Class Admin Dashboard</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -289,7 +295,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="manage-add-students">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <UserPlus className="h-4 w-4 text-[#1e3a5f]" />
+                    <UserPlus className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Adding Students</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -305,7 +311,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="manage-teams">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Shield className="h-4 w-4 text-[#1e3a5f]" />
+                    <Shield className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Creating Teams</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -320,7 +326,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="manage-enrollment-status">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <ClipboardCheck className="h-4 w-4 text-[#1e3a5f]" />
+                    <ClipboardCheck className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Enrollment Status</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -339,7 +345,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-simulation-controls">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Play className="h-5 w-5 text-[#1e3a5f]" />
+                <Play className="h-5 w-5 text-primary" />
                 Simulation Controls
               </CardTitle>
             </CardHeader>
@@ -395,7 +401,7 @@ export default function InstructorGuidePage() {
                       data-testid={`week-theme-${w.week}`}
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs font-bold">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
                           {w.week}
                         </span>
                         <p className="font-semibold text-xs">{w.theme}</p>
@@ -408,7 +414,7 @@ export default function InstructorGuidePage() {
 
               <div className="p-4 rounded-md border border-dashed space-y-2" data-testid="sim-status-tracking">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Activity className="h-4 w-4 text-[#22c55e]" />
+                  <Activity className="h-4 w-4 text-accent" />
                   <p className="font-semibold text-sm">Simulation Status Tracking</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -425,7 +431,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-student-experience">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <GraduationCap className="h-5 w-5 text-[#1e3a5f]" />
+                <GraduationCap className="h-5 w-5 text-primary" />
                 Student Experience Overview
               </CardTitle>
             </CardHeader>
@@ -452,7 +458,7 @@ export default function InstructorGuidePage() {
                       className="flex items-start gap-3 p-3 rounded-md bg-muted/50"
                       data-testid={`student-view-${item.label.toLowerCase()}`}
                     >
-                      <item.icon className="h-4 w-4 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <item.icon className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium">{item.label}</p>
                         <p className="text-xs text-muted-foreground">{item.desc}</p>
@@ -465,7 +471,7 @@ export default function InstructorGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="student-weekly-workflow">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Calendar className="h-4 w-4 text-[#1e3a5f]" />
+                    <Calendar className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Weekly Workflow</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -478,7 +484,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="student-decisions">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <PenTool className="h-4 w-4 text-[#1e3a5f]" />
+                    <PenTool className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Decision Types and Essays</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -495,7 +501,7 @@ export default function InstructorGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md border border-dashed space-y-2" data-testid="student-advisors">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Phone className="h-4 w-4 text-[#22c55e]" />
+                    <Phone className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Phone-a-Friend Advisors</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -510,7 +516,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md border border-dashed space-y-2" data-testid="student-characters">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <UserCheck className="h-4 w-4 text-[#22c55e]" />
+                    <UserCheck className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Character Profiles and Stakeholders</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -531,7 +537,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-grading">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Trophy className="h-5 w-5 text-[#1e3a5f]" />
+                <Trophy className="h-5 w-5 text-primary" />
                 Grading and Assessment
               </CardTitle>
             </CardHeader>
@@ -545,40 +551,40 @@ export default function InstructorGuidePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-3" data-testid="grading-financial">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <DollarSign className="h-4 w-4 text-[#22c55e]" />
+                    <DollarSign className="h-4 w-4 text-accent" />
                     <p className="font-semibold">Financial Score</p>
                   </div>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Revenue growth over the 8-week period
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Cost management and debt control
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Return on investment from automation spending
                     </li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-3" data-testid="grading-cultural">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Heart className="h-4 w-4 text-[#22c55e]" />
+                    <Heart className="h-4 w-4 text-accent" />
                     <p className="font-semibold">Cultural Score</p>
                   </div>
                   <ul className="text-xs text-muted-foreground space-y-1.5">
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Employee morale and engagement levels
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Union relations and avoidance of forced bargaining
                     </li>
                     <li className="flex items-start gap-2">
-                      <CheckCircle className="h-3 w-3 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-accent flex-shrink-0" />
                       Workforce adaptability and reskilling success
                     </li>
                   </ul>
@@ -587,7 +593,7 @@ export default function InstructorGuidePage() {
 
               <div className="p-4 rounded-md border space-y-3" data-testid="grading-essay-criteria">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Award className="h-4 w-4 text-[#1e3a5f]" />
+                  <Award className="h-4 w-4 text-primary" />
                   <p className="font-semibold">AI-Powered Essay Evaluation</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -628,12 +634,20 @@ export default function InstructorGuidePage() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-3">
+                  AI-generated scores provide students with immediate, formative
+                  feedback to help them improve week over week. As the instructor,
+                  you retain full authority to review, adjust, or override any
+                  AI-assigned score before finalizing grades. The platform surfaces
+                  the AI score alongside the original essay so you can make informed
+                  adjustments efficiently.
+                </p>
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="grading-submissions">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Eye className="h-4 w-4 text-[#1e3a5f]" />
+                    <Eye className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Viewing Submissions</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -644,7 +658,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="grading-leaderboard">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Trophy className="h-4 w-4 text-[#1e3a5f]" />
+                    <Trophy className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Leaderboard Dynamics</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -657,7 +671,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="grading-week-results">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <BarChart3 className="h-4 w-4 text-[#1e3a5f]" />
+                    <BarChart3 className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Week Results</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -675,7 +689,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-monitoring">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Eye className="h-5 w-5 text-[#1e3a5f]" />
+                <Eye className="h-5 w-5 text-primary" />
                 Monitoring Student Progress
               </CardTitle>
             </CardHeader>
@@ -713,7 +727,7 @@ export default function InstructorGuidePage() {
                     data-testid={`monitoring-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     <div className="flex items-center gap-2 flex-wrap">
-                      <item.icon className="h-4 w-4 text-[#1e3a5f]" />
+                      <item.icon className="h-4 w-4 text-primary" />
                       <p className="font-semibold text-sm">{item.title}</p>
                     </div>
                     <p className="text-xs text-muted-foreground">{item.text}</p>
@@ -727,7 +741,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-communication">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Mail className="h-5 w-5 text-[#1e3a5f]" />
+                <Mail className="h-5 w-5 text-primary" />
                 Communication Tools
               </CardTitle>
             </CardHeader>
@@ -735,12 +749,15 @@ export default function InstructorGuidePage() {
               <p className="text-sm text-muted-foreground">
                 Keep your students informed and engaged with built-in
                 communication tools that integrate directly with the Class Admin
-                dashboard.
+                dashboard. <strong>Note:</strong> If Privacy Mode is enabled for
+                your organization, email and SMS notifications are automatically
+                disabled to protect student anonymity. Use your institution's LMS
+                or in-class announcements for communication instead.
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="comm-email">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Send className="h-4 w-4 text-[#22c55e]" />
+                    <Send className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Email Notifications</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -754,7 +771,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="comm-sms">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <MessageSquare className="h-4 w-4 text-[#22c55e]" />
+                    <MessageSquare className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">SMS Notifications</p>
                     <Badge variant="secondary">Optional</Badge>
                   </div>
@@ -768,7 +785,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="comm-custom">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Bell className="h-4 w-4 text-[#22c55e]" />
+                    <Bell className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Custom Reminders</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -781,7 +798,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="comm-bulk">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Users className="h-4 w-4 text-[#22c55e]" />
+                    <Users className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Bulk Communication</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -800,7 +817,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-difficulty">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Gauge className="h-5 w-5 text-[#1e3a5f]" />
+                <Gauge className="h-5 w-5 text-primary" />
                 Difficulty Levels
               </CardTitle>
             </CardHeader>
@@ -815,12 +832,12 @@ export default function InstructorGuidePage() {
                 {[
                   {
                     level: "Introductory",
-                    color: "bg-[#22c55e]",
+                    color: "bg-accent",
                     desc: "Designed for undergraduate survey courses or students with limited business experience. Decisions have clearer trade-offs, metric impacts are more forgiving, and essay expectations are calibrated for foundational critical thinking.",
                   },
                   {
                     level: "Standard",
-                    color: "bg-[#1e3a5f]",
+                    color: "bg-primary",
                     desc: "The default setting for most business courses. Decisions present genuine ambiguity, metric impacts reflect realistic complexity, and essays require substantive analysis with evidence from briefing materials.",
                   },
                   {
@@ -845,7 +862,7 @@ export default function InstructorGuidePage() {
 
               <div className="p-4 rounded-md border border-dashed space-y-2" data-testid="difficulty-factors">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Layers className="h-4 w-4 text-[#22c55e]" />
+                  <Layers className="h-4 w-4 text-accent" />
                   <p className="font-semibold text-sm">11 Quantifiable Difficulty Factors</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -862,7 +879,7 @@ export default function InstructorGuidePage() {
 
               <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="difficulty-choosing">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Settings className="h-4 w-4 text-[#1e3a5f]" />
+                  <Settings className="h-4 w-4 text-primary" />
                   <p className="font-semibold text-sm">Choosing the Right Level</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -883,7 +900,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-sandbox">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <FlaskConical className="h-5 w-5 text-[#1e3a5f]" />
+                <FlaskConical className="h-5 w-5 text-primary" />
                 Student Sandbox Mode
               </CardTitle>
             </CardHeader>
@@ -940,7 +957,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-tips">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <Lightbulb className="h-5 w-5 text-[#22c55e]" />
+                <Lightbulb className="h-5 w-5 text-accent" />
                 Tips for Instructors
               </CardTitle>
             </CardHeader>
@@ -983,7 +1000,7 @@ export default function InstructorGuidePage() {
                     className="flex items-start gap-3 p-3 rounded-md bg-muted/50"
                     data-testid={`tip-${item.tip.toLowerCase().replace(/\s+/g, "-")}`}
                   >
-                    <item.icon className="h-4 w-4 mt-0.5 text-[#22c55e] flex-shrink-0" />
+                    <item.icon className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{item.tip}</p>
                       <p className="text-xs text-muted-foreground">{item.detail}</p>
@@ -998,7 +1015,7 @@ export default function InstructorGuidePage() {
           <Card data-testid="card-need-help">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 flex-wrap text-xl">
-                <HelpCircle className="h-5 w-5 text-[#1e3a5f]" />
+                <HelpCircle className="h-5 w-5 text-primary" />
                 Need Help?
               </CardTitle>
             </CardHeader>
@@ -1006,7 +1023,7 @@ export default function InstructorGuidePage() {
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="help-technical">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Mail className="h-4 w-4 text-[#22c55e]" />
+                    <Mail className="h-4 w-4 text-accent" />
                     <p className="font-semibold text-sm">Technical Support</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -1036,7 +1053,7 @@ export default function InstructorGuidePage() {
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="help-contact">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <GraduationCap className="h-4 w-4 text-[#1e3a5f]" />
+                    <GraduationCap className="h-4 w-4 text-primary" />
                     <p className="font-semibold text-sm">Contact the Creator</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
