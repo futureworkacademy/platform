@@ -23,10 +23,13 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
     mutationFn: async () => {
       return apiRequest("POST", "/api/preview/exit", {});
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["/api/my-role"] }),
+        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/team"] }),
+      ]);
       toast({ title: "Preview ended", description: "Back to your normal view" });
       setLocation("/super-admin");
     },

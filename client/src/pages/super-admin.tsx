@@ -789,10 +789,13 @@ export default function SuperAdminPage() {
       const response = await apiRequest("POST", "/api/preview/enter", { role, orgId });
       return response.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/my-role"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] });
+    onSuccess: async (data) => {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["/api/my-role"] }),
+        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/team"] }),
+      ]);
       if (data.role === "educator") {
         toast({ 
           title: "Educator Preview Active", 
