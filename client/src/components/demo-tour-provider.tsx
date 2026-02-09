@@ -38,6 +38,7 @@ interface UserData {
   demoAccess?: string;
   isTestStudent?: boolean;
   inDemoPreview?: boolean;
+  teamId?: string | null;
 }
 
 export function DemoTourProvider({ children }: DemoTourProviderProps) {
@@ -54,14 +55,18 @@ export function DemoTourProvider({ children }: DemoTourProviderProps) {
   // Show tour for evaluators, student trial users, OR users in demo preview mode (super admins testing)
   const isDemoUser = user?.demoAccess === "evaluator" || user?.demoAccess === "student_trial" || user?.inDemoPreview === true;
 
+  // Only auto-trigger tour when user is fully enrolled (has a team) and on the dashboard
+  // Don't trigger on enrollment/waiting-assignment pages
+  const isFullyEnrolled = !!user?.teamId;
+
   useEffect(() => {
-    if (isDemoUser && !hasCompletedTour && !isTourActive) {
+    if (isDemoUser && isFullyEnrolled && !hasCompletedTour && !isTourActive) {
       const timer = setTimeout(() => {
         startTour();
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isDemoUser, hasCompletedTour, isTourActive]);
+  }, [isDemoUser, isFullyEnrolled, hasCompletedTour, isTourActive]);
 
   const handleTourComplete = () => {
     setIsTourActive(false);

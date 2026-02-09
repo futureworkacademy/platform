@@ -55,8 +55,6 @@ class AuthStorage implements IAuthStorage {
       const [emailUser] = await db.select().from(users).where(eq(users.email, userEmail));
       if (emailUser) {
         console.log(`[AUTH STORAGE] User found by email ${userEmail} with stale ID ${emailUser.id}, updating to Replit ID ${userId}`);
-        // Update the stale ID to match the authenticated Replit user ID
-        // Also update all foreign key references
         const oldId = emailUser.id;
         try {
           // Update foreign key references in related tables
@@ -66,17 +64,22 @@ class AuthStorage implements IAuthStorage {
           await db.execute(sql`UPDATE voicemail_deliveries SET user_id = ${userId} WHERE user_id = ${oldId}`);
           await db.execute(sql`UPDATE content_views SET user_id = ${userId} WHERE user_id = ${oldId}`);
           await db.execute(sql`UPDATE media_engagement SET user_id = ${userId} WHERE user_id = ${oldId}`);
-          // Update the user's primary key
+          // Update the user's primary key and reset stale demo/preview fields
           const [updated] = await db
             .update(users)
-            .set({ id: userId, updatedAt: new Date() })
+            .set({ 
+              id: userId, 
+              demoAccess: 'none',
+              inDemoPreview: false,
+              demoPreviewOrgId: null,
+              updatedAt: new Date() 
+            })
             .where(eq(users.id, oldId))
             .returning();
           existingUser = updated;
           console.log(`[AUTH STORAGE] Successfully migrated user from ID ${oldId} to ${userId}`);
         } catch (migrationErr: any) {
           console.error(`[AUTH STORAGE] Failed to migrate user ID:`, migrationErr?.message || migrationErr);
-          // Fall through to update the existing record by email as fallback
           existingUser = emailUser;
         }
       }
