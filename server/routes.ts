@@ -4064,6 +4064,11 @@ Provide your consistency review in JSON format.`;
         return res.status(400).json({ error: "Maximum 500 students per import. Please split into multiple batches." });
       }
 
+      // Block real email sends in preview mode (still allow the import itself for testing)
+      const sessionPreview = (req.session as any)?.preview;
+      const adminUserCheck = await authStorage.getUser(adminUserId);
+      const isInPreview = sessionPreview?.role || adminUserCheck?.previewRole || adminUserCheck?.inDemoPreview || adminUserCheck?.inInstructorPreview;
+
       // Check permissions
       const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
       const isOrgAdmin = await organizationStorage.isClassAdmin(adminUserId, orgId);
@@ -4157,25 +4162,30 @@ Provide your consistency review in JSON format.`;
         }
       }
 
-      // Send invitation emails if enabled
+      // Send invitation emails if enabled (skip in preview mode)
       if (sendInvites && newlyAddedStudents.length > 0) {
-        for (const student of newlyAddedStudents) {
-          try {
-            const sent = await sendInvitationEmail({
-              toEmail: student.email,
-              studentName: student.name,
-              className,
-              instructorName,
-              loginUrl,
-            });
-            if (sent) {
-              results.emailsSent++;
-            } else {
+        if (isInPreview) {
+          console.log(`[Preview Mode] Skipping ${newlyAddedStudents.length} invitation emails (preview mode active)`);
+          results.emailsSent = newlyAddedStudents.length;
+        } else {
+          for (const student of newlyAddedStudents) {
+            try {
+              const sent = await sendInvitationEmail({
+                toEmail: student.email,
+                studentName: student.name,
+                className,
+                instructorName,
+                loginUrl,
+              });
+              if (sent) {
+                results.emailsSent++;
+              } else {
+                results.emailsFailed++;
+              }
+            } catch (emailError) {
               results.emailsFailed++;
+              console.error(`Failed to send email to ${student.email}:`, emailError);
             }
-          } catch (emailError) {
-            results.emailsFailed++;
-            console.error(`Failed to send email to ${student.email}:`, emailError);
           }
         }
       }
@@ -4192,6 +4202,14 @@ Provide your consistency review in JSON format.`;
     try {
       const adminUserId = req.user?.claims?.sub;
       const { orgId, memberId } = req.params;
+
+      // Block sending real emails/SMS in preview mode
+      const sessionPreview = (req.session as any)?.preview;
+      const adminUser0 = await authStorage.getUser(adminUserId);
+      const isInPreview = sessionPreview?.role || adminUser0?.previewRole || adminUser0?.inDemoPreview || adminUser0?.inInstructorPreview;
+      if (isInPreview) {
+        return res.json({ success: true, message: "Invitation email simulated (preview mode — no real email sent)" });
+      }
 
       // Check permissions
       const isSuperAdmin = await organizationStorage.isSuperAdmin(adminUserId);
