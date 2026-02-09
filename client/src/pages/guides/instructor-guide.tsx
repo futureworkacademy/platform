@@ -211,12 +211,29 @@ export default function InstructorGuidePage() {
                   <p className="font-semibold">Understanding the Enrollment Code System</p>
                   <p className="text-sm text-muted-foreground">
                     Each organization has a unique, case-sensitive enrollment code.
-                    Students enter this code after signing in for the first time to
-                    join your class. The code links them to the correct organization,
-                    simulation instance, and team assignments. You can share the code
-                    via your LMS, syllabus, or in class. If a code is compromised,
-                    you can regenerate it from the Class Admin dashboard without
-                    affecting students who have already enrolled.
+                    Students can join your class in two ways:
+                  </p>
+                  <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                    <li>
+                      <strong>Direct invite link</strong> — Share the link
+                      displayed on your Class Admin dashboard (e.g.,{" "}
+                      <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                        futureworkacademy.replit.app/join/BUS501F26
+                      </code>
+                      ). Students click the link, sign in, and are automatically
+                      enrolled — no code entry needed.
+                    </li>
+                    <li>
+                      <strong>Enrollment code</strong> — Students can also
+                      enter the code manually after signing in. Share the code
+                      via your LMS, syllabus, or in class.
+                    </li>
+                  </ul>
+                  <p className="text-sm text-muted-foreground">
+                    The invite link is the easiest option for most classes. If
+                    a code is compromised, you can regenerate it from the Class
+                    Admin dashboard without affecting students who have already
+                    enrolled.
                   </p>
                 </div>
               </div>
@@ -276,11 +293,13 @@ export default function InstructorGuidePage() {
                     <p className="font-semibold text-sm">Adding Students</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Students can self-enroll using the enrollment code, or you can
-                    add them manually by entering their email address. For large
-                    classes, use the <strong>bulk CSV import</strong> feature —
-                    upload a spreadsheet with student names and emails to enroll
-                    an entire roster at once. Invitation emails are sent
+                    Students can self-enroll using the <strong>direct invite
+                    link</strong> (recommended) or by entering the enrollment
+                    code manually. You can also add them individually by email
+                    address. For large classes, use the{" "}
+                    <strong>bulk CSV import</strong> feature — upload a
+                    spreadsheet with student names and emails to enroll an
+                    entire roster at once. Invitation emails are sent
                     automatically.
                   </p>
                 </div>

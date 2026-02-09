@@ -158,7 +158,7 @@ export function generateStudentGuidePDF(): void {
 
   y = addSectionHeader(doc, "Getting Started", y, margin);
   y = addNumberedStep(doc, 1, "Log In", "Click \"Log in with Replit\" on the homepage. Use the same email your instructor registered you with.", y, margin, contentWidth);
-  y = addNumberedStep(doc, 2, "Enter Your Class Code", "Your instructor will provide an enrollment code (e.g., DEMO2025). Enter it to join your class.", y, margin, contentWidth);
+  y = addNumberedStep(doc, 2, "Join Your Class", "Your instructor will share a direct invite link or an enrollment code. Click the link to join automatically, or enter the code manually after signing in.", y, margin, contentWidth);
   y = addNumberedStep(doc, 3, "Get Assigned to a Team", "Your instructor will assign you to a team. You'll work with your team throughout the 8-week simulation.", y, margin, contentWidth);
   y = addNumberedStep(doc, 4, "Understand Your Role", "You are the CEO of Apex Manufacturing, a mid-sized company navigating an AI transformation. Every decision you make impacts employees, finances, and company culture.", y, margin, contentWidth);
   y += 4;
@@ -245,7 +245,7 @@ export function generateInstructorGuidePDF(): void {
   y = addSectionHeader(doc, "Getting Started", y, margin);
   y = addNumberedStep(doc, 1, "Create Your Account", "Log in via Replit OIDC authentication. Your account will be set up as an instructor.", y, margin, contentWidth);
   y = addNumberedStep(doc, 2, "Set Up Your Class", "Create an organization for your course. You'll receive a unique enrollment code (e.g., BUS501F26).", y, margin, contentWidth);
-  y = addNumberedStep(doc, 3, "Share the Enrollment Code", "Give students your class code. They'll use it to join your simulation.", y, margin, contentWidth);
+  y = addNumberedStep(doc, 3, "Share the Invite Link or Code", "Share your class invite link (e.g., yourdomain.com/join/BUS501F26) or enrollment code. The invite link is easiest — students click it, sign in, and are enrolled automatically.", y, margin, contentWidth);
   y = addNumberedStep(doc, 4, "Privacy Mode (Optional)", "Enable Privacy Mode for anonymized enrollment - no .edu email verification, no PII collected, students identified by pseudonymous IDs.", y, margin, contentWidth);
   y += 4;
 
@@ -255,7 +255,7 @@ export function generateInstructorGuidePDF(): void {
   y = addSubHeader(doc, "Adding Students", y, margin);
   y = addBulletPoint(doc, "Manual: Click \"Add Member\" and enter student email addresses one at a time", y, margin, contentWidth);
   y = addBulletPoint(doc, "Bulk Import: Upload a CSV file with student names and emails", y, margin, contentWidth);
-  y = addBulletPoint(doc, "Self-Enrollment: Share your class code and students join themselves", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Self-Enrollment: Share the invite link (recommended) or class code for students to join themselves", y, margin, contentWidth);
   y = addSubHeader(doc, "Team Management", y, margin);
   y = addBodyText(doc, "Create teams from the Teams tab, then assign students using the dropdown in the Members tab. Teams of 3-5 students work best. All team members share the same simulation state and scores.", y, margin, contentWidth);
   y += 4;

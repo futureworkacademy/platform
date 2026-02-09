@@ -182,12 +182,25 @@ export default function StudentGuidePage() {
                   <p className="font-semibold">Find Your Class</p>
                   <p className="text-sm text-muted-foreground">
                     After signing in for the first time, you will be prompted
-                    to enter an <strong>enrollment code</strong>. Your
-                    instructor will provide this code — it links you to the
-                    correct class, section, and simulation instance. Enter the
-                    code exactly as given (codes are case-sensitive) and click
-                    "Join." You will immediately be assigned to your team and
-                    placed into the simulation.
+                    to join your class. There are two ways to do this:
+                  </p>
+                  <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                    <li>
+                      <strong>Direct invite link</strong> — Your instructor may
+                      share a link that takes you straight to the platform and
+                      automatically connects you to the right class. Just click
+                      the link, sign in, and you are in.
+                    </li>
+                    <li>
+                      <strong>Enrollment code</strong> — Alternatively, your
+                      instructor may give you a code (e.g., BUS501F26). Enter
+                      the code exactly as given (codes are case-sensitive) and
+                      click "Join."
+                    </li>
+                  </ul>
+                  <p className="text-sm text-muted-foreground">
+                    Either way, you will immediately be assigned to your team
+                    and placed into the simulation.
                   </p>
                 </div>
               </div>
