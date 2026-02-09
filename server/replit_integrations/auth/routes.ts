@@ -5,15 +5,36 @@ import { isAuthenticated } from "./replitAuth";
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
   // Public diagnostic - no auth required, shows session state
+  // Also repairs missing DB records from session claims
   app.get("/api/auth/session-check", async (req: any, res) => {
     const userId = req.user?.claims?.sub;
     const isAuth = req.isAuthenticated?.() || false;
     let dbUser = null;
+    let repaired = false;
     
     if (userId) {
       try {
         dbUser = await authStorage.getUser(userId);
       } catch (e) {}
+      
+      // If user is authenticated but has no DB record, create one from session claims
+      if (!dbUser && isAuth && req.user?.claims) {
+        try {
+          const claims = req.user.claims;
+          console.log(`[SESSION-CHECK] Repairing missing DB record for user ${userId} (${claims.email})`);
+          dbUser = await authStorage.upsertUser({
+            id: userId,
+            email: claims.email,
+            firstName: claims.first_name,
+            lastName: claims.last_name,
+            profileImageUrl: claims.profile_image_url,
+          });
+          repaired = true;
+          console.log(`[SESSION-CHECK] Successfully created DB record for user ${userId}`);
+        } catch (upsertErr: any) {
+          console.error(`[SESSION-CHECK] Failed to repair DB record:`, upsertErr?.message || upsertErr);
+        }
+      }
     }
     
     res.json({
@@ -23,6 +44,7 @@ export function registerAuthRoutes(app: Express): void {
       isAuthenticated: isAuth,
       hasUser: !!req.user,
       userId: userId || null,
+      repaired,
       dbUser: dbUser ? {
         id: dbUser.id,
         email: dbUser.email,
