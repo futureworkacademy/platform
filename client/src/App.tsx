@@ -25,6 +25,7 @@ import Profile from "@/pages/profile";
 import Feedback from "@/pages/feedback";
 import ForEducators from "@/pages/for-educators";
 import ForStudents from "@/pages/for-students";
+import Brochure from "@/pages/brochure";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
@@ -223,6 +224,9 @@ function AppRouter() {
     if (location === "/privacy") {
       return <Privacy />;
     }
+    if (location === "/brochure") {
+      return <Brochure />;
+    }
     if (location === "/student-guide") {
       return <Redirect to="/guides/student" />;
     }
@@ -298,6 +302,10 @@ function AppRouter() {
     return <ForStudents />;
   }
 
+  if (location === "/brochure") {
+    return <Brochure />;
+  }
+
   if (location === "/student-guide") {
     return <Redirect to="/guides/student" />;
   }
@@ -329,7 +337,7 @@ function AppRouter() {
   
   // If admin is NOT in any preview mode, constrain to admin pages
   if (isAdminUser && !isInAnyPreview) {
-    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/for-educators' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
+    if (location !== '/super-admin' && location !== '/admin' && location !== '/educator-inquiries' && location !== '/profile' && location !== '/about' && location !== '/for-educators' && location !== '/brochure' && !location.startsWith('/class-admin') && !location.startsWith('/admin/')) {
       return <Redirect to="/super-admin" />;
     }
   }
