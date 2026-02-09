@@ -407,8 +407,8 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="fow-theme">
         <TooltipProvider>
           <DemoTourProvider>
-            <AppRouter />
             <PreviewBannerWrapper />
+            <AppRouter />
           </DemoTourProvider>
           <Toaster />
         </TooltipProvider>

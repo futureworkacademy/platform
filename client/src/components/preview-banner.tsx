@@ -83,7 +83,7 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-[100] bg-blue-600 dark:bg-blue-700 text-white shadow-lg"
+      className="sticky top-0 left-0 right-0 z-[100] bg-blue-600 dark:bg-blue-700 text-white shadow-lg"
       data-testid="preview-banner"
     >
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-4 flex-wrap">
