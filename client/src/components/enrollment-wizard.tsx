@@ -106,6 +106,7 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
   const [teamCode, setTeamCode] = useState('');
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [validatedOrgName, setValidatedOrgName] = useState('');
+  const [instructorName, setInstructorName] = useState('');
   const [isCodeValid, setIsCodeValid] = useState(false);
   
   // Step 2 state (Identity)
@@ -129,16 +130,18 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
   const validateTeamCodeMutation = useMutation({
     mutationFn: async (code: string) => {
       const response = await apiRequest('POST', '/api/validate-team-code', { code });
-      return response.json() as Promise<{ valid: boolean; organizationName: string; privacyMode: boolean }>;
+      return response.json() as Promise<{ valid: boolean; organizationName: string; instructorName?: string; privacyMode: boolean }>;
     },
     onSuccess: (data) => {
       setIsPrivacyMode(data.privacyMode || false);
       setValidatedOrgName(data.organizationName || '');
+      setInstructorName(data.instructorName || '');
       setIsCodeValid(data.valid);
     },
     onError: () => {
       setIsPrivacyMode(false);
       setValidatedOrgName('');
+      setInstructorName('');
       setIsCodeValid(false);
     }
   });
@@ -229,6 +232,7 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
     } else {
       setIsPrivacyMode(false);
       setValidatedOrgName('');
+      setInstructorName('');
       setIsCodeValid(false);
     }
   }, [teamCode]);
@@ -347,20 +351,29 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
             )}
             
             {isCodeValid && validatedOrgName && (
-              <div className="flex items-start gap-3 p-4 bg-green-500/10 rounded-md border border-green-500/20" data-testid="code-valid-indicator">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-green-700 dark:text-green-400">Code accepted!</p>
-                  <p className="text-muted-foreground">
-                    You'll be joining <span className="font-medium">{validatedOrgName}</span>
+              <div className="p-4 bg-green-500/10 rounded-md border border-green-500/20 space-y-3" data-testid="code-valid-indicator">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
+                  <span className="font-medium text-sm text-green-700 dark:text-green-400">Code accepted!</span>
+                </div>
+                <div className="space-y-1.5 pl-7">
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Class: </span>
+                    <span className="font-semibold" data-testid="text-class-name">{validatedOrgName}</span>
                   </p>
-                  {isPrivacyMode && (
-                    <div className="flex items-center gap-1.5 mt-2 text-green-600">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span className="text-xs font-medium">Privacy Mode - No email verification needed</span>
-                    </div>
+                  {instructorName && (
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Instructor: </span>
+                      <span className="font-semibold" data-testid="text-instructor-name">{instructorName}</span>
+                    </p>
                   )}
                 </div>
+                {isPrivacyMode && (
+                  <div className="flex items-center gap-1.5 pl-7 text-green-600">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span className="text-xs font-medium">Privacy Mode - No email verification needed</span>
+                  </div>
+                )}
               </div>
             )}
             

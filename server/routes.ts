@@ -2699,12 +2699,24 @@ Provide your consistency review in JSON format.`;
       if (!result.valid) {
         return res.status(400).json({ error: result.error });
       }
+
+      let instructorName: string | undefined;
+      if (result.organization?.id) {
+        const members = await organizationStorage.getMembersByOrganization(result.organization.id);
+        const admin = members.find((m: any) => m.role === 'class_admin' || m.role === 'super_admin');
+        if (admin) {
+          const adminUser = await authStorage.getUser(admin.userId);
+          if (adminUser) {
+            instructorName = [adminUser.firstName, adminUser.lastName].filter(Boolean).join(' ') || undefined;
+          }
+        }
+      }
       
       res.json({ 
         valid: true, 
         organizationName: result.organization?.name,
         organizationId: result.organization?.id,
-        // PRIVACY MODE: Return whether this org is in privacy mode
+        instructorName,
         privacyMode: result.organization?.privacyMode === true
       });
     } catch (error) {
