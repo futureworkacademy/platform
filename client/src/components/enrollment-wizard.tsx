@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,6 +100,63 @@ function StepIndicator({ currentStep, isPrivacyMode }: StepIndicatorProps) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+const WELCOME_VIDEO_URL = "/videos/welcome-intro.mp4";
+
+function WelcomeVideo() {
+  const [videoAvailable, setVideoAvailable] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => setVideoAvailable(true);
+    video.onerror = () => setVideoAvailable(false);
+    video.src = WELCOME_VIDEO_URL;
+    return () => {
+      video.onloadedmetadata = null;
+      video.onerror = null;
+      video.src = "";
+    };
+  }, []);
+
+  if (videoAvailable === null) {
+    return (
+      <div className="aspect-video rounded-lg bg-muted/50 border flex items-center justify-center" data-testid="welcome-video-loading">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!videoAvailable) {
+    return (
+      <div className="aspect-video rounded-lg bg-muted/50 border border-dashed flex flex-col items-center justify-center gap-3" data-testid="welcome-video-placeholder">
+        <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+          <PlayCircle className="h-8 w-8 text-primary" />
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-medium">Intro Walkthrough</p>
+          <p className="text-xs text-muted-foreground">Coming soon</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-video rounded-lg overflow-hidden bg-black border" data-testid="welcome-video-container">
+      <video
+        ref={videoRef}
+        className="w-full h-full"
+        controls
+        playsInline
+        preload="metadata"
+        data-testid="welcome-video"
+      >
+        <source src={WELCOME_VIDEO_URL} type="video/mp4" />
+      </video>
     </div>
   );
 }
@@ -783,15 +840,7 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="aspect-video rounded-lg bg-muted/50 border border-dashed flex flex-col items-center justify-center gap-3" data-testid="welcome-video-placeholder">
-              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <PlayCircle className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium">Intro Walkthrough</p>
-                <p className="text-xs text-muted-foreground">Coming soon — a guided tour of the simulation</p>
-              </div>
-            </div>
+            <WelcomeVideo />
 
             <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
               <h4 className="font-semibold text-sm">What happens next:</h4>

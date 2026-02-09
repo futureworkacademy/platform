@@ -53,8 +53,23 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
   };
 
   const handleStartStudentTour = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+    await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+
     setLocation("/");
-    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+      await waitForElement('[data-testid="dashboard-page"]', 10000);
+    } catch {
+      toast({
+        title: "Could not load student dashboard",
+        description: "Make sure a test team exists for this organization.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 500));
     resetStudentTourProgress();
     await startMultiPageStudentTour(setLocation, () => {}, () => {});
   };
