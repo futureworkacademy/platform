@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { 
   CheckCircle, 
   AlertCircle, 
@@ -23,7 +24,11 @@ import {
   Loader2,
   PartyPopper,
   Clock,
-  BookOpen
+  BookOpen,
+  Rocket,
+  PlayCircle,
+  FileText,
+  Lightbulb
 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -102,6 +107,9 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   
+  // Welcome modal state
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
   // Step 1 state
   const [teamCode, setTeamCode] = useState('');
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
@@ -210,11 +218,7 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       queryClient.invalidateQueries({ queryKey: ['/api/auth/role'] });
-      toast({
-        title: "Welcome to the simulation!",
-        description: "You've successfully joined. Your instructor will assign you to a team soon.",
-      });
-      onComplete();
+      setShowWelcomeModal(true);
     },
     onError: (error: any) => {
       toast({
@@ -753,6 +757,102 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Welcome Modal */}
+      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
+        <DialogContent className="sm:max-w-lg" data-testid="welcome-modal">
+          <DialogHeader className="text-center space-y-4 pt-4">
+            <div className="mx-auto h-20 w-20 rounded-full bg-accent/10 flex items-center justify-center">
+              <Rocket className="h-10 w-10 text-accent" />
+            </div>
+            <DialogTitle className="text-2xl">
+              Welcome to {validatedOrgName}!
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              You've successfully enrolled in the simulation. You're about to step into the role of CEO at Apex Manufacturing.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="aspect-video rounded-lg bg-muted/50 border border-dashed flex flex-col items-center justify-center gap-3" data-testid="welcome-video-placeholder">
+              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <PlayCircle className="h-8 w-8 text-primary" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium">Intro Walkthrough</p>
+                <p className="text-xs text-muted-foreground">Coming soon — a guided tour of the simulation</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold text-sm">What happens next:</h4>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 text-sm">
+                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Team Assignment</p>
+                    <p className="text-muted-foreground text-xs">Your instructor will assign you to a team before the simulation begins.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 text-sm">
+                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Intelligence Briefing</p>
+                    <p className="text-muted-foreground text-xs">Each week starts with scenario narratives, stakeholder voicemails, and industry intel.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 text-sm">
+                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Strategic Decisions</p>
+                    <p className="text-muted-foreground text-xs">Make choices and write essays that shape Apex Manufacturing's future over 8 weeks.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-accent/10 rounded-lg border border-accent/20">
+              <Lightbulb className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground">
+                <strong className="text-foreground">Pro tip:</strong> Read the Student Guide before your first week to understand scoring, advisors, and how to write strong essays.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                setShowWelcomeModal(false);
+                window.open("/guides/student", "_blank");
+                onComplete();
+              }}
+              data-testid="button-view-student-guide"
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              View Student Guide
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                setShowWelcomeModal(false);
+                onComplete();
+              }}
+              data-testid="button-get-started"
+            >
+              Get Started
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

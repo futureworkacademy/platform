@@ -41,6 +41,9 @@ import {
   Headphones,
   CircleDot,
   ChevronRight,
+  ShieldCheck,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 
 const TABLE_OF_CONTENTS = [
@@ -125,6 +128,31 @@ export default function StudentGuidePage() {
             </Button>
           </div>
         </section>
+
+        <Card className="mb-10 border-2 border-primary/30" data-testid="callout-privacy">
+          <CardContent className="p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+            <h3 className="font-bold text-base">Your Privacy Matters</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            This simulation is designed with student privacy as a priority. Your instructor may enable <strong>Privacy Mode</strong> for your class, which means:
+          </p>
+          <ul className="text-sm text-muted-foreground space-y-1.5 pl-5 list-disc">
+            <li>You enroll anonymously via Replit authentication — no school email verification is required.</li>
+            <li>Your phone number is never collected, and SMS/email notifications are disabled.</li>
+            <li>You are identified by a pseudonymous ID (e.g., <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">Student_abc12345</code>) within the platform.</li>
+            <li>Your instructor maintains a separate offline roster to map pseudonyms to real identities.</li>
+            <li>AI essay evaluation receives only your written responses — no personally identifiable information is shared with the AI.</li>
+          </ul>
+          <div className="flex items-start gap-2 pt-1">
+            <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground">
+              If your class is not using Privacy Mode, you will be asked to verify a <strong>.edu email address</strong> during enrollment. This helps your instructor match you with the class roster. Your data is handled securely and is never shared with third parties.
+            </p>
+          </div>
+        </CardContent>
+        </Card>
 
         <Card className="mb-10" data-testid="card-table-of-contents">
           <CardHeader>
@@ -543,7 +571,7 @@ export default function StudentGuidePage() {
                   <p className="font-semibold">Essay Evaluation Criteria</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Every essay you submit is evaluated by an AI grading engine
+                  Every essay you submit is initially evaluated by an AI grading engine
                   across four dimensions:
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -577,6 +605,12 @@ export default function StudentGuidePage() {
                       </div>
                     </div>
                   ))}
+                </div>
+                <div className="flex items-start gap-2 p-3 mt-2 bg-amber-500/10 rounded-md border border-amber-500/20" data-testid="callout-human-grading">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    <strong className="text-foreground">Important:</strong> Human grading will always be performed on all AI-graded submissions. AI scores provide immediate feedback to help you improve week over week, but your instructor reviews and may adjust final grades to ensure fairness and accuracy.
+                  </p>
                 </div>
               </div>
             </CardContent>
