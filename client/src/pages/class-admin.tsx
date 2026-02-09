@@ -67,6 +67,7 @@ interface Organization {
   description?: string;
   maxMembers: number;
   isActive: boolean;
+  simulationLocked?: boolean | null;
 }
 
 interface OrganizationMember {
@@ -458,6 +459,19 @@ export default function ClassAdminPage() {
     },
   });
 
+  const toggleLockMutation = useMutation({
+    mutationFn: async (locked: boolean) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/toggle-lock`, { locked });
+    },
+    onSuccess: (_: any, locked: boolean) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/my-organizations"] });
+      toast({ title: locked ? "Decisions locked" : "Decisions unlocked", description: locked ? "Students can browse content but cannot submit decisions." : "Students can now submit their decisions." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to toggle lock", description: error.message, variant: "destructive" });
+    },
+  });
+
   const startSimulationMutation = useMutation({
     mutationFn: async () => {
       return apiRequest("POST", `/api/class-admin/organizations/${selectedOrgId}/simulation/start`, {});
@@ -829,6 +843,39 @@ export default function ClassAdminPage() {
                 </Button>
               </div>
             )}
+            {currentOrg?.code && (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-sm text-muted-foreground">Magic Invite Link:</span>
+                <code className="bg-muted px-3 py-1 rounded-md font-mono text-xs truncate max-w-xs" data-testid="text-magic-link">
+                  {`https://futureworkacademy.com/join/${currentOrg.code}`}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://futureworkacademy.com/join/${currentOrg.code}`);
+                    toast({ title: "Magic link copied!", description: "Share this link with your students." });
+                  }}
+                  data-testid="button-copy-magic-link"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <div className="flex items-center gap-3 mt-2">
+              <Badge variant={currentOrg?.simulationLocked === true ? "secondary" : "default"} data-testid="badge-lock-status">
+                {currentOrg?.simulationLocked === true ? "Decisions Locked" : "Decisions Open"}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleLockMutation.mutate(!(currentOrg?.simulationLocked === true))}
+                disabled={toggleLockMutation.isPending}
+                data-testid="button-toggle-lock"
+              >
+                {currentOrg?.simulationLocked === true ? "Unlock Decisions" : "Lock Decisions"}
+              </Button>
+            </div>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Dialog open={sandboxDialogOpen} onOpenChange={setSandboxDialogOpen}>

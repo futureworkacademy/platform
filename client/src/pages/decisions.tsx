@@ -695,6 +695,7 @@ export default function Decisions() {
   const { data: team, isLoading: teamLoading } = useQuery<Team>({
     queryKey: ["/api/team"],
   });
+  const simulationLocked = (team as any)?.simulationLocked === true;
 
   const { data: decisions, isLoading: decisionsLoading } = useQuery<WeeklyDecision[]>({
     queryKey: ["/api/decisions", team?.currentWeek],
@@ -825,6 +826,48 @@ export default function Decisions() {
         <p className="text-muted-foreground text-center max-w-md">
           There was an error loading the decision interface.
         </p>
+      </div>
+    );
+  }
+
+  if (simulationLocked) {
+    return (
+      <div className="p-6 space-y-6" data-testid="decisions-page">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Weekly Decisions</h1>
+            <p className="text-muted-foreground">
+              Week {team.currentWeek} of {team.totalWeeks}
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+              <div className="h-16 w-16 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <Clock className="h-8 w-8 text-amber-500" />
+              </div>
+              <h2 className="text-xl font-semibold">Decisions Not Yet Open</h2>
+              <p className="text-muted-foreground max-w-md">
+                Your instructor hasn't opened decision submissions yet. In the meantime, you can explore the briefing, review the company data, and read the intel articles to prepare.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" asChild>
+                  <Link href="/briefing">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Read Briefing
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/dashboard">
+                    <Home className="mr-2 h-4 w-4" />
+                    View Dashboard
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

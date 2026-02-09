@@ -133,6 +133,7 @@ export const organizations = pgTable("organizations", {
   privacyMode: boolean("privacy_mode").default(false),
   // When privacy mode is on, all notifications are disabled
   privacyModeNotificationsDisabled: boolean("privacy_mode_notifications_disabled").default(true),
+  simulationLocked: boolean("simulation_locked").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

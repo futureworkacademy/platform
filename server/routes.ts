@@ -495,7 +495,19 @@ export async function registerRoutes(
       }
       
       const team = await storage.getTeamWithDifficulty(teamId, difficultyLevel);
-      res.json(team || null);
+      
+      // Include simulationLocked status from organization
+      let simulationLocked = false;
+      if (orgId) {
+        const [orgForLock] = await db.select().from(organizations).where(eq(organizations.id, orgId));
+        simulationLocked = orgForLock?.simulationLocked === true;
+      }
+      
+      if (team) {
+        res.json({ ...team, simulationLocked });
+      } else {
+        res.json(null);
+      }
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch team" });
     }
@@ -990,6 +1002,18 @@ export async function registerRoutes(
         return res.status(404).json({ error: "No team assigned" });
       }
 
+      // Check if simulation is locked (browse-only mode)
+      const decisionMemberships = await organizationStorage.getMembershipsByUser(userId);
+      if (decisionMemberships && decisionMemberships.length > 0) {
+        const [decisionOrg] = await db.select().from(organizations).where(eq(organizations.id, decisionMemberships[0].organizationId));
+        if (decisionOrg?.simulationLocked === true) {
+          return res.status(403).json({ 
+            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+            locked: true
+          });
+        }
+      }
+
       const expectedWeek = req.body.expectedWeek;
       if (expectedWeek !== undefined) {
         const team = await storage.getTeam(user.teamId);
@@ -1154,6 +1178,18 @@ export async function registerRoutes(
       const user = await authStorage.getUser(userId);
       const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
       const weekNumber = team?.currentWeek || 1;
+
+      // Check if simulation is locked (browse-only mode)
+      const enhancedMemberships = await organizationStorage.getMembershipsByUser(userId);
+      if (enhancedMemberships && enhancedMemberships.length > 0) {
+        const [enhancedOrg] = await db.select().from(organizations).where(eq(organizations.id, enhancedMemberships[0].organizationId));
+        if (enhancedOrg?.simulationLocked === true) {
+          return res.status(403).json({ 
+            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+            locked: true
+          });
+        }
+      }
 
       const expectedWeek = req.body.expectedWeek;
       if (expectedWeek !== undefined && expectedWeek !== weekNumber) {
@@ -2946,6 +2982,39 @@ Provide your consistency review in JSON format.`;
     }
   });
 
+  // Toggle simulation lock (Class Admin or Super Admin)
+  app.post("/api/class-admin/organizations/:orgId/toggle-lock", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+      
+      const { orgId } = req.params;
+      const { locked } = req.body;
+      
+      if (typeof locked !== 'boolean') {
+        return res.status(400).json({ error: "locked must be a boolean" });
+      }
+      
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      const member = await organizationStorage.getMember(userId, orgId);
+      const isClassAdmin = member?.role === "class_admin" || member?.role === "super_admin";
+      
+      if (!isSuperAdmin && !isClassAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      
+      const org = await organizationStorage.updateOrganization(orgId, { simulationLocked: locked });
+      if (!org) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      
+      res.json({ success: true, simulationLocked: org.simulationLocked });
+    } catch (error) {
+      console.error("Error toggling simulation lock:", error);
+      res.status(500).json({ error: "Failed to toggle simulation lock" });
+    }
+  });
+
   // Update organization (Super Admin only)
   app.put("/api/super-admin/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
@@ -2956,7 +3025,7 @@ Provide your consistency review in JSON format.`;
       }
 
       const { id } = req.params;
-      const { name, description, maxMembers, notifyPhone, notifyOnSignup, status, privacyMode } = req.body;
+      const { name, description, maxMembers, notifyPhone, notifyOnSignup, status, privacyMode, simulationLocked } = req.body;
 
       // Validate required fields
       if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -2985,6 +3054,7 @@ Provide your consistency review in JSON format.`;
         status: status || undefined,
         privacyMode: isPrivacyModeEnabled,
         privacyModeNotificationsDisabled: isPrivacyModeEnabled,
+        simulationLocked: typeof simulationLocked === 'boolean' ? simulationLocked : undefined,
       });
 
       if (!org) {
