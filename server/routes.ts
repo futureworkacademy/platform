@@ -2687,27 +2687,6 @@ Provide your consistency review in JSON format.`;
 
   // ==================== ORGANIZATION ROUTES ====================
 
-  // Temporary: remove membership (remove after use)
-  app.post("/api/admin-remove-member", async (req, res) => {
-    const { orgId, email, secret } = req.body;
-    if (secret !== "remove-member-temp-2026") {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    try {
-      const { db } = await import("./db");
-      const { organizationMembers, users } = await import("@shared/schema");
-      const { eq, and } = await import("drizzle-orm");
-      const [user] = await db.select().from(users).where(eq(users.email, email));
-      if (!user) return res.status(404).json({ error: "User not found" });
-      const deleted = await db.delete(organizationMembers)
-        .where(and(eq(organizationMembers.organizationId, orgId), eq(organizationMembers.userId, user.id)))
-        .returning();
-      res.json({ success: true, deleted: deleted.length, userId: user.id });
-    } catch (err: any) {
-      res.status(500).json({ error: err?.message });
-    }
-  });
-
   // Validate team code (public - for signup flow)
   app.post("/api/validate-team-code", async (req, res) => {
     try {
