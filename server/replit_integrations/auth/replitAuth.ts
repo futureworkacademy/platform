@@ -111,10 +111,10 @@ export async function setupAuth(app: Express) {
       try {
         const dbUser = await upsertAndFetchUser(claims);
         user.dbUser = dbUser;
-        console.log(`[AUTH VERIFY] User ${claims?.sub}: isAdmin=${dbUser?.isAdmin}, teamId=${dbUser?.teamId}`);
-      } catch (dbError) {
-        console.error(`[AUTH VERIFY] Database error during upsert:`, dbError);
-        // Still allow authentication to proceed - user can be created later
+        console.log(`[AUTH VERIFY] User ${claims?.sub}: email=${claims?.email}, isAdmin=${dbUser?.isAdmin}, teamId=${dbUser?.teamId}`);
+      } catch (dbError: any) {
+        console.error(`[AUTH VERIFY] Database error during upsert for user ${claims?.sub} (${claims?.email}):`, dbError?.message || dbError);
+        // Still allow authentication to proceed - /api/auth/user will retry the upsert
         user.dbUser = null;
       }
       

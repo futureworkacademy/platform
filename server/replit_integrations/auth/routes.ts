@@ -70,7 +70,25 @@ export function registerAuthRoutes(app: Express): void {
       
       // Always fetch FRESH data from database to ensure latest isAdmin/teamId
       // This is critical because admin status might change between logins
-      const user = await authStorage.getUser(userId);
+      let user = await authStorage.getUser(userId);
+      
+      // If user is authenticated but has no database record, create one from session claims
+      // This handles the case where the auth callback's upsert failed silently
+      if (!user && userId && req.user.claims) {
+        console.log(`[/api/auth/user] User ${userId} authenticated but missing from DB - creating record from session claims`);
+        try {
+          user = await authStorage.upsertUser({
+            id: userId,
+            email: req.user.claims.email,
+            firstName: req.user.claims.first_name,
+            lastName: req.user.claims.last_name,
+            profileImageUrl: req.user.claims.profile_image_url,
+          });
+          console.log(`[/api/auth/user] Created missing user record: ${userId}, email=${user?.email}`);
+        } catch (upsertError) {
+          console.error(`[/api/auth/user] Failed to create missing user record:`, upsertError);
+        }
+      }
       
       // Update the session with fresh data for subsequent requests
       if (user) {
