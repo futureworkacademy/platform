@@ -174,7 +174,7 @@ export default function Dashboard() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Badge 
-                variant={team.difficultyLevel === "advanced" ? "default" : team.difficultyLevel === "standard" ? "secondary" : "outline"} 
+                variant={team.difficultyLevel === "introductory" ? "secondary" : team.difficultyLevel === "standard" ? "default" : "destructive"} 
                 className="flex items-center gap-1.5 px-3 py-1.5 cursor-help"
                 data-testid="badge-difficulty-level"
               >
