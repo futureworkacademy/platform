@@ -122,7 +122,22 @@ export default function StudentGuidePage() {
             reference throughout the course.
           </p>
           <div className="pt-2">
-            <Button variant="outline" data-testid="button-download-pdf" onClick={() => generateStudentGuidePDF()}>
+            <Button variant="outline" data-testid="button-download-pdf" onClick={async () => {
+              try {
+                const res = await fetch('/api/characters');
+                const chars = res.ok ? await res.json() : [];
+                const summaries = chars.map((c: any) => ({
+                  name: c.name,
+                  role: c.role,
+                  title: c.title,
+                  company: c.company,
+                  headline: c.socialProfile?.headline,
+                }));
+                await generateStudentGuidePDF(summaries);
+              } catch {
+                await generateStudentGuidePDF();
+              }
+            }}>
               <Download className="mr-2 h-4 w-4" />
               Download as PDF
             </Button>
@@ -633,6 +648,12 @@ export default function StudentGuidePage() {
                 steward. Understanding who they are and what they care about is
                 essential to making decisions that succeed.
               </p>
+              <Link href="/characters">
+                <Button variant="outline" size="sm" data-testid="button-view-all-characters">
+                  <Users className="mr-2 h-4 w-4" />
+                  View All Stakeholder Profiles
+                </Button>
+              </Link>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="characters-access">
                   <div className="flex items-center gap-2 flex-wrap">

@@ -14,6 +14,7 @@ import {
   PlayCircle,
   HelpCircle,
   LogOut,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useDemoTour } from "@/components/demo-tour-provider";
@@ -81,6 +82,11 @@ const navigationItems = [
     title: "Leaderboard",
     url: "/leaderboard",
     icon: Trophy,
+  },
+  {
+    title: "Stakeholders",
+    url: "/characters",
+    icon: Users,
   },
   {
     title: "Student Guide",

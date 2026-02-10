@@ -30,6 +30,7 @@ import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
+import CharacterProfilesPage from "@/pages/character-profiles";
 import ContentValidation from "@/pages/content-validation";
 import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
@@ -136,6 +137,7 @@ function GameLayout() {
               <Route path="/analytics" component={Analytics} />
               <Route path="/leaderboard" component={Leaderboard} />
               <Route path="/week-results" component={WeekResults} />
+              <Route path="/characters" component={CharacterProfilesPage} />
               <Route path="/about" component={About} />
               <Route path="/profile" component={Profile} />
               <Route path="/student-guide">{() => <Redirect to="/guides/student" />}</Route>

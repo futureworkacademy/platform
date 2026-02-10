@@ -526,7 +526,10 @@ export default function InstructorGuidePage() {
                     risk tolerance). Characters appear in briefings and voicemails,
                     and their reactions actively influence how decisions play out.
                     Students can click any character's name to view their full
-                    biography.
+                    biography, or browse the complete{" "}
+                    <Link href="/characters" className="text-accent underline underline-offset-2">
+                      Stakeholder Directory
+                    </Link>.
                   </p>
                 </div>
               </div>

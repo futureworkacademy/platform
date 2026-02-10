@@ -145,7 +145,15 @@ function addFooter(doc: jsPDF): void {
   }
 }
 
-export function generateStudentGuidePDF(): void {
+interface CharacterSummary {
+  name: string;
+  role: string;
+  title?: string;
+  company?: string;
+  headline?: string;
+}
+
+export async function generateStudentGuidePDF(characters?: CharacterSummary[]): Promise<void> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
@@ -210,7 +218,27 @@ export function generateStudentGuidePDF(): void {
   y += 4;
 
   y = addSectionHeader(doc, "Character Profiles", y, margin);
-  y = addBodyText(doc, "Apex Manufacturing has 17 stakeholders with unique personalities and traits. Click on character names in briefings and decisions to view their profiles. Each character has measurable traits for influence, hostility, flexibility, and risk tolerance that affect how your decisions play out.", y, margin, contentWidth);
+  y = addBodyText(doc, "Apex Manufacturing has 17 stakeholders with unique personalities and traits. Click on character names in briefings and decisions to view their profiles, or visit the Stakeholder Directory in the app for the full catalog.", y, margin, contentWidth);
+  if (characters && characters.length > 0) {
+    for (const char of characters) {
+      y = checkPageBreak(doc, y, 16);
+      doc.setTextColor(...NAVY);
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "bold");
+      doc.text(char.name, margin + 4, y);
+      doc.setTextColor(...MED_GRAY);
+      doc.setFontSize(8.5);
+      doc.setFont("helvetica", "normal");
+      const roleText = [char.title || char.role, char.company].filter(Boolean).join(" — ");
+      doc.text(roleText, margin + 4, y + 4);
+      if (char.headline) {
+        y = addWrappedText(doc, char.headline, margin + 4, y + 8, contentWidth - 8, 4);
+        y += 2;
+      } else {
+        y += 10;
+      }
+    }
+  }
   y += 4;
 
   y = addSectionHeader(doc, "Tips for Success", y, margin);

@@ -38,6 +38,8 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Documentation Auto-Sync:** All markdown files in `docs/` folder automatically sync to Google Docs in the "Future Work Academy" folder. Supports 20+ documents including business plan, game design, brand standards, and test checklists.
 
+**Stakeholder Directory:** Dedicated `/characters` page displays all simulation characters in a searchable card grid with expandable details (headshots, bios, traits, experience, education, skills). Accessible from the student sidebar as "Stakeholders". Both the Student Guide and Instructor Guide link to this page. The Student Guide PDF export includes a character directory appendix with names, roles, and headlines.
+
 **Public Guide Pages:** Student Guide (`/guides/student`) and Instructor Guide (`/guides/instructor`) are public-facing, no-auth-required pages with comprehensive onboarding content and PDF download. The old `/student-guide` route redirects to `/guides/student`. Email templates dynamically link to the correct guide URLs via `getBaseUrl()` in `server/services/email.ts`.
 
 **Welcome Modal & Enrollment UX (Feb 2026):** After successful enrollment, students see a full-screen welcome modal (replaces the previous toast notification) with a celebratory rocket icon, video placeholder for a future narrated walkthrough (16:9 aspect ratio, supports MP4/H.264), "What happens next" steps, and a pro tip linking to the Student Guide. In Privacy Mode, a nudge suggests students use a personal email for their Replit account. All enrollment UI uses semantic design tokens (`text-primary`, `text-accent`, `bg-primary/10`, `bg-accent/10`) instead of hard-coded hex colors for dark mode safety.
