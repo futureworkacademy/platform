@@ -52,9 +52,11 @@ export function BriefingArticle({ article, isRead, onRead }: BriefingArticleProp
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {article.content}
-        </p>
+        <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+          {article.content.split(/\n\n+/).map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
+        </div>
         <div className="border-t pt-3">
           <div className="flex items-center gap-2 mb-2">
             <Lightbulb className="h-4 w-4 text-warning" />

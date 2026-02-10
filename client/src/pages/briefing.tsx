@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "wouter";
@@ -175,8 +175,6 @@ export default function Briefing() {
   }
 
   const { companyState } = team;
-  const briefingProgress = viewProgress?.briefing?.percentage ?? 0;
-
   return (
     <ScrollArea className="h-full">
       <div className="p-6 space-y-6 max-w-5xl mx-auto" data-testid="briefing-page">
@@ -251,24 +249,6 @@ export default function Briefing() {
             autoShow={true}
           />
         )}
-
-        {/* Content viewing progress indicator */}
-        <Card className="bg-muted/30">
-          <CardContent className="py-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">Briefing Progress</span>
-              </div>
-              <div className="flex items-center gap-3 flex-1 max-w-xs">
-                <Progress value={briefingProgress} className="h-2" data-testid="progress-briefing" />
-                <span className="text-sm font-mono text-muted-foreground min-w-[3rem]" data-testid="text-briefing-progress">
-                  {briefingProgress}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card 
           className="bg-card/50 border-primary/20"
@@ -462,7 +442,9 @@ export default function Briefing() {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <p className="text-foreground leading-relaxed">{selectedArticle.content}</p>
+                    {selectedArticle.content.split(/\n\n+/).map((paragraph, idx) => (
+                      <p key={idx} className="text-foreground leading-relaxed">{paragraph}</p>
+                    ))}
                   </div>
                   {selectedArticle.insights && selectedArticle.insights.length > 0 && (
                     <div className="border-t pt-4">

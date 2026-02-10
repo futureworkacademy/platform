@@ -34,7 +34,17 @@ import {
   Eye,
   GraduationCap,
   X,
-  LogOut
+  LogOut,
+  Play,
+  Lock,
+  Unlock,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Activity,
+  Clock,
+  FastForward,
+  Filter
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "wouter";
@@ -77,7 +87,37 @@ interface Organization {
   status: string;
   notifyPhone?: string;
   notifyOnSignup?: boolean;
+  simulationLocked?: boolean;
+  isDemo?: boolean;
+  privacyMode?: boolean;
   createdAt: string;
+}
+
+interface SimulationData {
+  id?: string;
+  organizationId: string;
+  status: string;
+  difficultyLevel?: string;
+  totalWeeks: number;
+  currentWeek: number;
+  startDate: string | null;
+  endDate: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+interface ActivityLog {
+  id: string;
+  timestamp: string;
+  eventType: string;
+  userId?: string;
+  userEmail?: string;
+  userName?: string;
+  teamId?: string;
+  teamName?: string;
+  weekNumber?: number;
+  details?: string;
+  metadata?: Record<string, any>;
 }
 
 interface OrganizationMember {
@@ -424,6 +464,161 @@ function EvaluatorManagement() {
   );
 }
 
+function SimulationOrgRow({
+  org,
+  isExpanded,
+  onToggleExpand,
+  onToggleLock,
+  onAdvanceWeek,
+  isLockPending,
+  isAdvancePending,
+  isSuperAdmin,
+}: {
+  org: Organization;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onToggleLock: (locked: boolean) => void;
+  onAdvanceWeek: () => void;
+  isLockPending: boolean;
+  isAdvancePending: boolean;
+  isSuperAdmin: boolean;
+}) {
+  const { data: simulation, isLoading: simLoading } = useQuery<SimulationData>({
+    queryKey: ["/api/class-admin/organizations", org.id, "simulation"],
+    queryFn: async () => {
+      const res = await fetch(`/api/class-admin/organizations/${org.id}/simulation`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch simulation");
+      return res.json();
+    },
+    enabled: isExpanded && isSuperAdmin,
+  });
+
+  const statusVariant = (status: string | undefined) => {
+    switch (status) {
+      case "active": return "default" as const;
+      case "completed": return "secondary" as const;
+      case "paused": return "outline" as const;
+      default: return "outline" as const;
+    }
+  };
+
+  const difficultyVariant = (level: string | undefined) => {
+    switch (level) {
+      case "introductory": return "secondary" as const;
+      case "standard": return "default" as const;
+      case "advanced": return "destructive" as const;
+      default: return "outline" as const;
+    }
+  };
+
+  const isActive = simulation?.status === "active";
+  const isLocked = org.simulationLocked === true;
+
+  return (
+    <div className="border rounded-md" data-testid={`card-simulation-org-${org.id}`}>
+      <button
+        onClick={onToggleExpand}
+        className="w-full flex items-center justify-between gap-2 p-3 text-left hover-elevate rounded-md"
+        data-testid={`button-expand-org-${org.id}`}
+      >
+        <div className="flex items-center gap-3 flex-wrap min-w-0">
+          <div className="min-w-0">
+            <span className="font-medium truncate block" data-testid={`text-org-name-sim-${org.id}`}>{org.name}</span>
+            <span className="text-xs text-muted-foreground font-mono" data-testid={`text-org-code-sim-${org.id}`}>{org.code}</span>
+          </div>
+          <Badge variant={isLocked ? "destructive" : "secondary"} className="text-xs" data-testid={`badge-lock-${org.id}`}>
+            {isLocked ? <><Lock className="h-3 w-3 mr-1" /> Locked</> : <><Unlock className="h-3 w-3 mr-1" /> Unlocked</>}
+          </Badge>
+        </div>
+        {isExpanded ? <ChevronUp className="h-4 w-4 shrink-0" /> : <ChevronDown className="h-4 w-4 shrink-0" />}
+      </button>
+
+      {isExpanded && (
+        <div className="px-3 pb-3 pt-1 border-t space-y-3">
+          {simLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : simulation ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Status</span>
+                  <div>
+                    <Badge variant={statusVariant(simulation.status)} data-testid={`badge-sim-status-${org.id}`}>
+                      {simulation.status === "setup" && !simulation.id ? "Not Started" : simulation.status}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Progress</span>
+                  <p className="text-sm font-medium" data-testid={`text-sim-progress-${org.id}`}>
+                    Week {simulation.currentWeek} / {simulation.totalWeeks}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Difficulty</span>
+                  <div>
+                    <Badge variant={difficultyVariant(simulation.difficultyLevel)} className="text-xs" data-testid={`badge-sim-difficulty-${org.id}`}>
+                      {simulation.difficultyLevel || "Not Set"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Decision Lock</span>
+                  <p className="text-sm font-medium" data-testid={`text-lock-status-${org.id}`}>
+                    {isLocked ? "Decisions locked" : "Decisions open"}
+                  </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  variant={isLocked ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onToggleLock(!isLocked)}
+                  disabled={isLockPending}
+                  data-testid={`button-toggle-lock-${org.id}`}
+                >
+                  {isLockPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : isLocked ? (
+                    <Unlock className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Lock className="h-4 w-4 mr-2" />
+                  )}
+                  {isLocked ? "Unlock Decisions" : "Lock Decisions"}
+                </Button>
+
+                {isActive && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onAdvanceWeek}
+                    disabled={isAdvancePending}
+                    data-testid={`button-advance-week-${org.id}`}
+                  >
+                    {isAdvancePending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <FastForward className="h-4 w-4 mr-2" />
+                    )}
+                    Advance Week
+                  </Button>
+                )}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground py-2">Unable to load simulation data.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SuperAdminPage() {
   const { logout, isLoggingOut } = useAuth();
   const { toast } = useToast();
@@ -516,6 +711,16 @@ export default function SuperAdminPage() {
     enabled: roleInfo?.isSuperAdmin === true,
   });
 
+  // Activity Logs
+  const { data: activityLogs = [], isLoading: activityLogsLoading, refetch: refetchActivityLogs } = useQuery<ActivityLog[]>({
+    queryKey: ["/api/admin/activity-logs"],
+    enabled: roleInfo?.isSuperAdmin === true,
+  });
+
+  // Simulation tab state
+  const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
+  const [activityEventFilter, setActivityEventFilter] = useState<string>("all");
+
   const [showEmailTemplateDialog, setShowEmailTemplateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
   const [editTemplateForm, setEditTemplateForm] = useState({
@@ -592,6 +797,33 @@ export default function SuperAdminPage() {
     updateSettingsMutation.mutate(currentSettings);
   };
 
+  const toggleLockMutation = useMutation({
+    mutationFn: async ({ orgId, locked }: { orgId: string; locked: boolean }) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${orgId}/toggle-lock`, { locked });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
+      toast({ title: "Decision lock updated" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to toggle lock", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const advanceWeekMutation = useMutation({
+    mutationFn: async (orgId: string) => {
+      return apiRequest("POST", `/api/class-admin/organizations/${orgId}/simulation/advance-week`);
+    },
+    onSuccess: (_data, orgId) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", orgId, "simulation"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/super-admin/organizations"] });
+      toast({ title: "Week advanced successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to advance week", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleRefresh = () => {
     switch (activeTab) {
       case "organizations":
@@ -607,11 +839,14 @@ export default function SuperAdminPage() {
         toast({ title: "Content refreshed" });
         break;
       case "simulation":
-        // Future: refresh simulation data when implemented
+        refetchOrgs();
+        if (expandedOrgId) {
+          queryClient.invalidateQueries({ queryKey: ["/api/class-admin/organizations", expandedOrgId, "simulation"] });
+        }
         toast({ title: "Simulation data refreshed" });
         break;
       case "activity":
-        // Future: refresh activity logs when implemented
+        refetchActivityLogs();
         toast({ title: "Activity logs refreshed" });
         break;
       case "settings":
@@ -1651,28 +1886,143 @@ export default function SuperAdminPage() {
             <GoogleDocsSyncCard />
           </TabsContent>
 
-          {/* Placeholder Simulation tab - will be expanded later */}
           <TabsContent value="simulation" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Simulation Control</CardTitle>
-                <CardDescription>Manage simulation lifecycle and game mechanics.</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <Play className="h-5 w-5" />
+                  Simulation Control
+                </CardTitle>
+                <CardDescription>Manage simulation lifecycle, decision locks, and week advancement for each organization.</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Simulation controls are coming soon. This section will allow you to manage simulation settings, scenarios, and game mechanics.</p>
+                {orgsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : organizations.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8" data-testid="text-no-orgs-simulation">No organizations found.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {organizations.map((org) => (
+                      <SimulationOrgRow
+                        key={org.id}
+                        org={org}
+                        isExpanded={expandedOrgId === org.id}
+                        onToggleExpand={() => setExpandedOrgId(expandedOrgId === org.id ? null : org.id)}
+                        onToggleLock={(locked) => toggleLockMutation.mutate({ orgId: org.id, locked })}
+                        onAdvanceWeek={() => advanceWeekMutation.mutate(org.id)}
+                        isLockPending={toggleLockMutation.isPending}
+                        isAdvancePending={advanceWeekMutation.isPending}
+                        isSuperAdmin={roleInfo?.isSuperAdmin === true}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Placeholder Activity tab - will be expanded later */}
           <TabsContent value="activity" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Activity Log</CardTitle>
-                <CardDescription>Track user actions and system events.</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Activity Log
+                  </CardTitle>
+                  <CardDescription>Track user actions and system events for monitoring and auditing.</CardDescription>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <a href="/api/admin/activity-logs/export?format=csv" download>
+                    <Button variant="outline" size="sm" data-testid="button-export-csv">
+                      <Download className="h-4 w-4 mr-2" />
+                      CSV
+                    </Button>
+                  </a>
+                  <a href="/api/admin/activity-logs/export?format=json" download>
+                    <Button variant="outline" size="sm" data-testid="button-export-json">
+                      <Download className="h-4 w-4 mr-2" />
+                      JSON
+                    </Button>
+                  </a>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Activity logging is coming soon. This section will display user actions and system events for monitoring and auditing.</p>
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Select value={activityEventFilter} onValueChange={setActivityEventFilter}>
+                    <SelectTrigger className="w-[200px]" data-testid="select-activity-filter">
+                      <SelectValue placeholder="Filter by event type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Events</SelectItem>
+                      {(() => {
+                        const eventTypes = [...new Set(activityLogs.map(l => l.eventType))].sort();
+                        return eventTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground" data-testid="text-activity-count">
+                    {(() => {
+                      const filtered = activityEventFilter === "all" ? activityLogs : activityLogs.filter(l => l.eventType === activityEventFilter);
+                      return `${filtered.length} event${filtered.length !== 1 ? "s" : ""}`;
+                    })()}
+                  </span>
+                </div>
+
+                {activityLogsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : activityLogs.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8" data-testid="text-no-activity">No activity recorded yet.</p>
+                ) : (
+                  <div className="border rounded-md">
+                    <div className="grid grid-cols-[140px_120px_1fr_100px_60px_1fr] gap-2 p-3 border-b bg-muted/50 text-xs font-medium text-muted-foreground">
+                      <span>Timestamp</span>
+                      <span>Event</span>
+                      <span>User</span>
+                      <span>Team</span>
+                      <span>Week</span>
+                      <span>Details</span>
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {(activityEventFilter === "all" ? activityLogs : activityLogs.filter(l => l.eventType === activityEventFilter))
+                        .slice(0, 200)
+                        .map((log) => (
+                        <div
+                          key={log.id}
+                          className="grid grid-cols-[140px_120px_1fr_100px_60px_1fr] gap-2 p-3 border-b last:border-b-0 text-sm items-center"
+                          data-testid={`row-activity-${log.id}`}
+                        >
+                          <span className="text-xs text-muted-foreground font-mono" data-testid={`text-activity-time-${log.id}`}>
+                            {new Date(log.timestamp).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span data-testid={`text-activity-event-${log.id}`}>
+                            <Badge variant="outline" className="text-xs truncate max-w-[110px]">
+                              {log.eventType.replace(/_/g, " ")}
+                            </Badge>
+                          </span>
+                          <span className="truncate" data-testid={`text-activity-user-${log.id}`}>
+                            {log.userName || log.userEmail || "System"}
+                          </span>
+                          <span className="truncate text-muted-foreground" data-testid={`text-activity-team-${log.id}`}>
+                            {log.teamName || "-"}
+                          </span>
+                          <span className="text-center text-muted-foreground" data-testid={`text-activity-week-${log.id}`}>
+                            {log.weekNumber ?? "-"}
+                          </span>
+                          <span className="truncate text-muted-foreground" data-testid={`text-activity-details-${log.id}`}>
+                            {log.details || "-"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

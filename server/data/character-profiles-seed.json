@@ -31,7 +31,11 @@
     "hostility": 4,
     "flexibility": 5,
     "risk_tolerance": 4,
-    "impact_categories": ["community", "labor", "governance"],
+    "impact_categories": [
+      "community",
+      "labor",
+      "governance"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "diplomatic yet warm",
@@ -55,11 +59,28 @@
     },
     "social_profile": {
       "about": "As the Mayor of Riverside, I am dedicated to fostering a vibrant and inclusive community. With a background as a local business owner, I understand the challenges our residents face and strive to create opportunities for growth and improvement. My commitment to public service is rooted in my lifelong connection to this city, and I believe in the power of collaboration to address the needs of our diverse population. I am passionate about education, economic development, and ensuring that every voice in our community is heard.",
-      "skills": ["Community Engagement", "Public Speaking", "Economic Development", "Policy Analysis", "Leadership", "Team Building", "Strategic Planning", "Crisis Management"],
+      "skills": [
+        "Community Engagement",
+        "Public Speaking",
+        "Economic Development",
+        "Policy Analysis",
+        "Leadership",
+        "Team Building",
+        "Strategic Planning",
+        "Crisis Management"
+      ],
       "headline": "Mayor | Community Advocate | Business Leader",
       "education": [
-        {"year": "1990", "degree": "Associate Degree", "institution": "Riverside Community College"},
-        {"year": "1995", "degree": "Bachelor of Arts", "institution": "University of California, Riverside"}
+        {
+          "year": "1990",
+          "degree": "Associate Degree",
+          "institution": "Riverside Community College"
+        },
+        {
+          "year": "1995",
+          "degree": "Bachelor of Arts",
+          "institution": "University of California, Riverside"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 215,
@@ -70,8 +91,16 @@
         "description": "As Mayor, I lead our city with a focus on community engagement, economic development, and enhancing the quality of life for all residents. I work closely with local businesses, civic organizations, and government agencies to implement policies that reflect our community's needs."
       },
       "previousPositions": [
-        {"title": "Owner", "company": "Reyes Market", "duration": "15 years"},
-        {"title": "Board Member", "company": "Riverside Chamber of Commerce", "duration": "3 years"}
+        {
+          "title": "Owner",
+          "company": "Reyes Market",
+          "duration": "15 years"
+        },
+        {
+          "title": "Board Member",
+          "company": "Riverside Chamber of Commerce",
+          "duration": "3 years"
+        }
       ]
     }
   },
@@ -107,7 +136,11 @@
     "hostility": 2,
     "flexibility": 6,
     "risk_tolerance": 4,
-    "impact_categories": ["finance", "strategy", "governance"],
+    "impact_categories": [
+      "finance",
+      "strategy",
+      "governance"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "calm",
@@ -131,11 +164,28 @@
     },
     "social_profile": {
       "about": "As the Chief Financial Officer at Apex Manufacturing, I leverage over 20 years of financial expertise to drive strategic decision-making and optimize our financial performance. My background in accounting and my MBA from Stanford provide a strong foundation for navigating complex financial landscapes. I am passionate about fostering a culture of transparency and accountability within my organization, ensuring that all stakeholders have a clear understanding of our financial health. My goal is to not only meet but exceed our financial targets while supporting sustainable growth.",
-      "skills": ["Financial Analysis", "Budgeting", "Forecasting", "Financial Reporting", "Risk Management", "Strategic Planning", "Compliance", "Team Leadership"],
+      "skills": [
+        "Financial Analysis",
+        "Budgeting",
+        "Forecasting",
+        "Financial Reporting",
+        "Risk Management",
+        "Strategic Planning",
+        "Compliance",
+        "Team Leadership"
+      ],
       "headline": "CFO | Financial Strategy | Corporate Finance",
       "education": [
-        {"year": 2000, "degree": "MBA", "institution": "Stanford University"},
-        {"year": 1997, "degree": "Bachelor of Science in Accounting", "institution": "University of California, Berkeley"}
+        {
+          "year": 2000,
+          "degree": "MBA",
+          "institution": "Stanford University"
+        },
+        {
+          "year": 1997,
+          "degree": "Bachelor of Science in Accounting",
+          "institution": "University of California, Berkeley"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 250,
@@ -146,8 +196,16 @@
         "description": "In my role as CFO, I oversee all financial operations and strategy, ensuring alignment with our overall business objectives. I lead a team that manages budgeting, forecasting, and financial reporting while implementing robust financial controls."
       },
       "previousPositions": [
-        {"title": "Controller", "company": "Apex Manufacturing", "duration": "5 years"},
-        {"title": "Senior Accountant", "company": "Big Four Accounting Firm", "duration": "7 years"}
+        {
+          "title": "Controller",
+          "company": "Apex Manufacturing",
+          "duration": "5 years"
+        },
+        {
+          "title": "Senior Accountant",
+          "company": "Big Four Accounting Firm",
+          "duration": "7 years"
+        }
       ]
     }
   },
@@ -183,7 +241,11 @@
     "hostility": 4,
     "flexibility": 6,
     "risk_tolerance": 5,
-    "impact_categories": ["labor", "culture", "technology"],
+    "impact_categories": [
+      "labor",
+      "culture",
+      "technology"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "skeptical yet fair",
@@ -207,10 +269,23 @@
     },
     "social_profile": {
       "about": "As a Quality Control Technician at Apex Manufacturing, I strive to ensure that every product meets our high standards of quality. Being the first in my family to earn a technical certification, I take pride in my work and am passionate about process improvement. I am observant and detail-oriented, always looking for ways to enhance efficiency and effectiveness. Balancing my professional life with personal commitments, I find motivation in my relationships and the challenges that come with them.",
-      "skills": ["Quality Assurance", "Process Improvement", "Attention to Detail", "Data Analysis", "Problem Solving", "Team Collaboration", "Technical Reporting", "Regulatory Compliance"],
+      "skills": [
+        "Quality Assurance",
+        "Process Improvement",
+        "Attention to Detail",
+        "Data Analysis",
+        "Problem Solving",
+        "Team Collaboration",
+        "Technical Reporting",
+        "Regulatory Compliance"
+      ],
       "headline": "Quality Control Technician | Process Improvement | Quality Assurance",
       "education": [
-        {"year": 2021, "degree": "Technical Certification in Quality Control", "institution": "Midwestern Technical College"}
+        {
+          "year": 2021,
+          "degree": "Technical Certification in Quality Control",
+          "institution": "Midwestern Technical College"
+        }
       ],
       "connections": "500+",
       "endorsements": 125,
@@ -221,8 +296,16 @@
         "description": "In my role, I conduct thorough inspections of products and processes to ensure compliance with quality standards. I collaborate with production teams to identify areas for improvement and implement corrective actions."
       },
       "previousPositions": [
-        {"title": "Quality Assurance Intern", "company": "XYZ Corp", "duration": "1 year"},
-        {"title": "Production Assistant", "company": "ABC Industries", "duration": "1 year 4 months"}
+        {
+          "title": "Quality Assurance Intern",
+          "company": "XYZ Corp",
+          "duration": "1 year"
+        },
+        {
+          "title": "Production Assistant",
+          "company": "ABC Industries",
+          "duration": "1 year 4 months"
+        }
       ]
     }
   },
@@ -258,7 +341,11 @@
     "hostility": 1,
     "flexibility": 7,
     "risk_tolerance": 5,
-    "impact_categories": ["strategy", "culture", "training"],
+    "impact_categories": [
+      "strategy",
+      "culture",
+      "training"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "academic warmth",
@@ -282,11 +369,28 @@
     },
     "social_profile": {
       "about": "I am Dr. Helen Mercer, a seasoned consultant specializing in organizational transformation. With over 50 successful company transformations under my belt, I bring a wealth of experience and a unique perspective to the challenges organizations face today. My academic background, including a PhD in Organizational Behavior from Harvard, informs my approach to fostering effective change. I believe in the power of listening and collaboration to drive sustainable improvement and am passionate about empowering teams to reach their full potential.",
-      "skills": ["Organizational Transformation", "Change Management", "Leadership Development", "Strategic Planning", "Team Building", "Stakeholder Engagement", "Process Improvement", "Executive Coaching"],
+      "skills": [
+        "Organizational Transformation",
+        "Change Management",
+        "Leadership Development",
+        "Strategic Planning",
+        "Team Building",
+        "Stakeholder Engagement",
+        "Process Improvement",
+        "Executive Coaching"
+      ],
       "headline": "Principal | Organizational Transformation | Consulting",
       "education": [
-        {"year": 1990, "degree": "PhD in Organizational Behavior", "institution": "Harvard University"},
-        {"year": 1985, "degree": "MBA", "institution": "Harvard University"}
+        {
+          "year": 1990,
+          "degree": "PhD in Organizational Behavior",
+          "institution": "Harvard University"
+        },
+        {
+          "year": 1985,
+          "degree": "MBA",
+          "institution": "Harvard University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 215,
@@ -297,8 +401,16 @@
         "description": "As Principal, I lead consulting engagements focused on driving organizational change and enhancing performance. I work closely with executive teams to identify key areas for improvement and develop tailored strategies that align with their corporate vision."
       },
       "previousPositions": [
-        {"title": "Professor of Organizational Behavior", "company": "Harvard Business School", "duration": "20 years"},
-        {"title": "Senior Consultant", "company": "Global Consulting Group", "duration": "10 years"}
+        {
+          "title": "Professor of Organizational Behavior",
+          "company": "Harvard Business School",
+          "duration": "20 years"
+        },
+        {
+          "title": "Senior Consultant",
+          "company": "Global Consulting Group",
+          "duration": "10 years"
+        }
       ]
     }
   },
@@ -334,7 +446,11 @@
     "hostility": 1,
     "flexibility": 8,
     "risk_tolerance": 5,
-    "impact_categories": ["strategy", "technology", "customers"],
+    "impact_categories": [
+      "strategy",
+      "technology",
+      "customers"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "intellectual and authoritative",
@@ -358,11 +474,28 @@
     },
     "social_profile": {
       "about": "As a seasoned industry analyst with a PhD in Industrial Engineering from MIT, I have dedicated over two decades to understanding the complexities of manufacturing. My journey has taken me from consulting at McKinsey to leading insightful reports that shape industry trends. I am passionate about translating data into actionable strategies and providing organizations with the insights they need to thrive in a competitive environment. I frequently contribute to discussions in the media to elevate the conversation around manufacturing innovations and best practices.",
-      "skills": ["Data Analysis", "Market Research", "Strategic Planning", "Industry Forecasting", "Report Writing", "Consulting", "Public Speaking", "Stakeholder Engagement"],
+      "skills": [
+        "Data Analysis",
+        "Market Research",
+        "Strategic Planning",
+        "Industry Forecasting",
+        "Report Writing",
+        "Consulting",
+        "Public Speaking",
+        "Stakeholder Engagement"
+      ],
       "headline": "Managing Director | Industry Analyst | Manufacturing Insights",
       "education": [
-        {"year": "2003", "degree": "PhD in Industrial Engineering", "institution": "Massachusetts Institute of Technology"},
-        {"year": "1998", "degree": "Bachelor of Science in Engineering", "institution": "Harvard University"}
+        {
+          "year": "2003",
+          "degree": "PhD in Industrial Engineering",
+          "institution": "Massachusetts Institute of Technology"
+        },
+        {
+          "year": "1998",
+          "degree": "Bachelor of Science in Engineering",
+          "institution": "Harvard University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 320,
@@ -373,8 +506,16 @@
         "description": "In my role as Managing Director, I oversee the research and analysis team that produces critical insights into the manufacturing sector. I collaborate with industry leaders to identify trends and advise on strategic decision-making."
       },
       "previousPositions": [
-        {"title": "Senior Consultant", "company": "McKinsey & Company", "duration": "5 years"},
-        {"title": "Research Analyst", "company": "Gartner", "duration": "3 years"}
+        {
+          "title": "Senior Consultant",
+          "company": "McKinsey & Company",
+          "duration": "5 years"
+        },
+        {
+          "title": "Research Analyst",
+          "company": "Gartner",
+          "duration": "3 years"
+        }
       ]
     }
   },
@@ -396,10 +537,10 @@
     "voice_description": "Frank's voice is warm and steady, reflecting his Midwest roots. He speaks at a moderate pace with a slight accent, enhancing his approachable demeanor. His tone conveys authority but also compassion, making him a natural leader who commands attention yet inspires trust.",
     "voice_id": null,
     "speaking_style_examples": [
-      "We've been through ups and downs before; let's focus on what truly matters \u2013 our people.",
+      "We've been through ups and downs before; let's focus on what truly matters – our people.",
       "I appreciate the new ideas, but let's not lose sight of the hands-on approach that got us here.",
       "Technology can help, but it's our teamwork that will drive success. We need to work together.",
-      "Remember, my door is always open. If you have concerns, I want to hear them \u2013 we're in this together."
+      "Remember, my door is always open. If you have concerns, I want to hear them – we're in this together."
     ],
     "is_active": true,
     "sort_order": 0,
@@ -410,7 +551,11 @@
     "hostility": 3,
     "flexibility": 4,
     "risk_tolerance": 3,
-    "impact_categories": ["operations", "labor", "technology"],
+    "impact_categories": [
+      "operations",
+      "labor",
+      "technology"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "direct and blunt",
@@ -434,11 +579,28 @@
     },
     "social_profile": {
       "about": "I have dedicated over 22 years to Apex Manufacturing, starting from the production line and working my way up to Senior Operations Manager. My hands-on experience combined with a strong understanding of operational efficiencies allows me to lead teams effectively and drive continuous improvement. I believe in clear communication and setting realistic expectations, ensuring that everyone knows their role in achieving company goals. My journey has taught me the value of hard work and the importance of not suffering fools in a fast-paced environment.",
-      "skills": ["Operations Management", "Process Improvement", "Team Leadership", "Lean Manufacturing", "Budget Management", "Quality Assurance", "Supply Chain Management", "Training and Development"],
+      "skills": [
+        "Operations Management",
+        "Process Improvement",
+        "Team Leadership",
+        "Lean Manufacturing",
+        "Budget Management",
+        "Quality Assurance",
+        "Supply Chain Management",
+        "Training and Development"
+      ],
       "headline": "Senior Operations Manager | Manufacturing Excellence | Process Optimization",
       "education": [
-        {"year": 1992, "degree": "Associate Degree in Industrial Technology", "institution": "Local Community College"},
-        {"year": 1989, "degree": "High School Diploma", "institution": "Local High School"}
+        {
+          "year": 1992,
+          "degree": "Associate Degree in Industrial Technology",
+          "institution": "Local Community College"
+        },
+        {
+          "year": 1989,
+          "degree": "High School Diploma",
+          "institution": "Local High School"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 325,
@@ -449,8 +611,16 @@
         "description": "In my current role, I oversee daily operations, streamline processes, and manage a diverse team. My focus is on maximizing productivity while maintaining quality standards and fostering a culture of safety."
       },
       "previousPositions": [
-        {"title": "Operations Supervisor", "company": "Apex Manufacturing", "duration": "5 years"},
-        {"title": "Production Line Worker", "company": "Apex Manufacturing", "duration": "8 years"}
+        {
+          "title": "Operations Supervisor",
+          "company": "Apex Manufacturing",
+          "duration": "5 years"
+        },
+        {
+          "title": "Production Line Worker",
+          "company": "Apex Manufacturing",
+          "duration": "8 years"
+        }
       ]
     }
   },
@@ -472,7 +642,7 @@
     "voice_description": "Jaylen's voice is warm and engaging, with a moderate pace that conveys enthusiasm. He has a slight Midwestern accent, which makes him relatable yet professional, and his vocal qualities reflect his passion and determination.",
     "voice_id": null,
     "speaking_style_examples": [
-      "I know there's a lot of tradition here, but we need to ask ourselves \u2013 is it still working for us?",
+      "I know there's a lot of tradition here, but we need to ask ourselves – is it still working for us?",
       "We can't just keep doing things the way they've always been done. Let's explore other options.",
       "If we want to keep talent like mine in this company, we have to do better at listening to what we need.",
       "I appreciate the experience of those before me, but it's time we make some changes for the future."
@@ -486,7 +656,11 @@
     "hostility": 5,
     "flexibility": 7,
     "risk_tolerance": 6,
-    "impact_categories": ["labor", "culture", "technology"],
+    "impact_categories": [
+      "labor",
+      "culture",
+      "technology"
+    ],
     "voice_profile": {
       "pace": "moderate",
       "tone": "confident",
@@ -510,10 +684,23 @@
     },
     "social_profile": {
       "about": "I'm a dedicated Production Associate at Apex Manufacturing with a passion for innovation and representation. With a community college certificate in manufacturing technology, I bring a fresh perspective to the industry. As an Employee Council Representative, I actively advocate for my colleagues' voices and ideas. I believe in the power of collaboration and am always looking for ways to improve our work environment while embracing modern solutions. My ambition drives me to continuously learn and grow within the manufacturing field, and I'm excited to contribute to positive change.",
-      "skills": ["Lean Manufacturing", "Team Collaboration", "Problem Solving", "Communication", "Process Optimization", "Data Analysis", "Conflict Resolution", "Employee Advocacy"],
+      "skills": [
+        "Lean Manufacturing",
+        "Team Collaboration",
+        "Problem Solving",
+        "Communication",
+        "Process Optimization",
+        "Data Analysis",
+        "Conflict Resolution",
+        "Employee Advocacy"
+      ],
       "headline": "Production Associate & Employee Council Rep | Gen Z Advocate in Manufacturing",
       "education": [
-        {"year": "2021", "degree": "Certificate in Manufacturing Technology", "institution": "Community College of Manufacturing Technology"}
+        {
+          "year": "2021",
+          "degree": "Certificate in Manufacturing Technology",
+          "institution": "Community College of Manufacturing Technology"
+        }
       ],
       "connections": "500+",
       "endorsements": 120,
@@ -524,8 +711,16 @@
         "description": "In my role at Apex, I focus on optimizing production processes and fostering a collaborative workplace. As a representative on the Employee Council, I work to ensure that all employees feel heard and valued."
       },
       "previousPositions": [
-        {"title": "Intern", "company": "Tech Innovations Inc.", "duration": "1 year"},
-        {"title": "Part-time Warehouse Associate", "company": "Local Distribution Center", "duration": "1 year"}
+        {
+          "title": "Intern",
+          "company": "Tech Innovations Inc.",
+          "duration": "1 year"
+        },
+        {
+          "title": "Part-time Warehouse Associate",
+          "company": "Local Distribution Center",
+          "duration": "1 year"
+        }
       ]
     }
   },
@@ -561,7 +756,11 @@
     "hostility": 3,
     "flexibility": 6,
     "risk_tolerance": 6,
-    "impact_categories": ["customers", "finance", "strategy"],
+    "impact_categories": [
+      "customers",
+      "finance",
+      "strategy"
+    ],
     "voice_profile": {
       "pace": "quick",
       "tone": "confident and persuasive",
@@ -585,11 +784,28 @@
     },
     "social_profile": {
       "about": "As a seasoned sales leader with over 15 years of experience, I thrive in fast-paced environments where strategic thinking and aggressive execution are key to success. At Apex Manufacturing, I lead a dynamic team dedicated to driving revenue growth and enhancing customer satisfaction. My previous roles have equipped me with the tools to analyze market trends and develop effective sales strategies that resonate with clients. I am passionate about building relationships and empowering my team to achieve their fullest potential.",
-      "skills": ["Sales Strategy", "Team Leadership", "Market Analysis", "Customer Relationship Management", "Negotiation Skills", "Revenue Growth", "Data-Driven Decision Making", "Strategic Planning"],
+      "skills": [
+        "Sales Strategy",
+        "Team Leadership",
+        "Market Analysis",
+        "Customer Relationship Management",
+        "Negotiation Skills",
+        "Revenue Growth",
+        "Data-Driven Decision Making",
+        "Strategic Planning"
+      ],
       "headline": "Vice President of Sales | Strategic Growth | Customer Engagement",
       "education": [
-        {"year": "2005", "degree": "MBA", "institution": "Northwestern University"},
-        {"year": "2001", "degree": "Bachelor of Arts in Economics", "institution": "University of California, Berkeley"}
+        {
+          "year": "2005",
+          "degree": "MBA",
+          "institution": "Northwestern University"
+        },
+        {
+          "year": "2001",
+          "degree": "Bachelor of Arts in Economics",
+          "institution": "University of California, Berkeley"
+        }
       ],
       "connections": "1,200+",
       "endorsements": 320,
@@ -600,8 +816,16 @@
         "description": "In my role as Vice President of Sales, I oversee all sales operations and strategy, focusing on market penetration and revenue expansion. I lead a team of sales professionals and collaborate closely with marketing to align our efforts and optimize results."
       },
       "previousPositions": [
-        {"title": "Director of Sales", "company": "Competitor Corp", "duration": "4 years"},
-        {"title": "Sales Manager", "company": "Tech Solutions Inc.", "duration": "3 years"}
+        {
+          "title": "Director of Sales",
+          "company": "Competitor Corp",
+          "duration": "4 years"
+        },
+        {
+          "title": "Sales Manager",
+          "company": "Tech Solutions Inc.",
+          "duration": "3 years"
+        }
       ]
     }
   },
@@ -626,7 +850,7 @@
       "We cannot let corporate interests dictate our future; our families deserve better than that.",
       "When we stand together, we are an unstoppable force against any challenge.",
       "This is not just about jobs; it's about dignity and respect for every worker.",
-      "The fight for our rights isn't just mine\u2014it's ours, and together we will win."
+      "The fight for our rights isn't just mine—it's ours, and together we will win."
     ],
     "is_active": true,
     "sort_order": 0,
@@ -637,7 +861,11 @@
     "hostility": 8,
     "flexibility": 3,
     "risk_tolerance": 7,
-    "impact_categories": ["labor", "community", "culture"],
+    "impact_categories": [
+      "labor",
+      "community",
+      "culture"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "passionate",
@@ -661,10 +889,23 @@
     },
     "social_profile": {
       "about": "As a third-generation autoworker, I have dedicated over 20 years to advocating for the rights of workers in the automotive industry. My journey began with the loss of my father's job during the 2008 plant closure, which ignited my passion for organizing and fighting for fair labor practices. I have undergone extensive UAW leadership training and have successfully led numerous campaigns to improve working conditions and wages for workers. My mission is to empower the workforce and ensure that every voice is heard.",
-      "skills": ["Labor organizing", "Public speaking", "Negotiation", "Conflict resolution", "Community outreach", "Strategic planning", "Grassroots mobilization", "Leadership development"],
+      "skills": [
+        "Labor organizing",
+        "Public speaking",
+        "Negotiation",
+        "Conflict resolution",
+        "Community outreach",
+        "Strategic planning",
+        "Grassroots mobilization",
+        "Leadership development"
+      ],
       "headline": "UAW Regional Organizer | Labor Rights Advocate | Community Leader",
       "education": [
-        {"year": 1999, "degree": "Bachelor of Arts in Labor Studies", "institution": "University of Michigan"}
+        {
+          "year": 1999,
+          "degree": "Bachelor of Arts in Labor Studies",
+          "institution": "University of Michigan"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 250,
@@ -675,8 +916,16 @@
         "description": "In my role as a UAW Regional Organizer, I coordinate grassroots campaigns and mobilize members to advocate for labor rights across multiple states. I work closely with local unions to develop strategies that address workplace issues and promote solidarity among workers."
       },
       "previousPositions": [
-        {"title": "Union Representative", "company": "United Auto Workers (UAW)", "duration": "5 years"},
-        {"title": "Shop Steward", "company": "General Motors", "duration": "7 years"}
+        {
+          "title": "Union Representative",
+          "company": "United Auto Workers (UAW)",
+          "duration": "5 years"
+        },
+        {
+          "title": "Shop Steward",
+          "company": "General Motors",
+          "duration": "7 years"
+        }
       ]
     }
   },
@@ -712,7 +961,11 @@
     "hostility": 2,
     "flexibility": 5,
     "risk_tolerance": 5,
-    "impact_categories": ["operations", "technology", "labor"],
+    "impact_categories": [
+      "operations",
+      "technology",
+      "labor"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "warm and approachable",
@@ -736,10 +989,23 @@
     },
     "social_profile": {
       "about": "With over 28 years in the manufacturing sector, I have built my career from the ground up, starting as a machinist and rising to the role of Chief Operating Officer. My journey has been fueled by a passion for operational efficiency and a commitment to fostering a collaborative workplace. I believe in the power of hands-on experience and the importance of inclusive leadership. At Apex Manufacturing, I lead our operations with a focus on sustainable practices and innovative solutions, ensuring we meet our production goals while empowering our workforce.",
-      "skills": ["Operational Management", "Lean Manufacturing", "Team Leadership", "Strategic Planning", "Process Improvement", "Supply Chain Management", "Safety Compliance", "Budget Management"],
+      "skills": [
+        "Operational Management",
+        "Lean Manufacturing",
+        "Team Leadership",
+        "Strategic Planning",
+        "Process Improvement",
+        "Supply Chain Management",
+        "Safety Compliance",
+        "Budget Management"
+      ],
       "headline": "Chief Operating Officer | Operations Management | Manufacturing Excellence",
       "education": [
-        {"year": 2015, "degree": "Executive Education Program", "institution": "Kellogg School of Management"}
+        {
+          "year": 2015,
+          "degree": "Executive Education Program",
+          "institution": "Kellogg School of Management"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 256,
@@ -750,8 +1016,16 @@
         "description": "As COO, I oversee all operational aspects of Apex Manufacturing, driving efficiency and productivity while ensuring a safe and engaging work environment for our team. My role involves strategic planning and collaboration across departments to align our operations with overall business objectives."
       },
       "previousPositions": [
-        {"title": "Operations Manager", "company": "Apex Manufacturing", "duration": "5 years"},
-        {"title": "Production Supervisor", "company": "XYZ Manufacturing", "duration": "6 years"}
+        {
+          "title": "Operations Manager",
+          "company": "Apex Manufacturing",
+          "duration": "5 years"
+        },
+        {
+          "title": "Production Supervisor",
+          "company": "XYZ Manufacturing",
+          "duration": "6 years"
+        }
       ]
     }
   },
@@ -787,7 +1061,11 @@
     "hostility": 5,
     "flexibility": 4,
     "risk_tolerance": 3,
-    "impact_categories": ["finance", "governance", "strategy"],
+    "impact_categories": [
+      "finance",
+      "governance",
+      "strategy"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "firm but fair",
@@ -811,10 +1089,23 @@
     },
     "social_profile": {
       "about": "With 25 years of experience in commercial banking, I pride myself on fostering strong relationships with clients and understanding their unique financial needs. My journey from a loan officer to Senior Vice President has equipped me with a deep knowledge of the banking industry and a practical approach to problem-solving. I believe in transparency and fairness, always aiming to provide the best solutions for my clients and my team.",
-      "skills": ["Commercial Lending", "Relationship Management", "Financial Analysis", "Risk Assessment", "Team Leadership", "Client Negotiation", "Strategic Planning", "Problem Solving"],
+      "skills": [
+        "Commercial Lending",
+        "Relationship Management",
+        "Financial Analysis",
+        "Risk Assessment",
+        "Team Leadership",
+        "Client Negotiation",
+        "Strategic Planning",
+        "Problem Solving"
+      ],
       "headline": "Senior Vice President, Commercial Lending | Banking Expert | Relationship Builder",
       "education": [
-        {"year": 1987, "degree": "Bachelor of Science in Finance", "institution": "State University"}
+        {
+          "year": 1987,
+          "degree": "Bachelor of Science in Finance",
+          "institution": "State University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 320,
@@ -825,8 +1116,16 @@
         "description": "In my current role, I lead a team of commercial lenders, developing strategies to optimize our lending portfolio while ensuring client satisfaction. I work closely with businesses to understand their needs and provide tailored financing solutions."
       },
       "previousPositions": [
-        {"title": "Vice President, Commercial Lending", "company": "First National Bank", "duration": "7 years 2 months"},
-        {"title": "Loan Officer", "company": "Statewide Bank", "duration": "9 years 6 months"}
+        {
+          "title": "Vice President, Commercial Lending",
+          "company": "First National Bank",
+          "duration": "7 years 2 months"
+        },
+        {
+          "title": "Loan Officer",
+          "company": "Statewide Bank",
+          "duration": "9 years 6 months"
+        }
       ]
     }
   },
@@ -848,7 +1147,7 @@
     "voice_description": "Rachel's voice is warm and engaging, with a smooth, moderate pace. She has a slight Midwestern accent, which adds relatability, and her vocal qualities exude enthusiasm and confidence.",
     "voice_id": null,
     "speaking_style_examples": [
-      "I believe that embracing automation isn't just about efficiency\u2014it's about empowerment for everyone involved.",
+      "I believe that embracing automation isn't just about efficiency—it's about empowerment for everyone involved.",
       "Let's focus on how we can solve this challenge together; I have some ideas that I think you'll find exciting.",
       "In my experience, the best partnerships are built on trust and open communication. Let's keep that at the forefront.",
       "Every great solution starts with a simple conversation. What are your biggest pain points right now?"
@@ -862,7 +1161,11 @@
     "hostility": 1,
     "flexibility": 8,
     "risk_tolerance": 6,
-    "impact_categories": ["technology", "finance", "operations"],
+    "impact_categories": [
+      "technology",
+      "finance",
+      "operations"
+    ],
     "voice_profile": {
       "pace": "quick",
       "tone": "enthusiastic",
@@ -886,10 +1189,23 @@
     },
     "social_profile": {
       "about": "As a Regional Sales Director at RoboTech Solutions, I am passionate about bringing innovative technology to market. With a background in engineering from Carnegie Mellon and experience in various startups, I thrive in fast-paced environments where I can connect with clients and help them understand the value of our products. I believe that technology can drive positive change, and I am dedicated to making it accessible for everyone. My goal is to empower businesses with cutting-edge solutions that enhance efficiency and drive growth.",
-      "skills": ["Sales Strategy", "Technical Sales", "Customer Relationship Management", "Market Analysis", "Team Leadership", "Negotiation", "Public Speaking", "Product Development"],
+      "skills": [
+        "Sales Strategy",
+        "Technical Sales",
+        "Customer Relationship Management",
+        "Market Analysis",
+        "Team Leadership",
+        "Negotiation",
+        "Public Speaking",
+        "Product Development"
+      ],
       "headline": "Regional Sales Director | Technology Solutions | Innovation Enthusiast",
       "education": [
-        {"year": 2011, "degree": "Bachelor of Science in Engineering", "institution": "Carnegie Mellon University"}
+        {
+          "year": 2011,
+          "degree": "Bachelor of Science in Engineering",
+          "institution": "Carnegie Mellon University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 275,
@@ -900,8 +1216,16 @@
         "description": "In my role, I lead a team responsible for driving sales of our innovative robotic solutions across the region. I focus on building strong relationships with clients and demonstrating the transformative power of our technology."
       },
       "previousPositions": [
-        {"title": "Sales Engineer", "company": "Tech Innovations Inc.", "duration": "2 years 6 months"},
-        {"title": "Business Development Associate", "company": "StartUp X", "duration": "1 year 8 months"}
+        {
+          "title": "Sales Engineer",
+          "company": "Tech Innovations Inc.",
+          "duration": "2 years 6 months"
+        },
+        {
+          "title": "Business Development Associate",
+          "company": "StartUp X",
+          "duration": "1 year 8 months"
+        }
       ]
     }
   },
@@ -937,7 +1261,11 @@
     "hostility": 2,
     "flexibility": 4,
     "risk_tolerance": 2,
-    "impact_categories": ["legal", "governance", "labor"],
+    "impact_categories": [
+      "legal",
+      "governance",
+      "labor"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "calm and authoritative",
@@ -961,10 +1289,23 @@
     },
     "social_profile": {
       "about": "As the General Counsel at Apex Manufacturing, I leverage over 30 years of legal expertise in employment and union law to navigate complex labor issues and ensure compliance with regulations. My experience includes serving as a partner at a prestigious labor law firm, where I honed my skills in negotiations and dispute resolution. I am committed to fostering a fair workplace and protecting the rights of both employees and the organization. My educational background from Georgetown Law provides a strong foundation for my practice, and I approach every challenge with a calm and deliberate mindset.",
-      "skills": ["Employment Law", "Union Relations", "Contract Negotiation", "Dispute Resolution", "Regulatory Compliance", "Risk Management", "Legal Research", "Litigation Management"],
+      "skills": [
+        "Employment Law",
+        "Union Relations",
+        "Contract Negotiation",
+        "Dispute Resolution",
+        "Regulatory Compliance",
+        "Risk Management",
+        "Legal Research",
+        "Litigation Management"
+      ],
       "headline": "General Counsel | Employment Law | Union Relations",
       "education": [
-        {"year": 1991, "degree": "Juris Doctor", "institution": "Georgetown University Law Center"}
+        {
+          "year": 1991,
+          "degree": "Juris Doctor",
+          "institution": "Georgetown University Law Center"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 350,
@@ -975,8 +1316,16 @@
         "description": "In my role as General Counsel, I oversee all legal matters related to employment and union law, providing strategic guidance to the executive team and ensuring compliance with labor regulations."
       },
       "previousPositions": [
-        {"title": "Partner", "company": "Smith & Associates Law Firm", "duration": "15 years"},
-        {"title": "Associate Attorney", "company": "Johnson Labor Law Group", "duration": "5 years"}
+        {
+          "title": "Partner",
+          "company": "Smith & Associates Law Firm",
+          "duration": "15 years"
+        },
+        {
+          "title": "Associate Attorney",
+          "company": "Johnson Labor Law Group",
+          "duration": "5 years"
+        }
       ]
     }
   },
@@ -1012,7 +1361,11 @@
     "hostility": 1,
     "flexibility": 7,
     "risk_tolerance": 4,
-    "impact_categories": ["labor", "culture", "training"],
+    "impact_categories": [
+      "labor",
+      "culture",
+      "training"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "warm and empathetic",
@@ -1036,10 +1389,23 @@
     },
     "social_profile": {
       "about": "As the Director of Human Resources at Apex, I am passionate about creating a workplace where every employee feels valued and empowered. With over 12 years of experience in HR across various industries, including healthcare and retail, I specialize in talent development and employee engagement strategies. My background in industrial psychology allows me to understand the unique needs of our workforce, ensuring that we foster an inclusive and productive environment. I believe that an organization's greatest asset is its people, and I strive to make a positive impact every day.",
-      "skills": ["Talent Acquisition", "Employee Engagement", "Organizational Development", "Performance Management", "Conflict Resolution", "Change Management", "Diversity and Inclusion", "Training and Development"],
+      "skills": [
+        "Talent Acquisition",
+        "Employee Engagement",
+        "Organizational Development",
+        "Performance Management",
+        "Conflict Resolution",
+        "Change Management",
+        "Diversity and Inclusion",
+        "Training and Development"
+      ],
       "headline": "Director of Human Resources | Talent Development | Employee Engagement",
       "education": [
-        {"year": 2001, "degree": "B.A. in Industrial Psychology", "institution": "Michigan State University"}
+        {
+          "year": 2001,
+          "degree": "B.A. in Industrial Psychology",
+          "institution": "Michigan State University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 250,
@@ -1050,41 +1416,18 @@
         "description": "In my role, I lead HR initiatives that support our organizational goals. I focus on talent acquisition, employee development, and ensuring a culture that promotes diversity and inclusion."
       },
       "previousPositions": [
-        {"title": "HR Manager", "company": "HealthFirst Medical", "duration": "3 years 5 months"},
-        {"title": "HR Generalist", "company": "Retail Solutions Inc.", "duration": "2 years 7 months"}
+        {
+          "title": "HR Manager",
+          "company": "HealthFirst Medical",
+          "duration": "3 years 5 months"
+        },
+        {
+          "title": "HR Generalist",
+          "company": "Retail Solutions Inc.",
+          "duration": "2 years 7 months"
+        }
       ]
     }
-  },
-  {
-    "id": "1c78b551-48f1-4f71-a6d9-ac9a9e795c50",
-    "module_id": null,
-    "name": "Test Character RbtThy",
-    "role": "CEO",
-    "title": "Chief Executive Officer",
-    "company": "Test Corp",
-    "headshot_url": null,
-    "headshot_prompt": null,
-    "bio": "This is a test character biography",
-    "personality": "Analytical and decisive",
-    "communication_style": null,
-    "motivations": null,
-    "fears": null,
-    "relationships": null,
-    "voice_description": null,
-    "voice_id": null,
-    "speaking_style_examples": null,
-    "is_active": true,
-    "sort_order": 0,
-    "created_at": "2026-01-25T19:04:41.615738",
-    "updated_at": "2026-01-25T19:04:41.615738",
-    "created_by": "dUDoki",
-    "influence": 5,
-    "hostility": 5,
-    "flexibility": 5,
-    "risk_tolerance": 5,
-    "impact_categories": null,
-    "voice_profile": null,
-    "social_profile": null
   },
   {
     "id": "0884991b-81cb-4a2f-9826-d01c7bee9509",
@@ -1094,7 +1437,7 @@
     "title": "VP of Supply Chain, AutoCorp",
     "company": "Apex Manufacturing",
     "headshot_url": "/images/characters/thomas-richardson.png",
-    "headshot_prompt": "Professional headshot of a 49-year-old Caucasian man with perfectly styled brown hair, tan from golf, wearing an expensive navy suit and Herm\u00e8s tie. Cool, evaluating expression. Executive suite with automotive memorabilia in background.",
+    "headshot_prompt": "Professional headshot of a 49-year-old Caucasian man with perfectly styled brown hair, tan from golf, wearing an expensive navy suit and Hermès tie. Cool, evaluating expression. Executive suite with automotive memorabilia in background.",
     "bio": "Thomas Richardson was born into an affluent Atlanta family, a legacy of old money that shaped his worldview from an early age. He graduated from the Wharton School of Business with an MBA, where his fascination with supply chain dynamics began. Early in his career, he joined AutoCorp as a junior analyst, quickly rising through the ranks due to his sharp analytical skills and a relentless drive for efficiency. At 42, he now serves as the VP of Supply Chain, where he oversees a vast network of suppliers, including Apex Manufacturing, which accounts for 42% of the company's revenue. Thomas is married with two children, but he prioritizes work over family, leading to a strained home life. He enjoys golf, often using it as a networking tool. His relationships are transactional, based on performance, and he is known for his demand for constant improvement, which he believes is essential for maintaining competitive advantage in the automotive parts sector.",
     "personality": "Thomas is cold and transactional, valuing competence above all. He is results-driven, often appearing aloof due to his high expectations. While he respects those who deliver excellence, he has a blind spot for emotional intelligence and struggles with interpersonal relationships. His obsession with golf reflects his need for competition and achievement.",
     "communication_style": "Thomas communicates in a formal, direct manner, often using industry jargon. He is concise in emails, favoring bullet points for clarity and expects prompt responses. Phrases like 'let's ensure we meet the KPIs' and 'quality is non-negotiable' are common in his dialogue.",
@@ -1118,7 +1461,11 @@
     "hostility": 4,
     "flexibility": 4,
     "risk_tolerance": 4,
-    "impact_categories": ["customers", "finance", "strategy"],
+    "impact_categories": [
+      "customers",
+      "finance",
+      "strategy"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "cool and transactional",
@@ -1142,11 +1489,28 @@
     },
     "social_profile": {
       "about": "As the VP of Supply Chain at AutoCorp, I leverage my extensive experience in the automotive industry to streamline operations and enhance supplier relationships. With a strong background in tier-one suppliers and a Wharton MBA, I focus on innovative solutions that drive efficiency and profitability. My approach is grounded in collaboration and strategic foresight, ensuring that our supply chain is not only robust but also agile enough to adapt to market changes.",
-      "skills": ["Supply Chain Management", "Strategic Sourcing", "Negotiation", "Logistics Optimization", "Inventory Management", "Data Analysis", "Vendor Relationship Management", "Process Improvement"],
+      "skills": [
+        "Supply Chain Management",
+        "Strategic Sourcing",
+        "Negotiation",
+        "Logistics Optimization",
+        "Inventory Management",
+        "Data Analysis",
+        "Vendor Relationship Management",
+        "Process Improvement"
+      ],
       "headline": "VP of Supply Chain | Automotive Supply Chain Management | Strategic Sourcing",
       "education": [
-        {"year": 1998, "degree": "MBA", "institution": "Wharton School, University of Pennsylvania"},
-        {"year": 1995, "degree": "B.S. in Industrial Engineering", "institution": "University of Georgia"}
+        {
+          "year": 1998,
+          "degree": "MBA",
+          "institution": "Wharton School, University of Pennsylvania"
+        },
+        {
+          "year": 1995,
+          "degree": "B.S. in Industrial Engineering",
+          "institution": "University of Georgia"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 120,
@@ -1157,8 +1521,18 @@
         "description": "In my current role, I oversee the end-to-end supply chain processes, managing supplier negotiations, logistics, and inventory management. I work closely with cross-functional teams to align supply chain strategies with corporate goals, driving both operational excellence and cost savings."
       },
       "previousPositions": [
-        {"title": "Director of Supply Chain Management", "company": "Global Auto Parts", "duration": "5 years", "description": "Led supply chain strategy and execution, resulting in a 15% reduction in costs."},
-        {"title": "Supply Chain Analyst", "company": "Tier-One Supplier Co.", "duration": "3 years", "description": "Analyzed supply chain data to identify efficiencies and improve supplier performance."}
+        {
+          "title": "Director of Supply Chain Management",
+          "company": "Global Auto Parts",
+          "duration": "5 years",
+          "description": "Led supply chain strategy and execution, resulting in a 15% reduction in costs."
+        },
+        {
+          "title": "Supply Chain Analyst",
+          "company": "Tier-One Supplier Co.",
+          "duration": "3 years",
+          "description": "Analyzed supply chain data to identify efficiencies and improve supplier performance."
+        }
       ]
     }
   },
@@ -1194,7 +1568,11 @@
     "hostility": 4,
     "flexibility": 3,
     "risk_tolerance": 7,
-    "impact_categories": ["governance", "finance", "strategy"],
+    "impact_categories": [
+      "governance",
+      "finance",
+      "strategy"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "commanding",
@@ -1218,10 +1596,23 @@
     },
     "social_profile": {
       "about": "With over three decades of leadership experience in Fortune 500 companies, I have a proven track record of driving transformation and innovation. My journey began at Harvard, where I earned my MBA, and since then, I have dedicated my career to fostering strategic growth while ensuring robust corporate governance. As Chairwoman of the Board at Apex Manufacturing, I am passionate about steering the company towards sustainable success through effective leadership and collaboration.",
-      "skills": ["Corporate Governance", "Strategic Planning", "Change Management", "Financial Acumen", "Leadership Development", "Risk Management", "Stakeholder Engagement", "Operational Excellence"],
+      "skills": [
+        "Corporate Governance",
+        "Strategic Planning",
+        "Change Management",
+        "Financial Acumen",
+        "Leadership Development",
+        "Risk Management",
+        "Stakeholder Engagement",
+        "Operational Excellence"
+      ],
       "headline": "Chairwoman of the Board | Corporate Governance | Strategic Leadership",
       "education": [
-        {"year": 1985, "degree": "MBA", "institution": "Harvard Business School"}
+        {
+          "year": 1985,
+          "degree": "MBA",
+          "institution": "Harvard Business School"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 345,
@@ -1232,8 +1623,16 @@
         "description": "In my role, I lead the board in strategic decision-making and governance oversight. I work closely with executive leadership to implement transformative initiatives that align with our long-term vision."
       },
       "previousPositions": [
-        {"title": "CEO", "company": "Tech Innovations Inc.", "duration": "5 years 2 months"},
-        {"title": "COO", "company": "Global Enterprises Ltd.", "duration": "7 years 6 months"}
+        {
+          "title": "CEO",
+          "company": "Tech Innovations Inc.",
+          "duration": "5 years 2 months"
+        },
+        {
+          "title": "COO",
+          "company": "Global Enterprises Ltd.",
+          "duration": "7 years 6 months"
+        }
       ]
     }
   },
@@ -1269,7 +1668,11 @@
     "hostility": 6,
     "flexibility": 3,
     "risk_tolerance": 8,
-    "impact_categories": ["finance", "governance", "strategy"],
+    "impact_categories": [
+      "finance",
+      "governance",
+      "strategy"
+    ],
     "voice_profile": {
       "pace": "measured",
       "tone": "confident and assertive",
@@ -1293,11 +1696,28 @@
     },
     "social_profile": {
       "about": "As a seasoned professional in private equity, I leverage over two decades of experience to identify and nurture high-potential investments. My journey began at Goldman Sachs, where I honed my skills in financial analysis and strategic planning. At Thornton Capital Partners, I focus on driving value creation while maintaining an unwavering commitment to our investors. I believe in fostering strong partnerships and applying a disciplined approach to investment management.",
-      "skills": ["Private Equity", "Financial Analysis", "Mergers & Acquisitions", "Strategic Planning", "Portfolio Management", "Investment Strategies", "Negotiation", "Operational Improvements"],
+      "skills": [
+        "Private Equity",
+        "Financial Analysis",
+        "Mergers & Acquisitions",
+        "Strategic Planning",
+        "Portfolio Management",
+        "Investment Strategies",
+        "Negotiation",
+        "Operational Improvements"
+      ],
       "headline": "Managing Partner | Private Equity | Strategic Investments",
       "education": [
-        {"year": 1995, "degree": "MBA", "institution": "Harvard University"},
-        {"year": 1991, "degree": "BA in Economics", "institution": "Yale University"}
+        {
+          "year": 1995,
+          "degree": "MBA",
+          "institution": "Harvard University"
+        },
+        {
+          "year": 1991,
+          "degree": "BA in Economics",
+          "institution": "Yale University"
+        }
       ],
       "connections": "1,000+",
       "endorsements": 325,
@@ -1308,8 +1728,16 @@
         "description": "In my role as Managing Partner, I lead our investment strategy, oversee portfolio management, and drive our firm's growth initiatives. I collaborate closely with executive teams to implement operational improvements and enhance profitability across our investments."
       },
       "previousPositions": [
-        {"title": "Vice President, Investment Banking", "company": "Goldman Sachs", "duration": "6 years"},
-        {"title": "Associate, Private Equity", "company": "CVC Capital Partners", "duration": "4 years"}
+        {
+          "title": "Vice President, Investment Banking",
+          "company": "Goldman Sachs",
+          "duration": "6 years"
+        },
+        {
+          "title": "Associate, Private Equity",
+          "company": "CVC Capital Partners",
+          "duration": "4 years"
+        }
       ]
     }
   }

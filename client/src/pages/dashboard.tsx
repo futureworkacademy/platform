@@ -200,14 +200,28 @@ export default function Dashboard() {
             <Clock className="h-3.5 w-3.5" />
             <span className="font-mono">{totalWeeks - currentWeek} weeks remaining</span>
           </Badge>
-          <Button asChild data-testid="button-start-week">
+        </div>
+      </div>
+
+      <Card className="border-warning/40 bg-warning/5" data-testid="card-next-action">
+        <CardContent className="flex items-center justify-between gap-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-md bg-warning/10">
+              <ArrowRight className="h-5 w-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-warning">Your Next Action</p>
+              <p className="text-xs text-muted-foreground">Review this week's intelligence briefing and make your decisions</p>
+            </div>
+          </div>
+          <Button asChild size="lg" className="bg-warning text-warning-foreground border-warning" data-testid="button-start-week">
             <Link href="/briefing">
               <BookOpen className="h-4 w-4 mr-2" />
               Start Week {currentWeek}
             </Link>
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
