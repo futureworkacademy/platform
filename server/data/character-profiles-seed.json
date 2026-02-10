@@ -1,0 +1,1316 @@
+[
+  {
+    "id": "11de8907-64c8-4c0f-b91f-075230573d79",
+    "module_id": null,
+    "name": "Angela Reyes",
+    "role": "Mayor",
+    "title": "Mayor, City of Riverside",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/angela-reyes.png",
+    "headshot_prompt": "Professional headshot of a 54-year-old Latina woman with shoulder-length dark hair with gray highlights, warm brown eyes, wearing a red blazer with a city pin on the lapel. Diplomatic, concerned expression. City hall office with American flag in background.",
+    "bio": "Angela Reyes was born and raised in Riverside, a vibrant community in the Midwest where she developed a deep love for her hometown. After earning her degree in Business Administration from a nearby state university, she ran a small bakery for over a decade, which became a local favorite. However, her business faced challenges during economic downturns, prompting her to pivot towards public service. Now in her first term as mayor, Angela is passionate about job creation, especially with Apex Manufacturing being the largest employer in the city. She is married to her high school sweetheart and is a devoted grandmother of four, which adds to her commitment to the community's future. Angela finds herself balancing the needs of local workers and the demands of the business community, often feeling the political pressure from all sides. With the union's support, she navigates the complexities of governance, always with the aim of fostering collaboration and economic growth while protecting the rights of her constituents.",
+    "personality": "Angela is empathetic and community-focused, driven by a strong desire to improve the lives of those around her. She's pragmatic and often seeks consensus, but can become frustrated when competing interests clash. Her strengths lie in her ability to listen and her dedication to the community, though she sometimes struggles with decisiveness in high-stakes situations.",
+    "communication_style": "Angela prefers a diplomatic tone in her communications, often using inclusive language to foster collaboration. She tends to be direct, but balances it with empathy. In emails, she uses a friendly yet professional tone, often starting with 'Dear [Name]' and closing with 'Best regards'.",
+    "motivations": "Angela is driven by the desire to create sustainable jobs and improve educational opportunities for her community. She aims to ensure that Riverside thrives economically while protecting workers' rights, wanting to leave a lasting positive impact that will benefit future generations.",
+    "fears": "Angela fears that if the balance between business growth and worker protection is not maintained, it could lead to economic decline and increased unrest among her constituents. She worries about losing public support and failing to deliver on her promises.",
+    "relationships": null,
+    "voice_description": "Angela has a warm, inviting tone with a slight Midwest accent. She speaks at a moderate pace, emphasizing clarity and connection, which resonates well with her audience.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We must find a way to support our local businesses while ensuring that our workers are treated fairly.",
+      "I believe that collaboration is key; together, we can build a brighter future for Riverside.",
+      "It's important for me to listen to all voices in our community, even when the discussions get tough.",
+      "As your mayor, my job is to ensure that every resident feels heard and valued in our decision-making process."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.46726",
+    "updated_at": "2026-01-31T21:01:52.61",
+    "created_by": null,
+    "influence": 5,
+    "hostility": 4,
+    "flexibility": 5,
+    "risk_tolerance": 4,
+    "impact_categories": ["community", "labor", "governance"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "diplomatic yet warm",
+      "pitch": "medium-low",
+      "accent": "Midwest American with subtle Hispanic inflection",
+      "gender": "female",
+      "ageRange": "early 50s",
+      "samplePhrases": [
+        "Together, we can build a brighter future.",
+        "I'm here to listen and serve our community.",
+        "Your voices matter to me.",
+        "Let's work hand-in-hand for Riverside."
+      ],
+      "emotionalBaseline": "concerned yet optimistic",
+      "distinctiveQualities": [
+        "warm and inviting inflection",
+        "clear enunciation",
+        "empathetic pauses",
+        "engaging storytelling style"
+      ]
+    },
+    "social_profile": {
+      "about": "As the Mayor of Riverside, I am dedicated to fostering a vibrant and inclusive community. With a background as a local business owner, I understand the challenges our residents face and strive to create opportunities for growth and improvement. My commitment to public service is rooted in my lifelong connection to this city, and I believe in the power of collaboration to address the needs of our diverse population. I am passionate about education, economic development, and ensuring that every voice in our community is heard.",
+      "skills": ["Community Engagement", "Public Speaking", "Economic Development", "Policy Analysis", "Leadership", "Team Building", "Strategic Planning", "Crisis Management"],
+      "headline": "Mayor | Community Advocate | Business Leader",
+      "education": [
+        {"year": "1990", "degree": "Associate Degree", "institution": "Riverside Community College"},
+        {"year": "1995", "degree": "Bachelor of Arts", "institution": "University of California, Riverside"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 215,
+      "currentPosition": {
+        "title": "Mayor, City of Riverside",
+        "company": "City of Riverside",
+        "duration": "2 years 5 months",
+        "description": "As Mayor, I lead our city with a focus on community engagement, economic development, and enhancing the quality of life for all residents. I work closely with local businesses, civic organizations, and government agencies to implement policies that reflect our community's needs."
+      },
+      "previousPositions": [
+        {"title": "Owner", "company": "Reyes Market", "duration": "15 years"},
+        {"title": "Board Member", "company": "Riverside Chamber of Commerce", "duration": "3 years"}
+      ]
+    }
+  },
+  {
+    "id": "e83c6db1-b633-47f6-9bd1-aa689f4eefb4",
+    "module_id": null,
+    "name": "David Chen",
+    "role": "Chief Financial Officer",
+    "title": "Chief Financial Officer",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/david-chen.png",
+    "headshot_prompt": "Professional headshot of a 48-year-old Asian American man with neatly combed black hair graying at temples, wearing wire-rimmed glasses, a crisp white shirt and burgundy tie. Thoughtful, analytical expression. Modern office background.",
+    "bio": "David Chen, a second-generation Chinese American, grew up in the bustling suburbs of Chicago, where his parents ran a small grocery store. His academic prowess led him to Stanford, where he earned his MBA, specializing in finance. David joined Apex Manufacturing as a Controller shortly after graduation, bringing a meticulous approach to the organization's budgeting processes. Over the past 15 years, he climbed the corporate ladder, leveraging his deep knowledge of every line item in the budget to make effective decisions. Now, as the Chief Financial Officer, he faces the challenge of steering the company through a rapidly changing automotive landscape. Outside of work, David is a devoted family man, balancing his career with coaching soccer for his two teenage daughters. He believes in the importance of hard work and perseverance, values instilled in him by his immigrant parents. While he's conservative with money, he recognizes that investing in automation is essential for the future of Apex. His professional relationships are built on trust, with a particularly strong bond with Victoria Hartwell, whom he admires for her visionary leadership.",
+    "personality": "David is analytical, detail-oriented, and cautious. His conservative approach to finance reflects a deep sense of responsibility and a commitment to sustainability. While he values stability, he can also adapt when necessary, though he sometimes struggles with taking risks. His strengths lie in strategic thinking and mentorship, but he may overlook innovative ideas due to his cautious nature.",
+    "communication_style": "David prefers a formal and direct communication style, valuing clarity and precision. In meetings, he is diplomatic but assertive, often using phrases like 'Let's align on our objectives' and 'We need to ensure financial prudence.' His emails are structured and concise, often starting with a clear subject line followed by bullet points.",
+    "motivations": "David is driven by a desire to ensure Apex's financial stability and long-term growth. He seeks to implement strategic investments that will secure the company's future, embrace automation, and mentor the next generation of leaders. Ultimately, he wants to leave a legacy of fiscal responsibility and innovation.",
+    "fears": "David's greatest fear is the potential financial instability that could arise from the transformation. He worries about making the wrong investment decisions and the impact of automation on employees. The thought of not being able to guide Apex through this transition keeps him up at night, as he feels a profound sense of responsibility for the well-being of his team.",
+    "relationships": null,
+    "voice_description": "David has a calm, measured tone with a Midwestern American accent. He speaks at a moderate pace, emphasizing clarity, and his vocal qualities convey confidence and authority.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We need to prioritize our investments carefully; every dollar counts in this economy.",
+      "It's essential that we strike a balance between innovation and financial prudence.",
+      "Let's focus on aligning our strategies with our long-term financial goals.",
+      "I believe in empowering our team, but we must ensure we are all on the same page."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.379909",
+    "updated_at": "2026-01-31T21:01:12.661",
+    "created_by": null,
+    "influence": 8,
+    "hostility": 2,
+    "flexibility": 6,
+    "risk_tolerance": 4,
+    "impact_categories": ["finance", "strategy", "governance"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "calm",
+      "pitch": "medium-low",
+      "accent": "neutral American accent",
+      "gender": "male",
+      "ageRange": "mid 40s",
+      "samplePhrases": [
+        "Let's break this down step by step.",
+        "It's important to consider all financial implications.",
+        "Data-driven decisions lead to better outcomes.",
+        "Clarity in financial reporting is crucial."
+      ],
+      "emotionalBaseline": "analytical",
+      "distinctiveQualities": [
+        "clear articulation",
+        "precise diction",
+        "calm demeanor",
+        "methodical explanation"
+      ]
+    },
+    "social_profile": {
+      "about": "As the Chief Financial Officer at Apex Manufacturing, I leverage over 20 years of financial expertise to drive strategic decision-making and optimize our financial performance. My background in accounting and my MBA from Stanford provide a strong foundation for navigating complex financial landscapes. I am passionate about fostering a culture of transparency and accountability within my organization, ensuring that all stakeholders have a clear understanding of our financial health. My goal is to not only meet but exceed our financial targets while supporting sustainable growth.",
+      "skills": ["Financial Analysis", "Budgeting", "Forecasting", "Financial Reporting", "Risk Management", "Strategic Planning", "Compliance", "Team Leadership"],
+      "headline": "CFO | Financial Strategy | Corporate Finance",
+      "education": [
+        {"year": 2000, "degree": "MBA", "institution": "Stanford University"},
+        {"year": 1997, "degree": "Bachelor of Science in Accounting", "institution": "University of California, Berkeley"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 250,
+      "currentPosition": {
+        "title": "Chief Financial Officer",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "In my role as CFO, I oversee all financial operations and strategy, ensuring alignment with our overall business objectives. I lead a team that manages budgeting, forecasting, and financial reporting while implementing robust financial controls."
+      },
+      "previousPositions": [
+        {"title": "Controller", "company": "Apex Manufacturing", "duration": "5 years"},
+        {"title": "Senior Accountant", "company": "Big Four Accounting Firm", "duration": "7 years"}
+      ]
+    }
+  },
+  {
+    "id": "739b200d-79f1-46e2-a28a-3391d0d9f3c7",
+    "module_id": null,
+    "name": "Destiny Martinez",
+    "role": "Gen Z Employee",
+    "title": "Quality Control Technician",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/destiny-martinez.png",
+    "headshot_prompt": "Professional headshot of a 22-year-old Latina woman with long dark hair pulled back, minimal makeup, wearing safety glasses pushed up on her head and a company uniform shirt. Guarded, observant expression. Quality control lab in background.",
+    "bio": "Destiny Martinez grew up in a close-knit Latina family in the Midwest, where she witnessed the struggles of her parents after their employer shut down unexpectedly. As the first in her family to earn a technical certification, she felt immense pressure to succeed and alleviate her family's financial burdens, particularly with student loans looming over her. Destiny's academic journey was marked by resilience; she balanced her studies with part-time jobs to support her household. After graduating, she landed a position as a Quality Control Technician at Apex Manufacturing, drawn by the promise of stability in the automotive parts industry. However, she remains skeptical of corporate promises, feeling the weight of her parents' experiences. Destiny is dating Jaylen Brooks, and their relationship has become a cornerstone of her support system. Though she is talented and driven, she is hesitant to fully commit to the company's initiatives until she sees tangible results, making her a voice for younger skeptics within the workplace.",
+    "personality": "Destiny is pragmatic and observant, often questioning the status quo. She has a strong sense of loyalty, particularly towards her family and close friends, but her skepticism can sometimes make her appear guarded. Her strengths lie in her analytical thinking and ability to adapt; however, she struggles with trust, which can hinder her collaboration with others.",
+    "communication_style": "Destiny speaks in a casual yet assertive manner, preferring directness over diplomatic language. She often uses colloquial phrases like \"let's keep it real\" and \"show me the proof\" to convey her thoughts. In emails, she maintains a straightforward tone, getting straight to the point while ensuring professionalism.",
+    "motivations": "Destiny is driven by a desire for stability and authenticity in her work environment. She wants to prove herself as a competent technician, make a positive impact on workplace culture, and secure a future free from financial burdens. Most importantly, she seeks a workplace where promises are backed by actions.",
+    "fears": "Destiny fears that the company's transformation might lead to instability, leaving her without job security. She worries about being overlooked or undervalued because of her age and background and is concerned about repeating her parents' struggles with untrustworthy corporate decisions.",
+    "relationships": null,
+    "voice_description": "Destiny's voice is warm and engaging, with a moderate pace and a slight Midwestern accent. She has a confident tone, often emphasizing her points with a hint of passion, making her sound approachable yet assertive.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I just want to see some real change before I jump on board with any new initiatives.",
+      "We need to keep it real; promises don't pay the bills.",
+      "I'm all for innovation, but let's make sure we're not just spinning our wheels here.",
+      "Trust is earned, and right now, I'm not feeling that from the top."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.501405",
+    "updated_at": "2026-01-31T21:02:14.077",
+    "created_by": null,
+    "influence": 2,
+    "hostility": 4,
+    "flexibility": 6,
+    "risk_tolerance": 5,
+    "impact_categories": ["labor", "culture", "technology"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "skeptical yet fair",
+      "pitch": "medium",
+      "accent": "Midwestern with slight Hispanic inflection",
+      "gender": "female",
+      "ageRange": "early 20s",
+      "samplePhrases": [
+        "Let's consider all angles before making a decision.",
+        "I appreciate your input, but I have some reservations.",
+        "It's important to maintain quality at every step.",
+        "I'm always looking for ways to improve our processes."
+      ],
+      "emotionalBaseline": "guarded but open",
+      "distinctiveQualities": [
+        "thoughtful pauses",
+        "careful enunciation",
+        "slight upward inflection at the end of sentences",
+        "concise and to the point"
+      ]
+    },
+    "social_profile": {
+      "about": "As a Quality Control Technician at Apex Manufacturing, I strive to ensure that every product meets our high standards of quality. Being the first in my family to earn a technical certification, I take pride in my work and am passionate about process improvement. I am observant and detail-oriented, always looking for ways to enhance efficiency and effectiveness. Balancing my professional life with personal commitments, I find motivation in my relationships and the challenges that come with them.",
+      "skills": ["Quality Assurance", "Process Improvement", "Attention to Detail", "Data Analysis", "Problem Solving", "Team Collaboration", "Technical Reporting", "Regulatory Compliance"],
+      "headline": "Quality Control Technician | Process Improvement | Quality Assurance",
+      "education": [
+        {"year": 2021, "degree": "Technical Certification in Quality Control", "institution": "Midwestern Technical College"}
+      ],
+      "connections": "500+",
+      "endorsements": 125,
+      "currentPosition": {
+        "title": "Quality Control Technician",
+        "company": "Apex Manufacturing",
+        "duration": "2 years 6 months",
+        "description": "In my role, I conduct thorough inspections of products and processes to ensure compliance with quality standards. I collaborate with production teams to identify areas for improvement and implement corrective actions."
+      },
+      "previousPositions": [
+        {"title": "Quality Assurance Intern", "company": "XYZ Corp", "duration": "1 year"},
+        {"title": "Production Assistant", "company": "ABC Industries", "duration": "1 year 4 months"}
+      ]
+    }
+  },
+  {
+    "id": "77441a15-198f-48ae-b442-f28c16320ac3",
+    "module_id": null,
+    "name": "Dr. Helen Mercer",
+    "role": "External Consultant",
+    "title": "Principal, Transformation Partners LLC",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/helen-mercer.png",
+    "headshot_prompt": "Professional headshot of a 63-year-old Caucasian woman with silver hair in a sophisticated bob, wearing elegant reading glasses and a tweed blazer. Wise, observant expression. Academic office with bookshelves in background.",
+    "bio": "Dr. Helen Mercer grew up in a small town in the Midwest, where her parents instilled in her a love for learning and a strong work ethic. After earning her undergraduate degree at the University of Michigan, she pursued an MBA at Harvard Business School, followed by a PhD in Organizational Behavior. Helen began her career as a consultant, quickly gaining a reputation for her keen insights and ability to navigate complex corporate cultures. After years of consulting, she transitioned to academia, becoming a respected professor at Harvard. Helen has advised over 50 companies on transformational change and has written several books on organizational dynamics. Widowed for five years, she has two grown children who have started families of their own. This life stage has led her to reflect on her legacy and the impact of her work. Now on leave from her professorship, she is focused on helping companies like Apex Manufacturing thrive in an era of rapid change, leveraging her expertise as a trusted external consultant with no political agenda, allowing her to be a neutral voice amidst corporate tensions.",
+    "personality": "Helen is analytical, empathetic, and open-minded. She possesses a strong ability to see connections and patterns that others often overlook. While she is a strategic thinker, her greatest strength lies in her calm demeanor, which allows her to build trust quickly. However, her desire to be liked can sometimes cloud her judgment, making her hesitant to challenge authority.",
+    "communication_style": "Helen favors a formal yet approachable communication style. She speaks diplomatically, choosing her words carefully to foster collaboration. In emails, she maintains a professional tone but ensures a friendly touch, often closing with encouraging remarks like, 'Looking forward to our collaboration.'",
+    "motivations": "Helen is driven by a passion for helping organizations realize their potential through effective transformation. She aims to instill lasting cultural shifts that empower employees and improve overall performance. At this stage in her career, her main motivation is to leave a meaningful legacy in the field of organizational behavior.",
+    "fears": "Helen worries that the transformation at Apex Manufacturing may falter due to resistance from employees or misalignment in leadership goals. She fears that her efforts may not yield the desired cultural change, which could negatively impact both the company's future and her professional credibility.",
+    "relationships": null,
+    "voice_description": "Helen has a warm, soothing voice with a measured pace. Her Midwestern accent adds a touch of familiarity, making her sound relatable. She speaks with clarity, ensuring her ideas resonate with her audience, often emphasizing key points for impact.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "Transformation is as much about people as it is about processes; we must engage hearts and minds to drive lasting change.",
+      "It's essential to create a culture where employees feel safe to voice their concerns; only then can we truly innovate.",
+      "Remember, the patterns we observe today are often the shadows of tomorrow's opportunities.",
+      "I encourage you all to embrace this uncertainty; it is in the unknown that we often find our greatest potential."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.48409",
+    "updated_at": "2026-01-31T21:02:06.313",
+    "created_by": null,
+    "influence": 4,
+    "hostility": 1,
+    "flexibility": 7,
+    "risk_tolerance": 5,
+    "impact_categories": ["strategy", "culture", "training"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "academic warmth",
+      "pitch": "medium-low",
+      "accent": "New England",
+      "gender": "female",
+      "ageRange": "early 60s",
+      "samplePhrases": [
+        "Let's think this through carefully.",
+        "I appreciate your perspective on this.",
+        "What insights can we gather from this experience?",
+        "Transformations require patience and understanding."
+      ],
+      "emotionalBaseline": "calm and reflective",
+      "distinctiveQualities": [
+        "thoughtful pauses",
+        "gentle inflections",
+        "clear articulation",
+        "reassuring cadence"
+      ]
+    },
+    "social_profile": {
+      "about": "I am Dr. Helen Mercer, a seasoned consultant specializing in organizational transformation. With over 50 successful company transformations under my belt, I bring a wealth of experience and a unique perspective to the challenges organizations face today. My academic background, including a PhD in Organizational Behavior from Harvard, informs my approach to fostering effective change. I believe in the power of listening and collaboration to drive sustainable improvement and am passionate about empowering teams to reach their full potential.",
+      "skills": ["Organizational Transformation", "Change Management", "Leadership Development", "Strategic Planning", "Team Building", "Stakeholder Engagement", "Process Improvement", "Executive Coaching"],
+      "headline": "Principal | Organizational Transformation | Consulting",
+      "education": [
+        {"year": 1990, "degree": "PhD in Organizational Behavior", "institution": "Harvard University"},
+        {"year": 1985, "degree": "MBA", "institution": "Harvard University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 215,
+      "currentPosition": {
+        "title": "Principal, Transformation Partners LLC",
+        "company": "Transformation Partners LLC",
+        "duration": "8 years 3 months",
+        "description": "As Principal, I lead consulting engagements focused on driving organizational change and enhancing performance. I work closely with executive teams to identify key areas for improvement and develop tailored strategies that align with their corporate vision."
+      },
+      "previousPositions": [
+        {"title": "Professor of Organizational Behavior", "company": "Harvard Business School", "duration": "20 years"},
+        {"title": "Senior Consultant", "company": "Global Consulting Group", "duration": "10 years"}
+      ]
+    }
+  },
+  {
+    "id": "22b55139-d12d-4cb5-bcd0-0d3552cf6c6e",
+    "module_id": null,
+    "name": "Dr. Nathan Cross",
+    "role": "Industry Analyst",
+    "title": "Managing Director, Manufacturing Insights",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/nathan-cross.png",
+    "headshot_prompt": "Professional headshot of a 45-year-old African American man with short hair and a neat beard, wearing a blazer over a turtleneck sweater. Intellectual, thoughtful expression. Modern conference room with whiteboards in background.",
+    "bio": "Dr. Nathan Cross grew up in a middle-class neighborhood in Detroit, Michigan, where he was inspired by his father's work as an automotive engineer. He pursued a PhD in Industrial Engineering at MIT, where he became fascinated with optimizing manufacturing processes. After graduating, Nathan joined McKinsey & Company as a consultant, helping various automotive suppliers streamline their operations. His insightful analyses soon gained popularity, leading him to a role as Managing Director of Manufacturing Insights at Apex Manufacturing. Nathan is known for his objective, data-driven reports that significantly influence industry trends and stock prices. Outside of work, he enjoys spending time with his wife, a university professor, discussing the latest in research and education, and they often collaborate on community outreach projects aimed at inspiring young students in STEM fields.",
+    "personality": "Nathan is analytical and thoughtful, often viewing situations with a lens of objectivity and data. His strengths lie in his ability to synthesize complex information and present it clearly. However, he sometimes struggles with taking firm stances in heated discussions, preferring to keep a neutral demeanor, which can be perceived as indecisiveness.",
+    "communication_style": "Nathan communicates in a formal yet approachable manner, favoring clarity and precision. He is direct but tactful, often using phrases like 'let's analyze the data' or 'from my observations...'. His emails are thorough, structured, and professional, always concluding with a positive note.",
+    "motivations": "Nathan is driven by a desire to make a tangible impact in the manufacturing sector, particularly in fostering innovation and sustainability. He aims to elevate Apex Manufacturing's reputation as a thought leader in the industry while nurturing relationships that enhance customer trust and confidence.",
+    "fears": "Nathan fears that rapid technological changes in the automotive industry could outpace his analyses, making his insights less relevant. Additionally, he worries about the potential for his reports to inadvertently create market instability or affect employee morale during the ongoing transformation.",
+    "relationships": null,
+    "voice_description": "Nathan's voice is warm and engaging, with a measured pace that conveys confidence. He has a slight Midwestern accent, which adds to his approachable demeanor, and his tone is generally calm and reassuring.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "In my experience, data-driven decisions often yield the best outcomes, but we must also consider the human element.",
+      "I believe that innovation in manufacturing is not just about technology; it's about how we adapt our strategies to meet evolving customer needs.",
+      "While change is daunting, it also presents an opportunity for us to redefine our path and strengthen our industry position.",
+      "Let's ensure our next steps are grounded in solid research and collective input to foster a collaborative atmosphere."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.461971",
+    "updated_at": "2026-01-31T21:01:47.583",
+    "created_by": null,
+    "influence": 5,
+    "hostility": 1,
+    "flexibility": 8,
+    "risk_tolerance": 5,
+    "impact_categories": ["strategy", "technology", "customers"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "intellectual and authoritative",
+      "pitch": "medium-low",
+      "accent": "neutral American",
+      "gender": "male",
+      "ageRange": "mid-40s",
+      "samplePhrases": [
+        "Let's analyze the data and draw some conclusions.",
+        "It's important to consider the broader implications.",
+        "In my experience, strategic foresight is essential.",
+        "We must adapt to the evolving industry landscape."
+      ],
+      "emotionalBaseline": "calm and confident",
+      "distinctiveQualities": [
+        "clear enunciation",
+        "thoughtful pauses",
+        "analytical emphasis",
+        "engaging inflection"
+      ]
+    },
+    "social_profile": {
+      "about": "As a seasoned industry analyst with a PhD in Industrial Engineering from MIT, I have dedicated over two decades to understanding the complexities of manufacturing. My journey has taken me from consulting at McKinsey to leading insightful reports that shape industry trends. I am passionate about translating data into actionable strategies and providing organizations with the insights they need to thrive in a competitive environment. I frequently contribute to discussions in the media to elevate the conversation around manufacturing innovations and best practices.",
+      "skills": ["Data Analysis", "Market Research", "Strategic Planning", "Industry Forecasting", "Report Writing", "Consulting", "Public Speaking", "Stakeholder Engagement"],
+      "headline": "Managing Director | Industry Analyst | Manufacturing Insights",
+      "education": [
+        {"year": "2003", "degree": "PhD in Industrial Engineering", "institution": "Massachusetts Institute of Technology"},
+        {"year": "1998", "degree": "Bachelor of Science in Engineering", "institution": "Harvard University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 320,
+      "currentPosition": {
+        "title": "Managing Director, Manufacturing Insights",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "In my role as Managing Director, I oversee the research and analysis team that produces critical insights into the manufacturing sector. I collaborate with industry leaders to identify trends and advise on strategic decision-making."
+      },
+      "previousPositions": [
+        {"title": "Senior Consultant", "company": "McKinsey & Company", "duration": "5 years"},
+        {"title": "Research Analyst", "company": "Gartner", "duration": "3 years"}
+      ]
+    }
+  },
+  {
+    "id": "7c853c1d-618c-4f64-9047-5e8a8fc60f61",
+    "module_id": null,
+    "name": "Frank Torres",
+    "role": "Operations Manager",
+    "title": "Senior Operations Manager",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/frank-torres.png",
+    "headshot_prompt": "Professional headshot of a 52-year-old Hispanic American man with salt-and-pepper hair, mustache, weathered face with deep lines from years of hard work. Wearing a company polo shirt. Direct, skeptical gaze. Industrial manufacturing floor in background.",
+    "bio": "Frank Torres, a Mexican American, grew up in the same Midwest town that hosts Apex Manufacturing. His father, a factory worker, instilled in him a strong work ethic, and his mother, a school teacher, emphasized the importance of education. Frank graduated from a local university with a degree in Industrial Engineering and joined Apex as a production assistant right after college. Over his 22 years at the company, he climbed the ranks, eventually becoming Senior Operations Manager. A widower and father of three, Frank has raised his children alone since his wife's passing five years ago, drawing strength from his family and the team he leads. He is known for his unwavering loyalty to his shift workers, many of whom he considers family. Despite being skeptical of the corporate initiatives that have come and gone, he has adapted to changes in technology to ensure his team remains competitive. Frank's leadership style is hands-on, always willing to step onto the floor to support his workers and troubleshoot issues firsthand.",
+    "personality": "Frank is practical, resilient, and deeply empathetic towards his team. His loyalty and commitment to his workers are unmatched, but he can be inflexible when it comes to new initiatives he perceives as unnecessary. His skepticism of corporate jargon sometimes leads to misinterpretations, yet his strong intuition helps him navigate complex situations with grace.",
+    "communication_style": "Frank communicates in a straightforward manner, favoring clarity over corporate jargon. He tends to be direct but maintains a friendly tone. In emails, he is concise and often includes personal touches to foster connection, often starting with 'Hi team' or ending with 'Let's keep pushing together.'",
+    "motivations": "Frank is driven by a desire to ensure job security for his team and to maintain the factory's reputation for quality. He wants to build a legacy of respect and loyalty within the company and strives to create a supportive environment where every worker feels valued and heard.",
+    "fears": "Frank worries about the impact of corporate transformations on job stability and worker morale. He fears that shiny new technologies may overshadow the human element in the workplace, leading to layoffs or diminished trust between management and employees, which could fracture the tight-knit community he has built.",
+    "relationships": null,
+    "voice_description": "Frank's voice is warm and steady, reflecting his Midwest roots. He speaks at a moderate pace with a slight accent, enhancing his approachable demeanor. His tone conveys authority but also compassion, making him a natural leader who commands attention yet inspires trust.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We've been through ups and downs before; let's focus on what truly matters \u2013 our people.",
+      "I appreciate the new ideas, but let's not lose sight of the hands-on approach that got us here.",
+      "Technology can help, but it's our teamwork that will drive success. We need to work together.",
+      "Remember, my door is always open. If you have concerns, I want to hear them \u2013 we're in this together."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.424278",
+    "updated_at": "2026-01-31T21:01:26.108",
+    "created_by": null,
+    "influence": 6,
+    "hostility": 3,
+    "flexibility": 4,
+    "risk_tolerance": 3,
+    "impact_categories": ["operations", "labor", "technology"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "direct and blunt",
+      "pitch": "medium-low",
+      "accent": "Midwestern American with a hint of Spanish influence",
+      "gender": "male",
+      "ageRange": "early 50s",
+      "samplePhrases": [
+        "Let's cut to the chase.",
+        "No time for nonsense.",
+        "Esto es lo que necesitamos hacer.",
+        "I've seen better ideas in a high school project."
+      ],
+      "emotionalBaseline": "cynical yet pragmatic",
+      "distinctiveQualities": [
+        "gruff delivery",
+        "occasional use of Spanish phrases",
+        "skeptical tone",
+        "no-nonsense attitude"
+      ]
+    },
+    "social_profile": {
+      "about": "I have dedicated over 22 years to Apex Manufacturing, starting from the production line and working my way up to Senior Operations Manager. My hands-on experience combined with a strong understanding of operational efficiencies allows me to lead teams effectively and drive continuous improvement. I believe in clear communication and setting realistic expectations, ensuring that everyone knows their role in achieving company goals. My journey has taught me the value of hard work and the importance of not suffering fools in a fast-paced environment.",
+      "skills": ["Operations Management", "Process Improvement", "Team Leadership", "Lean Manufacturing", "Budget Management", "Quality Assurance", "Supply Chain Management", "Training and Development"],
+      "headline": "Senior Operations Manager | Manufacturing Excellence | Process Optimization",
+      "education": [
+        {"year": 1992, "degree": "Associate Degree in Industrial Technology", "institution": "Local Community College"},
+        {"year": 1989, "degree": "High School Diploma", "institution": "Local High School"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 325,
+      "currentPosition": {
+        "title": "Senior Operations Manager",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "In my current role, I oversee daily operations, streamline processes, and manage a diverse team. My focus is on maximizing productivity while maintaining quality standards and fostering a culture of safety."
+      },
+      "previousPositions": [
+        {"title": "Operations Supervisor", "company": "Apex Manufacturing", "duration": "5 years"},
+        {"title": "Production Line Worker", "company": "Apex Manufacturing", "duration": "8 years"}
+      ]
+    }
+  },
+  {
+    "id": "dbd3de17-88ed-40d9-a157-5a2769582c4d",
+    "module_id": null,
+    "name": "Jaylen Brooks",
+    "role": "Gen Z Representative",
+    "title": "Production Associate & Employee Council Rep",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/jaylen-brooks.png",
+    "headshot_prompt": "Professional headshot of a 24-year-old African American man with a fade haircut and small earring, wearing a clean company polo. Direct, questioning expression with underlying ambition. Modern break room or training facility in background.",
+    "bio": "Jaylen Brooks grew up in a working-class neighborhood in Detroit, Michigan, the son of a factory worker and a schoolteacher. After receiving his community college certificate in manufacturing technology, he joined Apex Manufacturing as a production associate at 22. Jaylen quickly became a voice for his peers, particularly younger employees who felt overlooked and frustrated by the company's rigid hierarchy. His articulate nature and ability to question existing processes earned him a position as the Employee Council Representative. Jaylen balances his work with taking care of his younger sister, who is still in high school. He often reflects on the struggles of his family and community, fueling his desire for advancement in both his career and the workplace culture at Apex. Jaylen sees himself as a bridge between generations, advocating for change while respecting the traditions that have shaped the company since its founding in 1987.",
+    "personality": "Jaylen is curious, articulate, and passionate about social justice. He possesses a strong sense of empathy and seeks to uplift others, but his frustration with the status quo can lead him to be overly critical at times. His strengths lie in his ability to connect with others and inspire change, but he struggles with impatience and can come off as confrontational.",
+    "communication_style": "Jaylen uses a casual and approachable tone, often opting for direct communication to convey his points clearly. He prefers to engage in open dialogue rather than formalities, frequently using phrases like 'Let's talk about this' or 'Why do we have to do it this way?' In emails, he keeps his language straightforward and concise.",
+    "motivations": "Jaylen is driven by a desire for career advancement and a more inclusive workplace culture. He wants to ensure that younger workers have a voice and feel valued in their contributions to the company. Creating opportunities for his peers and addressing systemic issues within the organization are paramount to him.",
+    "fears": "Jaylen fears that the ongoing corporate transformation might further alienate younger employees and limit their career growth opportunities. He worries about being stuck in a role with no upward mobility and that the voices of his generation might not be heard in the decision-making processes.",
+    "relationships": null,
+    "voice_description": "Jaylen's voice is warm and engaging, with a moderate pace that conveys enthusiasm. He has a slight Midwestern accent, which makes him relatable yet professional, and his vocal qualities reflect his passion and determination.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I know there's a lot of tradition here, but we need to ask ourselves \u2013 is it still working for us?",
+      "We can't just keep doing things the way they've always been done. Let's explore other options.",
+      "If we want to keep talent like mine in this company, we have to do better at listening to what we need.",
+      "I appreciate the experience of those before me, but it's time we make some changes for the future."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.492578",
+    "updated_at": "2026-01-31T21:02:10.27",
+    "created_by": null,
+    "influence": 5,
+    "hostility": 5,
+    "flexibility": 7,
+    "risk_tolerance": 6,
+    "impact_categories": ["labor", "culture", "technology"],
+    "voice_profile": {
+      "pace": "moderate",
+      "tone": "confident",
+      "pitch": "medium-high",
+      "accent": "urban American",
+      "gender": "male",
+      "ageRange": "early 20s",
+      "samplePhrases": [
+        "Let's challenge the status quo!",
+        "I believe we can do better.",
+        "Have we considered all perspectives?",
+        "Innovation starts with questioning."
+      ],
+      "emotionalBaseline": "enthusiastic",
+      "distinctiveQualities": [
+        "articulate",
+        "engaging",
+        "questioning",
+        "assertive"
+      ]
+    },
+    "social_profile": {
+      "about": "I'm a dedicated Production Associate at Apex Manufacturing with a passion for innovation and representation. With a community college certificate in manufacturing technology, I bring a fresh perspective to the industry. As an Employee Council Representative, I actively advocate for my colleagues' voices and ideas. I believe in the power of collaboration and am always looking for ways to improve our work environment while embracing modern solutions. My ambition drives me to continuously learn and grow within the manufacturing field, and I'm excited to contribute to positive change.",
+      "skills": ["Lean Manufacturing", "Team Collaboration", "Problem Solving", "Communication", "Process Optimization", "Data Analysis", "Conflict Resolution", "Employee Advocacy"],
+      "headline": "Production Associate & Employee Council Rep | Gen Z Advocate in Manufacturing",
+      "education": [
+        {"year": "2021", "degree": "Certificate in Manufacturing Technology", "institution": "Community College of Manufacturing Technology"}
+      ],
+      "connections": "500+",
+      "endorsements": 120,
+      "currentPosition": {
+        "title": "Production Associate & Employee Council Rep",
+        "company": "Apex Manufacturing",
+        "duration": "2 years 6 months",
+        "description": "In my role at Apex, I focus on optimizing production processes and fostering a collaborative workplace. As a representative on the Employee Council, I work to ensure that all employees feel heard and valued."
+      },
+      "previousPositions": [
+        {"title": "Intern", "company": "Tech Innovations Inc.", "duration": "1 year"},
+        {"title": "Part-time Warehouse Associate", "company": "Local Distribution Center", "duration": "1 year"}
+      ]
+    }
+  },
+  {
+    "id": "0e15421f-519f-4188-8a1b-65730fb138c7",
+    "module_id": null,
+    "name": "Jennifer Park",
+    "role": "Vice President of Sales",
+    "title": "Vice President of Sales",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/jennifer-park.png",
+    "headshot_prompt": "Professional headshot of a 41-year-old Korean American woman with sleek black shoulder-length hair, sharp features, confident smile. Wearing a tailored charcoal suit jacket with a silk scarf. Polished, ambitious expression. Sleek modern office with city view in background.",
+    "bio": "Jennifer Park grew up in a tight-knit Korean American family in Chicago, where her parents ran a small grocery store. She excelled academically, earning a full scholarship to the University of Michigan, where she obtained her MBA. After graduation, Jennifer joined a leading automotive parts supplier, quickly rising through the ranks due to her aggressive sales tactics and ability to forge strong relationships with Fortune 500 companies. Six years ago, she was recruited by Apex Manufacturing as the Vice President of Sales, where she now manages key accounts and drives the company's revenue growth. Recently divorced and without children, Jennifer often immerses herself in work, traveling frequently to meet clients. Despite her professional success, the pressure of maintaining customer loyalty amid company transformations weighs heavily on her. Her competitive nature often places her at odds with peers, as she strives to be the top performer among the board's favorites.",
+    "personality": "Jennifer is ambitious, results-oriented, and fiercely competitive. Her aggressive approach to closing deals often leads to success, but her workaholic tendencies can alienate colleagues. While she is generally flexible, her fear of losing clients can make her inflexible under pressure. Her strength lies in her networking skills, yet her blind spot is her difficulty in balancing personal life with professional responsibilities.",
+    "communication_style": "Jennifer communicates in a direct and assertive manner, often prioritizing clarity over diplomacy. She prefers a formal tone in business communications but can adapt her style depending on the audience. Her emails are concise, often concluding with a call to action, reflecting her results-driven mindset.",
+    "motivations": "Jennifer is primarily driven by the desire to succeed and be recognized as a top performer in her field. She wants to ensure that Apex Manufacturing not only retains its clients but also expands its market share during the transformation. Stability and growth for her team and the company matter most to her.",
+    "fears": "Jennifer's greatest fear is losing key accounts during the company's transformation, which could jeopardize her career and reputation. The thought of disappointing clients or facing a decline in sales keeps her up at night. She worries that the stress of the situation could further alienate her from her colleagues.",
+    "relationships": null,
+    "voice_description": "Jennifer's voice is confident and assertive, with a steady pace that conveys authority. She has a slight Midwestern accent, which softens her otherwise direct delivery. Her vocal tone is warm yet firm, making it clear she means business while still engaging her audience.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We need to ensure our clients feel valued during this transition; their trust is our most important asset.",
+      "I expect operations to meet our delivery timelines; we can't afford to disappoint our customers.",
+      "It's crucial that we stay ahead of the competition, especially as we navigate these changes together.",
+      "Let's not lose sight of our goals; profitability and customer satisfaction must remain our top priorities."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.438586",
+    "updated_at": "2026-01-31T21:01:30.926",
+    "created_by": null,
+    "influence": 7,
+    "hostility": 3,
+    "flexibility": 6,
+    "risk_tolerance": 6,
+    "impact_categories": ["customers", "finance", "strategy"],
+    "voice_profile": {
+      "pace": "quick",
+      "tone": "confident and persuasive",
+      "pitch": "medium-high",
+      "accent": "American corporate",
+      "gender": "female",
+      "ageRange": "early 40s",
+      "samplePhrases": [
+        "Let's close this deal today.",
+        "I know we can exceed our targets.",
+        "Time is of the essence, let's move forward.",
+        "Our strategy will set us apart in the market."
+      ],
+      "emotionalBaseline": "assertive and driven",
+      "distinctiveQualities": [
+        "fast-paced delivery",
+        "clear enunciation",
+        "occasional urgency",
+        "persuasive emphasis"
+      ]
+    },
+    "social_profile": {
+      "about": "As a seasoned sales leader with over 15 years of experience, I thrive in fast-paced environments where strategic thinking and aggressive execution are key to success. At Apex Manufacturing, I lead a dynamic team dedicated to driving revenue growth and enhancing customer satisfaction. My previous roles have equipped me with the tools to analyze market trends and develop effective sales strategies that resonate with clients. I am passionate about building relationships and empowering my team to achieve their fullest potential.",
+      "skills": ["Sales Strategy", "Team Leadership", "Market Analysis", "Customer Relationship Management", "Negotiation Skills", "Revenue Growth", "Data-Driven Decision Making", "Strategic Planning"],
+      "headline": "Vice President of Sales | Strategic Growth | Customer Engagement",
+      "education": [
+        {"year": "2005", "degree": "MBA", "institution": "Northwestern University"},
+        {"year": "2001", "degree": "Bachelor of Arts in Economics", "institution": "University of California, Berkeley"}
+      ],
+      "connections": "1,200+",
+      "endorsements": 320,
+      "currentPosition": {
+        "title": "Vice President of Sales",
+        "company": "Apex Manufacturing",
+        "duration": "6 years 2 months",
+        "description": "In my role as Vice President of Sales, I oversee all sales operations and strategy, focusing on market penetration and revenue expansion. I lead a team of sales professionals and collaborate closely with marketing to align our efforts and optimize results."
+      },
+      "previousPositions": [
+        {"title": "Director of Sales", "company": "Competitor Corp", "duration": "4 years"},
+        {"title": "Sales Manager", "company": "Tech Solutions Inc.", "duration": "3 years"}
+      ]
+    }
+  },
+  {
+    "id": "fc77f3b1-9ca5-40a3-88b5-93b7577140cd",
+    "module_id": null,
+    "name": "Marcus Webb",
+    "role": "Union Organizer",
+    "title": "UAW Regional Organizer",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/marcus-webb.png",
+    "headshot_prompt": "Professional headshot of a 47-year-old African American man with close-cropped hair and a goatee, wearing a UAW union jacket over a button-down shirt. Intense, determined expression. Standing outside a factory gate with workers in soft background.",
+    "bio": "Marcus Webb grew up in the heart of Detroit, surrounded by the sounds and stories of the auto industry. Coming from a third-generation autoworker family, he was raised with a deep respect for labor and community. After witnessing the devastation of his father's job loss in 2008 due to plant closures, Marcus became determined to advocate for the rights of working families. He earned a degree in Labor Studies from Wayne State University, and over the past 20 years, he has built a reputation as a formidable union organizer. As a single father of two, Marcus is motivated not only by his commitment to workers' rights but also by the desire to provide a better future for his children. He currently serves as a UAW Regional Organizer, where he uses his extensive experience and media savvy to rally support for labor initiatives. Fiercely protective of his community, he believes that solidarity is the key to overcoming corporate challenges, making him both respected and feared by management.",
+    "personality": "Marcus is passionate, tenacious, and deeply empathetic. He is a natural leader, often inspiring those around him with his commitment to social justice. However, his unwavering stance can sometimes lead to rigidity in negotiations. While his strong sense of duty drives him to advocate fiercely for workers, it can also blind him to alternative solutions.",
+    "communication_style": "Marcus communicates in a direct yet respectful manner. His speech is often laced with powerful anecdotes that resonate with his audience, making him relatable. In written communication, he maintains a professional tone but isn't afraid to express urgency, often using phrases like 'it's time to stand together' and 'our families depend on this.'",
+    "motivations": "Marcus is driven by a desire to protect the rights of workers and to ensure job security for future generations. He aims to strengthen the union's influence within the automotive industry and to foster a culture of solidarity among workers. Above all, he wants to secure a stable and prosperous future for his children.",
+    "fears": "Marcus fears that the ongoing transformation within the automotive industry may lead to further job losses and weakened labor rights. He worries that the struggles of workers will be overlooked in favor of corporate profits, which could jeopardize the livelihoods of families like his own.",
+    "relationships": null,
+    "voice_description": "Marcus has a firm, resonant voice with a slight Detroit accent. He speaks at a moderate pace, ensuring clarity and impact. His vocal quality conveys authority, yet there is warmth that invites connection.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We cannot let corporate interests dictate our future; our families deserve better than that.",
+      "When we stand together, we are an unstoppable force against any challenge.",
+      "This is not just about jobs; it's about dignity and respect for every worker.",
+      "The fight for our rights isn't just mine\u2014it's ours, and together we will win."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.447684",
+    "updated_at": "2026-01-31T21:01:39.578",
+    "created_by": null,
+    "influence": 8,
+    "hostility": 8,
+    "flexibility": 3,
+    "risk_tolerance": 7,
+    "impact_categories": ["labor", "community", "culture"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "passionate",
+      "pitch": "medium-low",
+      "accent": "Detroit accent with a strong working-class influence",
+      "gender": "male",
+      "ageRange": "mid 40s to early 50s",
+      "samplePhrases": [
+        "We're here to fight for our rights!",
+        "Together, we can make a change.",
+        "Every worker deserves a voice.",
+        "This is about dignity and respect!"
+      ],
+      "emotionalBaseline": "motivated and determined",
+      "distinctiveQualities": [
+        "rhythmic speech pattern",
+        "authentic working-class resonance",
+        "ability to inspire and rally listeners",
+        "conversational warmth"
+      ]
+    },
+    "social_profile": {
+      "about": "As a third-generation autoworker, I have dedicated over 20 years to advocating for the rights of workers in the automotive industry. My journey began with the loss of my father's job during the 2008 plant closure, which ignited my passion for organizing and fighting for fair labor practices. I have undergone extensive UAW leadership training and have successfully led numerous campaigns to improve working conditions and wages for workers. My mission is to empower the workforce and ensure that every voice is heard.",
+      "skills": ["Labor organizing", "Public speaking", "Negotiation", "Conflict resolution", "Community outreach", "Strategic planning", "Grassroots mobilization", "Leadership development"],
+      "headline": "UAW Regional Organizer | Labor Rights Advocate | Community Leader",
+      "education": [
+        {"year": 1999, "degree": "Bachelor of Arts in Labor Studies", "institution": "University of Michigan"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 250,
+      "currentPosition": {
+        "title": "UAW Regional Organizer",
+        "company": "United Auto Workers (UAW)",
+        "duration": "8 years 3 months",
+        "description": "In my role as a UAW Regional Organizer, I coordinate grassroots campaigns and mobilize members to advocate for labor rights across multiple states. I work closely with local unions to develop strategies that address workplace issues and promote solidarity among workers."
+      },
+      "previousPositions": [
+        {"title": "Union Representative", "company": "United Auto Workers (UAW)", "duration": "5 years"},
+        {"title": "Shop Steward", "company": "General Motors", "duration": "7 years"}
+      ]
+    }
+  },
+  {
+    "id": "67cf57c8-0ec5-4490-9bcd-dec39aaeab35",
+    "module_id": null,
+    "name": "Margaret O'Brien",
+    "role": "Chief Operating Officer",
+    "title": "Chief Operating Officer",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/margaret-obrien.png",
+    "headshot_prompt": "Professional headshot of a 55-year-old Irish American woman with reddish-brown hair with gray streaks pulled back, warm brown eyes, weathered but kind face with subtle smile lines. Wearing a practical navy blazer over a light blue blouse. Factory floor visible in soft focus background.",
+    "bio": "Margaret 'Maggie' O'Brien began her career on the factory floor of Apex Manufacturing 28 years ago as a machinist, fueled by a passion for building and a desire for a better life. Without a formal college education, she sought knowledge through hands-on experience and later completed her executive education at Kellogg, which propelled her into leadership roles. Known for her deep respect for workers, Maggie has cultivated a bridge between management and the factory floor, ensuring that voices from both sides are heard. A divorced mother of two adult sons, both of whom have followed in her footsteps into manufacturing, she balances her professional ambitions with her commitment to family. Her journey to Chief Operating Officer has not only shaped her understanding of operations but also her dedication to the people who make them happen. Maggie's cautious support for automation reflects her protective nature towards workers, as she understands the importance of adapting while preserving jobs.",
+    "personality": "Maggie is grounded, empathetic, and pragmatic, often focusing on the human side of operations. Her strengths include her deep connection with employees and her ability to navigate complex situations with a level-headed approach. However, her protective instincts can sometimes lead to reluctance in embracing rapid changes, revealing a blind spot when it comes to aggressive innovation.",
+    "communication_style": "Maggie's communication is primarily direct but laced with warmth. She strikes a balance between formality and casualness, making sure to maintain respect while being approachable. In emails, she uses clear language and often includes personal touches, like addressing recipients by name and signing off with 'Best, Maggie.'",
+    "motivations": "Maggie is driven by a desire to balance operational efficiency with worker well-being. She aims to lead her company through transformation while ensuring that employees feel valued and secure. The success of Apex Manufacturing and the welfare of its workers matter most to her.",
+    "fears": "Maggie fears that the ongoing transformation may alienate the very workers she has fought to protect. She worries about the potential job losses due to automation and the impact on workplace culture. The thought of losing the connection she has with her team keeps her up at night.",
+    "relationships": null,
+    "voice_description": "Maggie's voice is warm and reassuring, with a steady pace that conveys confidence. She has a Midwestern accent that reflects her roots, and her tone varies from assertive when discussing operations to softer when addressing employee concerns.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We can embrace technology, but we must also ensure our people are on board with us.",
+      "It's crucial that we listen to the floor; they know what works and what doesn't.",
+      "Change is necessary, but it should never come at the cost of our workers' livelihoods.",
+      "Let's find a way to innovate that respects our legacy and our people."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.395513",
+    "updated_at": "2026-01-31T21:01:17.19",
+    "created_by": null,
+    "influence": 8,
+    "hostility": 2,
+    "flexibility": 5,
+    "risk_tolerance": 5,
+    "impact_categories": ["operations", "technology", "labor"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "warm and approachable",
+      "pitch": "medium-low",
+      "accent": "Midwestern American accent with an occasional hint of Irish inflection",
+      "gender": "female",
+      "ageRange": "mid 50s",
+      "samplePhrases": [
+        "Let's get our hands dirty and make this happen.",
+        "From the floor to the boardroom, I've seen it all.",
+        "We need to focus on the fundamentals.",
+        "Experience is our best teacher in this industry."
+      ],
+      "emotionalBaseline": "confident and grounded",
+      "distinctiveQualities": [
+        "down-to-earth phrasing",
+        "use of manufacturing jargon",
+        "speaks with authority and experience",
+        "inviting and inclusive tone"
+      ]
+    },
+    "social_profile": {
+      "about": "With over 28 years in the manufacturing sector, I have built my career from the ground up, starting as a machinist and rising to the role of Chief Operating Officer. My journey has been fueled by a passion for operational efficiency and a commitment to fostering a collaborative workplace. I believe in the power of hands-on experience and the importance of inclusive leadership. At Apex Manufacturing, I lead our operations with a focus on sustainable practices and innovative solutions, ensuring we meet our production goals while empowering our workforce.",
+      "skills": ["Operational Management", "Lean Manufacturing", "Team Leadership", "Strategic Planning", "Process Improvement", "Supply Chain Management", "Safety Compliance", "Budget Management"],
+      "headline": "Chief Operating Officer | Operations Management | Manufacturing Excellence",
+      "education": [
+        {"year": 2015, "degree": "Executive Education Program", "institution": "Kellogg School of Management"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 256,
+      "currentPosition": {
+        "title": "Chief Operating Officer",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "As COO, I oversee all operational aspects of Apex Manufacturing, driving efficiency and productivity while ensuring a safe and engaging work environment for our team. My role involves strategic planning and collaboration across departments to align our operations with overall business objectives."
+      },
+      "previousPositions": [
+        {"title": "Operations Manager", "company": "Apex Manufacturing", "duration": "5 years"},
+        {"title": "Production Supervisor", "company": "XYZ Manufacturing", "duration": "6 years"}
+      ]
+    }
+  },
+  {
+    "id": "5c3c671d-0903-4a69-ada0-d69c2a613f9b",
+    "module_id": null,
+    "name": "Patricia Lawson",
+    "role": "Bank Representative",
+    "title": "Senior Vice President, Commercial Lending",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/patricia-lawson.png",
+    "headshot_prompt": "Professional headshot of a 58-year-old Caucasian woman with short blonde-gray hair, pearl stud earrings, wearing a conservative cream blazer. Shrewd, appraising expression. Traditional bank office with wood furniture in background.",
+    "bio": "Patricia Lawson grew up on a small farm in rural Indiana, instilling in her a strong work ethic and appreciation for the value of money. After working multiple jobs to support herself, she graduated from a state university with a degree in finance. Patricia spent 25 years in commercial banking, climbing the ranks through her sharp analytical skills and ability to build lasting relationships with clients. Over the years, she witnessed the rise and fall of many businesses undergoing transformations, shaping her cautious approach to risk. Now a Senior Vice President in Commercial Lending at Apex Manufacturing, she values fairness and accountability while diligently protecting the bank's interests. Outside of work, Patricia is a devoted grandmother of four, who often shares her love for gardening and cooking with her grandchildren, instilling in them the same values she learned growing up.",
+    "personality": "Patricia is practical and down-to-earth, often drawing from her rural upbringing to inform her decision-making. She is thorough and analytical but can be skeptical about aggressive business strategies. Her strengths lie in her extensive experience and fair dealings, while her blind spots include a hesitance to embrace high-risk innovations.",
+    "communication_style": "Patricia communicates in a straightforward, formal manner, always prioritizing clarity. She is direct but diplomatic, often using phrases like 'let's explore this cautiously' or 'I appreciate your insights.' Her emails are concise yet comprehensive, focusing on key points and actionable items.",
+    "motivations": "Patricia is driven by a desire to ensure financial stability for her clients and the bank. She aims to support businesses through transformations while safeguarding the bank's interests. Her greatest motivation is to foster sustainable growth and build trust with stakeholders.",
+    "fears": "Patricia fears that aggressive transformations could lead to significant financial failures, jeopardizing both the bank's reputation and her clients' livelihoods. The thought of navigating a volatile market without adequate safeguards keeps her awake at night.",
+    "relationships": null,
+    "voice_description": "Patricia's voice is warm yet authoritative, with a steady pace that conveys confidence. She has a Midwestern accent that adds to her approachable demeanor, making her sound relatable yet professional.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We need to approach this transformation with caution; history has shown us the risks.",
+      "I respect your vision, David, but we must ensure it aligns with our financial strategies.",
+      "Let's not forget the importance of maintaining our debt covenants during this process.",
+      "It's essential we communicate clearly with all stakeholders to build trust and transparency."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.452221",
+    "updated_at": "2026-01-31T21:01:43.206",
+    "created_by": null,
+    "influence": 9,
+    "hostility": 5,
+    "flexibility": 4,
+    "risk_tolerance": 3,
+    "impact_categories": ["finance", "governance", "strategy"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "firm but fair",
+      "pitch": "medium-low",
+      "accent": "Midwestern American",
+      "gender": "female",
+      "ageRange": "late 50s",
+      "samplePhrases": [
+        "Let's get down to business.",
+        "I appreciate your honesty.",
+        "We can find a solution together.",
+        "It's important to stay practical."
+      ],
+      "emotionalBaseline": "professional and confident",
+      "distinctiveQualities": [
+        "clear enunciation",
+        "steady rhythm",
+        "authoritative tone",
+        "pragmatic inflection"
+      ]
+    },
+    "social_profile": {
+      "about": "With 25 years of experience in commercial banking, I pride myself on fostering strong relationships with clients and understanding their unique financial needs. My journey from a loan officer to Senior Vice President has equipped me with a deep knowledge of the banking industry and a practical approach to problem-solving. I believe in transparency and fairness, always aiming to provide the best solutions for my clients and my team.",
+      "skills": ["Commercial Lending", "Relationship Management", "Financial Analysis", "Risk Assessment", "Team Leadership", "Client Negotiation", "Strategic Planning", "Problem Solving"],
+      "headline": "Senior Vice President, Commercial Lending | Banking Expert | Relationship Builder",
+      "education": [
+        {"year": 1987, "degree": "Bachelor of Science in Finance", "institution": "State University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 320,
+      "currentPosition": {
+        "title": "Senior Vice President, Commercial Lending",
+        "company": "Apex Bank",
+        "duration": "8 years 3 months",
+        "description": "In my current role, I lead a team of commercial lenders, developing strategies to optimize our lending portfolio while ensuring client satisfaction. I work closely with businesses to understand their needs and provide tailored financing solutions."
+      },
+      "previousPositions": [
+        {"title": "Vice President, Commercial Lending", "company": "First National Bank", "duration": "7 years 2 months"},
+        {"title": "Loan Officer", "company": "Statewide Bank", "duration": "9 years 6 months"}
+      ]
+    }
+  },
+  {
+    "id": "14eb2fe1-3d00-4a8f-92b0-9b44121c47b0",
+    "module_id": null,
+    "name": "Rachel Kim",
+    "role": "Technology Vendor",
+    "title": "Regional Sales Director, RoboTech Solutions",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/rachel-kim.png",
+    "headshot_prompt": "Professional headshot of a 34-year-old Korean American woman with long straight black hair, enthusiastic smile, wearing a modern tech company blazer. Energetic, optimistic expression. High-tech showroom with robotic equipment in soft focus background.",
+    "bio": "Rachel Kim grew up in a tight-knit Korean American family in Chicago, where her parents instilled a strong work ethic and a belief in the power of education. She earned a degree in engineering from Carnegie Mellon University, where her passion for technology blossomed. After graduation, she joined RoboTech Solutions as a sales associate, quickly rising through the ranks due to her innovative mindset and ability to connect with clients. Rachel thrives on the challenges of a fast-paced startup atmosphere, and her expertise in automation solutions has made her a key player in the automotive parts supply sector. Outside of work, she enjoys running marathons, finding that the discipline and endurance required for the sport mirror her professional ambitions. Single and focused, Rachel is committed to proving her value to clients by not only selling solutions but forging partnerships that improve operational efficiency. Her approach combines technical knowledge with a genuine desire to make a positive impact in the industry.",
+    "personality": "Rachel is energetic, optimistic, and highly collaborative. She genuinely believes in the transformative power of technology and seeks to empower her clients. While her adaptability is a strength, she sometimes struggles with patience when dealing with slower decision-making processes. Her startup mentality drives her to continuously seek improvement.",
+    "communication_style": "Rachel communicates in a friendly, approachable manner. She often uses direct language while remaining diplomatic, ensuring her points are clear yet considerate. In emails, she maintains a professional tone but adds personal touches, often starting with a warm greeting and ending with an encouraging statement.",
+    "motivations": "Rachel is motivated by the desire to make a tangible difference in the lives of her clients through automation. She aims to establish RoboTech as a thought leader in the automotive parts industry while building strong, lasting partnerships. Personal growth and helping others succeed are her top priorities.",
+    "fears": "Rachel fears that resistance to technological change could hinder her clients' operations and her own professional success. She worries about the potential impact of corporate transformation on job security and the possibility of failing to meet her clients' expectations in a rapidly evolving market.",
+    "relationships": null,
+    "voice_description": "Rachel's voice is warm and engaging, with a smooth, moderate pace. She has a slight Midwestern accent, which adds relatability, and her vocal qualities exude enthusiasm and confidence.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I believe that embracing automation isn't just about efficiency\u2014it's about empowerment for everyone involved.",
+      "Let's focus on how we can solve this challenge together; I have some ideas that I think you'll find exciting.",
+      "In my experience, the best partnerships are built on trust and open communication. Let's keep that at the forefront.",
+      "Every great solution starts with a simple conversation. What are your biggest pain points right now?"
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.47889",
+    "updated_at": "2026-01-31T21:02:01.706",
+    "created_by": null,
+    "influence": 4,
+    "hostility": 1,
+    "flexibility": 8,
+    "risk_tolerance": 6,
+    "impact_categories": ["technology", "finance", "operations"],
+    "voice_profile": {
+      "pace": "quick",
+      "tone": "enthusiastic",
+      "pitch": "medium-high",
+      "accent": "American",
+      "gender": "female",
+      "ageRange": "early 30s",
+      "samplePhrases": [
+        "Let's revolutionize the industry together!",
+        "I truly believe this tech can change lives.",
+        "We're just getting started; the future is bright!",
+        "Have you seen what our latest product can do?"
+      ],
+      "emotionalBaseline": "positive",
+      "distinctiveQualities": [
+        "energetic delivery",
+        "high enthusiasm in discussions",
+        "quick transitions between topics",
+        "genuine belief in technology"
+      ]
+    },
+    "social_profile": {
+      "about": "As a Regional Sales Director at RoboTech Solutions, I am passionate about bringing innovative technology to market. With a background in engineering from Carnegie Mellon and experience in various startups, I thrive in fast-paced environments where I can connect with clients and help them understand the value of our products. I believe that technology can drive positive change, and I am dedicated to making it accessible for everyone. My goal is to empower businesses with cutting-edge solutions that enhance efficiency and drive growth.",
+      "skills": ["Sales Strategy", "Technical Sales", "Customer Relationship Management", "Market Analysis", "Team Leadership", "Negotiation", "Public Speaking", "Product Development"],
+      "headline": "Regional Sales Director | Technology Solutions | Innovation Enthusiast",
+      "education": [
+        {"year": 2011, "degree": "Bachelor of Science in Engineering", "institution": "Carnegie Mellon University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 275,
+      "currentPosition": {
+        "title": "Regional Sales Director, RoboTech Solutions",
+        "company": "RoboTech Solutions",
+        "duration": "5 years 2 months",
+        "description": "In my role, I lead a team responsible for driving sales of our innovative robotic solutions across the region. I focus on building strong relationships with clients and demonstrating the transformative power of our technology."
+      },
+      "previousPositions": [
+        {"title": "Sales Engineer", "company": "Tech Innovations Inc.", "duration": "2 years 6 months"},
+        {"title": "Business Development Associate", "company": "StartUp X", "duration": "1 year 8 months"}
+      ]
+    }
+  },
+  {
+    "id": "d3dc6247-1571-4b82-8d98-35e537bdc2a3",
+    "module_id": null,
+    "name": "Robert Nakamura",
+    "role": "General Counsel",
+    "title": "General Counsel",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/robert-nakamura.png",
+    "headshot_prompt": "Professional headshot of a 56-year-old Japanese American man with distinguished gray hair, wearing horn-rimmed glasses and a conservative dark suit with blue tie. Calm, measured expression. Law library or wood-paneled office in background.",
+    "bio": "Robert Nakamura, a third-generation Japanese American, grew up in a suburban Midwest neighborhood where his parents emphasized the importance of education and hard work. He attended Georgetown Law, where he developed a passion for labor law, leading to a decade-long career at a large labor law firm. In 2013, seeking a more impactful role, Robert joined Apex Manufacturing as General Counsel. His methodical approach and ability to navigate complex legal landscapes earned him a trusted position in the company. Robert is married to Linda, a high school teacher, and they have an adult daughter, Sarah, who has followed in his footsteps to become a lawyer. Robert values family time, often sharing weekend activities like hiking and exploring new cuisines. His experience and unwavering dedication to legal governance have made him a conservative yet respected voice in the leadership team, particularly in union matters. He believes in balancing legal rigor with the realities of the business world, always striving for discretion and integrity in his decisions.",
+    "personality": "Robert is methodical, detail-oriented, and risk-averse. His conservative nature makes him a reliable advisor, but he can be resistant to change, often prioritizing stability over innovation. His strengths lie in his deep understanding of legal and governance issues, while his blind spot is his hesitance to embrace riskier business strategies that could drive growth.",
+    "communication_style": "Robert communicates in a formal and diplomatic manner, often using precise language to convey his points. He chooses his words carefully, preferring clarity over embellishment. His emails are concise, structured, and always include a professional greeting and closing, ensuring that his messages are both respectful and straightforward.",
+    "motivations": "Robert is driven by a desire to protect the company's legal integrity while fostering a stable work environment for employees. He aims to navigate the complexities of labor relations effectively and ensure compliance with regulations. Ultimately, he values the reputation of Apex Manufacturing and seeks to contribute positively to its legacy.",
+    "fears": "Robert fears that the ongoing corporate transformation may lead to increased labor unrest and legal complications that could jeopardize employee morale and the company's stability. He worries about making decisions that might inadvertently undermine the very governance principles he strives to uphold.",
+    "relationships": null,
+    "voice_description": "Robert has a calm, measured tone with a Midwestern accent. He speaks at a moderate pace, emphasizing clarity and authority, with a slight warmth to his voice that reflects his approachable nature.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We must approach our union negotiations with both caution and respect; it's essential to maintain open lines of communication.",
+      "While I understand the desire for innovation, our first priority must always be legal compliance and employee welfare.",
+      "In times of transformation, we must not lose sight of our foundational values; governance is key to our success.",
+      "I appreciate the enthusiasm for change, but we must carefully evaluate the risks involved before making any decisions."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.443313",
+    "updated_at": "2026-01-31T21:01:35.743",
+    "created_by": null,
+    "influence": 6,
+    "hostility": 2,
+    "flexibility": 4,
+    "risk_tolerance": 2,
+    "impact_categories": ["legal", "governance", "labor"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "calm and authoritative",
+      "pitch": "medium-low",
+      "accent": "American English with subtle Japanese intonations",
+      "gender": "male",
+      "ageRange": "mid-50s",
+      "samplePhrases": [
+        "Let's consider the legal implications of this situation.",
+        "I would recommend a cautious approach.",
+        "It's essential to understand our obligations.",
+        "We must prioritize compliance in all our dealings."
+      ],
+      "emotionalBaseline": "thoughtful and composed",
+      "distinctiveQualities": [
+        "deliberate articulation",
+        "formal language usage",
+        "thoughtful pauses",
+        "precise legal terminology"
+      ]
+    },
+    "social_profile": {
+      "about": "As the General Counsel at Apex Manufacturing, I leverage over 30 years of legal expertise in employment and union law to navigate complex labor issues and ensure compliance with regulations. My experience includes serving as a partner at a prestigious labor law firm, where I honed my skills in negotiations and dispute resolution. I am committed to fostering a fair workplace and protecting the rights of both employees and the organization. My educational background from Georgetown Law provides a strong foundation for my practice, and I approach every challenge with a calm and deliberate mindset.",
+      "skills": ["Employment Law", "Union Relations", "Contract Negotiation", "Dispute Resolution", "Regulatory Compliance", "Risk Management", "Legal Research", "Litigation Management"],
+      "headline": "General Counsel | Employment Law | Union Relations",
+      "education": [
+        {"year": 1991, "degree": "Juris Doctor", "institution": "Georgetown University Law Center"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 350,
+      "currentPosition": {
+        "title": "General Counsel",
+        "company": "Apex Manufacturing",
+        "duration": "10 years 2 months",
+        "description": "In my role as General Counsel, I oversee all legal matters related to employment and union law, providing strategic guidance to the executive team and ensuring compliance with labor regulations."
+      },
+      "previousPositions": [
+        {"title": "Partner", "company": "Smith & Associates Law Firm", "duration": "15 years"},
+        {"title": "Associate Attorney", "company": "Johnson Labor Law Group", "duration": "5 years"}
+      ]
+    }
+  },
+  {
+    "id": "e6551c56-35e6-4144-9e61-151f15895075",
+    "module_id": null,
+    "name": "Sandra Williams",
+    "role": "HR Director",
+    "title": "Director of Human Resources",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/sandra-williams.png",
+    "headshot_prompt": "Professional headshot of a 44-year-old African American woman with natural curly black hair, warm brown eyes, and a genuine smile. Wearing a professional teal blazer and simple gold necklace. Friendly and approachable expression. Bright, modern HR office background.",
+    "bio": "Sandra Williams grew up in a tight-knit community in Detroit, Michigan, as the daughter of a nurse and a factory worker. Breaking expectations, she pursued a graduate degree in Industrial Psychology from Michigan State University, becoming the first in her family to do so. After starting her career in employee relations at a smaller firm, she joined Apex Manufacturing twelve years ago as an HR coordinator. Over the years, Sandra has climbed the ranks due to her genuine care for employee wellbeing and her creative problem-solving skills. Married to a dedicated high school principal, she balances her professional responsibilities with family life, raising three children who inspire her to advocate for an inclusive workplace. Sandra's commitment to fostering a positive organizational culture positions her as a crucial bridge between labor and management, earning her the trust of employees and colleagues alike.",
+    "personality": "Sandra is empathetic, resourceful, and collaborative, with a strong sense of integrity and a passion for employee advocacy. She excels in creative problem-solving and thrives in dynamic environments. However, she can sometimes avoid confrontation, preferring consensus over conflict, which may hinder her from addressing issues directly.",
+    "communication_style": "Sandra's communication style is warm and diplomatic. She often uses inclusive language, aiming to build rapport and understanding. In emails, she maintains a professional tone while ensuring her messages are clear and supportive, often closing with phrases like 'Let's work together to find the best solution.'",
+    "motivations": "Sandra is driven by a desire to create a positive and inclusive workplace culture. She aims to enhance employee training programs and improve labor relations, ensuring that every employee feels valued and heard. Ultimately, Sandra wants to make Apex Manufacturing a leading example of employee-centric practices in the industry.",
+    "fears": "Sandra fears that the impending corporate transformation may undermine the strong culture she has worked to build. She worries about potential job losses and the impact on employee morale, which keeps her awake at night as she contemplates how to navigate these changes while maintaining trust and support among the workforce.",
+    "relationships": null,
+    "voice_description": "Sandra's speaking voice is warm and inviting, with a steady pace that conveys confidence. She has a slight Midwestern accent, adding a touch of familiarity, and her vocal qualities reflect her sincerity and passion for her work.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I believe that when we invest in our people, we invest in the future of Apex Manufacturing.",
+      "It's essential that we all feel heard during this transition; your feedback is invaluable to our success.",
+      "Let's tackle this challenge together - collaboration is the key to finding the right solutions.",
+      "I understand your concerns, and I want to assure you that our goal is to support and uplift every member of our team."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.410013",
+    "updated_at": "2026-01-31T21:01:22.11",
+    "created_by": null,
+    "influence": 7,
+    "hostility": 1,
+    "flexibility": 7,
+    "risk_tolerance": 4,
+    "impact_categories": ["labor", "culture", "training"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "warm and empathetic",
+      "pitch": "medium-low",
+      "accent": "Southern American",
+      "gender": "female",
+      "ageRange": "early 40s",
+      "samplePhrases": [
+        "I understand how you feel.",
+        "Let's work together to find a solution.",
+        "Your input is really valuable to me.",
+        "I appreciate your perspective on this."
+      ],
+      "emotionalBaseline": "supportive and understanding",
+      "distinctiveQualities": [
+        "soothing inflection",
+        "thoughtful pauses",
+        "gentle encouragement",
+        "articulate"
+      ]
+    },
+    "social_profile": {
+      "about": "As the Director of Human Resources at Apex, I am passionate about creating a workplace where every employee feels valued and empowered. With over 12 years of experience in HR across various industries, including healthcare and retail, I specialize in talent development and employee engagement strategies. My background in industrial psychology allows me to understand the unique needs of our workforce, ensuring that we foster an inclusive and productive environment. I believe that an organization's greatest asset is its people, and I strive to make a positive impact every day.",
+      "skills": ["Talent Acquisition", "Employee Engagement", "Organizational Development", "Performance Management", "Conflict Resolution", "Change Management", "Diversity and Inclusion", "Training and Development"],
+      "headline": "Director of Human Resources | Talent Development | Employee Engagement",
+      "education": [
+        {"year": 2001, "degree": "B.A. in Industrial Psychology", "institution": "Michigan State University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 250,
+      "currentPosition": {
+        "title": "Director of Human Resources",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "In my role, I lead HR initiatives that support our organizational goals. I focus on talent acquisition, employee development, and ensuring a culture that promotes diversity and inclusion."
+      },
+      "previousPositions": [
+        {"title": "HR Manager", "company": "HealthFirst Medical", "duration": "3 years 5 months"},
+        {"title": "HR Generalist", "company": "Retail Solutions Inc.", "duration": "2 years 7 months"}
+      ]
+    }
+  },
+  {
+    "id": "1c78b551-48f1-4f71-a6d9-ac9a9e795c50",
+    "module_id": null,
+    "name": "Test Character RbtThy",
+    "role": "CEO",
+    "title": "Chief Executive Officer",
+    "company": "Test Corp",
+    "headshot_url": null,
+    "headshot_prompt": null,
+    "bio": "This is a test character biography",
+    "personality": "Analytical and decisive",
+    "communication_style": null,
+    "motivations": null,
+    "fears": null,
+    "relationships": null,
+    "voice_description": null,
+    "voice_id": null,
+    "speaking_style_examples": null,
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-25T19:04:41.615738",
+    "updated_at": "2026-01-25T19:04:41.615738",
+    "created_by": "dUDoki",
+    "influence": 5,
+    "hostility": 5,
+    "flexibility": 5,
+    "risk_tolerance": 5,
+    "impact_categories": null,
+    "voice_profile": null,
+    "social_profile": null
+  },
+  {
+    "id": "0884991b-81cb-4a2f-9826-d01c7bee9509",
+    "module_id": null,
+    "name": "Thomas Richardson",
+    "role": "Customer (AutoCorp)",
+    "title": "VP of Supply Chain, AutoCorp",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/thomas-richardson.png",
+    "headshot_prompt": "Professional headshot of a 49-year-old Caucasian man with perfectly styled brown hair, tan from golf, wearing an expensive navy suit and Herm\u00e8s tie. Cool, evaluating expression. Executive suite with automotive memorabilia in background.",
+    "bio": "Thomas Richardson was born into an affluent Atlanta family, a legacy of old money that shaped his worldview from an early age. He graduated from the Wharton School of Business with an MBA, where his fascination with supply chain dynamics began. Early in his career, he joined AutoCorp as a junior analyst, quickly rising through the ranks due to his sharp analytical skills and a relentless drive for efficiency. At 42, he now serves as the VP of Supply Chain, where he oversees a vast network of suppliers, including Apex Manufacturing, which accounts for 42% of the company's revenue. Thomas is married with two children, but he prioritizes work over family, leading to a strained home life. He enjoys golf, often using it as a networking tool. His relationships are transactional, based on performance, and he is known for his demand for constant improvement, which he believes is essential for maintaining competitive advantage in the automotive parts sector.",
+    "personality": "Thomas is cold and transactional, valuing competence above all. He is results-driven, often appearing aloof due to his high expectations. While he respects those who deliver excellence, he has a blind spot for emotional intelligence and struggles with interpersonal relationships. His obsession with golf reflects his need for competition and achievement.",
+    "communication_style": "Thomas communicates in a formal, direct manner, often using industry jargon. He is concise in emails, favoring bullet points for clarity and expects prompt responses. Phrases like 'let's ensure we meet the KPIs' and 'quality is non-negotiable' are common in his dialogue.",
+    "motivations": "Thomas is driven by a desire for efficiency and excellence. He aims to optimize the supply chain, reduce costs, and enhance quality to maintain AutoCorp's market position. His reputation and the financial success of his projects matter most to him, as they define his legacy.",
+    "fears": "What keeps Thomas up at night is the fear of supply chain disruptions and losing competitive edge. He worries that any decline in quality or delays could jeopardize AutoCorp's standing in the industry and his own career, driven by his belief that loyalty is only as strong as the last performance.",
+    "relationships": null,
+    "voice_description": "Thomas has a deep, resonant voice with a steady pace. His Midwestern accent is subtle, and he often speaks with a measured tone, reflecting his analytical nature. There is an air of authority in his vocal quality, commanding attention during discussions.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We must not lose sight of our KPIs; quality is paramount.",
+      "If the delivery schedule slips again, we will need to reconsider our partnership.",
+      "Loyalty is earned daily; I expect nothing less than excellence.",
+      "In this industry, complacency is the enemy. We must constantly innovate."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.472995",
+    "updated_at": "2026-01-31T21:01:58.107",
+    "created_by": null,
+    "influence": 7,
+    "hostility": 4,
+    "flexibility": 4,
+    "risk_tolerance": 4,
+    "impact_categories": ["customers", "finance", "strategy"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "cool and transactional",
+      "pitch": "medium-low",
+      "accent": "Southern executive polish with a slight drawl",
+      "gender": "male",
+      "ageRange": "late 40s",
+      "samplePhrases": [
+        "Let's cut to the chase.",
+        "I appreciate your insights on this.",
+        "How can we optimize our supply chain?",
+        "It's all about the bottom line."
+      ],
+      "emotionalBaseline": "professional and composed",
+      "distinctiveQualities": [
+        "charming golf club demeanor",
+        "articulate and concise",
+        "subtle drawl",
+        "confident yet approachable"
+      ]
+    },
+    "social_profile": {
+      "about": "As the VP of Supply Chain at AutoCorp, I leverage my extensive experience in the automotive industry to streamline operations and enhance supplier relationships. With a strong background in tier-one suppliers and a Wharton MBA, I focus on innovative solutions that drive efficiency and profitability. My approach is grounded in collaboration and strategic foresight, ensuring that our supply chain is not only robust but also agile enough to adapt to market changes.",
+      "skills": ["Supply Chain Management", "Strategic Sourcing", "Negotiation", "Logistics Optimization", "Inventory Management", "Data Analysis", "Vendor Relationship Management", "Process Improvement"],
+      "headline": "VP of Supply Chain | Automotive Supply Chain Management | Strategic Sourcing",
+      "education": [
+        {"year": 1998, "degree": "MBA", "institution": "Wharton School, University of Pennsylvania"},
+        {"year": 1995, "degree": "B.S. in Industrial Engineering", "institution": "University of Georgia"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 120,
+      "currentPosition": {
+        "title": "VP of Supply Chain",
+        "company": "AutoCorp",
+        "duration": "8 years 3 months",
+        "description": "In my current role, I oversee the end-to-end supply chain processes, managing supplier negotiations, logistics, and inventory management. I work closely with cross-functional teams to align supply chain strategies with corporate goals, driving both operational excellence and cost savings."
+      },
+      "previousPositions": [
+        {"title": "Director of Supply Chain Management", "company": "Global Auto Parts", "duration": "5 years", "description": "Led supply chain strategy and execution, resulting in a 15% reduction in costs."},
+        {"title": "Supply Chain Analyst", "company": "Tier-One Supplier Co.", "duration": "3 years", "description": "Analyzed supply chain data to identify efficiencies and improve supplier performance."}
+      ]
+    }
+  },
+  {
+    "id": "f2c98a61-a70d-4873-84d3-b2f1c18b1d6a",
+    "module_id": null,
+    "name": "Victoria Hartwell",
+    "role": "Board Chair",
+    "title": "Chairwoman of the Board",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/victoria-hartwell.png",
+    "headshot_prompt": "Professional headshot of a powerful 62-year-old Caucasian woman with silver-gray hair styled in an elegant bob, sharp blue eyes, wearing a navy Armani blazer and pearl earrings. Stern but refined expression. Corporate boardroom setting with soft lighting.",
+    "bio": "Victoria Hartwell was born into a wealthy Midwestern family, with the Hartwell name associated with success in various industries. She graduated from Harvard with an MBA, where her leadership skills emerged, particularly during group projects that focused on strategic transformation. Victoria began her career at a Fortune 500 company, rapidly climbing the ranks due to her sharp analytical mind and bold decision-making. Over the years, she spearheaded significant initiatives that modernized operations, generating substantial cost savings. After a decade in the corporate world, she was approached by Apex Manufacturing, where her family had made an early investment. Recognizing the potential for transformation, she took on the role of Board Chair, viewing it as an opportunity to leave a legacy. Victoria remains unmarried and childless, believing her work at Apex to be her most significant contribution to the world. She is known for her impatience with inefficiency and a burning desire to see Apex not just succeed but thrive in a rapidly changing automotive landscape.",
+    "personality": "Victoria is ambitious, decisive, and results-oriented. Her impatience can sometimes lead to rigidity, especially when faced with resistance to change. She thrives on challenges and values speed and efficiency, often pushing her team to achieve more than they believe possible. However, her strong will can blind her to the emotional aspects of leadership.",
+    "communication_style": "Victoria's communication is direct and assertive, often using a no-nonsense approach. She maintains a formal tone, especially in written communication, and tends to get straight to the point. Her emails are succinct and action-oriented, often concluding with a call to action. She frequently uses phrases like 'Let's cut to the chase' and 'What's our next step?'",
+    "motivations": "Victoria is driven by a desire to modernize Apex Manufacturing and secure its position as a leader in the automotive parts industry. She aims to foster innovation and efficiency within the company. Ultimately, her legacy matters most to her; she wants to be remembered as a transformative leader who faced challenges head-on.",
+    "fears": "Victoria fears stagnation and the potential fallout from failing to implement necessary changes at Apex. She worries about the company's ability to adapt to market shifts and the risk of losing key talent during the transformation. The thought of her legacy being tied to failure keeps her awake at night.",
+    "relationships": null,
+    "voice_description": "Victoria's voice is commanding yet polished, with a slight Midwestern accent. She speaks at a measured pace, ensuring clarity, but can quicken when discussing strategies. Her tone is confident, occasionally laced with urgency, reflecting her impatience with delays.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "Let's cut to the chase; we need to enhance our operations if we're going to stay competitive.",
+      "Change is never easy, but it's essential for survival; we must embrace it wholeheartedly.",
+      "I expect each of you to bring solutions, not just problems; we're here to innovate.",
+      "William and I see the future, and it's time for the rest of you to join us on this journey."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.266945",
+    "updated_at": "2026-01-31T21:01:08.275",
+    "created_by": null,
+    "influence": 10,
+    "hostility": 4,
+    "flexibility": 3,
+    "risk_tolerance": 7,
+    "impact_categories": ["governance", "finance", "strategy"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "commanding",
+      "pitch": "medium-low",
+      "accent": "slight New England undertone",
+      "gender": "female",
+      "ageRange": "early 60s",
+      "samplePhrases": [
+        "Let's focus on the key metrics.",
+        "Time is of the essence.",
+        "We must prioritize our objectives.",
+        "Decisions should be data-driven."
+      ],
+      "emotionalBaseline": "assertive",
+      "distinctiveQualities": [
+        "clipped speech",
+        "efficient phrasing",
+        "patrician tone",
+        "authoritative delivery"
+      ]
+    },
+    "social_profile": {
+      "about": "With over three decades of leadership experience in Fortune 500 companies, I have a proven track record of driving transformation and innovation. My journey began at Harvard, where I earned my MBA, and since then, I have dedicated my career to fostering strategic growth while ensuring robust corporate governance. As Chairwoman of the Board at Apex Manufacturing, I am passionate about steering the company towards sustainable success through effective leadership and collaboration.",
+      "skills": ["Corporate Governance", "Strategic Planning", "Change Management", "Financial Acumen", "Leadership Development", "Risk Management", "Stakeholder Engagement", "Operational Excellence"],
+      "headline": "Chairwoman of the Board | Corporate Governance | Strategic Leadership",
+      "education": [
+        {"year": 1985, "degree": "MBA", "institution": "Harvard Business School"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 345,
+      "currentPosition": {
+        "title": "Chairwoman of the Board",
+        "company": "Apex Manufacturing",
+        "duration": "8 years 3 months",
+        "description": "In my role, I lead the board in strategic decision-making and governance oversight. I work closely with executive leadership to implement transformative initiatives that align with our long-term vision."
+      },
+      "previousPositions": [
+        {"title": "CEO", "company": "Tech Innovations Inc.", "duration": "5 years 2 months"},
+        {"title": "COO", "company": "Global Enterprises Ltd.", "duration": "7 years 6 months"}
+      ]
+    }
+  },
+  {
+    "id": "bacb01fd-c965-4c4f-980c-c123350fd08d",
+    "module_id": null,
+    "name": "William Thornton III",
+    "role": "Board Member (PE)",
+    "title": "Managing Partner, Thornton Capital Partners",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/william-thornton.png",
+    "headshot_prompt": "Professional headshot of a 52-year-old Caucasian man with slicked-back silver hair, cold blue eyes, wearing a bespoke pinstripe suit and gold cufflinks. Calculating, imperious expression. Wealthy private equity office with skyline view in background.",
+    "bio": "William Thornton III hails from a prestigious lineage, having grown up in an affluent Connecticut family known for its deep ties to Wall Street. A Yale legacy, he earned his MBA before heading into the corporate world, where he quickly established himself in private equity with Thornton Capital Partners. His investment firm soon became synonymous with aggressive growth strategies, especially in the automotive sector. William is married with two children, but his family often takes a back seat to his relentless pursuit of business success. With a keen interest in vintage cars, he finds solace in collecting, a contrast to his high-stakes career. Now a board member at Apex Manufacturing, he represents the private equity investors who own 35% of the company, always pushing for a swift transformation that yields maximum returns within 3-5 years. He views human costs as mere externalities in the relentless pursuit of profit.",
+    "personality": "William is ambitious and shrewd, driven by the desire for success and wealth accumulation. His strategic mindset allows him to navigate complex corporate landscapes efficiently. However, his inflexibility and high hostility levels can alienate colleagues who don't share his vision. He excels in high-pressure situations but often overlooks the human element in his decisions.",
+    "communication_style": "William communicates in a formal and direct manner, often using industry jargon. He appreciates brevity and clarity in emails, typically employing a structured approach. Phrases like 'maximize shareholder value' and 'strategic alignment' frequently populate his conversations.",
+    "motivations": "William is driven by the pursuit of maximum financial returns and a successful exit from his investments. He aims to position Apex Manufacturing for a lucrative sale, prioritizing strategic growth and modernization to enhance the company's market value.",
+    "fears": "William fears that delays in transformation or resistance from key stakeholders, particularly Patricia Lawson, could jeopardize the potential exit strategy. He worries about market shifts that could diminish Apex's valuation, undermining his investment's profitability.",
+    "relationships": null,
+    "voice_description": "William's voice is deep and authoritative, with a slight Midwestern accent. He speaks at a measured pace, emphasizing key points with a confident tone, making him sound both persuasive and commanding.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We need to align our strategies towards a modernization that maximizes shareholder value in the shortest possible timeframe.",
+      "Delaying our transformation efforts is not an option; the market will not wait for us to catch up.",
+      "I view every potential merger or sale as an opportunity to capitalize on the current market dynamics.",
+      "It's crucial we remain focused on the end goal; human costs are often just externalities in the grand scheme of business."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.510714",
+    "updated_at": "2026-01-31T21:02:18.445",
+    "created_by": null,
+    "influence": 9,
+    "hostility": 6,
+    "flexibility": 3,
+    "risk_tolerance": 8,
+    "impact_categories": ["finance", "governance", "strategy"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "confident and assertive",
+      "pitch": "medium-low",
+      "accent": "Upper East Coast American, slight prep school undertone",
+      "gender": "male",
+      "ageRange": "early 50s",
+      "samplePhrases": [
+        "Let's consider the long-term implications.",
+        "I expect everyone to be on the same page.",
+        "In my experience, patience is paramount.",
+        "We need to evaluate all potential outcomes carefully."
+      ],
+      "emotionalBaseline": "calm and collected",
+      "distinctiveQualities": [
+        "articulate enunciation",
+        "controlled cadence",
+        "authoritative intonation",
+        "subtle drawl on certain words"
+      ]
+    },
+    "social_profile": {
+      "about": "As a seasoned professional in private equity, I leverage over two decades of experience to identify and nurture high-potential investments. My journey began at Goldman Sachs, where I honed my skills in financial analysis and strategic planning. At Thornton Capital Partners, I focus on driving value creation while maintaining an unwavering commitment to our investors. I believe in fostering strong partnerships and applying a disciplined approach to investment management.",
+      "skills": ["Private Equity", "Financial Analysis", "Mergers & Acquisitions", "Strategic Planning", "Portfolio Management", "Investment Strategies", "Negotiation", "Operational Improvements"],
+      "headline": "Managing Partner | Private Equity | Strategic Investments",
+      "education": [
+        {"year": 1995, "degree": "MBA", "institution": "Harvard University"},
+        {"year": 1991, "degree": "BA in Economics", "institution": "Yale University"}
+      ],
+      "connections": "1,000+",
+      "endorsements": 325,
+      "currentPosition": {
+        "title": "Managing Partner, Thornton Capital Partners",
+        "company": "Thornton Capital Partners",
+        "duration": "12 years 5 months",
+        "description": "In my role as Managing Partner, I lead our investment strategy, oversee portfolio management, and drive our firm's growth initiatives. I collaborate closely with executive teams to implement operational improvements and enhance profitability across our investments."
+      },
+      "previousPositions": [
+        {"title": "Vice President, Investment Banking", "company": "Goldman Sachs", "duration": "6 years"},
+        {"title": "Associate, Private Equity", "company": "CVC Capital Partners", "duration": "4 years"}
+      ]
+    }
+  }
+]
