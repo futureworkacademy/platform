@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Briefcase, GraduationCap, Award, Users, MapPin, Loader2 } from "lucide-react";
+import { Briefcase, GraduationCap, Award, Users, MapPin, Loader2, UserX } from "lucide-react";
 
 interface SocialProfile {
   headline: string;
@@ -43,10 +43,31 @@ interface CharacterProfileModalProps {
     hostility?: number;
   } | null;
   isLoading?: boolean;
+  isError?: boolean;
+  searchName?: string;
 }
 
-export function CharacterProfileModal({ isOpen, onClose, character, isLoading = false }: CharacterProfileModalProps) {
+export function CharacterProfileModal({ isOpen, onClose, character, isLoading = false, isError = false, searchName }: CharacterProfileModalProps) {
   if (!isOpen) return null;
+
+  if (isError) {
+    return (
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-md" data-testid="dialog-character-not-found">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Profile Not Available</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+            <UserX className="h-10 w-10 text-muted-foreground" />
+            <p className="font-medium text-foreground">Profile Not Available</p>
+            <p className="text-sm text-muted-foreground">
+              No detailed profile found for {searchName ? `"${searchName}"` : "this stakeholder"}.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
   
   if (isLoading || !character) {
     return (

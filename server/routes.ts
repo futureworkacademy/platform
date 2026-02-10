@@ -8,7 +8,7 @@ import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
 import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails, advisors, advisorCalls } from "@shared/models/auth";
 import { teams } from "@shared/schema";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, or } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
 import { organizationStorage } from "./organization-storage";
 import { validateEduEmail, generateTeamCode } from "./auth-middleware";
@@ -106,24 +106,76 @@ export async function registerRoutes(
   // Character profiles API
   const roleToCharacterMap: Record<string, string> = {
     "Board of Directors": "Victoria Hartwell",
+    "Board Chair": "Victoria Hartwell",
+    "Board Chairwoman": "Victoria Hartwell",
+    "Chairwoman": "Victoria Hartwell",
     "Board Member": "William Thornton III",
+    "Board Member (PE)": "William Thornton III",
+    "Private Equity": "William Thornton III",
+    "PE Board Member": "William Thornton III",
     "CFO": "David Chen",
+    "Chief Financial Officer": "David Chen",
+    "Finance": "David Chen",
     "HR Director": "Sandra Williams",
+    "Human Resources": "Sandra Williams",
+    "Director of Human Resources": "Sandra Williams",
+    "HR": "Sandra Williams",
     "Operations Manager": "Frank Torres",
-    "UAW Organizer": "Marcus Webb",
-    "General Counsel": "Robert Nakamura",
-    "Sales VP": "Jennifer Park",
+    "Senior Operations Manager": "Frank Torres",
+    "Operations": "Frank Torres",
     "Master Moldmaker": "Frank Torres",
     "Lead Moldmaker": "Frank Torres",
+    "QA Manager": "Frank Torres",
+    "UAW Organizer": "Marcus Webb",
+    "Union Organizer": "Marcus Webb",
+    "Union Representative": "Marcus Webb",
+    "Union": "Marcus Webb",
+    "UAW": "Marcus Webb",
+    "UAW Regional Organizer": "Marcus Webb",
+    "General Counsel": "Robert Nakamura",
+    "Legal": "Robert Nakamura",
+    "Legal Counsel": "Robert Nakamura",
+    "Sales VP": "Jennifer Park",
+    "Vice President of Sales": "Jennifer Park",
+    "VP of Sales": "Jennifer Park",
+    "Sales": "Jennifer Park",
+    "COO": "Margaret O'Brien",
+    "Chief Operating Officer": "Margaret O'Brien",
+    "Procurement Director": "Margaret O'Brien",
+    "Logistics Manager": "Margaret O'Brien",
+    "CEO": "Test Character RbtThy",
+    "Chief Executive Officer": "Test Character RbtThy",
+    "Mayor": "Angela Reyes",
+    "City Mayor": "Angela Reyes",
+    "Community Leader": "Angela Reyes",
+    "Gen Z Employee": "Destiny Martinez",
+    "Quality Control Technician": "Destiny Martinez",
+    "Gen Z Representative": "Jaylen Brooks",
+    "Gen Z Rep": "Jaylen Brooks",
+    "Employee Council Rep": "Jaylen Brooks",
+    "Production Associate": "Jaylen Brooks",
+    "External Consultant": "Dr. Helen Mercer",
+    "Consultant": "Dr. Helen Mercer",
+    "Community College Dean": "Dr. Helen Mercer",
+    "Transformation Consultant": "Dr. Helen Mercer",
+    "Industry Analyst": "Dr. Nathan Cross",
+    "Analyst": "Dr. Nathan Cross",
+    "Manufacturing Analyst": "Dr. Nathan Cross",
+    "Bank Representative": "Patricia Lawson",
+    "Banker": "Patricia Lawson",
+    "Lender": "Patricia Lawson",
+    "Commercial Lender": "Patricia Lawson",
+    "Technology Vendor": "Rachel Kim",
+    "Tech Vendor": "Rachel Kim",
+    "RoboTech": "Rachel Kim",
+    "Customer": "Thomas Richardson",
     "Medical Device Customer": "Thomas Richardson",
     "Medical Device Quality Director": "Thomas Richardson",
     "Aerospace Customer": "Thomas Richardson",
     "Major Customer": "Thomas Richardson",
-    "Community College Dean": "Dr. Helen Mercer",
-    "Procurement Director": "Margaret O'Brien",
-    "Logistics Manager": "Margaret O'Brien",
-    "QA Manager": "Frank Torres",
-    "Board Member (PE)": "William Thornton III",
+    "Customer (AutoCorp)": "Thomas Richardson",
+    "AutoCorp": "Thomas Richardson",
+    "VP of Supply Chain": "Thomas Richardson",
   };
 
   app.get("/api/characters/by-name", async (req, res) => {
@@ -133,12 +185,14 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Name parameter required" });
       }
 
+      // Step 1: Try exact name match
       let [character] = await db
         .select()
         .from(characterProfiles)
         .where(eq(characterProfiles.name, name))
         .limit(1);
 
+      // Step 2: Try the role-to-name map
       if (!character) {
         const mappedName = roleToCharacterMap[name];
         if (mappedName) {
@@ -148,6 +202,30 @@ export async function registerRoutes(
             .where(eq(characterProfiles.name, mappedName))
             .limit(1);
         }
+      }
+
+      // Step 3: Try matching against the role column in the database
+      if (!character) {
+        [character] = await db
+          .select()
+          .from(characterProfiles)
+          .where(eq(characterProfiles.role, name))
+          .limit(1);
+      }
+
+      // Step 4: Try case-insensitive partial match on name or role
+      if (!character) {
+        [character] = await db
+          .select()
+          .from(characterProfiles)
+          .where(
+            or(
+              sql`LOWER(${characterProfiles.name}) = LOWER(${name})`,
+              sql`LOWER(${characterProfiles.role}) = LOWER(${name})`,
+              sql`LOWER(${characterProfiles.title}) = LOWER(${name})`
+            )
+          )
+          .limit(1);
       }
 
       if (!character) {

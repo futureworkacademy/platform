@@ -50,7 +50,7 @@ interface CharacterData {
 export function CharacterNameLink({ name, showIcon = true, className = "" }: CharacterNameLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: character, isLoading } = useQuery<CharacterData>({
+  const { data: character, isLoading, isError } = useQuery<CharacterData>({
     queryKey: ['/api/characters/by-name', name],
     queryFn: async () => {
       const res = await fetch(`/api/characters/by-name?name=${encodeURIComponent(name)}`);
@@ -58,6 +58,7 @@ export function CharacterNameLink({ name, showIcon = true, className = "" }: Cha
       return res.json();
     },
     enabled: isModalOpen,
+    retry: false,
   });
 
   return (
@@ -87,6 +88,8 @@ export function CharacterNameLink({ name, showIcon = true, className = "" }: Cha
         onClose={() => setIsModalOpen(false)}
         character={character || null}
         isLoading={isLoading}
+        isError={isError}
+        searchName={name}
       />
     </>
   );
@@ -109,7 +112,7 @@ export function CharacterAvatarLink({
 }: CharacterAvatarLinkProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: character, isLoading } = useQuery<CharacterData>({
+  const { data: character, isLoading, isError } = useQuery<CharacterData>({
     queryKey: ['/api/characters/by-name', name],
     queryFn: async () => {
       const res = await fetch(`/api/characters/by-name?name=${encodeURIComponent(name)}`);
@@ -117,6 +120,7 @@ export function CharacterAvatarLink({
       return res.json();
     },
     enabled: isModalOpen,
+    retry: false,
   });
 
   const sizeClasses = {
@@ -162,6 +166,8 @@ export function CharacterAvatarLink({
         onClose={() => setIsModalOpen(false)}
         character={character || null}
         isLoading={isLoading}
+        isError={isError}
+        searchName={name}
       />
     </>
   );
