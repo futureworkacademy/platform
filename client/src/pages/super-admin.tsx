@@ -790,12 +790,11 @@ export default function SuperAdminPage() {
       return response.json();
     },
     onSuccess: async (data) => {
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ["/api/my-role"] }),
-        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/team"] }),
-      ]);
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/my-role"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/team"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/demo/preview/status"] });
+      
       if (data.role === "educator") {
         toast({ 
           title: "Educator Preview Active", 

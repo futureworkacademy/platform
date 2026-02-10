@@ -56,20 +56,35 @@ export function PreviewBanner({ previewRole, previewOrgId, orgName }: PreviewBan
   };
 
   const handleStartStudentTour = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["/api/team"] });
-    await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+    await queryClient.refetchQueries({ queryKey: ["/api/team"] });
 
     setLocation("/");
 
     try {
-      await waitForElement('[data-testid="dashboard-page"]', 10000);
+      await waitForElement('[data-testid="dashboard-page"]', 15000);
     } catch {
-      toast({
-        title: "Could not load student dashboard",
-        description: "Make sure a test team exists for this organization.",
-        variant: "destructive",
-      });
-      return;
+      try {
+        await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/team"] });
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const retryEl = document.querySelector('[data-testid="dashboard-page"]');
+        if (!retryEl) {
+          toast({
+            title: "Could not load student dashboard",
+            description: "Make sure a test team exists for this organization.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } catch {
+        toast({
+          title: "Could not load student dashboard",
+          description: "Make sure a test team exists for this organization.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     await new Promise(resolve => setTimeout(resolve, 500));

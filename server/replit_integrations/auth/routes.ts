@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { authStorage } from "./storage";
 import { isAuthenticated } from "./replitAuth";
+import { db } from "../../db";
+import { eq, and } from "drizzle-orm";
+import { users } from "@shared/schema";
 
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
@@ -134,8 +137,23 @@ export function registerAuthRoutes(app: Express): void {
       
       const sessionPreview = (req.session as any)?.preview;
       const hasSessionPreview = sessionPreview?.role != null;
+      
+      let previewTeamId: string | null = null;
+      if (hasSessionPreview && sessionPreview.role === "student" && sessionPreview.orgId && user) {
+        const [testStudent] = await db.select().from(users)
+          .where(and(
+            eq(users.testStudentOwnerId, userId),
+            eq(users.testStudentOwnerOrgId, sessionPreview.orgId)
+          ));
+        if (testStudent?.teamId) {
+          previewTeamId = testStudent.teamId;
+          console.log(`[/api/auth/user] Student preview: using test student teamId=${previewTeamId}`);
+        }
+      }
+      
       const userResponse = user ? {
         ...user,
+        teamId: previewTeamId || user.teamId,
         previewRole: hasSessionPreview ? sessionPreview.role : (user.previewRole || null),
         previewOrgId: hasSessionPreview ? sessionPreview.orgId : (user.previewOrgId || null),
         inStudentPreview: hasSessionPreview 
