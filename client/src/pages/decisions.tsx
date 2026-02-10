@@ -19,7 +19,6 @@ import { useLocation, Link } from "wouter";
 import {
   CheckCircle2,
   ArrowRight,
-  ArrowLeft,
   AlertCircle,
   RefreshCw,
   DollarSign,
@@ -683,7 +682,6 @@ function EnhancedDecisionCard({
 export default function Decisions() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  const [currentStep, setCurrentStep] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [rationales, setRationales] = useState<Record<string, string>>({});
   const [submittedDecisions, setSubmittedDecisions] = useState<Set<string>>(new Set());
@@ -745,10 +743,6 @@ export default function Decisions() {
         title: "Decision Submitted",
         description: "Your choice has been recorded.",
       });
-      
-      if (decisions && currentStep < decisions.length - 1) {
-        setCurrentStep(currentStep + 1);
-      }
     },
     onError: () => {
       toast({
@@ -878,13 +872,6 @@ export default function Decisions() {
   const totalSubmitted = submittedDecisions.size + submittedEnhanced.size;
   const allDecisionsMade = totalSubmitted === totalDecisions && totalDecisions > 0;
   
-  const currentDecision = allDecisions[currentStep];
-  const isCurrentSubmitted = currentDecision ? submittedDecisions.has(currentDecision.id) : false;
-  const selectedOption = currentDecision ? selectedOptions[currentDecision.id] : null;
-  const currentRationale = currentDecision ? rationales[currentDecision.id] || "" : "";
-  const wordCount = countWords(currentRationale);
-  const isRationaleValid = wordCount >= MINIMUM_WORDS;
-
   const categoryColors: Record<string, string> = {
     automation_financing: "bg-blue-500/20 text-blue-400 border-blue-500/30",
     workforce_displacement: "bg-red-500/20 text-red-400 border-red-500/30",
@@ -895,10 +882,14 @@ export default function Decisions() {
     strategic_investment: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
   };
 
-  const handleSubmit = () => {
-    if (!currentDecision || !selectedOption) return;
-    
-    if (!isRationaleValid) {
+  const handleSubmitDecision = (decisionId: string) => {
+    const selectedOption = selectedOptions[decisionId];
+    const rationaleText = rationales[decisionId] || "";
+    const wordCount = countWords(rationaleText);
+
+    if (!selectedOption) return;
+
+    if (wordCount < MINIMUM_WORDS) {
       toast({
         title: "Rationale Required",
         description: `Please provide at least ${MINIMUM_WORDS} words explaining your decision. Current: ${wordCount} words.`,
@@ -908,9 +899,9 @@ export default function Decisions() {
     }
 
     submitDecisionMutation.mutate({
-      decisionId: currentDecision.id,
+      decisionId,
       optionId: selectedOption,
-      rationale: currentRationale,
+      rationale: rationaleText,
     });
   };
 
@@ -1066,206 +1057,175 @@ export default function Decisions() {
         )}
 
         {allDecisions.length > 0 && (
-          <>
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between gap-4 mb-2">
-                  <div className="text-sm text-muted-foreground">
-                    Decision {currentStep + 1} of {allDecisions.length} — complete all to advance
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {allDecisions.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentStep(idx)}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
-                          submittedDecisions.has(allDecisions[idx].id)
-                            ? "bg-green-500 text-white"
-                            : idx === currentStep
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
-                        }`}
-                        data-testid={`step-indicator-${idx}`}
-                      >
-                        {submittedDecisions.has(allDecisions[idx].id) ? (
-                          <CheckCircle2 className="w-4 h-4" />
-                        ) : (
-                          idx + 1
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                Scenario Decisions
+              </h2>
+              <div className="flex items-center gap-2">
                 <Progress 
                   value={(submittedDecisions.size / allDecisions.length) * 100} 
-                  className="h-2"
+                  className="h-2 w-24"
                 />
-              </CardHeader>
-            </Card>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {submittedDecisions.size} / {allDecisions.length} complete
+                </span>
+              </div>
+            </div>
 
-            {currentDecision && (
-              <Card data-testid={`card-decision-${currentDecision.id}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline" className={categoryColors[currentDecision.category] || ""}>
-                      {currentDecision.category.replace(/_/g, ' ').toUpperCase()}
-                    </Badge>
-                    {currentDecision.deadline && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {currentDecision.deadline}
+            {allDecisions.map((decision, idx) => {
+              const isSubmitted = submittedDecisions.has(decision.id);
+              const decisionSelectedOption = selectedOptions[decision.id] || null;
+              const decisionRationale = rationales[decision.id] || "";
+              const decisionWordCount = countWords(decisionRationale);
+              const decisionRationaleValid = decisionWordCount >= MINIMUM_WORDS;
+
+              return (
+                <Card key={decision.id} data-testid={`card-decision-${decision.id}`}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="font-mono text-xs">
+                        Decision {idx + 1}
                       </Badge>
-                    )}
-                    {isCurrentSubmitted && (
-                      <Badge variant="outline" className="text-success border-success/30">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Submitted
+                      <Badge variant="outline" className={categoryColors[decision.category] || ""}>
+                        {decision.category.replace(/_/g, ' ').toUpperCase()}
                       </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-lg mt-2">{currentDecision.title}</CardTitle>
-                  <CardDescription>{currentDecision.context}</CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  {currentDecision.stakeholderPerspectives.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                        Stakeholder Perspectives
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {currentDecision.stakeholderPerspectives.map((perspective, i) => (
-                          <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <CharacterNameLink name={perspective.role} className="text-sm" />
-                              <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
+                      {decision.deadline && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {decision.deadline}
+                        </Badge>
+                      )}
+                      {isSubmitted && (
+                        <Badge variant="outline" className="text-success border-success/30">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Submitted
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg mt-2">{decision.title}</CardTitle>
+                    <CardDescription>{decision.context}</CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-6">
+                    {decision.stakeholderPerspectives.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                          Stakeholder Perspectives
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {decision.stakeholderPerspectives.map((perspective, i) => (
+                            <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <CharacterNameLink name={perspective.role} className="text-sm" />
+                                <Badge variant="outline" className="text-xs">{perspective.stance}</Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
                             </div>
-                            <p className="text-xs text-muted-foreground italic">"{perspective.quote}"</p>
-                          </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <Separator />
+
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-medium">Choose Your Approach</h4>
+                      <div className="grid grid-cols-1 gap-4">
+                        {decision.options.map((option) => (
+                          <OptionCard
+                            key={option.id}
+                            option={option}
+                            isSelected={decisionSelectedOption === option.id}
+                            onSelect={() => {
+                              if (!isSubmitted) {
+                                setSelectedOptions(prev => ({ ...prev, [decision.id]: option.id }));
+                              }
+                            }}
+                          />
                         ))}
                       </div>
                     </div>
-                  )}
 
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-medium">Choose Your Approach</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      {currentDecision.options.map((option) => (
-                        <OptionCard
-                          key={option.id}
-                          option={option}
-                          isSelected={selectedOption === option.id}
-                          onSelect={() => {
-                            if (!isCurrentSubmitted) {
-                              setSelectedOptions(prev => ({ ...prev, [currentDecision.id]: option.id }));
-                            }
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {selectedOption && !isCurrentSubmitted && (
-                    <div className="space-y-4 pt-4 border-t">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium flex items-center gap-2">
-                            Decision Rationale <span className="text-destructive">*</span>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-xs">
-                                <p>Explain your strategy and cite research sources using the 3-letter source codes (e.g., AIM, APX).</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </label>
-                          <span className={`text-xs ${isRationaleValid ? 'text-success' : 'text-muted-foreground'}`}>
-                            {wordCount} / {MINIMUM_WORDS} words minimum
-                          </span>
+                    {decisionSelectedOption && !isSubmitted && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium flex items-center gap-2">
+                              Decision Rationale <span className="text-destructive">*</span>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>Explain your strategy and cite research sources using the 3-letter source codes (e.g., AIM, APX).</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </label>
+                            <span className={`text-xs ${decisionRationaleValid ? 'text-success' : 'text-muted-foreground'}`}>
+                              {decisionWordCount} / {MINIMUM_WORDS} words minimum
+                            </span>
+                          </div>
+                          
+                          <SourceCodeReference />
+                          
+                          <div className="bg-accent/10 rounded-md p-3 border border-accent/20">
+                            <p className="text-xs text-muted-foreground">
+                              <strong className="text-foreground">Include source references:</strong> Cite your research materials using the source codes above.
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 italic">
+                              Example: "Based on the 72% Gen Z management resistance statistic (APX), we recommend creating dual career tracks (WFT)."
+                            </p>
+                          </div>
+                          
+                          <Textarea
+                            placeholder={`Explain your reasoning for this decision in at least ${MINIMUM_WORDS} words. Include source codes (e.g., AIM, APX) to cite your research...`}
+                            value={decisionRationale}
+                            onChange={(e) => setRationales(prev => ({ ...prev, [decision.id]: e.target.value }))}
+                            className={`resize-none ${!decisionRationaleValid && decisionWordCount > 0 ? 'border-warning' : ''}`}
+                            rows={5}
+                            data-testid={`input-rationale-${decision.id}`}
+                          />
+                          {decisionWordCount > 0 && !decisionRationaleValid && (
+                            <p className="text-xs text-warning flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              {MINIMUM_WORDS - decisionWordCount} more words needed
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            Tip: Reference specific statistics and case studies from your research materials for bonus points!
+                          </p>
                         </div>
-                        
-                        <SourceCodeReference />
-                        
-                        <div className="bg-accent/10 rounded-md p-3 border border-accent/20">
-                          <p className="text-xs text-muted-foreground">
-                            <strong className="text-foreground">Include source references:</strong> Cite your research materials using the source codes above.
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1 italic">
-                            Example: "Based on the 72% Gen Z management resistance statistic (APX), we recommend creating dual career tracks (WFT)."
-                          </p>
+
+                        <div className="flex justify-end">
+                          <Button 
+                            onClick={() => handleSubmitDecision(decision.id)}
+                            disabled={!decisionSelectedOption || submitDecisionMutation.isPending}
+                            data-testid={`button-submit-decision-${decision.id}`}
+                          >
+                            {submitDecisionMutation.isPending ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                Submitting...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                Submit Decision
+                              </>
+                            )}
+                          </Button>
                         </div>
-                        
-                        <Textarea
-                          placeholder={`Explain your reasoning for this decision in at least ${MINIMUM_WORDS} words. Include source codes (e.g., AIM, APX) to cite your research...`}
-                          value={currentRationale}
-                          onChange={(e) => setRationales(prev => ({ ...prev, [currentDecision.id]: e.target.value }))}
-                          className={`resize-none ${!isRationaleValid && wordCount > 0 ? 'border-warning' : ''}`}
-                          rows={5}
-                          data-testid="input-rationale"
-                        />
-                        {wordCount > 0 && !isRationaleValid && (
-                          <p className="text-xs text-warning flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3" />
-                            {MINIMUM_WORDS - wordCount} more words needed
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          Tip: Reference specific statistics and case studies from your research materials for bonus points!
-                        </p>
                       </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between gap-4 pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-                      disabled={currentStep === 0}
-                      data-testid="button-previous-decision"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Previous
-                    </Button>
-
-                    {isCurrentSubmitted ? (
-                      currentStep < allDecisions.length - 1 ? (
-                        <Button
-                          onClick={() => setCurrentStep(currentStep + 1)}
-                          data-testid="button-next-decision"
-                        >
-                          Next Decision
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      ) : null
-                    ) : (
-                      <Button 
-                        onClick={handleSubmit}
-                        disabled={!selectedOption || submitDecisionMutation.isPending}
-                        data-testid="button-submit-decision"
-                      >
-                        {submitDecisionMutation.isPending ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                            Submit Decision
-                          </>
-                        )}
-                      </Button>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         )}
 
         {allDecisionsMade && (
