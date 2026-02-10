@@ -2809,10 +2809,16 @@ Provide your consistency review in JSON format.`;
         }
       }
 
-      // Check if already a member
+      // Check if already a member - handle gracefully instead of throwing error
       const existingMember = await organizationStorage.getMember(userId, targetOrgId);
       if (existingMember) {
-        return res.status(400).json({ error: "You are already a member of this organization" });
+        // If deactivated, reactivate them
+        if (existingMember.status === "deactivated" || existingMember.status === "inactive") {
+          await db.update(organizationMembers)
+            .set({ status: 'active' })
+            .where(eq(organizationMembers.id, existingMember.id));
+        }
+        return res.json({ success: true, alreadyMember: true, organizationName: targetOrgName });
       }
 
       // Add user as active student member (auto-approved with valid code or open enrollment)

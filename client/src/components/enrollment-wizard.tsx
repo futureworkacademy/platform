@@ -271,12 +271,21 @@ export function EnrollmentWizard({ user, onComplete }: EnrollmentWizardProps) {
 
   const joinOrganizationMutation = useMutation({
     mutationFn: async (data: { teamCode: string; phoneNumber?: string; smsConsent: boolean }) => {
-      return apiRequest('POST', '/api/join-organization', data);
+      const res = await apiRequest('POST', '/api/join-organization', data);
+      return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       queryClient.invalidateQueries({ queryKey: ['/api/auth/role'] });
-      setShowWelcomeModal(true);
+      if (data?.alreadyMember) {
+        toast({
+          title: "Welcome back!",
+          description: `You're already enrolled in ${data.organizationName || 'the class'}. Redirecting you now.`,
+        });
+        onComplete();
+      } else {
+        setShowWelcomeModal(true);
+      }
     },
     onError: (error: any) => {
       toast({
