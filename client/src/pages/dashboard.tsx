@@ -210,14 +210,14 @@ export default function Dashboard() {
               <ArrowRight className="h-5 w-5 text-warning" />
             </div>
             <div>
-              <p className="text-sm font-medium text-warning">Your Next Action</p>
+              <p className="text-sm font-semibold text-warning tracking-wide uppercase">Action Required</p>
               <p className="text-xs text-muted-foreground">Review this week's intelligence briefing and make your decisions</p>
             </div>
           </div>
-          <Button asChild size="lg" className="bg-warning text-warning-foreground border-warning" data-testid="button-start-week">
+          <Button asChild size="lg" className="bg-warning text-white border border-warning/70 shadow-sm" data-testid="button-start-week">
             <Link href="/briefing">
-              <BookOpen className="h-4 w-4 mr-2" />
               Start Week {currentWeek}
+              <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
         </CardContent>
