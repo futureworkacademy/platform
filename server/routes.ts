@@ -2546,6 +2546,10 @@ Provide your consistency review in JSON format.`;
 
       (req.session as any).preview = { role: "demo", orgId: demoOrgId };
 
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err: any) => err ? reject(err) : resolve());
+      });
+
       console.log("[Demo Preview] Admin entered demo preview mode:", { userId, demoOrgId });
 
       res.json({ 
@@ -2569,6 +2573,11 @@ Provide your consistency review in JSON format.`;
       }
 
       delete (req.session as any).preview;
+
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err: any) => err ? reject(err) : resolve());
+      });
+
       await db.update(users)
         .set({ 
           inDemoPreview: false, 
@@ -5082,6 +5091,10 @@ Provide your consistency review in JSON format.`;
 
       (req.session as any).preview = { role: "educator", orgId };
 
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err: any) => err ? reject(err) : resolve());
+      });
+
       res.json({ success: true, orgId, orgName: org.name });
     } catch (error) {
       console.error("Error entering instructor preview:", error);
@@ -5094,6 +5107,11 @@ Provide your consistency review in JSON format.`;
       const userId = req.user?.claims?.sub;
 
       delete (req.session as any).preview;
+
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err: any) => err ? reject(err) : resolve());
+      });
+
       await db.update(users)
         .set({ inInstructorPreview: false, instructorPreviewOrgId: null, updatedAt: new Date() })
         .where(eq(users.id, userId));
@@ -5217,6 +5235,10 @@ Provide your consistency review in JSON format.`;
 
         (req.session as any).preview = { role: "student", orgId };
 
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err: any) => err ? reject(err) : resolve());
+        });
+
         console.log("[Preview] Entered student preview:", { userId, orgId, testStudentId: testStudent.id });
         res.json({ success: true, role: "student", orgId, orgName: org.name, testStudentId: testStudent.id, teamId: testStudent.teamId });
       } else {
@@ -5232,6 +5254,10 @@ Provide your consistency review in JSON format.`;
         }
 
         (req.session as any).preview = { role: "educator", orgId };
+
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err: any) => err ? reject(err) : resolve());
+        });
 
         console.log("[Preview] Entered educator preview:", { userId, orgId });
         res.json({ success: true, role: "educator", orgId, orgName: org.name });
@@ -5250,6 +5276,11 @@ Provide your consistency review in JSON format.`;
       }
 
       delete (req.session as any).preview;
+
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err: any) => err ? reject(err) : resolve());
+      });
+
       await db.update(users)
         .set({ 
           previewRole: null,
