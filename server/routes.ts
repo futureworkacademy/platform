@@ -176,6 +176,12 @@ export async function registerRoutes(
     "Customer (AutoCorp)": "Thomas Richardson",
     "AutoCorp": "Thomas Richardson",
     "VP of Supply Chain": "Thomas Richardson",
+    "Skeptical Analyst": "Dr. Nathan Cross",
+    "Bank Rep": "Patricia Lawson",
+    "Employee Council": "Jaylen Brooks",
+    "Marketing": "Jennifer Park",
+    "Training Manager": "Sandra Williams",
+    "Operations Worker": "Frank Torres",
   };
 
   app.get("/api/characters/by-name", async (req, res) => {
