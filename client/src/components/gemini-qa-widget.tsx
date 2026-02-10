@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -117,7 +117,13 @@ export function GeminiQASidebar() {
     }
   };
 
-  if (!isDemoUser) return null;
+  const { data: currentUser } = useQuery<any>({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+  });
+  const isPreviewUser = currentUser?.inStudentPreview === true || currentUser?.previewRole === "student";
+
+  if (!isDemoUser && !isPreviewUser) return null;
 
   if (!isExpanded) {
     return (

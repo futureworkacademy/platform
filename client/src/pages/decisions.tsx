@@ -744,10 +744,24 @@ export default function Decisions() {
         description: "Your choice has been recorded.",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      let message = "Failed to submit decision.";
+      try {
+        const raw = error?.message || "";
+        const jsonMatch = raw.match(/\{.*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          message = parsed.error || message;
+          if (parsed.locked) {
+            queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+          }
+        } else if (raw) {
+          message = raw;
+        }
+      } catch {}
       toast({
-        title: "Error",
-        description: "Failed to submit decision.",
+        title: "Submission Error",
+        description: message,
         variant: "destructive",
       });
     },
@@ -778,9 +792,23 @@ export default function Decisions() {
       }
     },
     onError: (error: any) => {
+      let message = "Failed to submit strategy.";
+      try {
+        const raw = error?.message || "";
+        const jsonMatch = raw.match(/\{.*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          message = parsed.error || message;
+          if (parsed.locked) {
+            queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+          }
+        } else if (raw) {
+          message = raw;
+        }
+      } catch {}
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit strategy.",
+        title: "Submission Error",
+        description: message,
         variant: "destructive",
       });
     },

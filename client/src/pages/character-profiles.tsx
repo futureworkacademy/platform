@@ -104,18 +104,18 @@ function CharacterCard({ character }: { character: CharacterProfile }) {
             <div className="pt-2 min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm truncate">{character.name}</h3>
-                  <p className="text-xs text-muted-foreground truncate">
+                  <h3 className="font-bold text-sm truncate text-white">{character.name}</h3>
+                  <p className="text-xs text-white/80 truncate">
                     {socialProfile?.headline || character.title || character.role}
                   </p>
                   {character.company && (
-                    <p className="text-xs text-muted-foreground/70 truncate">{character.company}</p>
+                    <p className="text-xs text-white/60 truncate">{character.company}</p>
                   )}
                 </div>
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="flex-shrink-0"
+                  className="flex-shrink-0 text-white/80 hover:text-white"
                   data-testid={`button-expand-${character.id}`}
                   aria-label={expanded ? "Collapse" : "Expand"}
                   onClick={(e) => {

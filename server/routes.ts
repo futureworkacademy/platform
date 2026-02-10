@@ -1086,9 +1086,18 @@ export async function registerRoutes(
       }
 
       // Check if simulation is locked (browse-only mode)
-      const decisionMemberships = await organizationStorage.getMembershipsByUser(userId);
-      if (decisionMemberships && decisionMemberships.length > 0) {
-        const [decisionOrg] = await db.select().from(organizations).where(eq(organizations.id, decisionMemberships[0].organizationId));
+      // Use preview org if in preview mode, otherwise use first membership org
+      let decisionOrgId: string | null = null;
+      if (user.previewOrgId || user.previewModeOrgId) {
+        decisionOrgId = user.previewOrgId || user.previewModeOrgId;
+      } else {
+        const decisionMemberships = await organizationStorage.getMembershipsByUser(userId);
+        if (decisionMemberships && decisionMemberships.length > 0) {
+          decisionOrgId = decisionMemberships[0].organizationId;
+        }
+      }
+      if (decisionOrgId) {
+        const [decisionOrg] = await db.select().from(organizations).where(eq(organizations.id, decisionOrgId));
         if (decisionOrg?.simulationLocked === true) {
           return res.status(403).json({ 
             error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
@@ -1206,6 +1215,26 @@ export async function registerRoutes(
       if (!user?.teamId) {
         return res.status(404).json({ error: "No team assigned" });
       }
+
+      // Check if simulation is locked - use preview org if in preview mode
+      let submitOrgId: string | null = null;
+      if (user.previewOrgId || user.previewModeOrgId) {
+        submitOrgId = user.previewOrgId || user.previewModeOrgId;
+      } else {
+        const submitMemberships = await organizationStorage.getMembershipsByUser(userId);
+        if (submitMemberships && submitMemberships.length > 0) {
+          submitOrgId = submitMemberships[0].organizationId;
+        }
+      }
+      if (submitOrgId) {
+        const [submitOrg] = await db.select().from(organizations).where(eq(organizations.id, submitOrgId));
+        if (submitOrg?.simulationLocked === true) {
+          return res.status(403).json({ 
+            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+            locked: true
+          });
+        }
+      }
       
       const team = await storage.getTeam(user.teamId);
       const updatedTeam = await storage.submitDecision(user.teamId, decisionId, optionId, rationale);
@@ -1262,10 +1291,18 @@ export async function registerRoutes(
       const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
       const weekNumber = team?.currentWeek || 1;
 
-      // Check if simulation is locked (browse-only mode)
-      const enhancedMemberships = await organizationStorage.getMembershipsByUser(userId);
-      if (enhancedMemberships && enhancedMemberships.length > 0) {
-        const [enhancedOrg] = await db.select().from(organizations).where(eq(organizations.id, enhancedMemberships[0].organizationId));
+      // Check if simulation is locked - use preview org if in preview mode
+      let enhancedOrgId: string | null = null;
+      if (user?.previewOrgId || user?.previewModeOrgId) {
+        enhancedOrgId = user.previewOrgId || user.previewModeOrgId;
+      } else {
+        const enhancedMemberships = await organizationStorage.getMembershipsByUser(userId);
+        if (enhancedMemberships && enhancedMemberships.length > 0) {
+          enhancedOrgId = enhancedMemberships[0].organizationId;
+        }
+      }
+      if (enhancedOrgId) {
+        const [enhancedOrg] = await db.select().from(organizations).where(eq(organizations.id, enhancedOrgId));
         if (enhancedOrg?.simulationLocked === true) {
           return res.status(403).json({ 
             error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
