@@ -11,7 +11,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Phone,
@@ -139,10 +138,10 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden" data-testid="dialog-advisor-picker">
+      <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 flex flex-col overflow-hidden" data-testid="dialog-advisor-picker">
         <div className="bg-gradient-to-b from-primary/10 to-background p-6 pb-4">
           <DialogHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <Phone className="w-5 h-5 text-primary" />
                 <DialogTitle className="text-xl">Phone an Advisor</DialogTitle>
@@ -159,8 +158,8 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
           </DialogHeader>
         </div>
 
-        <Tabs defaultValue="consultant" className="flex-1">
-          <div className="px-6 border-b">
+        <Tabs defaultValue="consultant" className="flex-1 flex flex-col min-h-0">
+          <div className="px-6 border-b shrink-0">
             <TabsList className="w-full justify-start h-auto p-0 bg-transparent gap-6">
               {Object.entries(categoryConfig).map(([key, config]) => (
                 <TabsTrigger
@@ -176,7 +175,7 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
             </TabsList>
           </div>
 
-          <ScrollArea className="flex-1 h-[50vh]">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="p-6">
               {advisorsLoading ? (
                 <div className="space-y-4">
@@ -197,7 +196,7 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
                 </div>
               ) : (
                 Object.entries(categoryConfig).map(([key, config]) => (
-                  <TabsContent key={key} value={key} className="mt-0 space-y-4">
+                  <TabsContent key={key} value={key} className="mt-0 space-y-4 data-[state=inactive]:hidden" forceMount>
                     <p className="text-sm text-muted-foreground mb-4">
                       {config.description}
                     </p>
@@ -292,7 +291,7 @@ export function AdvisorPicker({ isOpen, onClose, creditsRemaining }: AdvisorPick
                 ))
               )}
             </div>
-          </ScrollArea>
+          </div>
         </Tabs>
 
         <div className="p-4 border-t bg-muted/30 flex justify-end">
