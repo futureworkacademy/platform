@@ -353,6 +353,7 @@ export function createTourDriver(config: TourConfig, markComplete: () => void = 
         config.onComplete();
       }
       driverObj.destroy();
+      cleanupDriverJsRemnants();
     },
     onCloseClick: () => {
       markComplete();
@@ -360,6 +361,7 @@ export function createTourDriver(config: TourConfig, markComplete: () => void = 
         config.onSkip();
       }
       driverObj.destroy();
+      cleanupDriverJsRemnants();
     },
     onDestroyed: () => {
       // Fallback: ensure completion callback is triggered
@@ -469,6 +471,25 @@ function showLoadingOverlay(message: string = "Loading...") {
 function hideLoadingOverlay() {
   const overlay = document.getElementById("fwa-tour-loading");
   if (overlay) overlay.remove();
+}
+
+function cleanupDriverJsRemnants() {
+  const selectors = [
+    ".driver-popover",
+    ".driver-overlay",
+    "#driver-popover-content",
+    "#driver-highlighted-element-stage",
+    "#driver-dummy-element",
+  ];
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.remove());
+  });
+  document.querySelectorAll(".driver-active-element").forEach(el => {
+    el.classList.remove("driver-active-element");
+  });
+  document.querySelectorAll(".driver-no-interaction").forEach(el => {
+    el.classList.remove("driver-no-interaction");
+  });
 }
 
 // Multi-page student tour with navigation
@@ -771,7 +792,7 @@ export async function startMultiPageStudentTour(
       dashboard: '[data-testid="financial-score-card"]',
       briefing: '[data-testid="card-situation-report"]',
       decisions: '[data-testid="decisions-page"]',
-      analytics: '[data-testid="avg-sentiment"]',
+      analytics: '[data-testid="behavior-trends"]',
       leaderboard: '[data-testid="your-rank"]'
     };
     
@@ -795,8 +816,8 @@ export async function startMultiPageStudentTour(
       }
     }
     
-    // Extra wait to ensure everything is rendered
-    await new Promise(resolve => setTimeout(resolve, 300));
+    const extraWait = page === "analytics" ? 1500 : 300;
+    await new Promise(resolve => setTimeout(resolve, extraWait));
     
     // Dismiss any open modals/popups that might interfere with the tour
     // Specifically close voicemail popup on briefing page
@@ -842,6 +863,7 @@ export async function startMultiPageStudentTour(
         disableActiveInteraction: false,
         onDestroyStarted: () => {
           driverObj.destroy();
+          cleanupDriverJsRemnants();
           if (isLastPage) {
             markStudentTourCompleted();
             onComplete?.();
@@ -850,6 +872,7 @@ export async function startMultiPageStudentTour(
         },
         onCloseClick: () => {
           driverObj.destroy();
+          cleanupDriverJsRemnants();
           markStudentTourCompleted();
           onSkip?.();
           resolve(false);

@@ -580,8 +580,10 @@ export async function registerRoutes(
       const team = await storage.getTeamWithDifficulty(teamId, difficultyLevel);
       
       // Include simulationLocked status from organization
+      // Preview users (admins testing) always see unlocked so they can test decisions
+      const isTeamPreviewUser = !!(user?.previewRole && (user?.previewOrgId || user?.previewModeOrgId));
       let simulationLocked = false;
-      if (orgId) {
+      if (!isTeamPreviewUser && orgId) {
         const [orgForLock] = await db.select().from(organizations).where(eq(organizations.id, orgId));
         simulationLocked = orgForLock?.simulationLocked === true;
       }
@@ -1086,23 +1088,22 @@ export async function registerRoutes(
       }
 
       // Check if simulation is locked (browse-only mode)
-      // Use preview org if in preview mode, otherwise use first membership org
-      let decisionOrgId: string | null = null;
-      if (user.previewOrgId || user.previewModeOrgId) {
-        decisionOrgId = user.previewOrgId || user.previewModeOrgId;
-      } else {
+      // Preview users (super admins testing) bypass the lock check
+      const isPreviewUser = !!(user.previewRole && (user.previewOrgId || user.previewModeOrgId));
+      if (!isPreviewUser) {
+        let decisionOrgId: string | null = null;
         const decisionMemberships = await organizationStorage.getMembershipsByUser(userId);
         if (decisionMemberships && decisionMemberships.length > 0) {
           decisionOrgId = decisionMemberships[0].organizationId;
         }
-      }
-      if (decisionOrgId) {
-        const [decisionOrg] = await db.select().from(organizations).where(eq(organizations.id, decisionOrgId));
-        if (decisionOrg?.simulationLocked === true) {
-          return res.status(403).json({ 
-            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
-            locked: true
-          });
+        if (decisionOrgId) {
+          const [decisionOrg] = await db.select().from(organizations).where(eq(organizations.id, decisionOrgId));
+          if (decisionOrg?.simulationLocked === true) {
+            return res.status(403).json({ 
+              error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+              locked: true
+            });
+          }
         }
       }
 
@@ -1216,23 +1217,22 @@ export async function registerRoutes(
         return res.status(404).json({ error: "No team assigned" });
       }
 
-      // Check if simulation is locked - use preview org if in preview mode
-      let submitOrgId: string | null = null;
-      if (user.previewOrgId || user.previewModeOrgId) {
-        submitOrgId = user.previewOrgId || user.previewModeOrgId;
-      } else {
+      // Check if simulation is locked - preview users (admins testing) bypass the lock
+      const isSubmitPreviewUser = !!(user.previewRole && (user.previewOrgId || user.previewModeOrgId));
+      if (!isSubmitPreviewUser) {
+        let submitOrgId: string | null = null;
         const submitMemberships = await organizationStorage.getMembershipsByUser(userId);
         if (submitMemberships && submitMemberships.length > 0) {
           submitOrgId = submitMemberships[0].organizationId;
         }
-      }
-      if (submitOrgId) {
-        const [submitOrg] = await db.select().from(organizations).where(eq(organizations.id, submitOrgId));
-        if (submitOrg?.simulationLocked === true) {
-          return res.status(403).json({ 
-            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
-            locked: true
-          });
+        if (submitOrgId) {
+          const [submitOrg] = await db.select().from(organizations).where(eq(organizations.id, submitOrgId));
+          if (submitOrg?.simulationLocked === true) {
+            return res.status(403).json({ 
+              error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+              locked: true
+            });
+          }
         }
       }
       
@@ -1291,23 +1291,22 @@ export async function registerRoutes(
       const team = user?.teamId ? await storage.getTeam(user.teamId) : null;
       const weekNumber = team?.currentWeek || 1;
 
-      // Check if simulation is locked - use preview org if in preview mode
-      let enhancedOrgId: string | null = null;
-      if (user?.previewOrgId || user?.previewModeOrgId) {
-        enhancedOrgId = user.previewOrgId || user.previewModeOrgId;
-      } else {
+      // Check if simulation is locked - preview users (admins testing) bypass the lock
+      const isEnhancedPreviewUser = !!(user?.previewRole && (user?.previewOrgId || user?.previewModeOrgId));
+      if (!isEnhancedPreviewUser) {
+        let enhancedOrgId: string | null = null;
         const enhancedMemberships = await organizationStorage.getMembershipsByUser(userId);
         if (enhancedMemberships && enhancedMemberships.length > 0) {
           enhancedOrgId = enhancedMemberships[0].organizationId;
         }
-      }
-      if (enhancedOrgId) {
-        const [enhancedOrg] = await db.select().from(organizations).where(eq(organizations.id, enhancedOrgId));
-        if (enhancedOrg?.simulationLocked === true) {
-          return res.status(403).json({ 
-            error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
-            locked: true
-          });
+        if (enhancedOrgId) {
+          const [enhancedOrg] = await db.select().from(organizations).where(eq(organizations.id, enhancedOrgId));
+          if (enhancedOrg?.simulationLocked === true) {
+            return res.status(403).json({ 
+              error: "Decisions are currently locked by your instructor. You can browse the simulation content, but submissions are not open yet.",
+              locked: true
+            });
+          }
         }
       }
 
