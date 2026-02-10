@@ -422,7 +422,7 @@ Your CFO has secured preliminary approval for a $15M line of credit from First M
 
 The production floor is buzzing with anxiety. Workers have heard about the UAW's new organizing campaign targeting Midwest precision manufacturers. Your HR Director reports informal union discussions have begun among the moldmakers.`,
     pressures: [
-      { source: "Board of Directors", message: "Tariffs are creating a once-in-a-decade opportunity. We need to scale capacity 40% in 18 months or lose it forever.", urgency: "critical" },
+      { source: "Board Chair", message: "Tariffs are creating a once-in-a-decade opportunity. We need to scale capacity 40% in 18 months or lose it forever.", urgency: "critical" },
       { source: "CFO", message: "The bank loan is ready. We can draw $15M at 6.5% interest, but we need a solid plan.", urgency: "high" },
       { source: "Lead Moldmaker", message: "My team built this company's reputation by hand. If machines replace us, who maintains the quality?", urgency: "high" },
       { source: "UAW Organizer", message: "Workers are talking. How leadership handles this will determine whether we organize.", urgency: "medium" },
@@ -541,7 +541,7 @@ The reshoring wave is real - your medical and aerospace customers are committed 
 
 The board wants a 3-year strategic plan. Should you double down on the precision micro-molding niche, or diversify into adjacent markets? Should you expand the Iowa facility or open a second location? The foundation you've built could support many futures.`,
     pressures: [
-      { source: "Board of Directors", message: "Present your 3-year strategic plan. We need to see how this quarter's actions become sustainable advantage.", urgency: "high" },
+      { source: "Board Chair", message: "Present your 3-year strategic plan. We need to see how this quarter's actions become sustainable advantage.", urgency: "high" },
       { source: "Master Moldmaker", message: "Three of my best technicians got offers from competitors. They're staying for now, but we need to show them a future here.", urgency: "high" },
       { source: "Major Customer", message: "We're ready to expand our relationship significantly - if you can demonstrate sustained quality and capacity.", urgency: "high" },
       { source: "Community College Dean", message: "Our first cohort graduates in 6 months. The program is a success - other manufacturers want to replicate it.", urgency: "medium" },

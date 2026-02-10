@@ -55,7 +55,7 @@ function extractThemes(scenario: { title: string; narrative: string; keyQuestion
 // Helper function to infer character traits based on role
 function inferCharacterTraits(role: string): string[] {
   const roleTraits: Record<string, string[]> = {
-    "Board of Directors": ["strategic thinker", "shareholder-focused", "long-term oriented", "demanding"],
+    "Board Chair": ["strategic thinker", "shareholder-focused", "long-term oriented", "demanding"],
     "CFO": ["analytical", "risk-aware", "numbers-driven", "pragmatic"],
     "HR Director": ["people-focused", "empathetic", "process-oriented", "communication-skilled"],
     "Operations Manager": ["practical", "detail-oriented", "efficiency-focused", "hands-on"],
@@ -105,7 +105,6 @@ export async function registerRoutes(
 
   // Character profiles API
   const roleToCharacterMap: Record<string, string> = {
-    "Board of Directors": "Victoria Hartwell",
     "Board Chair": "Victoria Hartwell",
     "Board Chairwoman": "Victoria Hartwell",
     "Chairwoman": "Victoria Hartwell",
