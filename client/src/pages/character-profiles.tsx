@@ -27,7 +27,10 @@ import {
   MessageSquare,
   ArrowLeft,
   AlertTriangle,
+  Download,
+  FileText,
 } from "lucide-react";
+import { generateWeek1OfflineGuidePDF } from "@/lib/offline-guide-pdf-export";
 
 interface SocialProfile {
   headline: string;
@@ -101,18 +104,17 @@ function CharacterCard({ character }: { character: CharacterProfile }) {
       data-testid={`card-character-${character.id}`}
     >
       <div className="relative">
-        <div className="h-16 bg-gradient-to-r from-primary/80 to-primary/40 rounded-t-md" />
-        <div className="px-4 pb-3">
-          <div className="flex items-start gap-3 -mt-8">
+        <div className="bg-gradient-to-r from-primary/80 to-primary/40 rounded-t-md px-4 pt-4 pb-3">
+          <div className="flex items-start gap-3">
             <Avatar className="h-16 w-16 border-4 border-background shadow-md flex-shrink-0">
               <AvatarImage src={character.headshotUrl} alt={character.name} />
               <AvatarFallback className="text-lg bg-muted">{initials}</AvatarFallback>
             </Avatar>
-            <div className="pt-2 min-w-0 flex-1">
+            <div className="pt-1 min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm truncate text-white">{character.name}</h3>
-                  <p className="text-xs text-white/80 truncate">
+                  <h3 className="font-bold text-sm truncate text-white" data-testid={`text-character-name-${character.id}`}>{character.name}</h3>
+                  <p className="text-xs text-white/80 line-clamp-2">
                     {socialProfile?.headline || character.title || character.role}
                   </p>
                   {character.company && (
@@ -135,7 +137,8 @@ function CharacterCard({ character }: { character: CharacterProfile }) {
               </div>
             </div>
           </div>
-
+        </div>
+        <div className="px-4 pb-3">
           <div className="mt-3 space-y-1.5">
             <TraitBar label="Influence" value={character.influence ?? 5} icon={Zap} barColor="hsl(var(--accent))" />
             <TraitBar label="Hostility" value={character.hostility ?? 5} icon={Shield} barColor="hsl(var(--destructive))" />
@@ -478,20 +481,53 @@ export default function CharacterProfilesPage() {
           </div>
         )}
 
-        {isPublicView && (voicemail || advisor) && (
+        {isPublicView && (
           <>
             <Separator className="my-8" />
             <div className="space-y-6">
-              <div className="space-y-1">
-                <h2 className="text-xl font-bold" data-testid="text-week1-extras">Week 1 Resources</h2>
-                <p className="text-sm text-muted-foreground">
-                  Additional context for "The Automation Imperative" scenario
-                </p>
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-bold" data-testid="text-week1-extras">Week 1 Resources</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Additional context for "The Automation Imperative" scenario
+                  </p>
+                </div>
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    generateWeek1OfflineGuidePDF();
+                  }}
+                  data-testid="button-download-offline-guide"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Week 1 PDF
+                </Button>
               </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                {voicemail && <VoicemailSection voicemail={voicemail} />}
-                {advisor && <AdvisorSection advisor={advisor} />}
-              </div>
+
+              <Card className="border-dashed" data-testid="card-offline-guide-info">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-full bg-accent/10 flex-shrink-0">
+                      <FileText className="h-5 w-5 text-accent" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-sm">Complete Offline Guide</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        The PDF includes the full situation briefing, all three Intel Articles (WSJ, HBR, McKinsey),
+                        three decision options with financial data, LMS submission template, and a 100-point scoring rubric.
+                        Everything students need to complete Week 1 without platform access.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {(voicemail || advisor) && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {voicemail && <VoicemailSection voicemail={voicemail} />}
+                  {advisor && <AdvisorSection advisor={advisor} />}
+                </div>
+              )}
             </div>
           </>
         )}

@@ -38,7 +38,7 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Documentation Auto-Sync:** All markdown files in `docs/` folder automatically sync to Google Docs in the "Future Work Academy" folder. Supports 20+ documents including business plan, game design, brand standards, and test checklists.
 
-**Stakeholder Directory:** Dedicated `/characters` page displays all simulation characters in a searchable card grid with expandable details (headshots, bios, traits, experience, education, skills). Accessible from the student sidebar as "Stakeholders". Both the Student Guide and Instructor Guide link to this page. The Student Guide PDF export includes a character directory appendix with names, roles, and headlines.
+**Stakeholder Directory (Public):** The `/characters` page is publicly accessible without authentication, displaying all simulation characters in a searchable card grid with expandable details (headshots, bios, traits, experience, education, skills). Accessible from the student sidebar as "Stakeholders" for logged-in users. Both the Student Guide and Instructor Guide link to this page. The Student Guide PDF export includes a character directory appendix with names, roles, and headlines. Character cards use a gradient banner that wraps the avatar, name, headline, and company text for readability.
 
 **Public Guide Pages:** Student Guide (`/guides/student`) and Instructor Guide (`/guides/instructor`) are public-facing, no-auth-required pages with comprehensive onboarding content and PDF download. The old `/student-guide` route redirects to `/guides/student`. Email templates dynamically link to the correct guide URLs via `getBaseUrl()` in `server/services/email.ts`.
 
@@ -48,6 +48,10 @@ The system features 17 character profiles with AI-generated headshots, rich bios
 
 **Design Token Cleanup (Feb 2026):** All hard-coded hex colors (`#1e3a5f`, `#22c55e`) in the Student Guide, Instructor Guide, and enrollment wizard have been replaced with semantic design tokens (`text-primary`, `text-accent`, `bg-primary`, `bg-accent`) for consistent dark mode behavior.
 
+**Week 1 Offline Guide & PDF Export (Feb 2026):** Comprehensive offline guide (`docs/week-1-offline-guide.md`) enables instructors to run Week 1 via Blackboard/LMS without platform access. Includes full briefing, 3 Intel Articles (WSJ, HBR, McKinsey), 3 decision options with financial data, LMS submission template, and 100-point scoring rubric. A branded PDF export (`client/src/lib/offline-guide-pdf-export.ts`) generates a downloadable PDF matching the Student/Instructor Guide styling. The download button appears on the public `/characters` page in the Week 1 Resources section.
+
+**Public API Endpoints (Feb 2026):** Two public (no-auth) API endpoints expose Week 1 simulation content for offline students: `/api/public/voicemail` returns the Week 1 triggered voicemail (Victoria Hartwell's "Board Pressure Call") with character details, and `/api/public/advisor` returns a featured Phone-a-Friend advisor. These are consumed by the public `/characters` page to show voicemail transcript and advisor profile cards below the stakeholder directory.
+
 ## Pre-Publish Checklist
 Before each production publish, review the following:
 1. **Student Guide** (`client/src/pages/guides/student-guide.tsx` and `client/src/lib/guide-pdf-export.ts`): Verify all content matches current simulation features (weekly workflow, scoring, advisor credits, character count, etc.)
@@ -55,6 +59,8 @@ Before each production publish, review the following:
 3. **Email Templates** (`server/services/email.ts`): Confirm all links point to correct pages and `getBaseUrl()` resolves properly in production.
 4. **Advisor Data**: Confirm 9 advisors with headshots in `/images/advisors/` and correct database records.
 5. **Character Data**: Confirm 17 characters with headshots and accurate trait data.
+6. **Week 1 Offline Guide PDF** (`client/src/lib/offline-guide-pdf-export.ts`): Verify content matches canonical simulation data (briefing text, Intel Articles, decision options, scoring rubric).
+7. **Public Characters Page** (`client/src/pages/character-profiles.tsx`): Verify public view shows stakeholder directory, Week 1 voicemail, advisor, and PDF download button. Test gradient banner readability for character cards.
 
 ## External Dependencies
 
