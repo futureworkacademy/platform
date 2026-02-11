@@ -306,6 +306,8 @@ export async function registerRoutes(
         title: voicemail.title,
         transcript: voicemail.transcript,
         urgency: voicemail.urgency,
+        audioUrl: voicemail.audioUrl || `/audio/voicemails/week-1-voicemail.mp3`,
+        duration: voicemail.duration,
         character: character || { name: "Unknown", role: "Apex Manufacturing", headshotUrl: null },
       });
     } catch (error) {
@@ -325,6 +327,9 @@ export async function registerRoutes(
           title: advisors.title,
           specialty: advisors.specialty,
           bio: advisors.bio,
+          transcript: advisors.transcript,
+          audioUrl: advisors.audioUrl,
+          keyInsights: advisors.keyInsights,
           headshotUrl: advisors.headshotUrl,
         })
         .from(advisors)
@@ -336,7 +341,10 @@ export async function registerRoutes(
         return res.status(404).json({ error: "No advisor available" });
       }
 
-      res.json(advisor);
+      res.json({
+        ...advisor,
+        audioUrl: advisor.audioUrl || `/audio/advisors/${advisor.id}.mp3`,
+      });
     } catch (error) {
       console.error("Error fetching public advisor:", error);
       res.status(500).json({ error: "Failed to fetch advisor" });

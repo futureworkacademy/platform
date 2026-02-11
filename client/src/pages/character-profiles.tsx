@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -29,6 +29,13 @@ import {
   AlertTriangle,
   Download,
   FileText,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Lightbulb,
+  Headphones,
+  CheckCircle2,
 } from "lucide-react";
 import { generateWeek1OfflineGuidePDF } from "@/lib/offline-guide-pdf-export";
 
@@ -281,6 +288,8 @@ interface PublicVoicemail {
   title: string;
   transcript: string;
   urgency: string;
+  audioUrl: string | null;
+  duration: number | null;
   character: { name: string; role: string; title?: string; headshotUrl?: string | null };
 }
 
@@ -291,11 +300,140 @@ interface PublicAdvisor {
   title: string;
   specialty: string;
   bio: string;
+  transcript: string | null;
+  audioUrl: string | null;
+  keyInsights: string[] | null;
   headshotUrl: string | null;
+}
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function InlineAudioPlayer({ audioUrl, label }: { audioUrl: string; label: string }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleLoadedMetadata = useCallback(() => {
+    setDuration(audioRef.current?.duration || 0);
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    setCurrentTime(audioRef.current?.currentTime || 0);
+  }, []);
+
+  const handleEnded = useCallback(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  }, []);
+
+  useEffect(() => {
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.pause();
+      audioRef.current = null;
+    };
+  }, [audioUrl, handleLoadedMetadata, handleTimeUpdate, handleEnded]);
+
+  const togglePlay = async () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.error("Audio playback failed:", err);
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+    }
+    setIsMuted(!isMuted);
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    audioRef.current.currentTime = percent * duration;
+  };
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div className="space-y-2" data-testid={`audio-player-${label}`}>
+      <div
+        className="relative h-2 bg-muted rounded-full cursor-pointer overflow-hidden"
+        onClick={handleSeek}
+        role="slider"
+        aria-label={`${label} audio progress`}
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        tabIndex={0}
+        data-testid={`progress-${label}`}
+      >
+        <div
+          className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            data-testid={`button-play-${label}`}
+          >
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute" : "Mute"}
+            data-testid={`button-mute-${label}`}
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+          <span className="text-xs text-muted-foreground font-mono">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
+        </div>
+        <Badge variant="outline" className="text-xs gap-1">
+          <Headphones className="h-3 w-3" />
+          Audio
+        </Badge>
+      </div>
+    </div>
+  );
 }
 
 function VoicemailSection({ voicemail }: { voicemail: PublicVoicemail }) {
   const initials = voicemail.character.name.split(' ').map(n => n[0]).join('');
+  const [showTranscript, setShowTranscript] = useState(false);
   return (
     <Card data-testid="card-public-voicemail">
       <CardContent className="pt-6 space-y-4">
@@ -303,32 +441,58 @@ function VoicemailSection({ voicemail }: { voicemail: PublicVoicemail }) {
           <div className="p-2 rounded-full bg-destructive/10">
             <Phone className="h-5 w-5 text-destructive" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <h3 className="font-bold text-lg" data-testid="text-voicemail-title">Incoming Voicemail</h3>
             <p className="text-sm text-muted-foreground">{voicemail.title}</p>
           </div>
-          <Badge variant="destructive" className="ml-auto">
+          <Badge variant="destructive" className="flex-shrink-0">
             <AlertTriangle className="h-3 w-3 mr-1" />
             {voicemail.urgency} priority
           </Badge>
         </div>
+
+        <div className="bg-accent/5 rounded-md p-3 border border-accent/20">
+          <p className="text-sm font-medium flex items-center gap-2">
+            <Headphones className="h-4 w-4 text-accent flex-shrink-0" />
+            Listen to this voicemail before making your decision
+          </p>
+        </div>
+
         <Separator />
+
         <div className="flex items-start gap-4">
           <Avatar className="h-12 w-12 flex-shrink-0">
             <AvatarImage src={voicemail.character.headshotUrl || undefined} alt={voicemail.character.name} />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
-          <div className="space-y-2 min-w-0">
-            <div>
-              <p className="font-semibold text-sm">{voicemail.character.name}</p>
-              <p className="text-xs text-muted-foreground">{voicemail.character.title || voicemail.character.role}</p>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-4 border">
+          <div className="space-y-1 min-w-0">
+            <p className="font-semibold text-sm">{voicemail.character.name}</p>
+            <p className="text-xs text-muted-foreground">{voicemail.character.title || voicemail.character.role}</p>
+          </div>
+        </div>
+
+        {voicemail.audioUrl && (
+          <InlineAudioPlayer audioUrl={voicemail.audioUrl} label="voicemail" />
+        )}
+
+        <div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTranscript(!showTranscript)}
+            className="gap-2 text-xs"
+            data-testid="button-toggle-voicemail-transcript"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            {showTranscript ? "Hide Transcript" : "Show Transcript"}
+          </Button>
+          {showTranscript && (
+            <div className="bg-muted/50 rounded-lg p-4 border mt-2">
               <p className="text-sm leading-relaxed italic" data-testid="text-voicemail-transcript">
                 "{voicemail.transcript}"
               </p>
             </div>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -337,6 +501,7 @@ function VoicemailSection({ voicemail }: { voicemail: PublicVoicemail }) {
 
 function AdvisorSection({ advisor }: { advisor: PublicAdvisor }) {
   const initials = advisor.name.split(' ').map(n => n[0]).join('');
+  const [showTranscript, setShowTranscript] = useState(false);
   return (
     <Card data-testid="card-public-advisor">
       <CardContent className="pt-6 space-y-4">
@@ -345,11 +510,20 @@ function AdvisorSection({ advisor }: { advisor: PublicAdvisor }) {
             <MessageSquare className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-bold text-lg" data-testid="text-advisor-title">Phone-a-Friend Advisor</h3>
-            <p className="text-sm text-muted-foreground">Featured advisor available for strategic guidance</p>
+            <h3 className="font-bold text-lg" data-testid="text-advisor-title">This Week's Expert Consultant</h3>
+            <p className="text-sm text-muted-foreground">Listen for special insights to inform your decision</p>
           </div>
         </div>
+
+        <div className="bg-accent/5 rounded-md p-3 border border-accent/20">
+          <p className="text-sm font-medium flex items-center gap-2">
+            <Headphones className="h-4 w-4 text-accent flex-shrink-0" />
+            Listen to this consultant's guidance before submitting
+          </p>
+        </div>
+
         <Separator />
+
         <div className="flex items-start gap-4">
           <Avatar className="h-14 w-14 flex-shrink-0">
             <AvatarImage src={advisor.headshotUrl || undefined} alt={advisor.name} />
@@ -361,16 +535,62 @@ function AdvisorSection({ advisor }: { advisor: PublicAdvisor }) {
               <p className="text-sm text-muted-foreground">{advisor.title}</p>
             </div>
             <Badge variant="secondary" className="capitalize">{advisor.category.replace('_', ' ')}</Badge>
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Specialty</h4>
-              <p className="text-sm">{advisor.specialty}</p>
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Background</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">{advisor.bio}</p>
-            </div>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 gap-3">
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Specialty</h4>
+            <p className="text-sm">{advisor.specialty}</p>
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Background</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">{advisor.bio}</p>
+          </div>
+        </div>
+
+        {advisor.audioUrl && (
+          <InlineAudioPlayer audioUrl={advisor.audioUrl} label="advisor" />
+        )}
+
+        {advisor.keyInsights && advisor.keyInsights.length > 0 && (
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <Lightbulb className="h-3 w-3" />
+              Key Insights
+            </h4>
+            <ul className="space-y-1.5">
+              {advisor.keyInsights.map((insight, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-accent flex-shrink-0 mt-0.5" />
+                  {insight}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {advisor.transcript && (
+          <div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTranscript(!showTranscript)}
+              className="gap-2 text-xs"
+              data-testid="button-toggle-advisor-transcript"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              {showTranscript ? "Hide Transcript" : "Show Transcript"}
+            </Button>
+            {showTranscript && (
+              <div className="bg-muted/50 rounded-lg p-4 border mt-2">
+                <p className="text-sm leading-relaxed" data-testid="text-advisor-transcript">
+                  {advisor.transcript}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -489,7 +709,7 @@ export default function CharacterProfilesPage() {
                 <div className="space-y-1">
                   <h2 className="text-xl font-bold" data-testid="text-week1-extras">Week 1 Resources</h2>
                   <p className="text-sm text-muted-foreground">
-                    Additional context for "The Automation Imperative" scenario
+                    Everything you need for "The Automation Imperative" scenario
                   </p>
                 </div>
                 <Button
@@ -510,24 +730,21 @@ export default function CharacterProfilesPage() {
                     <div className="p-2 rounded-full bg-accent/10 flex-shrink-0">
                       <FileText className="h-5 w-5 text-accent" />
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="font-semibold text-sm">Complete Offline Guide</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        The PDF includes the full situation briefing, all three Intel Articles (WSJ, HBR, McKinsey),
-                        three decision options with financial data, LMS submission template, and a 100-point scoring rubric.
-                        Everything students need to complete Week 1 without platform access.
-                      </p>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-sm">How to Complete Week 1</h3>
+                      <ol className="text-sm text-muted-foreground leading-relaxed space-y-2 list-decimal list-inside">
+                        <li><span className="font-medium text-foreground">Download the PDF</span> — contains the full briefing, three Intel Articles (WSJ, HBR, McKinsey), three decision options with financial data, and the 100-point scoring rubric.</li>
+                        <li><span className="font-medium text-foreground">Listen to the voicemail</span> below — an urgent message from a key stakeholder that sets the stage for your decision.</li>
+                        <li><span className="font-medium text-foreground">Listen to this week's expert consultant</span> below — their special guidance provides critical context you won't find in the written materials.</li>
+                        <li><span className="font-medium text-foreground">Submit your response</span> through your LMS using the template in the PDF.</li>
+                      </ol>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {(voicemail || advisor) && (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {voicemail && <VoicemailSection voicemail={voicemail} />}
-                  {advisor && <AdvisorSection advisor={advisor} />}
-                </div>
-              )}
+              {voicemail && <VoicemailSection voicemail={voicemail} />}
+              {advisor && <AdvisorSection advisor={advisor} />}
             </div>
           </>
         )}
