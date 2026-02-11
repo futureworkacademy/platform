@@ -259,19 +259,35 @@ export async function registerRoutes(
   });
 
   // Public API - Get Week 1 voicemail (no auth required, for offline guide)
-  app.get("/api/public/voicemail", async (_req, res) => {
+  const WEEK_ADVISOR_MAP: Record<number, string> = {
+    1: "Dr. Elena Vasquez",
+    2: "Diana Okonkwo",
+    3: "Dr. Priya Sharma",
+    4: "Dr. Thomas Brennan",
+    5: "Marcus Chen",
+    6: "James Richardson",
+    7: "Kai Nakamura",
+    8: "Dr. Amara Williams",
+  };
+
+  app.get("/api/public/voicemail", async (req, res) => {
     try {
+      const weekNumber = parseInt(req.query.week as string) || 1;
+      if (weekNumber < 1 || weekNumber > 8) {
+        return res.status(400).json({ error: "Week must be between 1 and 8" });
+      }
+
       const [voicemail] = await db
         .select()
         .from(triggeredVoicemails)
         .where(and(
-          eq(triggeredVoicemails.weekNumber, 1),
+          eq(triggeredVoicemails.weekNumber, weekNumber),
           eq(triggeredVoicemails.isActive, true)
         ))
         .limit(1);
 
       if (!voicemail) {
-        return res.status(404).json({ error: "No voicemail available" });
+        return res.status(404).json({ error: "No voicemail available for this week" });
       }
 
       let character = null;
@@ -306,8 +322,9 @@ export async function registerRoutes(
         title: voicemail.title,
         transcript: voicemail.transcript,
         urgency: voicemail.urgency,
-        audioUrl: voicemail.audioUrl || `/audio/voicemails/week-1-voicemail.mp3`,
+        audioUrl: voicemail.audioUrl || `/audio/voicemails/week-${weekNumber}-voicemail.mp3`,
         duration: voicemail.duration,
+        weekNumber,
         character: character || { name: "Unknown", role: "Apex Manufacturing", headshotUrl: null },
       });
     } catch (error) {
@@ -316,9 +333,14 @@ export async function registerRoutes(
     }
   });
 
-  // Public API - Get a featured advisor (no auth required, for offline guide)
-  app.get("/api/public/advisor", async (_req, res) => {
+  app.get("/api/public/advisor", async (req, res) => {
     try {
+      const weekNumber = parseInt(req.query.week as string) || 1;
+      if (weekNumber < 1 || weekNumber > 8) {
+        return res.status(400).json({ error: "Week must be between 1 and 8" });
+      }
+
+      const advisorName = WEEK_ADVISOR_MAP[weekNumber];
       const [advisor] = await db
         .select({
           id: advisors.id,
@@ -333,21 +355,72 @@ export async function registerRoutes(
           headshotUrl: advisors.headshotUrl,
         })
         .from(advisors)
-        .where(eq(advisors.isActive, true))
-        .orderBy(advisors.name)
+        .where(and(
+          eq(advisors.isActive, true),
+          eq(advisors.name, advisorName)
+        ))
         .limit(1);
 
       if (!advisor) {
-        return res.status(404).json({ error: "No advisor available" });
+        return res.status(404).json({ error: "No advisor available for this week" });
       }
 
       res.json({
         ...advisor,
+        weekNumber,
         audioUrl: advisor.audioUrl || `/audio/advisors/${advisor.id}.mp3`,
       });
     } catch (error) {
       console.error("Error fetching public advisor:", error);
       res.status(500).json({ error: "Failed to fetch advisor" });
+    }
+  });
+
+  app.get("/api/public/week-content", async (req, res) => {
+    try {
+      const weekNumber = parseInt(req.query.week as string) || 1;
+      if (weekNumber < 1 || weekNumber > 8) {
+        return res.status(400).json({ error: "Week must be between 1 and 8" });
+      }
+
+      const content = await db
+        .select({
+          id: simulationContent.id,
+          title: simulationContent.title,
+          content: simulationContent.content,
+          contentType: simulationContent.contentType,
+        })
+        .from(simulationContent)
+        .where(and(
+          eq(simulationContent.weekNumber, weekNumber),
+          eq(simulationContent.isActive, true)
+        ));
+
+      const briefing = content.find(c => c.contentType === "briefing");
+      const decisions = content.filter(c => c.contentType === "decision");
+      const intelArticles = content.filter(c => c.contentType === "intel");
+
+      const weekTitles: Record<number, string> = {
+        1: "The Automation Imperative",
+        2: "The Talent Pipeline Crisis",
+        3: "Union Storm Brewing",
+        4: "The First Displacement",
+        5: "The Manager Exodus",
+        6: "Debt Day of Reckoning",
+        7: "The Competitive Response",
+        8: "Strategic Direction",
+      };
+
+      res.json({
+        weekNumber,
+        weekTitle: weekTitles[weekNumber] || `Week ${weekNumber}`,
+        briefing: briefing ? { title: briefing.title, content: briefing.content } : null,
+        decisions: decisions.map(d => ({ title: d.title, content: d.content })),
+        intelArticles: intelArticles.map(a => ({ title: a.title, content: a.content })),
+      });
+    } catch (error) {
+      console.error("Error fetching public week content:", error);
+      res.status(500).json({ error: "Failed to fetch week content" });
     }
   });
 

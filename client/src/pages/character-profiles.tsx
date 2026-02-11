@@ -37,7 +37,7 @@ import {
   Headphones,
   CheckCircle2,
 } from "lucide-react";
-import { generateWeek1OfflineGuidePDF } from "@/lib/offline-guide-pdf-export";
+import { generateWeeklyOfflineGuidePDF } from "@/lib/offline-guide-pdf-export";
 
 interface SocialProfile {
   headline: string;
@@ -596,23 +596,208 @@ function AdvisorSection({ advisor }: { advisor: PublicAdvisor }) {
   );
 }
 
-export default function CharacterProfilesPage() {
+const WEEK_TITLES: Record<number, string> = {
+  1: "The Automation Imperative",
+  2: "The Talent Pipeline Crisis",
+  3: "Union Storm Brewing",
+  4: "The First Displacement",
+  5: "The Manager Exodus",
+  6: "Debt Day of Reckoning",
+  7: "The Competitive Response",
+  8: "Strategic Direction",
+};
+
+export function WeeklySimulationPage({ weekNumber }: { weekNumber: number }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useAuth();
-  const isPublicView = !user;
+  const [isDownloading, setIsDownloading] = useState(false);
+  const weekTitle = WEEK_TITLES[weekNumber] || `Week ${weekNumber}`;
 
   const { data: characters, isLoading } = useQuery<CharacterProfile[]>({
     queryKey: ["/api/characters"],
   });
 
   const { data: voicemail } = useQuery<PublicVoicemail>({
-    queryKey: ["/api/public/voicemail"],
-    enabled: isPublicView,
+    queryKey: ["/api/public/voicemail", weekNumber],
+    queryFn: () => fetch(`/api/public/voicemail?week=${weekNumber}`).then(r => r.json()),
   });
 
   const { data: advisor } = useQuery<PublicAdvisor>({
-    queryKey: ["/api/public/advisor"],
-    enabled: isPublicView,
+    queryKey: ["/api/public/advisor", weekNumber],
+    queryFn: () => fetch(`/api/public/advisor?week=${weekNumber}`).then(r => r.json()),
+  });
+
+  const filtered = characters?.filter((c) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(q) ||
+      c.role.toLowerCase().includes(q) ||
+      (c.title?.toLowerCase().includes(q) ?? false) ||
+      (c.company?.toLowerCase().includes(q) ?? false)
+    );
+  }) ?? [];
+
+  const sorted = [...filtered].sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
+
+  const handleDownloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const res = await fetch(`/api/public/week-content?week=${weekNumber}`);
+      if (!res.ok) {
+        throw new Error(`Failed to load week content (${res.status})`);
+      }
+      const weekContent = await res.json();
+      generateWeeklyOfflineGuidePDF(weekNumber, weekTitle, weekContent);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("Could not generate the PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="flex items-center justify-between gap-4 p-4 border-b sticky top-0 z-50 bg-card/80 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <Link href="/">
+            <Button variant="ghost" size="icon" data-testid="button-back-home">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <p className="font-semibold text-sm">Future Work Academy</p>
+            <p className="text-xs text-muted-foreground">Apex Manufacturing Simulation</p>
+          </div>
+        </div>
+        <ThemeToggle />
+      </header>
+
+      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6" data-testid="weekly-simulation-page">
+        <div className="space-y-1">
+          <Badge variant="outline" className="mb-2">Week {weekNumber} of 8</Badge>
+          <h1 className="text-2xl font-bold" data-testid="text-page-title">{weekTitle}</h1>
+          <p className="text-sm text-muted-foreground">
+            Apex Manufacturing Simulation — Week {weekNumber} Assignment
+          </p>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold" data-testid="text-week-resources">Week {weekNumber} Resources</h2>
+              <p className="text-sm text-muted-foreground">
+                Everything you need for "{weekTitle}"
+              </p>
+            </div>
+            <Button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              data-testid="button-download-offline-guide"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {isDownloading ? "Generating..." : `Download Week ${weekNumber} PDF`}
+            </Button>
+          </div>
+
+          <Card className="border-dashed" data-testid="card-offline-guide-info">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="p-2 rounded-full bg-accent/10 flex-shrink-0">
+                  <FileText className="h-5 w-5 text-accent" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">How to Complete Week {weekNumber}</h3>
+                  <ol className="text-sm text-muted-foreground leading-relaxed space-y-2 list-decimal list-inside">
+                    <li><span className="font-medium text-foreground">Download the PDF</span> — contains the full briefing, Intel Articles, decision options with financial data, and the scoring rubric.</li>
+                    <li><span className="font-medium text-foreground">Listen to the voicemail</span> below — an urgent message from a key stakeholder that sets the stage for your decision.</li>
+                    <li><span className="font-medium text-foreground">Listen to this week's expert consultant</span> below — their special guidance provides critical context you won't find in the written materials.</li>
+                    <li><span className="font-medium text-foreground">Submit your response</span> through your LMS using the template in the PDF.</li>
+                  </ol>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {voicemail && <VoicemailSection voicemail={voicemail} />}
+          {advisor && <AdvisorSection advisor={advisor} />}
+        </div>
+
+        <Separator className="my-8" />
+
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold" data-testid="text-stakeholder-title">Stakeholder Directory</h2>
+            <p className="text-sm text-muted-foreground">
+              Meet the 17 key stakeholders at Apex Manufacturing. Understanding their backgrounds,
+              motivations, and influence is critical to navigating your decisions successfully.
+            </p>
+          </div>
+
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, role, or department..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+              data-testid="input-search-characters"
+            />
+          </div>
+
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i}>
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-16 w-16 rounded-full" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-2 w-full" />
+                    <Skeleton className="h-2 w-full" />
+                    <Skeleton className="h-2 w-3/4" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : sorted.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground" data-testid="text-no-results">
+                  No characters match your search.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="grid-characters">
+              {sorted.map((character) => (
+                <CharacterCard key={character.id} character={character} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <p className="text-[10px] text-center text-muted-foreground/50 uppercase tracking-wider">
+          All characters, organizations, and scenarios are fictional — created for educational simulation purposes only
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function CharacterProfilesPage() {
+  const { user } = useAuth();
+  const isPublicView = !user;
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: characters, isLoading } = useQuery<CharacterProfile[]>({
+    queryKey: ["/api/characters"],
   });
 
   const filtered = characters?.filter((c) => {
@@ -699,54 +884,6 @@ export default function CharacterProfilesPage() {
               <CharacterCard key={character.id} character={character} />
             ))}
           </div>
-        )}
-
-        {isPublicView && (
-          <>
-            <Separator className="my-8" />
-            <div className="space-y-6">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="space-y-1">
-                  <h2 className="text-xl font-bold" data-testid="text-week1-extras">Week 1 Resources</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Everything you need for "The Automation Imperative" scenario
-                  </p>
-                </div>
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    generateWeek1OfflineGuidePDF();
-                  }}
-                  data-testid="button-download-offline-guide"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Week 1 PDF
-                </Button>
-              </div>
-
-              <Card className="border-dashed" data-testid="card-offline-guide-info">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 rounded-full bg-accent/10 flex-shrink-0">
-                      <FileText className="h-5 w-5 text-accent" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-sm">How to Complete Week 1</h3>
-                      <ol className="text-sm text-muted-foreground leading-relaxed space-y-2 list-decimal list-inside">
-                        <li><span className="font-medium text-foreground">Download the PDF</span> — contains the full briefing, three Intel Articles (WSJ, HBR, McKinsey), three decision options with financial data, and the 100-point scoring rubric.</li>
-                        <li><span className="font-medium text-foreground">Listen to the voicemail</span> below — an urgent message from a key stakeholder that sets the stage for your decision.</li>
-                        <li><span className="font-medium text-foreground">Listen to this week's expert consultant</span> below — their special guidance provides critical context you won't find in the written materials.</li>
-                        <li><span className="font-medium text-foreground">Submit your response</span> through your LMS using the template in the PDF.</li>
-                      </ol>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {voicemail && <VoicemailSection voicemail={voicemail} />}
-              {advisor && <AdvisorSection advisor={advisor} />}
-            </div>
-          </>
         )}
 
         <p className="text-[10px] text-center text-muted-foreground/50 uppercase tracking-wider">

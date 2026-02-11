@@ -30,7 +30,7 @@ import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
-import CharacterProfilesPage from "@/pages/character-profiles";
+import CharacterProfilesPage, { WeeklySimulationPage } from "@/pages/character-profiles";
 import ContentValidation from "@/pages/content-validation";
 import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
@@ -241,6 +241,13 @@ function AppRouter() {
     if (location === "/characters") {
       return <CharacterProfilesPage />;
     }
+    const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
+    if (weekMatch) {
+      const weekNum = parseInt(weekMatch[1]);
+      if (weekNum >= 1 && weekNum <= 8) {
+        return <WeeklySimulationPage weekNumber={weekNum} />;
+      }
+    }
     return <Landing />;
   }
 
@@ -325,6 +332,14 @@ function AppRouter() {
 
   if (location === "/characters") {
     return <CharacterProfilesPage />;
+  }
+
+  const weekMatchAuth = location.match(/^\/apex-simulation-week-(\d)$/);
+  if (weekMatchAuth) {
+    const weekNum = parseInt(weekMatchAuth[1]);
+    if (weekNum >= 1 && weekNum <= 8) {
+      return <WeeklySimulationPage weekNumber={weekNum} />;
+    }
   }
 
   // Super Admin - always redirect to admin dashboard if not already there

@@ -521,3 +521,222 @@ export function generateWeek1OfflineGuidePDF(): void {
   addFooter(doc);
   doc.save("Future_Work_Academy_Week1_Offline_Guide.pdf");
 }
+
+interface WeekContent {
+  weekNumber: number;
+  weekTitle: string;
+  briefing: { title: string; content: string } | null;
+  decisions: { title: string; content: string }[];
+  intelArticles: { title: string; content: string }[];
+}
+
+function addDynamicHeader(doc: jsPDF, weekNumber: number, weekTitle: string): void {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, pageWidth, 42, "F");
+
+  doc.setFillColor(...GREEN);
+  doc.rect(0, 42, pageWidth, 2, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("FUTURE WORK ACADEMY", margin, 14);
+
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Week ${weekNumber} Offline Guide`, margin, 28);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(200, 200, 200);
+  doc.text(`"${weekTitle}" \u2014 Complete simulation materials for LMS delivery`, margin, 36);
+}
+
+function addDynamicFooter(doc: jsPDF, weekNumber: number): void {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...LIGHT_GRAY);
+    doc.line(20, 280, pageWidth - 20, 280);
+    doc.setTextColor(...LIGHT_GRAY);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `Future Work Academy | Week ${weekNumber} Offline Guide | Page ${i} of ${pageCount}`,
+      pageWidth / 2,
+      285,
+      { align: "center" }
+    );
+  }
+}
+
+function parseContentSections(content: string): string[] {
+  return content.split(/\n\n+/).filter(s => s.trim().length > 0);
+}
+
+export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: string, weekContent: WeekContent): void {
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const contentWidth = pageWidth - margin * 2;
+  let y: number;
+
+  addDynamicHeader(doc, weekNumber, weekTitle);
+  y = 52;
+
+  y = addSectionHeader(doc, "How to Use This Guide", y, margin);
+  y = addBodyText(doc, `This document contains everything students need to complete Week ${weekNumber} of the Apex Manufacturing simulation without logging into the platform. Distribute via your LMS (Blackboard, Canvas, etc.) or as a printed handout.`, y, margin, contentWidth);
+  y = addNumberedStep(doc, 1, "Read the Situation Briefing", "Understand the scenario and company context", y, margin, contentWidth);
+  y = addNumberedStep(doc, 2, "Review the Intel Articles", "Research articles provide critical background", y, margin, contentWidth);
+  y = addNumberedStep(doc, 3, "Choose a Decision Option", "Select one of the investment/strategy paths", y, margin, contentWidth);
+  y = addNumberedStep(doc, 4, "Write a Strategic Rationale", "Minimum 100 words explaining your reasoning", y, margin, contentWidth);
+  y = addNumberedStep(doc, 5, "Submit via LMS", "Use your institution's assignment submission system", y, margin, contentWidth);
+  y += 4;
+
+  y = addSectionHeader(doc, "Company Background", y, margin);
+  y = addSubHeader(doc, "Apex Manufacturing - Company Profile", y, margin);
+  y = addTableRow(doc, "Detail", "Value", y, margin, contentWidth, true);
+  y = addTableRow(doc, "Company", "Apex Manufacturing", y, margin, contentWidth);
+  y = addTableRow(doc, "Industry", "Automotive parts supplier", y, margin, contentWidth);
+  y = addTableRow(doc, "Annual Revenue", "$125 million", y, margin, contentWidth);
+  y = addTableRow(doc, "Employees", "2,400", y, margin, contentWidth);
+  y = addTableRow(doc, "Average Tenure", "7.2 years", y, margin, contentWidth);
+  y = addTableRow(doc, "Location", "Midwest United States", y, margin, contentWidth);
+  y = addTableRow(doc, "Founded", "1987", y, margin, contentWidth);
+  y += 4;
+
+  if (weekContent.briefing) {
+    y = addSectionHeader(doc, `Week ${weekNumber} Situation Briefing`, y, margin);
+    y = addSubHeader(doc, `"${weekTitle}"`, y, margin);
+    const paragraphs = parseContentSections(weekContent.briefing.content);
+    for (const para of paragraphs) {
+      y = addBodyText(doc, para, y, margin, contentWidth);
+    }
+    y += 4;
+  }
+
+  if (weekContent.intelArticles.length > 0) {
+    for (let i = 0; i < weekContent.intelArticles.length; i++) {
+      const article = weekContent.intelArticles[i];
+      y = addSectionHeader(doc, `Intel Article ${i + 1}`, y, margin);
+      y = addSubHeader(doc, article.title, y, margin);
+      const paragraphs = parseContentSections(article.content);
+      for (const para of paragraphs) {
+        y = addBodyText(doc, para, y, margin, contentWidth);
+      }
+      y += 4;
+    }
+  }
+
+  if (weekContent.decisions.length > 0) {
+    y = addSectionHeader(doc, "Decision Options", y, margin);
+    y = addBodyText(doc, "Choose ONE of the options below. Each has different financial and cultural implications.", y, margin, contentWidth);
+    y += 2;
+
+    const optionLetters = ["A", "B", "C", "D", "E"];
+    for (let i = 0; i < weekContent.decisions.length; i++) {
+      const decision = weekContent.decisions[i];
+      y = addSubHeader(doc, `Option ${optionLetters[i] || (i + 1)}: ${decision.title}`, y, margin);
+      const paragraphs = parseContentSections(decision.content);
+      for (const para of paragraphs) {
+        y = addBodyText(doc, para, y, margin, contentWidth);
+      }
+      y += 4;
+    }
+  }
+
+  y = addSectionHeader(doc, "LMS Submission Template", y, margin);
+  y = addBodyText(doc, "Create an assignment in your LMS (Blackboard, Canvas, etc.) with the following components:", y, margin, contentWidth);
+  y += 2;
+
+  y = addSubHeader(doc, "Submission 1: Decision Selection", y, margin);
+  y = addBodyText(doc, "Which path do you choose for Apex Manufacturing?", y, margin, contentWidth);
+  if (weekContent.decisions.length > 0) {
+    const optionLetters = ["A", "B", "C", "D", "E"];
+    for (let i = 0; i < weekContent.decisions.length; i++) {
+      y = addBulletPoint(doc, `${optionLetters[i] || (i + 1)}) ${weekContent.decisions[i].title}`, y, margin, contentWidth);
+    }
+  }
+  y += 2;
+
+  y = addSubHeader(doc, "Submission 2: Strategic Rationale Essay (min. 100 words)", y, margin);
+  y = addBodyText(doc, "As the CEO of Apex Manufacturing, explain your reasoning for the path you selected. Your response should:", y, margin, contentWidth);
+  y = addNumberedStep(doc, 1, "Financial Justification", "Cite specific data from the briefing and research materials", y, margin, contentWidth);
+  y = addNumberedStep(doc, 2, "Workforce Strategy", "Address how you will manage workforce anxiety and stakeholder concerns", y, margin, contentWidth);
+  y = addNumberedStep(doc, 3, "Communication Plan", "Explain your strategy for employees, the board, and key customers", y, margin, contentWidth);
+  y = addNumberedStep(doc, 4, "Research Integration", "Reference at least one Intel Article", y, margin, contentWidth);
+  y += 2;
+
+  y = addCalloutBox(doc, "Recommended Length", "Minimum 100 words. For a thorough analysis, aim for 200-400 words.", y, margin, contentWidth);
+  y += 4;
+
+  y = addSectionHeader(doc, "Scoring Rubric (For Instructors)", y, margin);
+  y = addBodyText(doc, "The platform uses dual scoring (Financial + Cultural). Use this rubric for manual grading.", y, margin, contentWidth);
+  y += 2;
+
+  y = addSubHeader(doc, "Financial Score (50 points)", y, margin);
+  y = addTableRow(doc, "Criteria (Points)", "What to Look For", y, margin, contentWidth, true);
+  y = addTableRow(doc, "Data-Driven Justification (15)", "Cites specific financial metrics from briefing", y, margin, contentWidth);
+  y = addTableRow(doc, "Risk Assessment (10)", "Acknowledges financial risks and trade-offs", y, margin, contentWidth);
+  y = addTableRow(doc, "Competitive Awareness (10)", "References competitor benchmarks and market context", y, margin, contentWidth);
+  y = addTableRow(doc, "Financial Feasibility (15)", "Chosen path is realistic given company position", y, margin, contentWidth);
+  y += 4;
+
+  y = addSubHeader(doc, "Cultural Score (50 points)", y, margin);
+  y = addTableRow(doc, "Criteria (Points)", "What to Look For", y, margin, contentWidth, true);
+  y = addTableRow(doc, "Stakeholder Awareness (15)", "Addresses concerns of board, employees, customers", y, margin, contentWidth);
+  y = addTableRow(doc, "Communication Strategy (10)", "Outlines how changes would be communicated", y, margin, contentWidth);
+  y = addTableRow(doc, "Workforce Transition Plan (15)", "Addresses retraining, severance, or timeline", y, margin, contentWidth);
+  y = addTableRow(doc, "Cultural Sensitivity (10)", "Acknowledges company culture and employee loyalty", y, margin, contentWidth);
+  y += 4;
+
+  y = addCalloutBox(doc, "Total: 100 points + up to 10 bonus points", "A (90-110): Excellent comprehensive analysis  |  B (80-89): Good solid reasoning  |  C (70-79): Adequate  |  D (60-69): Superficial  |  F (<60): Insufficient", y, margin, contentWidth);
+  y += 6;
+
+  y = checkPageBreak(doc, y, 60);
+  doc.setFillColor(245, 247, 255);
+  doc.roundedRect(margin, y - 4, contentWidth, 40, 2, 2, "F");
+  doc.setDrawColor(...NAVY);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, y - 4, contentWidth, 40, 2, 2, "S");
+
+  doc.setTextColor(...NAVY);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(`WEEK ${weekNumber} QUICK REFERENCE`, margin + 4, y + 2);
+  y += 8;
+
+  doc.setTextColor(...DARK_GRAY);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("Your Role:", margin + 4, y);
+  doc.setFont("helvetica", "normal");
+  doc.text("CEO of Apex Manufacturing", margin + 30, y);
+  y += 5;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("This Week:", margin + 4, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`"${weekTitle}"`, margin + 28, y);
+  y += 5;
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...GREEN);
+  doc.text("Pro Tips:", margin + 4, y);
+  y += 5;
+  doc.setTextColor(...DARK_GRAY);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.text("\u2022  Cite specific numbers from the briefing and articles", margin + 4, y);
+  y += 4;
+  doc.text("\u2022  Address multiple stakeholders, not just the board", margin + 4, y);
+  y += 4;
+  doc.text("\u2022  Consider both financial AND cultural implications", margin + 4, y);
+
+  addDynamicFooter(doc, weekNumber);
+  doc.save(`Future_Work_Academy_Week${weekNumber}_Offline_Guide.pdf`);
+}
