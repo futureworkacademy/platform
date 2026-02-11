@@ -197,6 +197,42 @@ function AppRouter() {
   const [location] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
 
+  const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
+  if (weekMatch) {
+    const weekNum = parseInt(weekMatch[1]);
+    if (weekNum >= 1 && weekNum <= 8) {
+      return <WeeklySimulationPage weekNumber={weekNum} />;
+    }
+  }
+
+  if (location === "/characters") {
+    return <CharacterProfilesPage />;
+  }
+  if (location === "/guides/student") {
+    return <StudentGuidePage />;
+  }
+  if (location === "/guides/instructor") {
+    return <InstructorGuidePage />;
+  }
+  if (location === "/student-guide") {
+    return <Redirect to="/guides/student" />;
+  }
+  if (location === "/for-educators") {
+    return <ForEducators />;
+  }
+  if (location === "/for-students") {
+    return <ForStudents />;
+  }
+  if (location === "/about") {
+    return <About />;
+  }
+  if (location === "/privacy") {
+    return <Privacy />;
+  }
+  if (location === "/brochure") {
+    return <Brochure />;
+  }
+
   if (authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -214,132 +250,47 @@ function AppRouter() {
   }
 
   if (!user) {
-    if (location === "/for-educators") {
-      return <ForEducators />;
-    }
-    if (location === "/for-students") {
-      return <ForStudents />;
-    }
-    if (location === "/about") {
-      return <About />;
-    }
-    if (location === "/privacy") {
-      return <Privacy />;
-    }
-    if (location === "/brochure") {
-      return <Brochure />;
-    }
-    if (location === "/student-guide") {
-      return <Redirect to="/guides/student" />;
-    }
-    if (location === "/guides/student") {
-      return <StudentGuidePage />;
-    }
-    if (location === "/guides/instructor") {
-      return <InstructorGuidePage />;
-    }
-    if (location === "/characters") {
-      return <CharacterProfilesPage />;
-    }
-    const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
-    if (weekMatch) {
-      const weekNum = parseInt(weekMatch[1]);
-      if (weekNum >= 1 && weekNum <= 8) {
-        return <WeeklySimulationPage weekNumber={weekNum} />;
-      }
-    }
     return <Landing />;
   }
 
-  // Admin page accessible to any logged-in user (will check isAdmin internally)
   if (location === "/admin") {
     return <AdminPage />;
   }
 
-  // Super Admin page - role checked internally
   if (location === "/super-admin") {
     return <SuperAdminPage />;
   }
 
-  // Simulation Content Editor - role checked internally
   if (location === "/admin/simulation-content") {
     return <SimulationContentEditor />;
   }
 
-  // Character Profiles Editor - role checked internally
   if (location === "/admin/character-profiles") {
     return <CharacterProfilesEditor />;
   }
 
-  // Content Validation Dashboard - role checked internally
   if (location === "/admin/content-validation") {
     return <ContentValidation />;
   }
 
-  // Educator Inquiries page - role checked internally
   if (location === "/educator-inquiries") {
     return <EducatorInquiries />;
   }
 
-  // Setup page - for initial platform configuration
   if (location === "/setup") {
     return <SetupPage />;
   }
 
-  // Class Admin page - role checked internally
   if (location.startsWith("/class-admin")) {
     return <ClassAdminPage />;
   }
 
-  // Profile page - accessible to all logged-in users including admins
   if (location === "/profile") {
     return <Profile />;
   }
 
-  // About page - accessible to all logged-in users including admins
-  if (location === "/about") {
-    return <About />;
-  }
-
-  // Feedback page accessible to any logged-in user
   if (location === "/feedback") {
     return <Feedback />;
-  }
-
-  if (location === "/for-educators") {
-    return <ForEducators />;
-  }
-
-  if (location === "/for-students") {
-    return <ForStudents />;
-  }
-
-  if (location === "/brochure") {
-    return <Brochure />;
-  }
-
-  if (location === "/student-guide") {
-    return <Redirect to="/guides/student" />;
-  }
-
-  if (location === "/guides/student") {
-    return <StudentGuidePage />;
-  }
-
-  if (location === "/guides/instructor") {
-    return <InstructorGuidePage />;
-  }
-
-  if (location === "/characters") {
-    return <CharacterProfilesPage />;
-  }
-
-  const weekMatchAuth = location.match(/^\/apex-simulation-week-(\d)$/);
-  if (weekMatchAuth) {
-    const weekNum = parseInt(weekMatchAuth[1]);
-    if (weekNum >= 1 && weekNum <= 8) {
-      return <WeeklySimulationPage weekNumber={weekNum} />;
-    }
   }
 
   // Super Admin - always redirect to admin dashboard if not already there
