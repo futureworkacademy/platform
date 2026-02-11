@@ -30,7 +30,7 @@ import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
-import CharacterProfilesPage, { WeeklySimulationPage } from "@/pages/character-profiles";
+import CharacterProfilesPage from "@/pages/character-profiles";
 import ContentValidation from "@/pages/content-validation";
 import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
@@ -342,14 +342,6 @@ function PreviewBannerWrapper() {
 
 function PublicRouteGate({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-
-  const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
-  if (weekMatch) {
-    const weekNum = parseInt(weekMatch[1]);
-    if (weekNum >= 1 && weekNum <= 8) {
-      return <WeeklySimulationPage weekNumber={weekNum} />;
-    }
-  }
 
   if (location === "/characters") {
     return <CharacterProfilesPage />;

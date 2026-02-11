@@ -98,6 +98,32 @@ export async function registerRoutes(
   
   // Register demo Q&A routes for guided tour
   registerDemoQARoutes(app);
+
+  // Server-rendered weekly simulation pages (bypasses React SPA entirely)
+  const { fetchWeekPageData, renderWeekPage } = await import("./weekly-page-renderer");
+
+  app.get("/week-:num(\\d+)", async (req, res) => {
+    const weekNumber = parseInt(req.params.num);
+    if (weekNumber < 1 || weekNumber > 8) {
+      return res.status(404).send("Week not found");
+    }
+    try {
+      const data = await fetchWeekPageData(weekNumber);
+      const html = renderWeekPage(data);
+      res.status(200).set({ "Content-Type": "text/html", "Cache-Control": "public, max-age=300" }).send(html);
+    } catch (error) {
+      console.error(`Error rendering week ${weekNumber} page:`, error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  app.get("/apex-simulation-week-:num(\\d+)", (req, res) => {
+    const weekNumber = parseInt(req.params.num);
+    if (weekNumber >= 1 && weekNumber <= 8) {
+      return res.redirect(301, `/week-${weekNumber}`);
+    }
+    res.status(404).send("Not found");
+  });
   
   app.get("/api/institutions", (_req, res) => {
     res.json(institutions);
