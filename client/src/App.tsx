@@ -197,42 +197,6 @@ function AppRouter() {
   const [location] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
 
-  const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
-  if (weekMatch) {
-    const weekNum = parseInt(weekMatch[1]);
-    if (weekNum >= 1 && weekNum <= 8) {
-      return <WeeklySimulationPage weekNumber={weekNum} />;
-    }
-  }
-
-  if (location === "/characters") {
-    return <CharacterProfilesPage />;
-  }
-  if (location === "/guides/student") {
-    return <StudentGuidePage />;
-  }
-  if (location === "/guides/instructor") {
-    return <InstructorGuidePage />;
-  }
-  if (location === "/student-guide") {
-    return <Redirect to="/guides/student" />;
-  }
-  if (location === "/for-educators") {
-    return <ForEducators />;
-  }
-  if (location === "/for-students") {
-    return <ForStudents />;
-  }
-  if (location === "/about") {
-    return <About />;
-  }
-  if (location === "/privacy") {
-    return <Privacy />;
-  }
-  if (location === "/brochure") {
-    return <Brochure />;
-  }
-
   if (authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -376,15 +340,59 @@ function PreviewBannerWrapper() {
   return null;
 }
 
+function PublicRouteGate({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+
+  const weekMatch = location.match(/^\/apex-simulation-week-(\d)$/);
+  if (weekMatch) {
+    const weekNum = parseInt(weekMatch[1]);
+    if (weekNum >= 1 && weekNum <= 8) {
+      return <WeeklySimulationPage weekNumber={weekNum} />;
+    }
+  }
+
+  if (location === "/characters") {
+    return <CharacterProfilesPage />;
+  }
+  if (location === "/guides/student") {
+    return <StudentGuidePage />;
+  }
+  if (location === "/guides/instructor") {
+    return <InstructorGuidePage />;
+  }
+  if (location === "/student-guide") {
+    return <Redirect to="/guides/student" />;
+  }
+  if (location === "/for-educators") {
+    return <ForEducators />;
+  }
+  if (location === "/for-students") {
+    return <ForStudents />;
+  }
+  if (location === "/about") {
+    return <About />;
+  }
+  if (location === "/privacy") {
+    return <Privacy />;
+  }
+  if (location === "/brochure") {
+    return <Brochure />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="fow-theme">
         <TooltipProvider>
-          <DemoTourProvider>
-            <PreviewBannerWrapper />
-            <AppRouter />
-          </DemoTourProvider>
+          <PublicRouteGate>
+            <DemoTourProvider>
+              <PreviewBannerWrapper />
+              <AppRouter />
+            </DemoTourProvider>
+          </PublicRouteGate>
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
