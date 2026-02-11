@@ -258,6 +258,91 @@ export async function registerRoutes(
     }
   });
 
+  // Public API - Get Week 1 voicemail (no auth required, for offline guide)
+  app.get("/api/public/voicemail", async (_req, res) => {
+    try {
+      const [voicemail] = await db
+        .select()
+        .from(triggeredVoicemails)
+        .where(and(
+          eq(triggeredVoicemails.weekNumber, 1),
+          eq(triggeredVoicemails.isActive, true)
+        ))
+        .limit(1);
+
+      if (!voicemail) {
+        return res.status(404).json({ error: "No voicemail available" });
+      }
+
+      let character = null;
+      if (voicemail.characterId) {
+        const allChars = await db
+          .select({
+            name: characterProfiles.name,
+            role: characterProfiles.role,
+            title: characterProfiles.title,
+            headshotUrl: characterProfiles.headshotUrl,
+          })
+          .from(characterProfiles);
+        const slugMatch = allChars.find(c =>
+          c.name.toLowerCase().replace(/[^a-z]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') === voicemail.characterId ||
+          c.name.toLowerCase().replace(/\s+/g, '-') === voicemail.characterId
+        );
+        const idMatch = allChars.length > 0 ? (await db
+          .select({
+            name: characterProfiles.name,
+            role: characterProfiles.role,
+            title: characterProfiles.title,
+            headshotUrl: characterProfiles.headshotUrl,
+          })
+          .from(characterProfiles)
+          .where(eq(characterProfiles.id, voicemail.characterId))
+          .limit(1)
+        )[0] : null;
+        character = slugMatch || idMatch || null;
+      }
+
+      res.json({
+        title: voicemail.title,
+        transcript: voicemail.transcript,
+        urgency: voicemail.urgency,
+        character: character || { name: "Unknown", role: "Apex Manufacturing", headshotUrl: null },
+      });
+    } catch (error) {
+      console.error("Error fetching public voicemail:", error);
+      res.status(500).json({ error: "Failed to fetch voicemail" });
+    }
+  });
+
+  // Public API - Get a featured advisor (no auth required, for offline guide)
+  app.get("/api/public/advisor", async (_req, res) => {
+    try {
+      const [advisor] = await db
+        .select({
+          id: advisors.id,
+          name: advisors.name,
+          category: advisors.category,
+          title: advisors.title,
+          specialty: advisors.specialty,
+          bio: advisors.bio,
+          headshotUrl: advisors.headshotUrl,
+        })
+        .from(advisors)
+        .where(eq(advisors.isActive, true))
+        .orderBy(advisors.name)
+        .limit(1);
+
+      if (!advisor) {
+        return res.status(404).json({ error: "No advisor available" });
+      }
+
+      res.json(advisor);
+    } catch (error) {
+      console.error("Error fetching public advisor:", error);
+      res.status(500).json({ error: "Failed to fetch advisor" });
+    }
+  });
+
   // Voicemail API - Get voicemail for a specific week
   app.get("/api/voicemails/:weekNumber", isAuthenticated, async (req, res) => {
     try {

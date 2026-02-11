@@ -238,6 +238,9 @@ function AppRouter() {
     if (location === "/guides/instructor") {
       return <InstructorGuidePage />;
     }
+    if (location === "/characters") {
+      return <CharacterProfilesPage />;
+    }
     return <Landing />;
   }
 
@@ -318,6 +321,10 @@ function AppRouter() {
 
   if (location === "/guides/instructor") {
     return <InstructorGuidePage />;
+  }
+
+  if (location === "/characters") {
+    return <CharacterProfilesPage />;
   }
 
   // Super Admin - always redirect to admin dashboard if not already there

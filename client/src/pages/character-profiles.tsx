@@ -7,6 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Search,
   Briefcase,
@@ -20,6 +23,10 @@ import {
   Shield,
   RefreshCw,
   Target,
+  Phone,
+  MessageSquare,
+  ArrowLeft,
+  AlertTriangle,
 } from "lucide-react";
 
 interface SocialProfile {
@@ -267,11 +274,122 @@ function CharacterCard({ character }: { character: CharacterProfile }) {
   );
 }
 
+interface PublicVoicemail {
+  title: string;
+  transcript: string;
+  urgency: string;
+  character: { name: string; role: string; title?: string; headshotUrl?: string | null };
+}
+
+interface PublicAdvisor {
+  id: string;
+  name: string;
+  category: string;
+  title: string;
+  specialty: string;
+  bio: string;
+  headshotUrl: string | null;
+}
+
+function VoicemailSection({ voicemail }: { voicemail: PublicVoicemail }) {
+  const initials = voicemail.character.name.split(' ').map(n => n[0]).join('');
+  return (
+    <Card data-testid="card-public-voicemail">
+      <CardContent className="pt-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-destructive/10">
+            <Phone className="h-5 w-5 text-destructive" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg" data-testid="text-voicemail-title">Incoming Voicemail</h3>
+            <p className="text-sm text-muted-foreground">{voicemail.title}</p>
+          </div>
+          <Badge variant="destructive" className="ml-auto">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            {voicemail.urgency} priority
+          </Badge>
+        </div>
+        <Separator />
+        <div className="flex items-start gap-4">
+          <Avatar className="h-12 w-12 flex-shrink-0">
+            <AvatarImage src={voicemail.character.headshotUrl || undefined} alt={voicemail.character.name} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div className="space-y-2 min-w-0">
+            <div>
+              <p className="font-semibold text-sm">{voicemail.character.name}</p>
+              <p className="text-xs text-muted-foreground">{voicemail.character.title || voicemail.character.role}</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-4 border">
+              <p className="text-sm leading-relaxed italic" data-testid="text-voicemail-transcript">
+                "{voicemail.transcript}"
+              </p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AdvisorSection({ advisor }: { advisor: PublicAdvisor }) {
+  const initials = advisor.name.split(' ').map(n => n[0]).join('');
+  return (
+    <Card data-testid="card-public-advisor">
+      <CardContent className="pt-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/10">
+            <MessageSquare className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg" data-testid="text-advisor-title">Phone-a-Friend Advisor</h3>
+            <p className="text-sm text-muted-foreground">Featured advisor available for strategic guidance</p>
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-start gap-4">
+          <Avatar className="h-14 w-14 flex-shrink-0">
+            <AvatarImage src={advisor.headshotUrl || undefined} alt={advisor.name} />
+            <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="space-y-2 min-w-0">
+            <div>
+              <p className="font-semibold">{advisor.name}</p>
+              <p className="text-sm text-muted-foreground">{advisor.title}</p>
+            </div>
+            <Badge variant="secondary" className="capitalize">{advisor.category.replace('_', ' ')}</Badge>
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Specialty</h4>
+              <p className="text-sm">{advisor.specialty}</p>
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Background</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{advisor.bio}</p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function CharacterProfilesPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user } = useAuth();
+  const isPublicView = !user;
 
   const { data: characters, isLoading } = useQuery<CharacterProfile[]>({
     queryKey: ["/api/characters"],
+  });
+
+  const { data: voicemail } = useQuery<PublicVoicemail>({
+    queryKey: ["/api/public/voicemail"],
+    enabled: isPublicView,
+  });
+
+  const { data: advisor } = useQuery<PublicAdvisor>({
+    queryKey: ["/api/public/advisor"],
+    enabled: isPublicView,
   });
 
   const filtered = characters?.filter((c) => {
@@ -288,64 +406,100 @@ export default function CharacterProfilesPage() {
   const sorted = [...filtered].sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6" data-testid="character-profiles-page">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold" data-testid="text-page-title">Stakeholder Directory</h1>
-        <p className="text-sm text-muted-foreground">
-          Meet the 17 key stakeholders at Apex Manufacturing. Understanding their backgrounds,
-          motivations, and influence is critical to navigating your decisions successfully.
+    <div className={`${isPublicView ? 'min-h-screen bg-background' : ''}`}>
+      {isPublicView && (
+        <header className="flex items-center justify-between gap-4 p-4 border-b sticky top-0 z-50 bg-card/80 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Button variant="ghost" size="icon" data-testid="button-back-home">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <p className="font-semibold text-sm">Future Work Academy</p>
+              <p className="text-xs text-muted-foreground">Apex Manufacturing Simulation</p>
+            </div>
+          </div>
+          <ThemeToggle />
+        </header>
+      )}
+      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6" data-testid="character-profiles-page">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold" data-testid="text-page-title">Stakeholder Directory</h1>
+          <p className="text-sm text-muted-foreground">
+            Meet the 17 key stakeholders at Apex Manufacturing. Understanding their backgrounds,
+            motivations, and influence is critical to navigating your decisions successfully.
+          </p>
+        </div>
+
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, role, or department..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+            data-testid="input-search-characters"
+          />
+        </div>
+
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i}>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-16 w-16 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-2 w-full" />
+                  <Skeleton className="h-2 w-full" />
+                  <Skeleton className="h-2 w-3/4" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : sorted.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground" data-testid="text-no-results">
+                No characters match your search.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="grid-characters">
+            {sorted.map((character) => (
+              <CharacterCard key={character.id} character={character} />
+            ))}
+          </div>
+        )}
+
+        {isPublicView && (voicemail || advisor) && (
+          <>
+            <Separator className="my-8" />
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold" data-testid="text-week1-extras">Week 1 Resources</h2>
+                <p className="text-sm text-muted-foreground">
+                  Additional context for "The Automation Imperative" scenario
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                {voicemail && <VoicemailSection voicemail={voicemail} />}
+                {advisor && <AdvisorSection advisor={advisor} />}
+              </div>
+            </div>
+          </>
+        )}
+
+        <p className="text-[10px] text-center text-muted-foreground/50 uppercase tracking-wider">
+          All characters, organizations, and scenarios are fictional — created for educational simulation purposes only
         </p>
       </div>
-
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by name, role, or department..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
-          data-testid="input-search-characters"
-        />
-      </div>
-
-      {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <div className="p-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-16 w-16 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-48" />
-                  </div>
-                </div>
-                <Skeleton className="h-2 w-full" />
-                <Skeleton className="h-2 w-full" />
-                <Skeleton className="h-2 w-3/4" />
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : sorted.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground" data-testid="text-no-results">
-              No characters match your search.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="grid-characters">
-          {sorted.map((character) => (
-            <CharacterCard key={character.id} character={character} />
-          ))}
-        </div>
-      )}
-
-      <p className="text-[10px] text-center text-muted-foreground/50 uppercase tracking-wider">
-        All characters, organizations, and scenarios are fictional — created for educational simulation purposes only
-      </p>
     </div>
   );
 }
