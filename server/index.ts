@@ -6,6 +6,7 @@ import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { startReminderProcessor } from "./services/reminder-processor";
 import { initializeDocsAutoSync } from "./docs-auto-sync";
 import { ensureCharactersSeed } from "./ensure-characters-seed";
+import { ensureContentSeed } from "./ensure-content-seed";
 
 const app = express();
 const httpServer = createServer(app);
@@ -101,6 +102,7 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
       ensureCharactersSeed();
+      ensureContentSeed();
       startReminderProcessor();
       initializeDocsAutoSync();
     },
