@@ -73,6 +73,31 @@ interface WeekPageData {
     riskTolerance?: number | null;
     sortOrder?: number | null;
   }[];
+  pdfContent: {
+    briefing: { title: string; content: string } | null;
+    decisions: { title: string; content: string }[];
+    intelArticles: { title: string; content: string }[];
+  };
+}
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/_([^_]+)_/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/^\s*[-*+]\s+/gm, '- ')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
+    .replace(/^>\s+/gm, '')
+    .replace(/^---+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageData> {
@@ -172,11 +197,32 @@ export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageDat
     console.error("Error fetching characters for SSR:", e);
   }
 
-  return { weekNumber, weekTitle, voicemail, advisor, characters };
+  let pdfContent: WeekPageData["pdfContent"] = { briefing: null, decisions: [], intelArticles: [] };
+  try {
+    const content = await db
+      .select({
+        title: simulationContent.title,
+        content: simulationContent.content,
+        contentType: simulationContent.contentType,
+      })
+      .from(simulationContent)
+      .where(and(eq(simulationContent.weekNumber, weekNumber), eq(simulationContent.isActive, true)));
+
+    const briefingRow = content.find(c => c.contentType === "briefing");
+    pdfContent = {
+      briefing: briefingRow ? { title: briefingRow.title, content: stripMarkdown(briefingRow.content || "") } : null,
+      decisions: content.filter(c => c.contentType === "decision").map(d => ({ title: d.title, content: stripMarkdown(d.content || "") })),
+      intelArticles: content.filter(c => c.contentType === "intel").map(a => ({ title: a.title, content: stripMarkdown(a.content || "") })),
+    };
+  } catch (e) {
+    console.error("Error fetching simulation content for SSR PDF:", e);
+  }
+
+  return { weekNumber, weekTitle, voicemail, advisor, characters, pdfContent };
 }
 
 export function renderWeekPage(data: WeekPageData): string {
-  const { weekNumber, weekTitle, voicemail, advisor, characters } = data;
+  const { weekNumber, weekTitle, voicemail, advisor, characters, pdfContent } = data;
   const baseUrl = process.env.REPLIT_DEV_DOMAIN
     ? `https://${process.env.REPLIT_DEV_DOMAIN}`
     : process.env.REPL_SLUG
@@ -475,120 +521,129 @@ ${renderCharacterCards(characters)}
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
+    var __pdfData = ${JSON.stringify(pdfContent).replace(/<\//g, '<\\/')};
+
     function downloadPDF() {
       var btn = document.getElementById('pdf-btn');
       btn.textContent = 'Generating...';
       btn.disabled = true;
-      fetch('/api/public/week-content?week=${weekNumber}')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var jsPDF = window.jspdf.jsPDF;
-          var doc = new jsPDF();
-          var y = 20;
-          var NAVY = [30, 58, 95];
-          var DARK = [51, 51, 51];
-          var MED = [100, 100, 100];
-          var pageW = doc.internal.pageSize.getWidth();
-          var margin = 20;
-          var maxW = pageW - margin * 2;
+      try {
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          throw new Error('PDF library not loaded. Please check your internet connection and try again.');
+        }
+        var data = __pdfData;
+        var jsPDF = window.jspdf.jsPDF;
+        var doc = new jsPDF();
+        var y = 20;
+        var NAVY = [30, 58, 95];
+        var DARK = [51, 51, 51];
+        var MED = [100, 100, 100];
+        var pageW = doc.internal.pageSize.getWidth();
+        var margin = 20;
+        var maxW = pageW - margin * 2;
 
-          function checkPage(needed) {
-            if (y + needed > 270) { doc.addPage(); y = 25; }
-            return y;
+        function checkPage(needed) {
+          if (y + needed > 270) { doc.addPage(); y = 25; }
+          return y;
+        }
+        function addWrapped(text, mw, lh, color) {
+          doc.setTextColor(color[0], color[1], color[2]);
+          var lines = doc.splitTextToSize(text || '', mw);
+          for (var i = 0; i < lines.length; i++) {
+            checkPage(lh);
+            doc.text(lines[i], margin, y);
+            y += lh;
           }
-          function addWrapped(text, x, startY, mw, lh, color) {
-            doc.setTextColor(color[0], color[1], color[2]);
-            var lines = doc.splitTextToSize(text || '', mw);
-            for (var i = 0; i < lines.length; i++) {
-              checkPage(lh);
-              doc.text(lines[i], x, y);
-              y += lh;
-            }
-            return y;
-          }
+        }
 
-          doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-          doc.rect(0, 0, pageW, 45, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(22);
+        doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.rect(0, 0, pageW, 45, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('FUTURE WORK ACADEMY', margin, 18);
+        doc.setFontSize(14);
+        doc.text('Week ${weekNumber}: ${escapeHtml(weekTitle).replace(/'/g, "\\'")}', margin, 28);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Apex Manufacturing Simulation - Offline Guide', margin, 37);
+        y = 55;
+
+        if (data.briefing) {
+          doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+          doc.setFontSize(16);
           doc.setFont('helvetica', 'bold');
-          doc.text('FUTURE WORK ACADEMY', margin, 18);
-          doc.setFontSize(14);
-          doc.text('Week ${weekNumber}: ${escapeHtml(weekTitle).replace(/'/g, "\\'")}', margin, 28);
+          doc.text('BRIEFING', margin, y);
+          y += 8;
+          if (data.briefing.title) {
+            doc.setFontSize(12);
+            addWrapped(data.briefing.title, maxW, 6, NAVY);
+            y += 2;
+          }
           doc.setFontSize(10);
           doc.setFont('helvetica', 'normal');
-          doc.text('Apex Manufacturing Simulation — Offline Guide', margin, 37);
-          y = 55;
+          addWrapped(data.briefing.content || '', maxW, 5, DARK);
+          y += 8;
+        }
 
-          if (data.briefing) {
+        if (data.intelArticles && data.intelArticles.length > 0) {
+          checkPage(15);
+          doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+          doc.setFontSize(16);
+          doc.setFont('helvetica', 'bold');
+          doc.text('INTEL ARTICLES', margin, y);
+          y += 8;
+          for (var a = 0; a < data.intelArticles.length; a++) {
+            checkPage(12);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-            doc.setFontSize(16);
+            doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            doc.text('BRIEFING', margin, y);
-            y += 8;
-            if (data.briefing.title) {
-              doc.setFontSize(12);
-              doc.text(data.briefing.title, margin, y);
-              y += 7;
-            }
+            addWrapped((a + 1) + '. ' + (data.intelArticles[a].title || ''), maxW, 6, NAVY);
+            y += 2;
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            addWrapped(data.briefing.content || '', margin, y, maxW, 5, DARK);
-            y += 5;
+            addWrapped(data.intelArticles[a].content || '', maxW, 5, MED);
+            y += 6;
           }
+        }
 
-          if (data.intelArticles && data.intelArticles.length > 0) {
-            checkPage(15);
+        if (data.decisions && data.decisions.length > 0) {
+          checkPage(15);
+          doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+          doc.setFontSize(16);
+          doc.setFont('helvetica', 'bold');
+          doc.text('DECISION OPTIONS', margin, y);
+          y += 8;
+          for (var d = 0; d < data.decisions.length; d++) {
+            checkPage(12);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-            doc.setFontSize(16);
+            doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            doc.text('INTEL ARTICLES', margin, y);
-            y += 8;
-            for (var a = 0; a < data.intelArticles.length; a++) {
-              checkPage(12);
-              doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-              doc.setFontSize(11);
-              doc.setFont('helvetica', 'bold');
-              doc.text((a + 1) + '. ' + (data.intelArticles[a].title || ''), margin, y);
-              y += 6;
-              doc.setFontSize(10);
-              doc.setFont('helvetica', 'normal');
-              addWrapped(data.intelArticles[a].content || '', margin, y, maxW, 5, MED);
-              y += 5;
-            }
+            addWrapped('Option ' + String.fromCharCode(65 + d) + ': ' + (data.decisions[d].title || ''), maxW, 6, NAVY);
+            y += 2;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            addWrapped(data.decisions[d].content || '', maxW, 5, DARK);
+            y += 6;
           }
+        }
 
-          if (data.decisions && data.decisions.length > 0) {
-            checkPage(15);
-            doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text('DECISION OPTIONS', margin, y);
-            y += 8;
-            for (var d = 0; d < data.decisions.length; d++) {
-              checkPage(12);
-              doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-              doc.setFontSize(11);
-              doc.setFont('helvetica', 'bold');
-              doc.text('Option ' + String.fromCharCode(65 + d) + ': ' + (data.decisions[d].title || ''), margin, y);
-              y += 6;
-              doc.setFontSize(10);
-              doc.setFont('helvetica', 'normal');
-              addWrapped(data.decisions[d].content || '', margin, y, maxW, 5, DARK);
-              y += 5;
-            }
-          }
+        var pageCount = doc.internal.getNumberOfPages();
+        for (var p = 1; p <= pageCount; p++) {
+          doc.setPage(p);
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text('Future Work Academy - Week ${weekNumber} Offline Guide - Page ' + p + ' of ' + pageCount, margin, 287);
+        }
 
-          doc.save('Week-${weekNumber}-${weekTitle.replace(/\s+/g, "-")}-Offline-Guide.pdf');
-        })
-        .catch(function(err) {
-          console.error('PDF generation failed:', err);
-          alert('Could not generate the PDF. Please try again.');
-        })
-        .finally(function() {
-          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Download Week ${weekNumber} PDF';
-          btn.disabled = false;
-        });
+        doc.save('Week-${weekNumber}-${weekTitle.replace(/\s+/g, "-")}-Offline-Guide.pdf');
+      } catch(err) {
+        console.error('PDF generation failed:', err);
+        alert(err.message || 'Could not generate the PDF. Please try again.');
+      } finally {
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Download Week ${weekNumber} PDF';
+        btn.disabled = false;
+      }
     }
 
     document.getElementById('char-search').addEventListener('input', function(e) {
