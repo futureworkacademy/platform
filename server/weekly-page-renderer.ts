@@ -923,23 +923,37 @@ ${renderCharacterCards(characters)}
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(DARK[0], DARK[1], DARK[2]);
-        addWrapped('Which option did you choose? (Circle or write the letter)', maxW, 5, DARK);
-        y += 4;
+        addWrapped('Circle or mark your chosen option:', maxW, 5, DARK);
+        y += 5;
 
         if (data.decisions && data.decisions.length > 0) {
           for (var d = 0; d < data.decisions.length; d++) {
-            checkPage(8);
+            checkPage(14);
+            var optLetter = String.fromCharCode(65 + d);
+            var fullTitle = (data.decisions[d].title || '').replace(/^Week \\d+\\s*Decision:\\s*/i, '');
+
+            doc.setDrawColor(NAVY[0], NAVY[1], NAVY[2]);
+            doc.setLineWidth(0.6);
+            var circleX = margin + 5;
+            var circleY = y - 1.5;
+            doc.circle(circleX, circleY, 4);
+
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+            doc.text(optLetter, circleX - 2.8, circleY + 1.5);
+
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            var optLetter = String.fromCharCode(65 + d);
-            var shortTitle = (data.decisions[d].title || '').replace(/^Week \\d+\\s*Decision:\\s*/i, '').substring(0, 60);
-            doc.setDrawColor(180, 180, 180);
-            doc.rect(margin, y - 3.5, 5, 5);
-            doc.text('  ' + optLetter + '.  ' + shortTitle, margin + 6, y);
-            y += 8;
+            doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+            var titleLines = doc.splitTextToSize(fullTitle, maxW - 18);
+            for (var tl = 0; tl < titleLines.length; tl++) {
+              doc.text(titleLines[tl], margin + 14, y + (tl * 4.5));
+            }
+            y += Math.max(titleLines.length * 4.5, 5) + 5;
           }
         }
-        y += 4;
+        y += 2;
 
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.5);
@@ -955,7 +969,7 @@ ${renderCharacterCards(characters)}
         doc.setFontSize(9);
         doc.setFont('helvetica', 'italic');
         doc.setTextColor(MED[0], MED[1], MED[2]);
-        addWrapped('Explain why you chose this option. Reference at least one Intel Article using its citation key (e.g., "According to [HBR]..."). Consider financial impact, employee morale, and long-term strategy.', maxW, 4.5, MED);
+        addWrapped('Begin with "I chose Option [letter] because..." then explain your reasoning. Reference at least one Intel Article using its citation key (e.g., "According to [HBR]..."). Consider financial impact, employee morale, and long-term strategy.', maxW, 4.5, MED);
         y += 4;
 
         doc.setDrawColor(200, 200, 200);
