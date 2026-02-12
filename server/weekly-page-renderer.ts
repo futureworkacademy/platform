@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { characterProfiles, triggeredVoicemails, advisors, simulationContent } from "@shared/models/auth";
 import { eq, and } from "drizzle-orm";
+import katex from 'katex';
 
 const WEEK_TITLES: Record<number, string> = {
   1: "The Automation Imperative",
@@ -81,7 +82,7 @@ interface WeekPageData {
   pdfContent: {
     briefing: { title: string; content: string } | null;
     decisions: { title: string; content: string }[];
-    intelArticles: { title: string; content: string }[];
+    intelArticles: { title: string; content: string; citationKey: string }[];
   };
 }
 
@@ -103,6 +104,75 @@ function stripMarkdown(text: string): string {
     .replace(/^---+$/gm, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+function renderLatexToHtml(text: string): string {
+  let result = text;
+  result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_match, inner) => {
+    try {
+      return katex.renderToString(inner.trim(), { displayMode: true, throwOnError: false });
+    } catch { return inner.trim(); }
+  });
+  result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_match, inner) => {
+    try {
+      return katex.renderToString(inner.trim(), { displayMode: false, throwOnError: false });
+    } catch { return inner.trim(); }
+  });
+  return result;
+}
+
+function convertLatexToPlainText(text: string): string {
+  let result = text;
+  result = result.replace(/\\text\{([^}]*)\}/g, '$1');
+  for (let i = 0; i < 3; i++) {
+    result = result.replace(/\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, '($1 / $2)');
+  }
+  result = result.replace(/\\sum(?:_\{[^}]*\}\^?\{?[^}]*\}?)?/g, 'Σ');
+  result = result.replace(/\\approx/g, '≈');
+  result = result.replace(/\\times/g, '×');
+  result = result.replace(/\\Rightarrow/g, '⇒');
+  result = result.replace(/\\left\(/g, '(');
+  result = result.replace(/\\right\)/g, ')');
+  result = result.replace(/\\left\[/g, '[');
+  result = result.replace(/\\right\]/g, ']');
+  result = result.replace(/\\\[([\s\S]*?)\\\]/g, '$1');
+  result = result.replace(/\\\(([\s\S]*?)\\\)/g, '$1');
+  result = result.replace(/\\\$/g, '$');
+  result = result.replace(/\\ /g, ' ');
+  result = result.replace(/_\{([^}]*)\}/g, '$1');
+  result = result.replace(/\^\{([^}]*)\}/g, '^($1)');
+  result = result.replace(/\\[a-zA-Z]+/g, '');
+  return result;
+}
+
+function generateCitationKey(title: string, index: number): string {
+  const t = title.toLowerCase();
+  if (t.includes("harvard business review") || t.includes("hbr")) return "HBR";
+  if (t.includes("wsj") || t.includes("wall street journal")) return "WSJ";
+  if (t.includes("mckinsey")) return "MCK";
+  if (t.includes("case study")) return "CST";
+  if (t.includes("opinion")) return "OPN";
+  if (t.includes("legal") || t.includes("law")) return "LAW";
+  if (t.includes("community")) return "CMT";
+  if (t.includes("gen z")) return "GNZ";
+  if (t.includes("skills gap") || t.includes("talent")) return "SKL";
+  if (t.includes("flat organizations")) return "FLT";
+  if (t.includes("manager") || t.includes("burnout")) return "MGR";
+  if (t.includes("debt") || t.includes("manufacturing debt")) return "DBT";
+  if (t.includes("sale-leaseback")) return "SLB";
+  if (t.includes("industry analyst")) return "IAN";
+  if (t.includes("employer branding")) return "EBR";
+  if (t.includes("customer concentration")) return "CCR";
+  if (t.includes("long-term") || t.includes("strategy")) return "LTS";
+  if (t.includes("pe exit") || t.includes("playbook")) return "PEX";
+  if (t.includes("legacy")) return "LGC";
+  if (t.includes("union") || t.includes("organizing")) return "UNI";
+  if (t.includes("layoff") || t.includes("human side") || t.includes("reduction")) return "LAY";
+  if (t.includes("retraining")) return "RTN";
+  if (t.includes("transformation trap")) return "TRP";
+  const words = title.split(/\s+/).filter(w => w.length > 2);
+  if (words.length > 0) return words[0].substring(0, 3).toUpperCase();
+  return `A${index + 1}`;
 }
 
 export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageData> {
@@ -219,9 +289,9 @@ export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageDat
 
     const briefingRow = content.find(c => c.contentType === "briefing");
     pdfContent = {
-      briefing: briefingRow ? { title: briefingRow.title, content: stripMarkdown(briefingRow.content || "") } : null,
-      decisions: content.filter(c => c.contentType === "decision").map(d => ({ title: d.title, content: stripMarkdown(d.content || "") })),
-      intelArticles: content.filter(c => c.contentType === "intel").map(a => ({ title: a.title, content: stripMarkdown(a.content || "") })),
+      briefing: briefingRow ? { title: briefingRow.title, content: convertLatexToPlainText(stripMarkdown(briefingRow.content || "")) } : null,
+      decisions: content.filter(c => c.contentType === "decision").map(d => ({ title: d.title, content: convertLatexToPlainText(stripMarkdown(d.content || "")) })),
+      intelArticles: content.filter(c => c.contentType === "intel").map((a, i) => ({ title: a.title, content: convertLatexToPlainText(stripMarkdown(a.content || "")), citationKey: generateCitationKey(a.title || "", i) })),
     };
   } catch (e) {
     console.error("Error fetching simulation content for SSR PDF:", e);
@@ -251,6 +321,7 @@ export function renderWeekPage(data: WeekPageData): string {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -533,6 +604,37 @@ export function renderWeekPage(data: WeekPageData): string {
 ${renderVoicemailSection(voicemail)}
 
 ${renderAdvisorSection(advisor)}
+
+${pdfContent.intelArticles.length > 0 ? `
+    <div class="separator" style="margin: 1.5rem 0;"></div>
+    <div class="space-y" data-testid="section-research-sources">
+      <div>
+        <h2>Research Sources</h2>
+        <p class="subtitle" style="margin-top: 0.25rem;">
+          Use these citation keys when referencing articles in your response
+        </p>
+      </div>
+      <div style="display: grid; gap: 0.75rem; margin-top: 0.75rem;">
+        ${pdfContent.intelArticles.map((a, i) => `
+          <div class="card" data-testid="card-citation-${a.citationKey}">
+            <div class="card-body" style="padding: 1rem;">
+              <div class="flex items-center gap-3">
+                <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 3.5rem; padding: 0.25rem 0.625rem; background: var(--navy); color: white; font-family: 'Roboto Mono', monospace; font-size: 0.8125rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.05em;" data-testid="badge-citation-key-${a.citationKey}">[${escapeHtml(a.citationKey)}]</span>
+                <div class="flex-1">
+                  <div style="font-size: 0.875rem; font-weight: 500;">${escapeHtml(a.title)}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Intel Article ${i + 1} &mdash; Included in PDF download</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="tip-box flex items-start gap-2" style="margin-top: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:0.125rem;"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <span>Reference these codes in your written response (e.g., &ldquo;According to [HBR], the key challenge is...&rdquo;)</span>
+      </div>
+    </div>
+` : ''}
     </div>
 
     <div class="separator" style="margin: 2rem 0;"></div>
@@ -640,7 +742,7 @@ ${renderCharacterCards(characters)}
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            addWrapped((a + 1) + '. ' + (data.intelArticles[a].title || ''), maxW, 6, NAVY);
+            addWrapped('[' + (data.intelArticles[a].citationKey || (a + 1)) + '] ' + (data.intelArticles[a].title || ''), maxW, 6, NAVY);
             y += 2;
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');

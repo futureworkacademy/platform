@@ -70,6 +70,7 @@
     "googleapis": "^148.0.0",
     "input-otp": "^1.4.2",
     "jspdf": "^4.1.0",
+    "katex": "^0.16.28",
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
