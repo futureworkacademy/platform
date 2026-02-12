@@ -868,6 +868,188 @@ ${renderCharacterCards(characters)}
           }
         }
 
+        doc.addPage();
+        y = 25;
+
+        doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.rect(0, 0, pageW, 20, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SUBMISSION TEMPLATE - Week ${weekNumber}', margin, 14);
+        y = 30;
+
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        addWrapped('Complete each section below and submit through your LMS (Blackboard, Canvas, etc.). Minimum 100 words for the Strategic Rationale.', maxW, 4.5, MED);
+        y += 6;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 6;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Student Name:', margin, y);
+        y += 1;
+        doc.setDrawColor(180, 180, 180);
+        doc.setLineWidth(0.3);
+        doc.line(margin + 32, y, pageW - margin, y);
+        y += 8;
+
+        doc.text('Team Name:', margin, y);
+        y += 1;
+        doc.line(margin + 28, y, pageW - margin, y);
+        y += 8;
+
+        doc.text('Date:', margin, y);
+        y += 1;
+        doc.line(margin + 14, y, margin + 70, y);
+        y += 10;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 8;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SECTION 1: Decision Selection', margin, y);
+        y += 7;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+        addWrapped('Which option did you choose? (Circle or write the letter)', maxW, 5, DARK);
+        y += 4;
+
+        if (data.decisions && data.decisions.length > 0) {
+          for (var d = 0; d < data.decisions.length; d++) {
+            checkPage(8);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            var optLetter = String.fromCharCode(65 + d);
+            var shortTitle = (data.decisions[d].title || '').replace(/^Week \\d+\\s*Decision:\\s*/i, '').substring(0, 60);
+            doc.setDrawColor(180, 180, 180);
+            doc.rect(margin, y - 3.5, 5, 5);
+            doc.text('  ' + optLetter + '.  ' + shortTitle, margin + 6, y);
+            y += 8;
+          }
+        }
+        y += 4;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 8;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SECTION 2: Strategic Rationale (minimum 100 words)', margin, y);
+        y += 7;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        addWrapped('Explain why you chose this option. Reference at least one Intel Article using its citation key (e.g., "According to [HBR]..."). Consider financial impact, employee morale, and long-term strategy.', maxW, 4.5, MED);
+        y += 4;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        for (var ln = 0; ln < 18; ln++) {
+          checkPage(7);
+          doc.line(margin, y, pageW - margin, y);
+          y += 7;
+        }
+        y += 4;
+
+        checkPage(30);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 8;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SECTION 3: Stakeholder Impact Analysis', margin, y);
+        y += 7;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        addWrapped('Identify 2-3 stakeholders most affected by your decision. How might they react? (Refer to the Stakeholder Directory)', maxW, 4.5, MED);
+        y += 4;
+
+        var stakeholderFields = ['Stakeholder 1', 'Stakeholder 2', 'Stakeholder 3'];
+        for (var s = 0; s < stakeholderFields.length; s++) {
+          checkPage(22);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+          doc.text(stakeholderFields[s] + ':', margin, y);
+          y += 1;
+          doc.setDrawColor(180, 180, 180);
+          doc.setLineWidth(0.3);
+          doc.line(margin + 30, y, pageW - margin, y);
+          y += 5;
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(MED[0], MED[1], MED[2]);
+          doc.text('Expected reaction:', margin + 4, y);
+          y += 1;
+          doc.line(margin + 36, y, pageW - margin, y);
+          y += 5;
+          doc.line(margin, y, pageW - margin, y);
+          y += 7;
+        }
+
+        checkPage(20);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 8;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SECTION 4: Risk Assessment', margin, y);
+        y += 7;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        addWrapped('What is the biggest risk of your chosen option? What would you do if that risk materialized?', maxW, 4.5, MED);
+        y += 4;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        for (var ln = 0; ln < 8; ln++) {
+          checkPage(7);
+          doc.line(margin, y, pageW - margin, y);
+          y += 7;
+        }
+
+        y += 6;
+        checkPage(20);
+        doc.setFillColor(245, 247, 250);
+        doc.roundedRect(margin, y - 4, maxW, 18, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        var scoringNote = 'SCORING: Your response is evaluated on Strategic Thinking (depth of analysis, evidence use), '
+          + 'Financial Acumen (understanding of costs, ROI, risk), and Cultural Awareness (empathy for workforce impact, '
+          + 'stakeholder management). AI-generated essay scores are formative feedback only -- instructors retain full '
+          + 'authority to review and adjust scores.';
+        var scoringLines = doc.splitTextToSize(scoringNote, maxW - 8);
+        for (var sl = 0; sl < scoringLines.length; sl++) {
+          doc.text(scoringLines[sl], margin + 4, y + 1 + sl * 3.5);
+        }
+
         var pageCount = doc.internal.getNumberOfPages();
         for (var p = 1; p <= pageCount; p++) {
           doc.setPage(p);
