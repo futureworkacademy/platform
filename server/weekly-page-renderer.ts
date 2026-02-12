@@ -24,8 +24,9 @@ const WEEK_ADVISOR_MAP: Record<number, string> = {
   8: "Dr. Amara Williams",
 };
 
-function escapeHtml(text: string): string {
-  return text
+function escapeHtml(text: string | number | unknown): string {
+  const str = String(text ?? "");
+  return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -67,6 +68,10 @@ interface WeekPageData {
     company?: string | null;
     headshotUrl?: string | null;
     bio?: string | null;
+    personality?: string | null;
+    motivations?: string | null;
+    fears?: string | null;
+    socialProfile?: unknown;
     influence?: number | null;
     hostility?: number | null;
     flexibility?: number | null;
@@ -185,6 +190,10 @@ export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageDat
         company: characterProfiles.company,
         headshotUrl: characterProfiles.headshotUrl,
         bio: characterProfiles.bio,
+        personality: characterProfiles.personality,
+        motivations: characterProfiles.motivations,
+        fears: characterProfiles.fears,
+        socialProfile: characterProfiles.socialProfile,
         influence: characterProfiles.influence,
         hostility: characterProfiles.hostility,
         flexibility: characterProfiles.flexibility,
@@ -408,6 +417,39 @@ export function renderWeekPage(data: WeekPageData): string {
     .trait-track { flex: 1; height: 6px; background: var(--muted-bg); border-radius: 9999px; overflow: hidden; }
     .trait-fill { height: 100%; border-radius: 9999px; }
     .trait-val { font-size: 0.6875rem; font-family: 'Roboto Mono', monospace; color: var(--text-muted); width: 1.5rem; text-align: right; }
+
+    .char-expand { margin-top: 0.75rem; border-top: 1px solid var(--border); }
+    .char-expand-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 0.375rem;
+      padding: 0.5rem 0 0.25rem; cursor: pointer; list-style: none;
+      font-size: 0.75rem; font-weight: 500; color: var(--navy);
+      user-select: none; transition: color 0.15s;
+    }
+    .char-expand-toggle::-webkit-details-marker { display: none; }
+    .char-expand-toggle::marker { display: none; content: ""; }
+    .char-expand-toggle:hover { color: var(--green); }
+    .char-expand-icon { transition: transform 0.2s ease; flex-shrink: 0; }
+    details[open] .char-expand-icon { transform: rotate(180deg); }
+    details[open] .char-expand-text { }
+    .char-expand-content { padding-top: 0.5rem; }
+    .char-detail-section { margin-bottom: 0.75rem; }
+    .char-detail-label {
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.375rem;
+    }
+    .char-detail-text { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.55; }
+    .char-exp-item { padding-left: 0.75rem; border-left: 2px solid var(--border); margin-bottom: 0.5rem; }
+    .char-exp-item.char-exp-current { border-left-color: var(--green); }
+    .char-exp-title { font-size: 0.8125rem; font-weight: 500; color: var(--text); }
+    .char-exp-co { font-size: 0.75rem; color: var(--text-secondary); }
+    .char-exp-dur { font-size: 0.6875rem; color: var(--text-muted); }
+    .char-skills-wrap { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .char-skill-badge {
+      font-size: 0.6875rem; padding: 0.125rem 0.5rem;
+      background: var(--muted-bg); border-radius: 9999px;
+      color: var(--text-secondary); white-space: nowrap;
+    }
+
     .ordered-list { list-style-type: decimal; padding-left: 1.5rem; }
     .ordered-list li { margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
     .ordered-list li strong { color: var(--text); font-weight: 500; }
@@ -836,7 +878,7 @@ function renderCharacterCards(characters: WeekPageData["characters"]): string {
         : `<div class="avatar-fallback avatar-fallback-sm">${escapeHtml(initials)}</div>`;
 
       const searchText = [c.name, c.role, c.title || "", c.company || ""].join(" ");
-      const bio = c.bio ? (c.bio.length > 150 ? c.bio.substring(0, 147) + "..." : c.bio) : "";
+      const bioPreview = c.bio ? (c.bio.length > 120 ? c.bio.substring(0, 117) + "..." : c.bio) : "";
 
       const traits = [];
       if (c.influence != null) traits.push({ label: "Influence", value: c.influence, color: "#3b82f6" });
@@ -857,18 +899,116 @@ function renderCharacterCards(characters: WeekPageData["characters"]): string {
             .join("")}</div>`
         : "";
 
+      const sp = c.socialProfile as Record<string, any> | null | undefined;
+
+      const detailSections: string[] = [];
+
+      const fullBio = sp?.about || c.bio;
+      if (fullBio) {
+        detailSections.push(`
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">About</h4>
+            <p class="char-detail-text">${escapeHtml(fullBio)}</p>
+          </div>`);
+      }
+
+      if (c.personality) {
+        detailSections.push(`
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Personality</h4>
+            <p class="char-detail-text">${escapeHtml(c.personality)}</p>
+          </div>`);
+      }
+
+      if (c.motivations) {
+        detailSections.push(`
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Motivations</h4>
+            <p class="char-detail-text">${escapeHtml(c.motivations)}</p>
+          </div>`);
+      }
+
+      if (c.fears) {
+        detailSections.push(`
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Concerns</h4>
+            <p class="char-detail-text">${escapeHtml(c.fears)}</p>
+          </div>`);
+      }
+
+      if (sp?.currentPosition) {
+        let expHtml = `
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Experience</h4>
+            <div class="char-exp-item char-exp-current">
+              <p class="char-exp-title">${escapeHtml(sp.currentPosition.title)}</p>
+              <p class="char-exp-co">${escapeHtml(sp.currentPosition.company)}</p>
+              ${sp.currentPosition.duration ? `<p class="char-exp-dur">${escapeHtml(sp.currentPosition.duration)}</p>` : ""}
+              ${sp.currentPosition.description ? `<p class="char-detail-text" style="margin-top:0.25rem;">${escapeHtml(sp.currentPosition.description)}</p>` : ""}
+            </div>`;
+        if (sp.previousPositions && Array.isArray(sp.previousPositions)) {
+          for (const pos of sp.previousPositions) {
+            expHtml += `
+            <div class="char-exp-item">
+              <p class="char-exp-title">${escapeHtml(pos.title)}</p>
+              <p class="char-exp-co">${escapeHtml(pos.company)}</p>
+              ${pos.duration ? `<p class="char-exp-dur">${escapeHtml(pos.duration)}</p>` : ""}
+            </div>`;
+          }
+        }
+        expHtml += `</div>`;
+        detailSections.push(expHtml);
+      }
+
+      if (sp?.education && Array.isArray(sp.education) && sp.education.length > 0) {
+        let eduHtml = `
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Education</h4>`;
+        for (const edu of sp.education) {
+          eduHtml += `
+            <div class="char-exp-item">
+              <p class="char-exp-title">${escapeHtml(edu.institution)}</p>
+              <p class="char-exp-co">${escapeHtml(edu.degree)}</p>
+              ${edu.year ? `<p class="char-exp-dur">${escapeHtml(edu.year)}</p>` : ""}
+            </div>`;
+        }
+        eduHtml += `</div>`;
+        detailSections.push(eduHtml);
+      }
+
+      if (sp?.skills && Array.isArray(sp.skills) && sp.skills.length > 0) {
+        const skillBadges = sp.skills.map((s: string) => `<span class="char-skill-badge">${escapeHtml(s)}</span>`).join("");
+        detailSections.push(`
+          <div class="char-detail-section">
+            <h4 class="char-detail-label">Skills</h4>
+            <div class="char-skills-wrap">${skillBadges}</div>
+          </div>`);
+      }
+
+      const hasDetails = detailSections.length > 0;
+
       return `
         <div class="card char-card-wrapper" data-search="${escapeHtml(searchText)}" data-testid="card-character-${escapeHtml(c.id)}">
           <div class="char-card">
             <div class="flex items-center gap-3">
               ${avatarHtml}
-              <div style="min-width:0;">
+              <div style="min-width:0;flex:1;">
                 <div class="char-name">${escapeHtml(c.name)}</div>
                 <div class="char-role">${escapeHtml(c.title || c.role)}${c.company ? ` &middot; ${escapeHtml(c.company)}` : ""}</div>
               </div>
             </div>
-            ${bio ? `<p class="char-bio">${escapeHtml(bio)}</p>` : ""}
+            ${bioPreview ? `<p class="char-bio">${escapeHtml(bioPreview)}</p>` : ""}
             ${traitHtml}
+            ${hasDetails ? `
+            <details class="char-expand" data-testid="details-character-${escapeHtml(c.id)}">
+              <summary class="char-expand-toggle" data-testid="button-expand-character-${escapeHtml(c.id)}">
+                <span class="char-expand-text">View full profile</span>
+                <svg class="char-expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </summary>
+              <div class="char-expand-content">
+                ${detailSections.join("")}
+              </div>
+            </details>` : ""}
           </div>
         </div>`;
     })
