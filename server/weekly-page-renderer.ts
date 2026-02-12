@@ -1802,7 +1802,21 @@ function renderCharacterCards(characters: WeekPageData["characters"]): string {
         : `<div class="avatar-fallback avatar-fallback-sm">${escapeHtml(initials)}</div>`;
 
       const searchText = [c.name, c.role, c.title || "", c.company || ""].join(" ");
-      const bioPreview = c.bio ? (c.bio.length > 120 ? c.bio.substring(0, 117) + "..." : c.bio) : "";
+      let bioPreview = "";
+      if (c.bio) {
+        const sentences = c.bio.match(/[^.!?]+[.!?]+/g);
+        if (sentences && sentences.length > 0) {
+          let preview = "";
+          for (const s of sentences) {
+            if (preview.length > 0 && preview.length + s.length > 200) break;
+            preview += s;
+            if (preview.length >= 60) break;
+          }
+          bioPreview = preview.trim();
+        } else {
+          bioPreview = c.bio.trim();
+        }
+      }
 
       const traits = [];
       if (c.influence != null) traits.push({ label: "Influence", value: c.influence, color: "#3b82f6" });
