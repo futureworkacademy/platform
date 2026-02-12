@@ -100,7 +100,17 @@ export async function registerRoutes(
   registerDemoQARoutes(app);
 
   // Server-rendered weekly simulation pages (bypasses React SPA entirely)
-  const { fetchWeekPageData, renderWeekPage } = await import("./weekly-page-renderer");
+  const { fetchWeekPageData, renderWeekPage, renderWeek0Page } = await import("./weekly-page-renderer");
+
+  app.get("/week-0", async (_req, res) => {
+    try {
+      const html = await renderWeek0Page();
+      res.status(200).set({ "Content-Type": "text/html", "Cache-Control": "public, max-age=300" }).send(html);
+    } catch (error) {
+      console.error("Error rendering week 0 page:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
 
   app.get("/week-:num(\\d+)", async (req, res) => {
     const weekNumber = parseInt(req.params.num);

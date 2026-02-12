@@ -712,6 +712,536 @@ ${renderCharacterCards(characters)}
 </html>`;
 }
 
+export async function renderWeek0Page(): Promise<string> {
+  let characters: WeekPageData["characters"] = [];
+  try {
+    characters = await db
+      .select({
+        id: characterProfiles.id,
+        name: characterProfiles.name,
+        role: characterProfiles.role,
+        title: characterProfiles.title,
+        company: characterProfiles.company,
+        headshotUrl: characterProfiles.headshotUrl,
+        bio: characterProfiles.bio,
+        personality: characterProfiles.personality,
+        motivations: characterProfiles.motivations,
+        fears: characterProfiles.fears,
+        socialProfile: characterProfiles.socialProfile,
+        influence: characterProfiles.influence,
+        hostility: characterProfiles.hostility,
+        flexibility: characterProfiles.flexibility,
+        riskTolerance: characterProfiles.riskTolerance,
+        sortOrder: characterProfiles.sortOrder,
+      })
+      .from(characterProfiles);
+    characters.sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
+  } catch (e) {
+    console.error("Error fetching characters for Week 0 SSR:", e);
+  }
+
+  const weekLinks = Object.entries(WEEK_TITLES)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([num, title]) => {
+      const n = Number(num);
+      return `
+        <a href="/week-${n}" class="timeline-item" data-testid="link-week-${n}">
+          <div class="timeline-number">${n}</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Week ${n}: ${escapeHtml(title)}</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted);"><path d="m9 18 6-6-6-6"/></svg>
+        </a>`;
+    })
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orientation: Welcome to Future Work Academy</title>
+  <meta name="description" content="Welcome to Future Work Academy — your orientation guide to the Apex Manufacturing CEO simulation. Meet the stakeholders, understand the scoring system, and prepare for your 8-week journey.">
+  <meta property="og:title" content="Orientation | Future Work Academy">
+  <meta property="og:description" content="Your journey as CEO of Apex Manufacturing begins here">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1e3a5f;
+      --green: #22c55e;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --destructive: #ef4444;
+      --destructive-bg: #fef2f2;
+      --accent-bg: #f0fdf4;
+      --accent-border: #bbf7d0;
+      --primary-bg: #eff6ff;
+      --muted-bg: #f1f5f9;
+    }
+    body {
+      font-family: 'Inter', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--navy); text-decoration: none; }
+    .header {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .back-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; cursor: pointer; color: var(--text-secondary);
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: var(--muted-bg); }
+    .brand-name { font-weight: 600; font-size: 0.875rem; }
+    .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
+    .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem; }
+    @media (min-width: 768px) { .container { padding: 1.5rem; } }
+    .badge {
+      display: inline-flex; align-items: center; padding: 0.125rem 0.625rem;
+      font-size: 0.75rem; font-weight: 500; border-radius: 9999px;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      background: var(--card-bg); margin-bottom: 0.5rem;
+    }
+    h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+    h2 { font-size: 1.25rem; font-weight: 700; }
+    h3 { font-size: 1.125rem; font-weight: 700; }
+    .subtitle { font-size: 0.875rem; color: var(--text-secondary); }
+    .separator { height: 1px; background: var(--border); margin: 1.5rem 0; }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .card-body { padding: 1.5rem; }
+    .space-y > * + * { margin-top: 1rem; }
+    .space-y-sm > * + * { margin-top: 0.75rem; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start { align-items: start; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .flex-wrap { flex-wrap: wrap; }
+    .justify-between { justify-content: space-between; }
+    .flex-1 { flex: 1; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .icon-circle {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 9999px; flex-shrink: 0;
+    }
+    .icon-circle-red { background: var(--destructive-bg); color: var(--destructive); }
+    .icon-circle-blue { background: var(--primary-bg); color: var(--navy); }
+    .icon-circle-green { background: var(--accent-bg); color: var(--green); }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 9999px; object-fit: cover;
+      background: var(--muted-bg); flex-shrink: 0;
+    }
+    .avatar-lg { width: 56px; height: 56px; }
+    .avatar-sm { width: 40px; height: 40px; }
+    .avatar-fallback {
+      width: 48px; height: 48px; border-radius: 9999px;
+      background: var(--navy); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.875rem; flex-shrink: 0;
+    }
+    .avatar-fallback-lg { width: 56px; height: 56px; font-size: 1rem; }
+    .avatar-fallback-sm { width: 40px; height: 40px; font-size: 0.75rem; }
+    .tip-box {
+      background: var(--accent-bg); border: 1px solid var(--accent-border);
+      border-radius: 6px; padding: 0.75rem; font-size: 0.875rem; font-weight: 500;
+    }
+    .tip-box svg { color: var(--green); flex-shrink: 0; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;
+      border-radius: 6px; border: 1px solid transparent; cursor: pointer;
+      transition: background 0.15s, opacity 0.15s; line-height: 1.4;
+    }
+    .btn-primary { background: var(--navy); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-ghost {
+      background: transparent; color: var(--text-secondary);
+      border-color: transparent; padding: 0.375rem 0.75rem; font-size: 0.8125rem;
+    }
+    .btn-ghost:hover { background: var(--muted-bg); }
+    .label-sm {
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem;
+    }
+    .text-sm { font-size: 0.875rem; }
+    .text-xs { font-size: 0.75rem; }
+    .text-muted { color: var(--text-secondary); }
+    .text-semibold { font-weight: 600; }
+    .text-medium { font-weight: 500; }
+    .leading-relaxed { line-height: 1.7; }
+    .ordered-list { list-style-type: decimal; padding-left: 1.5rem; }
+    .ordered-list li { margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
+    .ordered-list li strong { color: var(--text); font-weight: 500; }
+    .char-grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(1, 1fr);
+    }
+    @media (min-width: 640px) { .char-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .char-grid { grid-template-columns: repeat(3, 1fr); } }
+    .char-card { padding: 1rem; }
+    .char-card .char-name { font-weight: 600; font-size: 0.875rem; }
+    .char-card .char-role { font-size: 0.75rem; color: var(--text-secondary); }
+    .char-card .char-bio { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-top: 0.5rem; }
+    .trait-bar-container { margin-top: 0.75rem; }
+    .trait-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+    .trait-label { font-size: 0.6875rem; color: var(--text-muted); width: 5.5rem; flex-shrink: 0; }
+    .trait-track { flex: 1; height: 6px; background: var(--muted-bg); border-radius: 9999px; overflow: hidden; }
+    .trait-fill { height: 100%; border-radius: 9999px; }
+    .trait-val { font-size: 0.6875rem; font-family: 'Roboto Mono', monospace; color: var(--text-muted); width: 1.5rem; text-align: right; }
+    .char-expand { margin-top: 0.75rem; border-top: 1px solid var(--border); }
+    .char-expand-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 0.375rem;
+      padding: 0.5rem 0 0.25rem; cursor: pointer; list-style: none;
+      font-size: 0.75rem; font-weight: 500; color: var(--navy);
+      user-select: none; transition: color 0.15s;
+    }
+    .char-expand-toggle::-webkit-details-marker { display: none; }
+    .char-expand-toggle::marker { display: none; content: ""; }
+    .char-expand-toggle:hover { color: var(--green); }
+    .char-expand-icon { transition: transform 0.2s ease; flex-shrink: 0; }
+    details[open] .char-expand-icon { transform: rotate(180deg); }
+    .char-expand-content { padding-top: 0.5rem; }
+    .char-detail-section { margin-bottom: 0.75rem; }
+    .char-detail-label {
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.375rem;
+    }
+    .char-detail-text { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.55; }
+    .char-exp-item { padding-left: 0.75rem; border-left: 2px solid var(--border); margin-bottom: 0.5rem; }
+    .char-exp-item.char-exp-current { border-left-color: var(--green); }
+    .char-exp-title { font-size: 0.8125rem; font-weight: 500; color: var(--text); }
+    .char-exp-co { font-size: 0.75rem; color: var(--text-secondary); }
+    .char-exp-dur { font-size: 0.6875rem; color: var(--text-muted); }
+    .char-skills-wrap { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .char-skill-badge {
+      font-size: 0.6875rem; padding: 0.125rem 0.5rem;
+      background: var(--muted-bg); border-radius: 9999px;
+      color: var(--text-secondary); white-space: nowrap;
+    }
+    .footer-note {
+      font-size: 0.625rem; text-align: center; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; padding: 2rem 0 1rem;
+    }
+    .search-wrapper { position: relative; max-width: 24rem; }
+    .search-input {
+      width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 0.875rem; background: var(--card-bg);
+      outline: none; transition: border-color 0.15s;
+    }
+    .search-input:focus { border-color: var(--navy); }
+    .search-icon {
+      position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); pointer-events: none;
+    }
+    .hidden { display: none; }
+
+    .numbered-step {
+      display: flex; align-items: flex-start; gap: 1rem; padding: 1rem;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg);
+    }
+    .step-number {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 9999px; flex-shrink: 0;
+      background: var(--navy); color: white; font-weight: 700; font-size: 0.875rem;
+    }
+    .step-title { font-weight: 600; font-size: 0.875rem; color: var(--text); }
+    .step-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.125rem; }
+
+    .scoring-grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) { .scoring-grid { grid-template-columns: 1fr 1fr; } }
+    .scoring-card { padding: 1.25rem; }
+    .scoring-card h3 { font-size: 1rem; margin-bottom: 0.75rem; }
+    .scoring-card ul { list-style: none; padding: 0; }
+    .scoring-card li {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.375rem;
+    }
+    .scoring-card li svg { flex-shrink: 0; margin-top: 0.125rem; }
+    .scoring-accent-green { border-left: 3px solid var(--green); }
+    .scoring-accent-navy { border-left: 3px solid var(--navy); }
+
+    .info-table { width: 100%; border-collapse: collapse; }
+    .info-table tr { border-bottom: 1px solid var(--border); }
+    .info-table tr:last-child { border-bottom: none; }
+    .info-table td { padding: 0.625rem 0.75rem; font-size: 0.875rem; }
+    .info-table td:first-child { font-weight: 500; color: var(--text); width: 40%; }
+    .info-table td:last-child { color: var(--text-secondary); }
+
+    .timeline-item {
+      display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg);
+      transition: background 0.15s, border-color 0.15s; text-decoration: none;
+    }
+    .timeline-item:hover { background: var(--muted-bg); border-color: var(--navy); }
+    .timeline-number {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 9999px; flex-shrink: 0;
+      background: var(--primary-bg); color: var(--navy); font-weight: 700; font-size: 0.8125rem;
+    }
+    .timeline-title { font-weight: 500; font-size: 0.875rem; color: var(--text); }
+    .timeline-content { flex: 1; min-width: 0; }
+
+    .cta-card {
+      background: var(--primary-bg); border: 1px solid #bfdbfe;
+      border-radius: 8px; padding: 1.5rem; text-align: center;
+    }
+    .cta-card p { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .cta-card .btn-primary { font-size: 1rem; padding: 0.625rem 1.5rem; }
+    .cta-links { margin-top: 0.75rem; font-size: 0.8125rem; color: var(--text-muted); }
+    .cta-links a { color: var(--navy); text-decoration: underline; }
+
+    .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .steps-list > * + * { margin-top: 0.75rem; }
+    .timeline-list > * + * { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="/" class="back-btn" aria-label="Back to home" data-testid="button-back-home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      </a>
+      <div>
+        <div class="brand-name">Future Work Academy</div>
+        <div class="brand-sub">Apex Manufacturing Simulation</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container" data-testid="week0-orientation-page">
+    <div style="margin-bottom: 1.5rem;">
+      <span class="badge">Orientation</span>
+      <h1 data-testid="text-page-title">Welcome to Future Work Academy</h1>
+      <p class="subtitle">Your journey as CEO of Apex Manufacturing begins here</p>
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="space-y">
+
+      <div class="section-header">
+        <div class="icon-circle icon-circle-red">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <h2 data-testid="text-mission-title">Your Mission</h2>
+      </div>
+
+      <div class="card">
+        <div class="card-body space-y-sm">
+          <p class="text-sm leading-relaxed">You've just been appointed CEO of Apex Manufacturing &mdash; a $125M automotive parts supplier with 2,400 employees and a 37-year legacy of quality craftsmanship.</p>
+          <p class="text-sm leading-relaxed">The Board of Directors has delivered an ultimatum: modernize through AI and automation &mdash; or be replaced. Over the next 8 weeks, every decision you make will shape the company's financial future and cultural identity.</p>
+          <p class="text-sm leading-relaxed" style="font-style:italic; color: var(--text-muted);">There are no perfect answers. The simulation rewards thoughtful analysis, not a single &ldquo;right&rdquo; choice.</p>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="section-header">
+        <div class="icon-circle icon-circle-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z"/></svg>
+        </div>
+        <h2 data-testid="text-how-it-works-title">How the Simulation Works</h2>
+      </div>
+
+      <div class="steps-list">
+        <div class="numbered-step">
+          <div class="step-number">1</div>
+          <div>
+            <div class="step-title">Read the Weekly Briefing</div>
+            <div class="step-desc">Each week presents a new challenge at Apex Manufacturing with real-world parallels</div>
+          </div>
+        </div>
+        <div class="numbered-step">
+          <div class="step-number">2</div>
+          <div>
+            <div class="step-title">Review Intel Articles</div>
+            <div class="step-desc">Research from sources like WSJ, HBR, and McKinsey provides critical context</div>
+          </div>
+        </div>
+        <div class="numbered-step">
+          <div class="step-number">3</div>
+          <div>
+            <div class="step-title">Listen to Stakeholder Voicemails</div>
+            <div class="step-desc">Key characters will contact you with urgent updates and concerns</div>
+          </div>
+        </div>
+        <div class="numbered-step">
+          <div class="step-number">4</div>
+          <div>
+            <div class="step-title">Consult Expert Advisors</div>
+            <div class="step-desc">Specialized consultants offer strategic guidance (limited credits)</div>
+          </div>
+        </div>
+        <div class="numbered-step">
+          <div class="step-number">5</div>
+          <div>
+            <div class="step-title">Make Your Decision</div>
+            <div class="step-desc">Choose from multiple strategic options, each with financial and cultural trade-offs</div>
+          </div>
+        </div>
+        <div class="numbered-step">
+          <div class="step-number">6</div>
+          <div>
+            <div class="step-title">Write Your Strategic Rationale</div>
+            <div class="step-desc">Explain your reasoning in a minimum 100-word essay</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="section-header">
+        <div class="icon-circle icon-circle-green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </div>
+        <h2 data-testid="text-scoring-title">Dual Scoring System</h2>
+      </div>
+
+      <div class="scoring-grid">
+        <div class="card scoring-accent-green">
+          <div class="scoring-card">
+            <h3 style="color: var(--green);">Financial Health (50 points)</h3>
+            <ul>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Data-driven justification</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Risk assessment</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Competitive awareness</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Financial feasibility</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card scoring-accent-navy">
+          <div class="scoring-card">
+            <h3 style="color: var(--navy);">Cultural Health (50 points)</h3>
+            <ul>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Stakeholder awareness</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Communication strategy</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Workforce transition plan</li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Cultural sensitivity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Up to 10 bonus points for citing Intel Article research
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="section-header">
+        <div class="icon-circle icon-circle-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+        </div>
+        <h2 data-testid="text-company-title">Apex Manufacturing at a Glance</h2>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding: 0;">
+          <table class="info-table">
+            <tr><td>Company</td><td>Apex Manufacturing</td></tr>
+            <tr><td>Industry</td><td>Automotive parts supplier</td></tr>
+            <tr><td>Annual Revenue</td><td>$125 million</td></tr>
+            <tr><td>Employees</td><td>2,400</td></tr>
+            <tr><td>Average Tenure</td><td>7.2 years</td></tr>
+            <tr><td>Location</td><td>Midwest United States</td></tr>
+            <tr><td>Founded</td><td>1987</td></tr>
+            <tr><td>Current Automation Level</td><td>12%</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="section-header">
+        <div class="icon-circle icon-circle-green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+        </div>
+        <h2 data-testid="text-journey-title">The 8-Week Journey</h2>
+      </div>
+
+      <div class="timeline-list">
+${weekLinks}
+      </div>
+
+      <div class="separator"></div>
+
+      <div>
+        <h2 data-testid="text-stakeholder-title">Stakeholder Directory</h2>
+        <p class="subtitle" style="margin-top: 0.25rem;">
+          Meet the 17 key stakeholders at Apex Manufacturing. Understanding their backgrounds,
+          motivations, and influence is critical to navigating your decisions successfully.
+        </p>
+      </div>
+
+      <div class="search-wrapper" style="margin-top: 1rem;">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" class="search-input" placeholder="Search by name, role, or department..." id="char-search" data-testid="input-search-characters" />
+      </div>
+
+      <div class="char-grid" id="char-grid" style="margin-top: 1rem;" data-testid="grid-characters">
+${renderCharacterCards(characters)}
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="cta-card" data-testid="card-ready-to-begin">
+        <h2 style="margin-bottom: 0.5rem;">Ready to Begin?</h2>
+        <p>Head to Week 1: The Automation Imperative to start your first assignment.</p>
+        <a href="/week-1" class="btn btn-primary" data-testid="link-start-week-1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          Start Week 1
+        </a>
+        <div class="cta-links">
+          or review the <a href="/guides/student" data-testid="link-student-guide">Student Guide</a> first
+        </div>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      All characters, organizations, and scenarios are fictional &mdash; created for educational simulation purposes only
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('char-search').addEventListener('input', function(e) {
+      var q = e.target.value.toLowerCase();
+      var cards = document.querySelectorAll('.char-card-wrapper');
+      cards.forEach(function(card) {
+        var text = card.getAttribute('data-search').toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>`;
+}
+
 function renderVoicemailSection(voicemail: WeekPageData["voicemail"]): string {
   if (!voicemail) return "";
   const initials = getInitials(voicemail.character.name);
