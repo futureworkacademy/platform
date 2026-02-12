@@ -86,8 +86,74 @@ interface WeekPageData {
   };
 }
 
+function convertMarkdownTables(text: string): string {
+  const lines = text.split('\n');
+  const result: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (line.startsWith('|') && line.endsWith('|') && line.includes('|')) {
+      const tableLines: string[] = [];
+      while (i < lines.length) {
+        const tl = lines[i].trim();
+        if (tl.startsWith('|') && tl.includes('|')) {
+          tableLines.push(tl);
+          i++;
+        } else {
+          break;
+        }
+      }
+
+      const rows = tableLines
+        .filter(r => !r.match(/^\|[\s\-:|]+\|$/))
+        .map(r =>
+          r.split('|')
+            .slice(1, -1)
+            .map(cell => cell.replace(/\*\*/g, '').trim())
+        );
+
+      if (rows.length === 0) continue;
+
+      const colCount = rows[0].length;
+      const colWidths: number[] = [];
+      for (let c = 0; c < colCount; c++) {
+        colWidths[c] = 0;
+        for (const row of rows) {
+          if (row[c] && row[c].length > colWidths[c]) {
+            colWidths[c] = row[c].length;
+          }
+        }
+        colWidths[c] = Math.min(colWidths[c], 40);
+      }
+
+      result.push('');
+      for (let r = 0; r < rows.length; r++) {
+        const cells = rows[r];
+        const formatted = cells.map((cell, c) => {
+          const w = colWidths[c] || 10;
+          return (cell || '').substring(0, w).padEnd(w);
+        }).join('   ');
+        result.push(formatted);
+
+        if (r === 0) {
+          const separator = colWidths.map(w => '-'.repeat(w)).join('   ');
+          result.push(separator);
+        }
+      }
+      result.push('');
+    } else {
+      result.push(lines[i]);
+      i++;
+    }
+  }
+  return result.join('\n');
+}
+
 function stripMarkdown(text: string): string {
-  return text
+  let result = text;
+  result = convertMarkdownTables(result);
+  return result
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
@@ -135,8 +201,11 @@ function convertLatexToPlainText(text: string): string {
   result = result.replace(/\\right\)/g, ')');
   result = result.replace(/\\left\[/g, '[');
   result = result.replace(/\\right\]/g, ']');
-  result = result.replace(/\\\[([\s\S]*?)\\\]/g, '$1');
-  result = result.replace(/\\\(([\s\S]*?)\\\)/g, '$1');
+  result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_m, inner) => {
+    const cleaned = inner.trim().replace(/\s+/g, ' ');
+    return '\n  ' + cleaned + '\n';
+  });
+  result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_m, inner) => inner.trim().replace(/\s+/g, ' '));
   result = result.replace(/\\\$/g, '$');
   result = result.replace(/\\ /g, ' ');
   result = result.replace(/_\{([^}]*)\}/g, '$1');
@@ -692,11 +761,38 @@ ${renderCharacterCards(characters)}
         }
         function addWrapped(text, mw, lh, color) {
           doc.setTextColor(color[0], color[1], color[2]);
-          var lines = doc.splitTextToSize(text || '', mw);
-          for (var i = 0; i < lines.length; i++) {
-            checkPage(lh);
-            doc.text(lines[i], margin, y);
-            y += lh;
+          var paragraphs = (text || '').split('\\n');
+          for (var p = 0; p < paragraphs.length; p++) {
+            var para = paragraphs[p];
+            if (para.trim() === '') { y += lh * 0.5; continue; }
+            var isTableRow = para.match(/^\\s*\\S+.*\\s{3,}/) && !para.match(/^\\s*[-*]/);
+            var isDivider = para.match(/^[-]{4,}/);
+            if (isDivider) {
+              checkPage(lh);
+              doc.setDrawColor(200, 200, 200);
+              doc.setLineWidth(0.3);
+              doc.line(margin, y - 1, margin + mw * 0.8, y - 1);
+              y += lh * 0.3;
+              continue;
+            }
+            if (isTableRow) {
+              var savedFont = doc.getFont();
+              doc.setFont('courier', savedFont.fontStyle);
+              doc.setFontSize(8.5);
+              checkPage(lh);
+              var tableLine = para.length > 95 ? para.substring(0, 95) : para;
+              doc.text(tableLine, margin, y);
+              y += lh * 0.85;
+              doc.setFont(savedFont.fontName, savedFont.fontStyle);
+              doc.setFontSize(10);
+              continue;
+            }
+            var lines = doc.splitTextToSize(para, mw);
+            for (var i = 0; i < lines.length; i++) {
+              checkPage(lh);
+              doc.text(lines[i], margin, y);
+              y += lh;
+            }
           }
         }
 
