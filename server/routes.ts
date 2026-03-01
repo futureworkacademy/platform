@@ -147,7 +147,27 @@ export async function registerRoutes(
         studentName: String(studentName || "Student").trim(),
         essayText: essayText.trim(),
       });
-      res.json(result);
+      try {
+        const existingReports = await db.select({
+          weekNumber: gradingReports.weekNumber,
+          percentage: gradingReports.percentage,
+        }).from(gradingReports).limit(200);
+        const weekPcts = existingReports.filter(r => r.weekNumber === week).map(r => r.percentage);
+        weekPcts.push(result.percentage);
+        const n = weekPcts.length;
+        const mean = weekPcts.reduce((a: number, b: number) => a + b, 0) / n;
+        const variance = weekPcts.reduce((sum: number, p: number) => sum + (p - mean) ** 2, 0) / n;
+        const stdDev = Math.sqrt(variance);
+        const weekStats = { mean: Math.round(mean * 10) / 10, stdDev: Math.round(stdDev * 10) / 10, count: n };
+        let curvedScore: number | null = null;
+        if (n >= 3 && stdDev > 0) {
+          curvedScore = Math.round(75 + (result.percentage - mean) * (10 / stdDev));
+          curvedScore = Math.max(40, Math.min(100, curvedScore));
+        }
+        res.json({ ...result, curvedScore, weekStats });
+      } catch {
+        res.json(result);
+      }
     } catch (error) {
       console.error("Error grading submission:", error);
       res.status(500).json({ error: "Grading service encountered an error. Please try again." });
@@ -156,6 +176,31 @@ export async function registerRoutes(
 
   const { gradingReports } = await import("@shared/models/auth");
   const { desc } = await import("drizzle-orm");
+
+  function computeCurvedScores(reports: any[]) {
+    const byWeek: Record<number, number[]> = {};
+    for (const r of reports) {
+      if (!byWeek[r.weekNumber]) byWeek[r.weekNumber] = [];
+      byWeek[r.weekNumber].push(r.percentage);
+    }
+    const weekStats: Record<number, { mean: number; stdDev: number; count: number }> = {};
+    for (const [wk, pcts] of Object.entries(byWeek)) {
+      const n = pcts.length;
+      const mean = pcts.reduce((a, b) => a + b, 0) / n;
+      const variance = pcts.reduce((sum, p) => sum + (p - mean) ** 2, 0) / n;
+      const stdDev = Math.sqrt(variance);
+      weekStats[Number(wk)] = { mean: Math.round(mean * 10) / 10, stdDev: Math.round(stdDev * 10) / 10, count: n };
+    }
+    return reports.map((r: any) => {
+      const stats = weekStats[r.weekNumber];
+      let curvedScore: number | null = null;
+      if (stats && stats.count >= 3 && stats.stdDev > 0) {
+        curvedScore = Math.round(75 + (r.percentage - stats.mean) * (10 / stats.stdDev));
+        curvedScore = Math.max(40, Math.min(100, curvedScore));
+      }
+      return { ...r, curvedScore, weekStats: stats };
+    });
+  }
 
   app.post("/api/grade/save", async (req, res) => {
     try {
@@ -218,7 +263,7 @@ export async function registerRoutes(
         instructorComments: gradingReports.instructorComments,
         createdAt: gradingReports.createdAt,
       }).from(gradingReports).orderBy(desc(gradingReports.createdAt)).limit(200);
-      res.json(reports);
+      res.json(computeCurvedScores(reports));
     } catch (error) {
       console.error("Error fetching grading history:", error);
       res.status(500).json({ error: "Failed to fetch history." });
@@ -227,9 +272,27 @@ export async function registerRoutes(
 
   app.get("/api/grade/:id", async (req, res) => {
     try {
-      const [report] = await db.select().from(gradingReports).where(eq(gradingReports.id, req.params.id)).limit(1);
+      const allReports = await db.select({
+        id: gradingReports.id,
+        studentName: gradingReports.studentName,
+        weekNumber: gradingReports.weekNumber,
+        optionChosen: gradingReports.optionChosen,
+        totalScore: gradingReports.totalScore,
+        maxScore: gradingReports.maxScore,
+        percentage: gradingReports.percentage,
+        overallQuality: gradingReports.overallQuality,
+        rubricScores: gradingReports.rubricScores,
+        overallFeedback: gradingReports.overallFeedback,
+        strengths: gradingReports.strengths,
+        areasForImprovement: gradingReports.areasForImprovement,
+        instructorComments: gradingReports.instructorComments,
+        createdAt: gradingReports.createdAt,
+      }).from(gradingReports).limit(200);
+      const report = allReports.find(r => r.id === req.params.id);
       if (!report) return res.status(404).json({ error: "Report not found." });
-      res.json(report);
+      const curved = computeCurvedScores(allReports);
+      const result = curved.find((r: any) => r.id === req.params.id);
+      res.json(result);
     } catch (error) {
       console.error("Error fetching grading report:", error);
       res.status(500).json({ error: "Failed to fetch report." });

@@ -462,7 +462,7 @@ export function renderGradingPage(): string {
           </div>
           <div class="form-group">
             <label for="student-name">Student Name or ID <span class="label-hint">(optional)</span></label>
-            <input type="text" id="student-name" placeholder="e.g., Valerie Shepherd or Student_abc12345" data-testid="input-student-name" />
+            <input type="text" id="student-name" placeholder="e.g., Student 001" data-testid="input-student-name" />
           </div>
           <div class="form-group">
             <label for="essay-text">Student Response <span class="label-hint">(paste all sections together)</span></label>
@@ -563,6 +563,7 @@ export function renderGradingPage(): string {
                 <th>Week</th>
                 <th>Option</th>
                 <th>Score</th>
+                <th>Curved</th>
                 <th>Quality</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -659,7 +660,20 @@ export function renderGradingPage(): string {
         html += '<div class="results-body space-y">';
         html += '<div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">';
         html += '<span style="font-size: 1.25rem; font-weight: 700;">' + r.totalScore + ' / ' + r.maxScore + '</span>';
-        html += '<span class="badge" style="text-transform: capitalize;">' + esc(r.overallQuality) + '</span></div>';
+        html += '<span class="badge" style="text-transform: capitalize;">' + esc(r.overallQuality) + '</span>';
+        if (r.curvedScore != null) {
+          var cCls = getScoreClass(r.curvedScore);
+          html += '<span style="font-size: 0.875rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 0.375rem;" title="Curved score normalizes raw AI scores against all saved submissions for the same week (target mean: 75%). Based on ' + (r.weekStats ? r.weekStats.count : '?') + ' submissions.">';
+          html += r.percentage + '% raw \\u2192 <strong style="color:' + getBarColor(r.curvedScore) + ';">' + r.curvedScore + '% curved</strong>';
+          html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;cursor:help;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+          html += '</span>';
+        } else if (r.weekStats && r.weekStats.count < 3) {
+          html += '<span style="font-size: 0.8125rem; color: var(--text-muted);" title="At least 3 saved submissions for this week are needed to compute a curved score.">Curved: N/A (need ' + (3 - r.weekStats.count) + ' more)</span>';
+        }
+        html += '</div>';
+        if (r.weekStats) {
+          html += '<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Week ' + r.weekNumber + ' stats: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submission(s)</div>';
+        }
         html += '<div class="separator" style="margin: 0.75rem 0;"></div>';
         html += '<h3>Rubric Breakdown</h3>';
         for (var i = 0; i < r.rubricScores.length; i++) {
@@ -729,8 +743,18 @@ export function renderGradingPage(): string {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.setTextColor(100, 116, 139);
-        doc.text('Option ' + r.optionChosen + '  |  Score: ' + r.totalScore + '/' + r.maxScore + ' (' + r.percentage + '%)  |  Quality: ' + r.overallQuality, margin, y);
+        var scoreLine = 'Option ' + r.optionChosen + '  |  Score: ' + r.totalScore + '/' + r.maxScore + ' (' + r.percentage + '%)  |  Quality: ' + r.overallQuality;
+        if (r.curvedScore != null) scoreLine += '  |  Curved: ' + r.curvedScore + '%';
+        doc.text(scoreLine, margin, y);
         y += 4;
+        if (r.weekStats) {
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          var statsLine = 'Week ' + r.weekNumber + ' distribution: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submissions';
+          if (r.curvedScore != null) statsLine += ' | Curved score uses Z-score normalization (target mean 75%)';
+          doc.text(statsLine, margin, y);
+          y += 3;
+        }
 
         doc.setDrawColor(226, 232, 240);
         doc.line(margin, y, pageW - margin, y);
@@ -974,11 +998,13 @@ export function renderGradingPage(): string {
           var cls = getScoreClass(r.percentage);
           var qColor = cls === 'excellent' ? '#22c55e' : cls === 'good' ? '#3b82f6' : cls === 'adequate' ? '#f59e0b' : '#ef4444';
           var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
+          var curvedHtml = r.curvedScore != null ? '<strong style="color:' + getBarColor(r.curvedScore) + ';">' + r.curvedScore + '%</strong>' : '<span style="color:var(--text-muted);font-size:0.75rem;" title="Need at least 3 submissions for this week">N/A</span>';
           tbody.innerHTML += '<tr>'
             + '<td><strong>' + esc(r.studentName) + '</strong></td>'
             + '<td>Week ' + r.weekNumber + '</td>'
             + '<td>' + esc(r.optionChosen) + '</td>'
             + '<td>' + r.totalScore + '/' + r.maxScore + ' <strong>(' + r.percentage + '%)</strong></td>'
+            + '<td>' + curvedHtml + '</td>'
             + '<td style="color:' + qColor + ';font-weight:600;text-transform:capitalize;">' + esc(r.overallQuality) + '</td>'
             + '<td style="font-size:0.75rem;color:var(--text-muted);">' + dateStr + '</td>'
             + '<td style="white-space:nowrap;">'
@@ -986,7 +1012,7 @@ export function renderGradingPage(): string {
             + '<button class="expand-btn" onclick="downloadHistoryPDF(' + i + ')" data-testid="btn-history-pdf-' + i + '">PDF</button> '
             + '<button class="expand-btn" onclick="editHistoryComments(' + i + ')" data-testid="btn-history-edit-' + i + '">Edit Comments</button>'
             + '</td></tr>'
-            + '<tr class="detail-row" id="hist-detail-' + i + '"><td colspan="7" class="detail-cell">'
+            + '<tr class="detail-row" id="hist-detail-' + i + '"><td colspan="8" class="detail-cell">'
             + buildHistoryDetailHtml(r, i)
             + '</td></tr>';
         }
@@ -1004,6 +1030,11 @@ export function renderGradingPage(): string {
         if (strengths.length) { h += '<div style="margin-top:0.5rem;">'; for (var j = 0; j < strengths.length; j++) h += '<span class="tag tag-green">' + esc(strengths[j]) + '</span>'; h += '</div>'; }
         var imp = r.areasForImprovement || [];
         if (imp.length) { h += '<div style="margin-top:0.25rem;">'; for (var k = 0; k < imp.length; k++) h += '<span class="tag tag-amber">' + esc(imp[k]) + '</span>'; h += '</div>'; }
+        if (r.weekStats) {
+          h += '<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted);">Week ' + r.weekNumber + ' curve: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submission(s)';
+          if (r.curvedScore != null) h += ' \\u2192 curved: <strong>' + r.curvedScore + '%</strong>';
+          h += '</div>';
+        }
         h += '<div style="margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;" id="hist-comments-' + idx + '">';
         h += '<strong style="font-size:0.8125rem;">Instructor Comments:</strong><br>';
         h += r.instructorComments ? '<em style="font-size:0.8125rem;color:var(--text-secondary);">' + esc(r.instructorComments) + '</em>' : '<em style="font-size:0.8125rem;color:var(--text-muted);">No comments</em>';
