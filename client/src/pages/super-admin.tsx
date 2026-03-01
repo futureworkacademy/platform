@@ -44,7 +44,8 @@ import {
   Activity,
   Clock,
   FastForward,
-  Filter
+  Filter,
+  BarChart3
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "wouter";
@@ -2401,6 +2402,18 @@ export default function SuperAdminPage() {
                         <Button variant="outline" data-testid="button-content-validation">
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Validate Content
+                        </Button>
+                      </Link>
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">Student Feedback Survey Results</Label>
+                        <p className="text-sm text-muted-foreground">View survey responses with trend charts, radar analysis, and AI-powered insights</p>
+                      </div>
+                      <Link href="/admin/survey-results">
+                        <Button variant="outline" data-testid="button-survey-results">
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          View Survey Results
                         </Button>
                       </Link>
                     </div>
