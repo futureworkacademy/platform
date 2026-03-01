@@ -660,3 +660,20 @@ export const gradingReports = pgTable("grading_reports", {
 
 export type GradingReport = typeof gradingReports.$inferSelect;
 export type InsertGradingReport = typeof gradingReports.$inferInsert;
+
+export const surveyResponses = pgTable("survey_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id", { length: 50 }).notNull(),
+  weekNumber: integer("week_number").notNull(),
+  realism: integer("realism").notNull(),
+  fairness: integer("fairness").notNull(),
+  difficulty: integer("difficulty").notNull(),
+  learningValue: integer("learning_value").notNull(),
+  engagement: integer("engagement").notNull(),
+  clarity: integer("clarity").notNull(),
+  comments: varchar("comments", { length: 2000 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type SurveyResponse = typeof surveyResponses.$inferSelect;
+export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;

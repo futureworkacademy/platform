@@ -105,6 +105,9 @@ export async function registerRoutes(
   // Grading module (public, no auth)
   const { renderGradingPage, gradeSubmission } = await import("./grading-page-renderer");
 
+  // Survey module (public, no auth)
+  const { renderSurveyPage } = await import("./survey-page-renderer");
+
   app.get("/grade", (_req, res) => {
     try {
       const html = renderGradingPage();
@@ -174,7 +177,7 @@ export async function registerRoutes(
     }
   });
 
-  const { gradingReports } = await import("@shared/models/auth");
+  const { gradingReports, surveyResponses } = await import("@shared/models/auth");
   const { desc } = await import("drizzle-orm");
 
   function computeCurvedScores(reports: any[]) {
@@ -311,6 +314,75 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting grading report:", error);
       res.status(500).json({ error: "Failed to delete report." });
+    }
+  });
+
+  app.get("/survey", (_req, res) => {
+    try {
+      const html = renderSurveyPage();
+      res.status(200).set({ "Content-Type": "text/html" }).send(html);
+    } catch (error) {
+      console.error("Error rendering survey page:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  app.post("/api/survey", async (req, res) => {
+    try {
+      const { studentId, weekNumber, realism, fairness, difficulty, learningValue, engagement, clarity, comments } = req.body;
+      if (!studentId || typeof studentId !== "string" || studentId.trim().length < 1 || studentId.trim().length > 50) {
+        return res.status(400).json({ error: "Student ID is required (max 50 characters)." });
+      }
+      const wk = Number(weekNumber);
+      if (!wk || wk < 1 || wk > 8) return res.status(400).json({ error: "Invalid week number." });
+      const ratingFields = [realism, fairness, difficulty, learningValue, engagement, clarity];
+      if (ratingFields.some((r: any) => typeof r !== "number" || r < 1 || r > 5 || !Number.isInteger(r))) {
+        return res.status(400).json({ error: "All ratings must be integers between 1 and 5." });
+      }
+      const trimmedComments = comments ? String(comments).trim().substring(0, 2000) : null;
+      const existing = await db.select({ id: surveyResponses.id }).from(surveyResponses)
+        .where(and(eq(surveyResponses.studentId, studentId.trim()), eq(surveyResponses.weekNumber, wk)));
+      if (existing.length > 0) {
+        return res.status(409).json({ error: "You have already submitted feedback for this week." });
+      }
+      const [inserted] = await db.insert(surveyResponses).values({
+        studentId: studentId.trim(),
+        weekNumber: wk,
+        realism: Number(realism),
+        fairness: Number(fairness),
+        difficulty: Number(difficulty),
+        learningValue: Number(learningValue),
+        engagement: Number(engagement),
+        clarity: Number(clarity),
+        comments: trimmedComments,
+      }).returning();
+      res.json({ id: inserted.id, weekNumber: inserted.weekNumber });
+    } catch (error: any) {
+      if (error?.code === "23505") {
+        return res.status(409).json({ error: "You have already submitted feedback for this week." });
+      }
+      console.error("Error saving survey:", error);
+      res.status(500).json({ error: "Failed to save feedback." });
+    }
+  });
+
+  app.get("/api/survey/results", async (_req, res) => {
+    try {
+      const responses = await db.select({
+        weekNumber: surveyResponses.weekNumber,
+        realism: surveyResponses.realism,
+        fairness: surveyResponses.fairness,
+        difficulty: surveyResponses.difficulty,
+        learningValue: surveyResponses.learningValue,
+        engagement: surveyResponses.engagement,
+        clarity: surveyResponses.clarity,
+        comments: surveyResponses.comments,
+        studentId: surveyResponses.studentId,
+      }).from(surveyResponses).orderBy(surveyResponses.weekNumber, surveyResponses.createdAt);
+      res.json({ responses });
+    } catch (error) {
+      console.error("Error fetching survey results:", error);
+      res.status(500).json({ error: "Failed to fetch results." });
     }
   });
 
