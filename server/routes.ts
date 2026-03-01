@@ -154,6 +154,88 @@ export async function registerRoutes(
     }
   });
 
+  const { gradingReports } = await import("@shared/models/auth");
+  const { desc } = await import("drizzle-orm");
+
+  app.post("/api/grade/save", async (req, res) => {
+    try {
+      const { studentName, weekNumber, optionChosen, essayText, totalScore, maxScore, percentage, overallQuality, rubricScores, overallFeedback, strengths, areasForImprovement, instructorComments } = req.body;
+      if (!studentName || !essayText) {
+        return res.status(400).json({ error: "Missing required fields." });
+      }
+      const [report] = await db.insert(gradingReports).values({
+        studentName: String(studentName).trim(),
+        weekNumber: parseInt(weekNumber) || 1,
+        optionChosen: String(optionChosen || "A"),
+        essayText: String(essayText),
+        totalScore: parseInt(totalScore) || 0,
+        maxScore: parseInt(maxScore) || 100,
+        percentage: parseInt(percentage) || 0,
+        overallQuality: String(overallQuality || ""),
+        rubricScores: rubricScores || [],
+        overallFeedback: overallFeedback || "",
+        strengths: strengths || [],
+        areasForImprovement: areasForImprovement || [],
+        instructorComments: instructorComments || null,
+      }).returning();
+      res.json(report);
+    } catch (error) {
+      console.error("Error saving grading report:", error);
+      res.status(500).json({ error: "Failed to save report." });
+    }
+  });
+
+  app.patch("/api/grade/:id/comments", async (req, res) => {
+    try {
+      const { instructorComments } = req.body;
+      const [updated] = await db.update(gradingReports)
+        .set({ instructorComments: instructorComments || null })
+        .where(eq(gradingReports.id, req.params.id))
+        .returning();
+      if (!updated) return res.status(404).json({ error: "Report not found." });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating comments:", error);
+      res.status(500).json({ error: "Failed to update comments." });
+    }
+  });
+
+  app.get("/api/grade/history", async (_req, res) => {
+    try {
+      const reports = await db.select({
+        id: gradingReports.id,
+        studentName: gradingReports.studentName,
+        weekNumber: gradingReports.weekNumber,
+        optionChosen: gradingReports.optionChosen,
+        totalScore: gradingReports.totalScore,
+        maxScore: gradingReports.maxScore,
+        percentage: gradingReports.percentage,
+        overallQuality: gradingReports.overallQuality,
+        rubricScores: gradingReports.rubricScores,
+        overallFeedback: gradingReports.overallFeedback,
+        strengths: gradingReports.strengths,
+        areasForImprovement: gradingReports.areasForImprovement,
+        instructorComments: gradingReports.instructorComments,
+        createdAt: gradingReports.createdAt,
+      }).from(gradingReports).orderBy(desc(gradingReports.createdAt)).limit(200);
+      res.json(reports);
+    } catch (error) {
+      console.error("Error fetching grading history:", error);
+      res.status(500).json({ error: "Failed to fetch history." });
+    }
+  });
+
+  app.get("/api/grade/:id", async (req, res) => {
+    try {
+      const [report] = await db.select().from(gradingReports).where(eq(gradingReports.id, req.params.id)).limit(1);
+      if (!report) return res.status(404).json({ error: "Report not found." });
+      res.json(report);
+    } catch (error) {
+      console.error("Error fetching grading report:", error);
+      res.status(500).json({ error: "Failed to fetch report." });
+    }
+  });
+
   app.get("/week-0", async (_req, res) => {
     try {
       const html = await renderWeek0Page();

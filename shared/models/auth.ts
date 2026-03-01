@@ -639,3 +639,24 @@ export const advisorCalls = pgTable("advisor_calls", {
 
 export type AdvisorCallDb = typeof advisorCalls.$inferSelect;
 export type InsertAdvisorCallDb = typeof advisorCalls.$inferInsert;
+
+export const gradingReports = pgTable("grading_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentName: varchar("student_name").notNull(),
+  weekNumber: integer("week_number").notNull(),
+  optionChosen: varchar("option_chosen").notNull(),
+  essayText: text("essay_text").notNull(),
+  totalScore: integer("total_score").notNull(),
+  maxScore: integer("max_score").notNull(),
+  percentage: integer("percentage").notNull(),
+  overallQuality: varchar("overall_quality").notNull(),
+  rubricScores: jsonb("rubric_scores").notNull(),
+  overallFeedback: text("overall_feedback"),
+  strengths: jsonb("strengths"),
+  areasForImprovement: jsonb("areas_for_improvement"),
+  instructorComments: text("instructor_comments"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type GradingReport = typeof gradingReports.$inferSelect;
+export type InsertGradingReport = typeof gradingReports.$inferInsert;
