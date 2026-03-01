@@ -1585,6 +1585,26 @@ ${weekLinks}
 
       <div class="separator"></div>
 
+      <div class="section-header">
+        <div class="icon-circle icon-circle-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        </div>
+        <h2 data-testid="text-instructor-tools-title">Instructor Tools</h2>
+      </div>
+
+      <a href="/grade" class="timeline-item" data-testid="link-grading-module">
+        <div class="timeline-number" style="background: var(--navy); color: white;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-title">Grading Module</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Grade student responses submitted through Blackboard or other LMS platforms</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text-muted);"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+
+      <div class="separator"></div>
+
       <div>
         <h2 data-testid="text-stakeholder-title">Stakeholder Directory</h2>
         <p class="subtitle" style="margin-top: 0.25rem;">

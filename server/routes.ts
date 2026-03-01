@@ -102,6 +102,58 @@ export async function registerRoutes(
   // Server-rendered weekly simulation pages (bypasses React SPA entirely)
   const { fetchWeekPageData, renderWeekPage, renderWeek0Page } = await import("./weekly-page-renderer");
 
+  // Grading module (public, no auth)
+  const { renderGradingPage, gradeSubmission } = await import("./grading-page-renderer");
+
+  app.get("/grade", (_req, res) => {
+    try {
+      const html = renderGradingPage();
+      res.status(200).set({ "Content-Type": "text/html" }).send(html);
+    } catch (error) {
+      console.error("Error rendering grading page:", error);
+      res.status(500).send("Internal server error");
+    }
+  });
+
+  const gradeRateLimit = new Map<string, number[]>();
+  app.post("/api/grade/single", async (req, res) => {
+    try {
+      const ip = req.ip || "unknown";
+      const now = Date.now();
+      const windowMs = 60000;
+      const maxRequests = 10;
+      const timestamps = (gradeRateLimit.get(ip) || []).filter(t => now - t < windowMs);
+      if (timestamps.length >= maxRequests) {
+        return res.status(429).json({ error: "Too many grading requests. Please wait a minute before trying again." });
+      }
+      timestamps.push(now);
+      gradeRateLimit.set(ip, timestamps);
+
+      const { weekNumber, optionChosen, studentName, essayText } = req.body;
+      if (!essayText || typeof essayText !== "string" || essayText.trim().length < 20) {
+        return res.status(400).json({ error: "Essay text is required and must be at least 20 characters." });
+      }
+      const week = parseInt(weekNumber);
+      if (isNaN(week) || week < 1 || week > 8) {
+        return res.status(400).json({ error: "Week number must be between 1 and 8." });
+      }
+      const option = String(optionChosen || "A").toUpperCase().charAt(0);
+      if (!"ABCD".includes(option)) {
+        return res.status(400).json({ error: "Option must be A, B, C, or D." });
+      }
+      const result = await gradeSubmission({
+        weekNumber: week,
+        optionChosen: option,
+        studentName: String(studentName || "Student").trim(),
+        essayText: essayText.trim(),
+      });
+      res.json(result);
+    } catch (error) {
+      console.error("Error grading submission:", error);
+      res.status(500).json({ error: "Grading service encountered an error. Please try again." });
+    }
+  });
+
   app.get("/week-0", async (_req, res) => {
     try {
       const html = await renderWeek0Page();
