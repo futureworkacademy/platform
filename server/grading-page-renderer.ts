@@ -189,6 +189,7 @@ export function renderGradingPage(): string {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -555,6 +556,7 @@ export function renderGradingPage(): string {
         <p class="subtitle" style="margin-top: 0.25rem;">Grade a response and click "Save & Download PDF" to start building your history.</p>
       </div>
       <div id="history-content" class="hidden">
+        <div id="week-summaries" data-testid="week-summaries" style="margin-bottom: 1.5rem;"></div>
         <div class="card" style="overflow-x: auto;">
           <table class="bulk-results-table" id="history-table" data-testid="table-history">
             <thead>
@@ -984,6 +986,7 @@ export function renderGradingPage(): string {
           document.getElementById('history-loading').classList.add('hidden');
           if (!data.length) { document.getElementById('history-empty').classList.remove('hidden'); return; }
           renderHistory(data);
+          renderWeekSummaries(data);
           document.getElementById('history-content').classList.remove('hidden');
         } catch (err) {
           document.getElementById('history-loading').textContent = 'Error loading history: ' + err.message;
@@ -1040,6 +1043,205 @@ export function renderGradingPage(): string {
         h += r.instructorComments ? '<em style="font-size:0.8125rem;color:var(--text-secondary);">' + esc(r.instructorComments) + '</em>' : '<em style="font-size:0.8125rem;color:var(--text-muted);">No comments</em>';
         h += '</div></div>';
         return h;
+      }
+
+      function renderWeekSummaries(data) {
+        var container = document.getElementById('week-summaries');
+        if (!container) return;
+        container.innerHTML = '';
+        var byWeek = {};
+        for (var i = 0; i < data.length; i++) {
+          var wk = data[i].weekNumber;
+          if (!byWeek[wk]) byWeek[wk] = [];
+          byWeek[wk].push(data[i]);
+        }
+        var weeks = Object.keys(byWeek).map(Number).sort(function(a,b){return a-b;});
+        if (weeks.length === 0) return;
+
+        for (var w = 0; w < weeks.length; w++) {
+          var weekNum = weeks[w];
+          var reports = byWeek[weekNum];
+          reports.sort(function(a,b){ return b.percentage - a.percentage; });
+
+          var pcts = reports.map(function(r){ return r.percentage; });
+          var n = pcts.length;
+          var sum = pcts.reduce(function(a,b){return a+b;},0);
+          var mean = sum / n;
+          var variance = pcts.reduce(function(s,p){return s+(p-mean)*(p-mean);},0)/n;
+          var stdDev = Math.sqrt(variance);
+          var sorted = pcts.slice().sort(function(a,b){return a-b;});
+          var median = n % 2 === 0 ? (sorted[n/2-1]+sorted[n/2])/2 : sorted[Math.floor(n/2)];
+          var minPct = sorted[0]; var maxPct = sorted[n-1];
+          var topStudent = reports[0]; var bottomStudent = reports[n-1];
+
+          var hasCurve = reports[0].curvedScore != null;
+
+          var card = document.createElement('div');
+          card.className = 'card';
+          card.style.cssText = 'margin-bottom:1rem;';
+          card.setAttribute('data-testid', 'week-summary-' + weekNum);
+
+          var headerHtml = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">';
+          headerHtml += '<div><h3 style="font-size:1rem;margin:0;color:var(--navy);">Week ' + weekNum + ': ' + (WEEK_NAMES[weekNum] || '') + '</h3>';
+          headerHtml += '<span class="subtitle" style="font-size:0.75rem;">' + n + ' submission' + (n !== 1 ? 's' : '') + ' graded</span></div>';
+          headerHtml += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+          headerHtml += '<span class="badge" style="font-size:0.6875rem;">Mean: ' + mean.toFixed(1) + '%</span>';
+          headerHtml += '<span class="badge" style="font-size:0.6875rem;">Median: ' + median.toFixed(1) + '%</span>';
+          headerHtml += '<span class="badge" style="font-size:0.6875rem;">Range: ' + minPct + '% – ' + maxPct + '%</span>';
+          if (stdDev > 0) headerHtml += '<span class="badge" style="font-size:0.6875rem;">SD: ' + stdDev.toFixed(1) + '%</span>';
+          headerHtml += '</div></div>';
+
+          var chartId = 'chart-week-' + weekNum;
+          var chartHtml = '<div style="position:relative;height:' + Math.max(140, n * 36 + 50) + 'px;margin-bottom:1rem;">';
+          chartHtml += '<canvas id="' + chartId + '" data-testid="' + chartId + '"></canvas></div>';
+
+          var statsHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.625rem;font-size:0.8125rem;">';
+
+          statsHtml += '<div style="padding:0.625rem;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:6px;">';
+          statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Top Score</div>';
+          statsHtml += '<div style="font-weight:700;color:#22c55e;">' + topStudent.percentage + '%</div>';
+          statsHtml += '<div style="font-size:0.75rem;color:var(--text-secondary);">' + esc(topStudent.studentName) + '</div>';
+          if (hasCurve && topStudent.curvedScore != null) statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);">Curved: ' + topStudent.curvedScore + '%</div>';
+          statsHtml += '</div>';
+
+          statsHtml += '<div style="padding:0.625rem;background:var(--primary-bg);border:1px solid #bfdbfe;border-radius:6px;">';
+          statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Class Mean</div>';
+          statsHtml += '<div style="font-weight:700;color:var(--navy);">' + mean.toFixed(1) + '%</div>';
+          statsHtml += '<div style="font-size:0.75rem;color:var(--text-secondary);">\\u00b1 ' + stdDev.toFixed(1) + '% std dev</div>';
+          if (hasCurve) statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);">Curved target: 75%</div>';
+          statsHtml += '</div>';
+
+          statsHtml += '<div style="padding:0.625rem;background:var(--muted-bg);border:1px solid var(--border);border-radius:6px;">';
+          statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Median</div>';
+          statsHtml += '<div style="font-weight:700;color:var(--text);">' + median.toFixed(1) + '%</div>';
+          statsHtml += '<div style="font-size:0.75rem;color:var(--text-secondary);">Range: ' + minPct + '% – ' + maxPct + '%</div>';
+          statsHtml += '</div>';
+
+          statsHtml += '<div style="padding:0.625rem;background:' + (bottomStudent.percentage < 50 ? 'var(--destructive-bg)' : 'var(--warning-bg)') + ';border:1px solid ' + (bottomStudent.percentage < 50 ? '#fecaca' : '#fde68a') + ';border-radius:6px;">';
+          statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Low Score</div>';
+          statsHtml += '<div style="font-weight:700;color:' + (bottomStudent.percentage < 50 ? 'var(--destructive)' : '#f59e0b') + ';">' + bottomStudent.percentage + '%</div>';
+          statsHtml += '<div style="font-size:0.75rem;color:var(--text-secondary);">' + esc(bottomStudent.studentName) + '</div>';
+          if (hasCurve && bottomStudent.curvedScore != null) statsHtml += '<div style="font-size:0.6875rem;color:var(--text-muted);">Curved: ' + bottomStudent.curvedScore + '%</div>';
+          statsHtml += '</div>';
+
+          statsHtml += '</div>';
+
+          card.innerHTML = headerHtml + chartHtml + statsHtml;
+          container.appendChild(card);
+
+          buildWeekChart(chartId, reports, mean);
+        }
+      }
+
+      function buildWeekChart(canvasId, reports, mean) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var labels = [];
+        var rawScores = [];
+        var curvedScores = [];
+        var bgColors = [];
+        var borderColors = [];
+        var hasCurve = reports[0] && reports[0].curvedScore != null;
+
+        for (var i = 0; i < reports.length; i++) {
+          var r = reports[i];
+          labels.push(r.studentName);
+          rawScores.push(r.percentage);
+          curvedScores.push(r.curvedScore != null ? r.curvedScore : null);
+          var cls = getScoreClass(r.percentage);
+          var color = cls === 'excellent' ? 'rgba(34,197,94,' : cls === 'good' ? 'rgba(59,130,246,' : cls === 'adequate' ? 'rgba(245,158,11,' : 'rgba(239,68,68,';
+          bgColors.push(color + '0.7)');
+          borderColors.push(color + '1)');
+        }
+
+        var datasets = [{
+          label: 'Raw Score (%)',
+          data: rawScores,
+          backgroundColor: bgColors,
+          borderColor: borderColors,
+          borderWidth: 1,
+          borderRadius: 3,
+          barThickness: 22
+        }];
+
+        if (hasCurve) {
+          datasets.push({
+            label: 'Curved Score (%)',
+            data: curvedScores,
+            backgroundColor: 'rgba(30,58,95,0.15)',
+            borderColor: 'rgba(30,58,95,0.6)',
+            borderWidth: 1,
+            borderRadius: 3,
+            barThickness: 14
+          });
+        }
+
+        new Chart(canvas, {
+          type: 'bar',
+          data: { labels: labels, datasets: datasets },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { right: 10 } },
+            scales: {
+              x: {
+                min: 0, max: 100,
+                title: { display: true, text: 'Score (%)', font: { size: 11, family: 'IBM Plex Sans' }, color: '#64748b' },
+                grid: { color: 'rgba(226,232,240,0.6)' },
+                ticks: { font: { size: 10, family: 'IBM Plex Sans' }, color: '#94a3b8', stepSize: 10 }
+              },
+              y: {
+                grid: { display: false },
+                ticks: { font: { size: 11, family: 'IBM Plex Sans', weight: '500' }, color: '#0f172a' }
+              }
+            },
+            plugins: {
+              legend: { display: hasCurve, position: 'top', labels: { font: { size: 10, family: 'IBM Plex Sans' }, usePointStyle: true, pointStyle: 'rect', padding: 12 } },
+              tooltip: {
+                backgroundColor: '#1e293b',
+                titleFont: { family: 'IBM Plex Sans', size: 12 },
+                bodyFont: { family: 'IBM Plex Sans', size: 11 },
+                padding: 10,
+                cornerRadius: 6,
+                callbacks: {
+                  label: function(ctx) {
+                    var val = ctx.parsed.x;
+                    if (ctx.datasetIndex === 0) {
+                      var q = val >= 80 ? 'Excellent' : val >= 65 ? 'Good' : val >= 50 ? 'Adequate' : 'Poor';
+                      return 'Raw: ' + val + '% (' + q + ')';
+                    }
+                    return val != null ? 'Curved: ' + val + '%' : '';
+                  }
+                }
+              },
+              annotation: undefined
+            }
+          },
+          plugins: [{
+            id: 'meanLine',
+            afterDraw: function(chart) {
+              var xScale = chart.scales.x;
+              var ctx = chart.ctx;
+              var xPos = xScale.getPixelForValue(mean);
+              ctx.save();
+              ctx.beginPath();
+              ctx.setLineDash([4, 3]);
+              ctx.strokeStyle = '#1e3a5f';
+              ctx.lineWidth = 1.5;
+              ctx.moveTo(xPos, chart.chartArea.top);
+              ctx.lineTo(xPos, chart.chartArea.bottom);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.fillStyle = '#1e3a5f';
+              ctx.font = '500 10px IBM Plex Sans';
+              ctx.textAlign = 'center';
+              ctx.fillText('Mean ' + mean.toFixed(1) + '%', xPos, chart.chartArea.top - 4);
+              ctx.restore();
+            }
+          }]
+        });
       }
 
       // CSV Upload
