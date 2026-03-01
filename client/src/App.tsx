@@ -32,6 +32,7 @@ import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
 import CharacterProfilesPage from "@/pages/character-profiles";
 import ContentValidation from "@/pages/content-validation";
+import SurveyResultsPage from "@/pages/survey-results";
 import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
 import NotFound from "@/pages/not-found";
@@ -235,6 +236,10 @@ function AppRouter() {
 
   if (location === "/admin/content-validation") {
     return <ContentValidation />;
+  }
+
+  if (location === "/admin/survey-results") {
+    return <SurveyResultsPage />;
   }
 
   if (location === "/educator-inquiries") {

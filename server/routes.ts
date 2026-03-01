@@ -366,7 +366,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/survey/results", async (_req, res) => {
+  app.get("/api/survey/results", isAuthenticated, async (_req, res) => {
     try {
       const responses = await db.select({
         weekNumber: surveyResponses.weekNumber,
@@ -378,11 +378,70 @@ export async function registerRoutes(
         clarity: surveyResponses.clarity,
         comments: surveyResponses.comments,
         studentId: surveyResponses.studentId,
+        createdAt: surveyResponses.createdAt,
       }).from(surveyResponses).orderBy(surveyResponses.weekNumber, surveyResponses.createdAt);
       res.json({ responses });
     } catch (error) {
       console.error("Error fetching survey results:", error);
       res.status(500).json({ error: "Failed to fetch results." });
+    }
+  });
+
+  app.post("/api/survey/analyze", isAuthenticated, async (_req, res) => {
+    try {
+      const responses = await db.select({
+        weekNumber: surveyResponses.weekNumber,
+        realism: surveyResponses.realism,
+        fairness: surveyResponses.fairness,
+        difficulty: surveyResponses.difficulty,
+        learningValue: surveyResponses.learningValue,
+        engagement: surveyResponses.engagement,
+        clarity: surveyResponses.clarity,
+        comments: surveyResponses.comments,
+        studentId: surveyResponses.studentId,
+      }).from(surveyResponses).orderBy(surveyResponses.weekNumber);
+
+      if (responses.length === 0) {
+        return res.json({ analysis: "No survey responses to analyze yet." });
+      }
+
+      const weekGroups: Record<number, typeof responses> = {};
+      for (const r of responses) {
+        if (!weekGroups[r.weekNumber]) weekGroups[r.weekNumber] = [];
+        weekGroups[r.weekNumber].push(r);
+      }
+
+      let dataSummary = `Survey Data Summary (${responses.length} total responses across ${Object.keys(weekGroups).length} weeks):\n\n`;
+      for (const [week, wrs] of Object.entries(weekGroups).sort(([a],[b]) => Number(a) - Number(b))) {
+        const avg = (field: string) => (wrs.reduce((s: number, r: any) => s + r[field], 0) / wrs.length).toFixed(1);
+        dataSummary += `Week ${week} (${wrs.length} responses): Realism=${avg('realism')}, Fairness=${avg('fairness')}, Difficulty=${avg('difficulty')}, Learning=${avg('learningValue')}, Engagement=${avg('engagement')}, Clarity=${avg('clarity')}\n`;
+        const comments = wrs.filter((r: any) => r.comments?.trim()).map((r: any) => `  - "${r.comments}"`);
+        if (comments.length > 0) dataSummary += `  Comments:\n${comments.join('\n')}\n`;
+      }
+
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI();
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are an educational assessment analyst for "Future Work Academy," a business simulation where students manage AI transformation at a manufacturing company over 8 weeks. Analyze the student feedback survey data and provide actionable insights for the instructor. The survey measures: Realism (scenario believability), Fairness (decision options and scoring equity), Difficulty (challenge level), Learning Value (educational impact), Engagement (interest and involvement), and Clarity (instruction quality). All ratings are 1-5 scale.`
+          },
+          {
+            role: "user",
+            content: `Analyze this student feedback data and provide:\n\n1. **Key Themes** — What are the top 3-5 themes emerging from quantitative ratings and qualitative comments?\n2. **Strengths** — What aspects of the simulation are working well (consistently high ratings)?\n3. **Areas for Improvement** — Where are ratings low or declining? What do comments suggest?\n4. **Week-over-Week Trends** — Are perceptions improving, declining, or stable across weeks?\n5. **Actionable Recommendations** — 3-5 specific, concrete changes the instructor could make to improve the simulation experience.\n6. **Risk Flags** — Any concerning patterns (e.g., fairness complaints, difficulty spikes, disengagement)?\n\nBe specific and cite the data. Format with clear headers and bullet points.\n\n${dataSummary}`
+          }
+        ],
+        max_tokens: 1500,
+        temperature: 0.3,
+      });
+
+      res.json({ analysis: completion.choices[0]?.message?.content || "Unable to generate analysis." });
+    } catch (error) {
+      console.error("Error analyzing survey:", error);
+      res.status(500).json({ error: "Failed to analyze survey data." });
     }
   });
 

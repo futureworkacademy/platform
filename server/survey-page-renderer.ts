@@ -52,7 +52,6 @@ export function renderSurveyPage(): string {
   <meta name="description" content="Share your feedback on this week's simulation experience.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --navy: #1e3a5f;
@@ -131,39 +130,6 @@ export function renderSurveyPage(): string {
     .success-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius); padding: 1.5rem; text-align: center; display: none; }
     .success-card h3 { color: var(--green-dark); margin-bottom: 0.5rem; }
 
-    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; box-shadow: var(--shadow); }
-    .stat-value { font-size: 2rem; font-weight: 700; color: var(--navy); font-family: 'Roboto Mono', monospace; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
-    .stat-sub { font-size: 0.75rem; color: var(--text-light); }
-
-    .week-filter { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .week-filter label { font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
-    .week-filter select { width: auto; min-width: 200px; }
-
-    .chart-container { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
-    .chart-container h3 { font-size: 1rem; color: var(--navy); margin-bottom: 0.75rem; }
-    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    @media (max-width: 700px) { .chart-row { grid-template-columns: 1fr; } }
-
-    .comments-section { margin-top: 1.5rem; }
-    .comments-section h3 { font-size: 1rem; color: var(--navy); margin-bottom: 0.75rem; }
-    .comment-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
-    .comment-meta { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.25rem; }
-    .comment-text { font-size: 0.85rem; color: var(--text); }
-
-    .no-data { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-    .no-data svg { margin-bottom: 1rem; color: var(--text-light); }
-
-    .trend-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .trend-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 0.8rem; }
-    .trend-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
-    .trend-table tr:last-child td { border-bottom: none; }
-    .avg-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; font-family: 'Roboto Mono', monospace; }
-    .avg-high { background: #dcfce7; color: #15803d; }
-    .avg-mid { background: #fef3c7; color: #92400e; }
-    .avg-low { background: #fef2f2; color: #991b1b; }
-
     .disclaimer { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.8rem; color: #92400e; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.5rem; }
     .disclaimer svg { flex-shrink: 0; margin-top: 1px; }
   </style>
@@ -185,11 +151,6 @@ export function renderSurveyPage(): string {
     <div class="disclaimer">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Responses are anonymous and used to improve the simulation. One submission per student per week.
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="submit" data-testid="btn-tab-submit">Submit Feedback</button>
-      <button class="tab-btn" data-tab="results" data-testid="btn-tab-results">Results Dashboard</button>
     </div>
 
     <div class="tab-panel active" id="panel-submit" data-testid="panel-submit">
@@ -228,36 +189,17 @@ export function renderSurveyPage(): string {
       <div class="success-card" id="success-card" data-testid="success-card">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <h3>Thank you for your feedback!</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">Your response has been recorded. You can view aggregated results in the Results Dashboard tab.</p>
+        <p style="color: #64748b; font-size: 0.9rem;">Your response has been recorded. Thank you for helping us improve the simulation.</p>
         <button class="btn btn-green" onclick="resetForm()" style="margin-top: 1rem;" data-testid="btn-submit-another">Submit Another</button>
       </div>
     </div>
 
-    <div class="tab-panel" id="panel-results" data-testid="panel-results">
-      <div id="results-container" data-testid="results-container">
-        <div class="no-data" id="results-loading">
-          <p>Loading results...</p>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
     var QUESTIONS = ${JSON.stringify(SURVEY_QUESTIONS)};
     var WEEK_TITLES = ${JSON.stringify(WEEK_TITLES)};
     var ratings = {};
-    var resultsLoaded = false;
-
-    document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-        btn.classList.add('active');
-        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'results' && !resultsLoaded) { loadResults(); }
-      });
-    });
-
     document.querySelectorAll('.star-group').forEach(function(group) {
       var field = group.dataset.field;
       var btns = group.querySelectorAll('.star-btn');
@@ -317,7 +259,6 @@ export function renderSurveyPage(): string {
         document.querySelector('.card').style.display = 'none';
         document.getElementById('success-card').style.display = 'block';
         statusEl.textContent = '';
-        resultsLoaded = false;
       } catch (e) {
         statusEl.textContent = 'Network error. Please try again.';
         statusEl.className = 'status-msg error';
@@ -335,178 +276,6 @@ export function renderSurveyPage(): string {
       document.querySelectorAll('.star-value').forEach(function(v) { v.textContent = ''; });
       document.getElementById('submit-status').textContent = '';
     };
-
-    async function loadResults() {
-      var container = document.getElementById('results-container');
-      try {
-        var res = await fetch('/api/survey/results');
-        var data = await res.json();
-        resultsLoaded = true;
-        if (!data.responses || data.responses.length === 0) {
-          container.innerHTML = '<div class="no-data"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg><h3 style="margin-bottom:0.5rem;color:var(--text)">No responses yet</h3><p>Feedback will appear here once students start submitting.</p></div>';
-          return;
-        }
-        renderResults(data.responses);
-      } catch (e) {
-        container.innerHTML = '<div class="no-data"><p style="color:#dc2626">Failed to load results. Please try again.</p></div>';
-      }
-    }
-
-    function renderResults(responses) {
-      var container = document.getElementById('results-container');
-      var html = '';
-
-      var weekGroups = {};
-      responses.forEach(function(r) {
-        if (!weekGroups[r.weekNumber]) weekGroups[r.weekNumber] = [];
-        weekGroups[r.weekNumber].push(r);
-      });
-      var weeks = Object.keys(weekGroups).map(Number).sort(function(a,b){return a-b;});
-
-      html += '<div class="results-grid" data-testid="overview-stats">';
-      html += '<div class="stat-card"><div class="stat-value" data-testid="stat-total">' + responses.length + '</div><div class="stat-label">Total Responses</div></div>';
-      html += '<div class="stat-card"><div class="stat-value" data-testid="stat-weeks">' + weeks.length + '</div><div class="stat-label">Weeks Covered</div></div>';
-      var overallAvg = responses.reduce(function(s,r){ return s + (r.realism+r.fairness+r.difficulty+r.learningValue+r.engagement+r.clarity)/6; }, 0) / responses.length;
-      html += '<div class="stat-card"><div class="stat-value" data-testid="stat-avg">' + overallAvg.toFixed(1) + '</div><div class="stat-label">Overall Average</div><div class="stat-sub">across all categories</div></div>';
-      var uniqueStudents = new Set(responses.map(function(r){return r.studentId})).size;
-      html += '<div class="stat-card"><div class="stat-value" data-testid="stat-students">' + uniqueStudents + '</div><div class="stat-label">Unique Students</div></div>';
-      html += '</div>';
-
-      html += '<div class="chart-container" data-testid="chart-trends"><h3>Rating Trends Across Weeks</h3><canvas id="chart-trends" height="300"></canvas></div>';
-
-      html += '<div class="chart-row">';
-      html += '<div class="chart-container" data-testid="chart-radar"><h3>Category Averages (All Weeks)</h3><canvas id="chart-radar" height="280"></canvas></div>';
-      html += '<div class="chart-container" data-testid="chart-distribution"><h3>Response Distribution</h3><canvas id="chart-distribution" height="280"></canvas></div>';
-      html += '</div>';
-
-      html += '<div class="card" data-testid="trend-table"><h3 style="font-size:1rem;color:var(--navy);margin-bottom:0.75rem;">Week-by-Week Breakdown</h3>';
-      html += '<div style="overflow-x:auto;"><table class="trend-table"><thead><tr><th>Week</th>';
-      QUESTIONS.forEach(function(q) { html += '<th>' + q.label + '</th>'; });
-      html += '<th>Avg</th><th>N</th></tr></thead><tbody>';
-      weeks.forEach(function(w) {
-        var wrs = weekGroups[w];
-        html += '<tr><td><strong>W' + w + '</strong><br><span style="font-size:0.75rem;color:var(--text-light)">' + (WEEK_TITLES[w]||'') + '</span></td>';
-        var rowTotal = 0;
-        QUESTIONS.forEach(function(q) {
-          var avg = wrs.reduce(function(s,r){return s+r[q.key];},0) / wrs.length;
-          rowTotal += avg;
-          var cls = avg >= 4 ? 'avg-high' : avg >= 3 ? 'avg-mid' : 'avg-low';
-          html += '<td><span class="avg-badge ' + cls + '">' + avg.toFixed(1) + '</span></td>';
-        });
-        var rowAvg = rowTotal / QUESTIONS.length;
-        var rowCls = rowAvg >= 4 ? 'avg-high' : rowAvg >= 3 ? 'avg-mid' : 'avg-low';
-        html += '<td><span class="avg-badge ' + rowCls + '">' + rowAvg.toFixed(1) + '</span></td>';
-        html += '<td>' + wrs.length + '</td></tr>';
-      });
-      html += '</tbody></table></div></div>';
-
-      var allComments = responses.filter(function(r) { return r.comments && r.comments.trim(); });
-      if (allComments.length > 0) {
-        html += '<div class="comments-section" data-testid="comments-section"><h3>Student Comments (' + allComments.length + ')</h3>';
-        allComments.sort(function(a,b){ return a.weekNumber - b.weekNumber; });
-        allComments.forEach(function(r, idx) {
-          html += '<div class="comment-card" data-testid="comment-' + idx + '"><div class="comment-meta">Week ' + r.weekNumber + ': ' + (WEEK_TITLES[r.weekNumber]||'') + ' &mdash; Student ' + r.studentId + '</div><div class="comment-text">' + escapeHtmlClient(r.comments) + '</div></div>';
-        });
-        html += '</div>';
-      }
-
-      container.innerHTML = html;
-
-      setTimeout(function() { buildCharts(responses, weekGroups, weeks); }, 100);
-    }
-
-    function escapeHtmlClient(text) {
-      var d = document.createElement('div');
-      d.textContent = text || '';
-      return d.innerHTML;
-    }
-
-    function buildCharts(responses, weekGroups, weeks) {
-      if (typeof Chart === 'undefined') return;
-
-      var colors = ['#1e3a5f','#22c55e','#f59e0b','#3b82f6','#ef4444','#8b5cf6'];
-
-      var trendCanvas = document.getElementById('chart-trends');
-      if (trendCanvas) {
-        var trendDatasets = QUESTIONS.map(function(q, qi) {
-          return {
-            label: q.label,
-            data: weeks.map(function(w) {
-              var wrs = weekGroups[w];
-              return Math.round((wrs.reduce(function(s,r){return s+r[q.key];},0) / wrs.length) * 100) / 100;
-            }),
-            borderColor: colors[qi],
-            backgroundColor: colors[qi] + '20',
-            tension: 0.3,
-            fill: false,
-            pointRadius: 5,
-            pointHoverRadius: 7,
-          };
-        });
-        new Chart(trendCanvas, {
-          type: 'line',
-          data: { labels: weeks.map(function(w){return 'Week ' + w;}), datasets: trendDatasets },
-          options: {
-            responsive: true,
-            scales: { y: { min: 1, max: 5, ticks: { stepSize: 1 } } },
-            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } }
-          }
-        });
-      }
-
-      var radarCanvas = document.getElementById('chart-radar');
-      if (radarCanvas) {
-        var radarData = QUESTIONS.map(function(q) {
-          return Math.round((responses.reduce(function(s,r){return s+r[q.key];},0) / responses.length) * 100) / 100;
-        });
-        new Chart(radarCanvas, {
-          type: 'radar',
-          data: {
-            labels: QUESTIONS.map(function(q){return q.label;}),
-            datasets: [{
-              label: 'Average Rating',
-              data: radarData,
-              backgroundColor: 'rgba(30,58,95,0.15)',
-              borderColor: '#1e3a5f',
-              pointBackgroundColor: '#1e3a5f',
-              pointRadius: 4,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } },
-            plugins: { legend: { display: false } }
-          }
-        });
-      }
-
-      var distCanvas = document.getElementById('chart-distribution');
-      if (distCanvas) {
-        var distData = [0,0,0,0,0];
-        responses.forEach(function(r) {
-          QUESTIONS.forEach(function(q) {
-            distData[r[q.key] - 1]++;
-          });
-        });
-        new Chart(distCanvas, {
-          type: 'bar',
-          data: {
-            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-            datasets: [{
-              label: 'Count',
-              data: distData,
-              backgroundColor: ['#ef4444','#f59e0b','#fbbf24','#3b82f6','#22c55e'],
-              borderRadius: 6,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-            plugins: { legend: { display: false } }
-          }
-        });
-      }
-    }
   </script>
 </body>
 </html>`;
