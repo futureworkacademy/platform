@@ -758,6 +758,53 @@ export function renderGradingPage(): string {
           y += 3;
         }
 
+        if (r.essayText && r.essayText.trim()) {
+          doc.setDrawColor(226, 232, 240);
+          doc.line(margin, y, pageW - margin, y);
+          y += 7;
+          doc.setTextColor(15, 23, 42);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text('Student Response', margin, y);
+          y += 6;
+          doc.setFillColor(248, 250, 252);
+          doc.setDrawColor(226, 232, 240);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(51, 65, 85);
+          var essayLines = doc.splitTextToSize(r.essayText.trim(), contentW - 8);
+          var essayBlockH = essayLines.length * 3.2 + 8;
+          var maxFirstPageH = 270 - y;
+          if (essayBlockH <= maxFirstPageH) {
+            doc.roundedRect(margin, y - 2, contentW, essayBlockH, 2, 2, 'FD');
+            doc.text(essayLines, margin + 4, y + 3);
+            y += essayBlockH + 4;
+          } else {
+            var lineH = 3.2;
+            var linesPerPage = Math.floor((255 - margin) / lineH);
+            var lineIdx = 0;
+            while (lineIdx < essayLines.length) {
+              var availH = (lineIdx === 0) ? maxFirstPageH : (255 - margin);
+              var count = Math.min(Math.floor(availH / lineH), essayLines.length - lineIdx);
+              var blockH = count * lineH + 8;
+              doc.setFillColor(248, 250, 252);
+              doc.setDrawColor(226, 232, 240);
+              doc.roundedRect(margin, y - 2, contentW, blockH, 2, 2, 'FD');
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(8);
+              doc.setTextColor(51, 65, 85);
+              doc.text(essayLines.slice(lineIdx, lineIdx + count), margin + 4, y + 3);
+              lineIdx += count;
+              if (lineIdx < essayLines.length) {
+                doc.addPage();
+                y = margin;
+              } else {
+                y += blockH + 4;
+              }
+            }
+          }
+        }
+
         doc.setDrawColor(226, 232, 240);
         doc.line(margin, y, pageW - margin, y);
         y += 7;

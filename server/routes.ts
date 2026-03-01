@@ -261,6 +261,7 @@ export async function registerRoutes(
         strengths: gradingReports.strengths,
         areasForImprovement: gradingReports.areasForImprovement,
         instructorComments: gradingReports.instructorComments,
+        essayText: gradingReports.essayText,
         createdAt: gradingReports.createdAt,
       }).from(gradingReports).orderBy(desc(gradingReports.createdAt)).limit(200);
       res.json(computeCurvedScores(reports));
@@ -286,6 +287,7 @@ export async function registerRoutes(
         strengths: gradingReports.strengths,
         areasForImprovement: gradingReports.areasForImprovement,
         instructorComments: gradingReports.instructorComments,
+        essayText: gradingReports.essayText,
         createdAt: gradingReports.createdAt,
       }).from(gradingReports).limit(200);
       const report = allReports.find(r => r.id === req.params.id);
