@@ -299,6 +299,19 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/grade/:id", async (req, res) => {
+    try {
+      const [deleted] = await db.delete(gradingReports)
+        .where(eq(gradingReports.id, req.params.id))
+        .returning({ id: gradingReports.id });
+      if (!deleted) return res.status(404).json({ error: "Report not found." });
+      res.json({ deleted: true, id: deleted.id });
+    } catch (error) {
+      console.error("Error deleting grading report:", error);
+      res.status(500).json({ error: "Failed to delete report." });
+    }
+  });
+
   app.get("/week-0", async (_req, res) => {
     try {
       const html = await renderWeek0Page();
