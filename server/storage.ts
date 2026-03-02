@@ -40,11 +40,8 @@ import type {
 } from "@shared/schema";
 import { defaultCompanyState } from "@shared/schema";
 import { db } from "./db";
-import { platformSettings } from "@shared/models/auth";
-import { eq } from "drizzle-orm";
-
-// Activity log storage
-const activityLogs: ActivityLog[] = [];
+import { platformSettings, activityLogs as activityLogsTable } from "@shared/models/auth";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
   getTeam(id: string): Promise<Team | undefined>;
@@ -2577,13 +2574,39 @@ export class MemStorage implements IStorage {
   }
 
   async logActivity(log: Omit<ActivityLog, "id" | "timestamp">): Promise<ActivityLog> {
-    const activityLog: ActivityLog = {
-      id: randomUUID(),
-      timestamp: new Date().toISOString(),
-      ...log,
-    };
-    activityLogs.push(activityLog);
-    return activityLog;
+    try {
+      const [record] = await db.insert(activityLogsTable).values({
+        eventType: log.eventType,
+        userId: log.userId || null,
+        userEmail: log.userEmail || null,
+        userName: log.userName || null,
+        teamId: log.teamId || null,
+        teamName: log.teamName || null,
+        weekNumber: log.weekNumber || null,
+        details: log.details || null,
+        metadata: log.metadata || null,
+      }).returning();
+      return {
+        id: record.id,
+        timestamp: record.timestamp?.toISOString() || new Date().toISOString(),
+        eventType: record.eventType as ActivityLog["eventType"],
+        userId: record.userId || undefined,
+        userEmail: record.userEmail || undefined,
+        userName: record.userName || undefined,
+        teamId: record.teamId || undefined,
+        teamName: record.teamName || undefined,
+        weekNumber: record.weekNumber || undefined,
+        details: record.details as Record<string, any> | undefined,
+        metadata: record.metadata as ActivityLog["metadata"],
+      };
+    } catch (error) {
+      console.error("[ActivityLog] Failed to persist log:", error);
+      return {
+        id: randomUUID(),
+        timestamp: new Date().toISOString(),
+        ...log,
+      };
+    }
   }
 
   async getActivityLogs(filters?: { 
@@ -2593,30 +2616,49 @@ export class MemStorage implements IStorage {
     startDate?: string; 
     endDate?: string;
   }): Promise<ActivityLog[]> {
-    let logs = [...activityLogs];
-    
-    if (filters) {
-      if (filters.eventType) {
-        logs = logs.filter(l => l.eventType === filters.eventType);
+    try {
+      const conditions = [];
+      if (filters?.eventType) {
+        conditions.push(eq(activityLogsTable.eventType, filters.eventType));
       }
-      if (filters.userId) {
-        logs = logs.filter(l => l.userId === filters.userId);
+      if (filters?.userId) {
+        conditions.push(eq(activityLogsTable.userId, filters.userId));
       }
-      if (filters.teamId) {
-        logs = logs.filter(l => l.teamId === filters.teamId);
+      if (filters?.teamId) {
+        conditions.push(eq(activityLogsTable.teamId, filters.teamId));
       }
-      if (filters.startDate) {
-        const startTime = new Date(filters.startDate).getTime();
-        logs = logs.filter(l => new Date(l.timestamp).getTime() >= startTime);
+      if (filters?.startDate) {
+        conditions.push(gte(activityLogsTable.timestamp, new Date(filters.startDate)));
       }
-      if (filters.endDate) {
-        const endTime = new Date(filters.endDate).getTime();
-        logs = logs.filter(l => new Date(l.timestamp).getTime() <= endTime);
+      if (filters?.endDate) {
+        conditions.push(lte(activityLogsTable.timestamp, new Date(filters.endDate)));
       }
+
+      const query = db.select().from(activityLogsTable)
+        .orderBy(desc(activityLogsTable.timestamp))
+        .limit(500);
+
+      const records = conditions.length > 0
+        ? await query.where(and(...conditions))
+        : await query;
+
+      return records.map(r => ({
+        id: r.id,
+        timestamp: r.timestamp?.toISOString() || new Date().toISOString(),
+        eventType: r.eventType as ActivityLog["eventType"],
+        userId: r.userId || undefined,
+        userEmail: r.userEmail || undefined,
+        userName: r.userName || undefined,
+        teamId: r.teamId || undefined,
+        teamName: r.teamName || undefined,
+        weekNumber: r.weekNumber || undefined,
+        details: r.details as Record<string, any> | undefined,
+        metadata: r.metadata as ActivityLog["metadata"],
+      }));
+    } catch (error) {
+      console.error("[ActivityLog] Failed to fetch logs:", error);
+      return [];
     }
-    
-    // Sort by timestamp descending (most recent first)
-    return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 
   async exportActivityLogs(format: "csv" | "json"): Promise<string> {

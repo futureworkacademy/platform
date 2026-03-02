@@ -7,6 +7,7 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
+import { storage } from "../../storage";
 
 const getOidcConfig = memoize(
   async () => {
@@ -182,10 +183,20 @@ export async function setupAuth(app: Express) {
           }
           
           try {
-            // Fetch fresh user data from database to ensure we have latest admin status
-            // This is more robust than relying on session-stored dbUser
             const userId = user.claims?.sub;
             let dbUser = user.dbUser;
+
+            storage.logActivity({
+              eventType: "user_login",
+              userId: dbUser?.id || userId,
+              userEmail: dbUser?.email || user.claims?.email,
+              userName: dbUser?.firstName ? `${dbUser.firstName} ${dbUser.lastName || ''}`.trim() : undefined,
+              details: { loginMethod: "replit_oidc" },
+              metadata: {
+                ipAddress: req.ip || req.socket.remoteAddress,
+                userAgent: req.headers["user-agent"],
+              },
+            }).catch(err => console.error("[AUTH] Failed to log login activity:", err));
             
             // If dbUser is missing from session, fetch fresh from database
             if (!dbUser && userId) {

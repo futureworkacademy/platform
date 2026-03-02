@@ -677,3 +677,20 @@ export const surveyResponses = pgTable("survey_responses", {
 
 export type SurveyResponse = typeof surveyResponses.$inferSelect;
 export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
+
+export const activityLogs = pgTable("activity_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  timestamp: timestamp("timestamp").defaultNow(),
+  eventType: varchar("event_type").notNull(),
+  userId: varchar("user_id"),
+  userEmail: varchar("user_email"),
+  userName: varchar("user_name"),
+  teamId: varchar("team_id"),
+  teamName: varchar("team_name"),
+  weekNumber: integer("week_number"),
+  details: jsonb("details"),
+  metadata: jsonb("metadata"),
+});
+
+export type ActivityLogRecord = typeof activityLogs.$inferSelect;
+export type InsertActivityLogRecord = typeof activityLogs.$inferInsert;
