@@ -528,10 +528,10 @@ export default function Landing() {
             </div>
             <FadeInSection delay={500}>
               <div className="text-center mt-10">
-                <a href="/grade">
-                  <Button variant="outline" size="lg" data-testid="button-view-grading">
+                <a href="/for-educators">
+                  <Button variant="outline" size="lg" data-testid="button-learn-more-grading">
                     <FileText className="mr-2 h-4 w-4" />
-                    View Grading Module
+                    Learn More
                   </Button>
                 </a>
               </div>

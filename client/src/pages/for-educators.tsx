@@ -456,12 +456,9 @@ export default function ForEducators() {
             </div>
             <FadeInSection delay={500}>
               <div className="text-center mt-10">
-                <a href="/grade">
-                  <Button variant="outline" size="lg" data-testid="button-view-grading">
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Grading Module
-                  </Button>
-                </a>
+                <p className="text-sm text-muted-foreground" data-testid="text-grading-access-note">
+                  The grading module is available to enrolled instructors and administrators.
+                </p>
               </div>
             </FadeInSection>
           </div>

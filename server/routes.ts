@@ -102,14 +102,53 @@ export async function registerRoutes(
   // Server-rendered weekly simulation pages (bypasses React SPA entirely)
   const { fetchWeekPageData, renderWeekPage, renderWeek0Page } = await import("./weekly-page-renderer");
 
-  // Grading module (public, no auth)
+  // Grading module (auth required — Super Admin and Class Admin only)
   const { renderGradingPage, gradeSubmission } = await import("./grading-page-renderer");
 
   // Survey module (public, no auth)
   const { renderSurveyPage } = await import("./survey-page-renderer");
 
-  app.get("/grade", (_req, res) => {
+  async function requireAdminRole(req: any, res: any, next: any) {
+    const user = req.user as any;
+    if (!user) return res.status(401).json({ error: "Authentication required" });
+    const userId = user.claims?.sub || user.id;
+    if (!userId) return res.status(401).json({ error: "Authentication required" });
+    const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+    if (isSuperAdmin) return next();
+    const memberships = await db.select({ role: organizationMembers.role })
+      .from(organizationMembers)
+      .where(eq(organizationMembers.userId, userId))
+      .limit(10);
+    const isClassAdmin = memberships.some(m => m.role === "class_admin" || m.role === "super_admin");
+    if (isClassAdmin) return next();
+    return res.status(403).json({ error: "Admin access required. Only instructors and administrators can access the grading module." });
+  }
+
+  app.get("/grade", isAuthenticated, async (req: any, res) => {
     try {
+      const user = req.user as any;
+      const userId = user?.claims?.sub || user?.id;
+      if (!userId) return res.redirect("/api/login");
+      const isSuperAdmin = await organizationStorage.isSuperAdmin(userId);
+      if (!isSuperAdmin) {
+        const memberships = await db.select({ role: organizationMembers.role })
+          .from(organizationMembers)
+          .where(eq(organizationMembers.userId, userId))
+          .limit(10);
+        const isClassAdmin = memberships.some(m => m.role === "class_admin" || m.role === "super_admin");
+        if (!isClassAdmin) {
+          return res.status(403).send(`
+            <html><head><title>Access Denied</title></head>
+            <body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8f9fa;">
+              <div style="text-align:center;max-width:400px;padding:2rem;">
+                <h1 style="font-size:1.5rem;margin-bottom:0.5rem;">Access Denied</h1>
+                <p style="color:#6b7280;">The grading module is restricted to instructors and administrators.</p>
+                <a href="/" style="color:#1e3a5f;text-decoration:underline;">Return to Home</a>
+              </div>
+            </body></html>
+          `);
+        }
+      }
       const html = renderGradingPage();
       res.status(200).set({ "Content-Type": "text/html" }).send(html);
     } catch (error) {
@@ -119,7 +158,7 @@ export async function registerRoutes(
   });
 
   const gradeRateLimit = new Map<string, number[]>();
-  app.post("/api/grade/single", async (req, res) => {
+  app.post("/api/grade/single", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
       const ip = req.ip || "unknown";
       const now = Date.now();
@@ -205,7 +244,7 @@ export async function registerRoutes(
     });
   }
 
-  app.post("/api/grade/save", async (req, res) => {
+  app.post("/api/grade/save", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
       const { studentName, weekNumber, optionChosen, essayText, totalScore, maxScore, percentage, overallQuality, rubricScores, overallFeedback, strengths, areasForImprovement, instructorComments } = req.body;
       if (!studentName || !essayText) {
@@ -233,7 +272,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/grade/:id/comments", async (req, res) => {
+  app.patch("/api/grade/:id/comments", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
       const { instructorComments } = req.body;
       const [updated] = await db.update(gradingReports)
@@ -248,7 +287,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/grade/history", async (_req, res) => {
+  app.get("/api/grade/history", isAuthenticated, requireAdminRole, async (_req, res) => {
     try {
       const reports = await db.select({
         id: gradingReports.id,
@@ -274,7 +313,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/grade/:id", async (req, res) => {
+  app.get("/api/grade/:id", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
       const allReports = await db.select({
         id: gradingReports.id,
@@ -304,7 +343,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/grade/:id", async (req, res) => {
+  app.delete("/api/grade/:id", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
       const [deleted] = await db.delete(gradingReports)
         .where(eq(gradingReports.id, req.params.id))
