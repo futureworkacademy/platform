@@ -578,6 +578,139 @@ function parseContentSections(content: string): string[] {
   return content.split(/\n\n+/).filter(s => s.trim().length > 0);
 }
 
+function addBoldSegmentedText(doc: jsPDF, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
+  const plainText = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+  const wrappedLines = doc.splitTextToSize(plainText, maxWidth);
+  const segments: { text: string; bold: boolean }[] = [];
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  for (const part of parts) {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      segments.push({ text: part.slice(2, -2), bold: true });
+    } else if (part.length > 0) {
+      segments.push({ text: part, bold: false });
+    }
+  }
+  let segIdx = 0;
+  let segCharIdx = 0;
+  for (const wLine of wrappedLines) {
+    if (y > 270) { doc.addPage(); y = 25; }
+    let xPos = x;
+    let remaining = wLine.length;
+    while (remaining > 0 && segIdx < segments.length) {
+      const seg = segments[segIdx];
+      const avail = seg.text.length - segCharIdx;
+      const take = Math.min(avail, remaining);
+      const chunk = seg.text.substring(segCharIdx, segCharIdx + take);
+      doc.setFont("helvetica", seg.bold ? "bold" : "normal");
+      doc.text(chunk, xPos, y);
+      xPos += doc.getTextWidth(chunk);
+      segCharIdx += take;
+      remaining -= take;
+      if (segCharIdx >= seg.text.length) {
+        segIdx++;
+        segCharIdx = 0;
+      }
+    }
+    y += lineHeight;
+  }
+  doc.setFont("helvetica", "normal");
+  return y;
+}
+
+function isFormulaLine(line: string): boolean {
+  if (!line.match(/^\s{2,}/)) return false;
+  return /[=≈Σ≤≥≠±→÷·×]/.test(line);
+}
+
+function addRichBodyText(doc: jsPDF, text: string, y: number, margin: number, contentWidth: number): number {
+  const paragraphs = text.split(/\n\n+/).filter(s => s.trim().length > 0);
+  for (const paragraph of paragraphs) {
+    const lines = paragraph.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed === '') continue;
+
+      const headerMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
+      if (headerMatch) {
+        const level = headerMatch[1].length;
+        const headerText = headerMatch[2].replace(/\*\*([^*]+)\*\*/g, '$1');
+        y = checkPageBreak(doc, y, 12);
+        y += 2;
+        doc.setTextColor(...NAVY);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(level <= 2 ? 12 : 11);
+        y = addWrappedText(doc, headerText, margin, y, contentWidth, 5);
+        y += 2;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(...DARK_GRAY);
+        continue;
+      }
+
+      if (isFormulaLine(line)) {
+        y = checkPageBreak(doc, y, 6);
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...DARK_GRAY);
+        y = addWrappedText(doc, trimmed, margin + 5, y, contentWidth - 10, 4);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        continue;
+      }
+
+      const bulletMatch = trimmed.match(/^[-*+]\s+(.*)$/);
+      if (bulletMatch) {
+        y = checkPageBreak(doc, y, 6);
+        doc.setTextColor(...DARK_GRAY);
+        doc.setFontSize(9);
+        doc.text("\u2022", margin + 4, y);
+        if (bulletMatch[1].includes('**')) {
+          y = addBoldSegmentedText(doc, bulletMatch[1], margin + 10, y, contentWidth - 14, 4.5);
+        } else {
+          y = addWrappedText(doc, bulletMatch[1], margin + 10, y, contentWidth - 14, 4.5);
+        }
+        doc.setFont("helvetica", "normal");
+        y += 1;
+        continue;
+      }
+
+      const numberedMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
+      if (numberedMatch) {
+        y = checkPageBreak(doc, y, 6);
+        doc.setTextColor(...DARK_GRAY);
+        doc.setFontSize(9.5);
+        doc.setFont("helvetica", "bold");
+        doc.text(numberedMatch[1] + '.', margin + 2, y);
+        doc.setFont("helvetica", "normal");
+        if (numberedMatch[2].includes('**')) {
+          y = addBoldSegmentedText(doc, numberedMatch[2], margin + 9, y, contentWidth - 12, 4.5);
+        } else {
+          y = addWrappedText(doc, numberedMatch[2], margin + 9, y, contentWidth - 12, 4.5);
+        }
+        y += 1;
+        continue;
+      }
+
+      if (trimmed.includes('**')) {
+        y = checkPageBreak(doc, y, 6);
+        doc.setTextColor(...DARK_GRAY);
+        doc.setFontSize(9.5);
+        y = addBoldSegmentedText(doc, trimmed, margin, y, contentWidth, 4.5);
+        y += 1;
+        continue;
+      }
+
+      doc.setTextColor(...DARK_GRAY);
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "normal");
+      y = addWrappedText(doc, trimmed, margin, y, contentWidth, 4.5);
+      y += 1;
+    }
+    y += 3;
+  }
+  return y;
+}
+
 export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: string, weekContent: WeekContent): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -612,10 +745,7 @@ export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: str
   if (weekContent.briefing) {
     y = addSectionHeader(doc, `Week ${weekNumber} Situation Briefing`, y, margin);
     y = addSubHeader(doc, `"${weekTitle}"`, y, margin);
-    const paragraphs = parseContentSections(weekContent.briefing.content);
-    for (const para of paragraphs) {
-      y = addBodyText(doc, para, y, margin, contentWidth);
-    }
+    y = addRichBodyText(doc, weekContent.briefing.content, y, margin, contentWidth);
     y += 4;
   }
 
@@ -624,10 +754,7 @@ export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: str
       const article = weekContent.intelArticles[i];
       y = addSectionHeader(doc, `Intel Article ${i + 1}`, y, margin);
       y = addSubHeader(doc, article.title, y, margin);
-      const paragraphs = parseContentSections(article.content);
-      for (const para of paragraphs) {
-        y = addBodyText(doc, para, y, margin, contentWidth);
-      }
+      y = addRichBodyText(doc, article.content, y, margin, contentWidth);
       y += 4;
     }
   }
@@ -641,10 +768,7 @@ export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: str
     for (let i = 0; i < weekContent.decisions.length; i++) {
       const decision = weekContent.decisions[i];
       y = addSubHeader(doc, `Option ${optionLetters[i] || (i + 1)}: ${decision.title}`, y, margin);
-      const paragraphs = parseContentSections(decision.content);
-      for (const para of paragraphs) {
-        y = addBodyText(doc, para, y, margin, contentWidth);
-      }
+      y = addRichBodyText(doc, decision.content, y, margin, contentWidth);
       y += 4;
     }
   }
