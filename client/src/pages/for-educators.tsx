@@ -77,10 +77,10 @@ const INQUIRY_TYPES = [
 ];
 
 const RUBRIC_CRITERIA = [
-  { name: "Strategic Thinking & Financial Analysis", points: 25, desc: "Use of NPV, ROI, payback period data, and quality of strategic reasoning" },
-  { name: "Stakeholder Awareness & Management", points: 25, desc: "Recognition of board, employee, union, and customer perspectives" },
-  { name: "Risk Assessment & Mitigation", points: 25, desc: "Identification of operational, financial, and cultural risks with mitigation" },
-  { name: "Research & Evidence Application", points: 25, desc: "Citation of Intel Articles, case studies, and industry benchmarks" },
+  { name: "Evidence Quality", points: 25, desc: "Cite specific data, statistics, or case studies from Intel articles using source codes (AIM, APX, WFT)" },
+  { name: "Reasoning Coherence", points: 25, desc: "Present a logical argument connecting chosen strategy settings to evidence and outcomes" },
+  { name: "Trade-off Analysis", points: 25, desc: "Acknowledge sacrifices, identify biggest risks, and explain contingency plans" },
+  { name: "Stakeholder Consideration", points: 25, desc: "Address how decisions affect 2-3+ stakeholder groups and balance competing interests" },
 ];
 
 const WEEK_TITLES = [

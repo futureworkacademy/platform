@@ -26,32 +26,32 @@ function escapeHtml(text: string | number | unknown): string {
 
 const GRADING_RUBRIC: RubricCriterionInput[] = [
   {
-    id: "strategic_thinking",
-    name: "Strategic Thinking & Financial Analysis",
-    description: "Quality of strategic reasoning, use of financial data (NPV, ROI, payback period), and alignment with company objectives",
+    id: "evidence",
+    name: "Evidence Quality",
+    description: "Cite specific data, statistics, or case studies from the Intel articles and research materials using source codes (e.g., AIM, APX, WFT)",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for specific financial metrics cited and applied to the decision. 15-19 for general financial awareness. 10-14 for basic reasoning without data. Below 10 for vague or missing analysis.",
+    evaluationGuidelines: "Award 20-25 for citing specific statistics or case studies with source codes. 15-19 for referencing general concepts from materials. 10-14 for basic awareness without citations. Below 10 for no evidence of research use.",
   },
   {
-    id: "stakeholder_awareness",
-    name: "Stakeholder Awareness & Management",
-    description: "Recognition of diverse stakeholder perspectives (board, employees, union, customers) and strategies to address their concerns",
+    id: "coherence",
+    name: "Reasoning Coherence",
+    description: "Present a logical argument that clearly connects chosen settings (slider values, budget allocations) to reasoning and evidence",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for addressing 3+ stakeholders with specific strategies. 15-19 for mentioning multiple stakeholders. 10-14 for acknowledging stakeholders without depth. Below 10 for ignoring stakeholder impact.",
+    evaluationGuidelines: "Award 20-25 for clear logical flow connecting specific decisions to evidence and outcomes. 15-19 for generally organized reasoning. 10-14 for loosely connected points. Below 10 for contradictions or unclear logic.",
   },
   {
-    id: "risk_assessment",
-    name: "Risk Assessment & Mitigation",
-    description: "Identification of operational, financial, and cultural risks with proposed mitigation strategies",
+    id: "tradeoffs",
+    name: "Trade-off Analysis",
+    description: "Acknowledge what is being sacrificed with the chosen approach. Identify the biggest risk and explain a contingency plan",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for identifying specific risks with probability/impact and mitigation plans. 15-19 for identifying risks with some mitigation. 10-14 for mentioning risks without mitigation. Below 10 for minimal risk awareness.",
+    evaluationGuidelines: "Award 20-25 for explicit discussion of downsides, named risks with probability/impact, and contingency plans. 15-19 for acknowledging trade-offs with some mitigation. 10-14 for mentioning risks without mitigation. Below 10 for one-sided arguments.",
   },
   {
-    id: "research_application",
-    name: "Research & Evidence Application",
-    description: "Use of Intel Article research (WSJ, HBR, McKinsey), citation of case studies, industry data, and external evidence to support arguments",
+    id: "stakeholders",
+    name: "Stakeholder Consideration",
+    description: "Address how decisions affect at least 2-3 stakeholder groups (employees, shareholders, unions, management, customers) and explain how competing interests are balanced",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for citing specific data from Intel Articles, case studies, or industry benchmarks. 15-19 for general references to research materials. 10-14 for awareness of external factors without citations. Below 10 for no evidence of research use.",
+    evaluationGuidelines: "Award 20-25 for addressing 3+ stakeholders with specific impact analysis and balancing strategies. 15-19 for mentioning multiple stakeholders with some depth. 10-14 for acknowledging stakeholders without analysis. Below 10 for ignoring stakeholder impact.",
   },
 ];
 

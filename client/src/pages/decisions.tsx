@@ -52,7 +52,7 @@ const SOURCE_CODES = [
   { code: "TFG", title: "Case Study: TechnoForge Transformation" },
 ];
 
-const MINIMUM_WORDS = 100;
+const MINIMUM_WORDS = 150;
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -423,6 +423,7 @@ function AttributeInput({
   if (attribute.type === "essay") {
     const strValue = typeof value === 'string' ? value : "";
     const rubricCriteria = attribute.rubricCriteria || defaultRubricCriteria;
+    const recSources = attribute.recommendedSources as { code: string; title: string; relevance: string }[] | undefined;
     
     return (
       <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
@@ -434,9 +435,16 @@ function AttributeInput({
               <Brain className="w-3 h-3 mr-1" />
               AI Evaluated
             </Badge>
+            {attribute.minWords && (
+              <Badge variant="secondary" className="text-xs">
+                {attribute.minWords}–{attribute.maxWords} words
+              </Badge>
+            )}
           </label>
-          <p className="text-xs text-muted-foreground mt-1">{attribute.description}</p>
+          <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{attribute.description}</p>
         </div>
+        <RecommendedSources sources={recSources || []} />
+        <RubricPreview criteria={rubricCriteria} />
         {attribute.richText ? (
           <RichTextEditor
             content={strValue}
@@ -454,7 +462,6 @@ function AttributeInput({
             data-testid={`essay-${attribute.id}`}
           />
         )}
-        <RubricPreview criteria={rubricCriteria} />
       </div>
     );
   }
@@ -463,45 +470,57 @@ function AttributeInput({
 }
 
 function RubricPreview({ criteria }: { criteria: RubricCriterion[] }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  
   return (
-    <div className="bg-purple-500/5 rounded-lg border border-purple-500/20 p-3 space-y-2">
-      <button 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-xs font-medium text-purple-600 w-full"
-        type="button"
-        data-testid="button-toggle-rubric"
-      >
+    <div className="bg-purple-500/5 rounded-lg border border-purple-500/20 p-3 space-y-3" data-testid="rubric-preview">
+      <div className="flex items-center gap-2 text-xs font-medium text-purple-600">
         <Brain className="w-3 h-3" />
         <span>How Your Response Will Be Scored</span>
-        <span className="ml-auto text-xs">{isExpanded ? "Hide" : "Show Rubric"}</span>
-      </button>
-      {isExpanded && (
-        <div className="space-y-3 pt-2 border-t border-purple-500/20">
-          <p className="text-xs text-muted-foreground">
-            Your written response will be evaluated by AI on the following criteria:
-          </p>
-          <div className="grid gap-2">
-            {criteria.map((criterion) => (
-              <div key={criterion.id} className="flex items-start gap-3 p-2 rounded bg-background/50">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{criterion.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {criterion.maxPoints} pts
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">{criterion.description}</p>
-                </div>
+        <Badge variant="outline" className="text-xs ml-auto border-purple-500/30 text-purple-600">
+          {criteria.reduce((sum, c) => sum + c.maxPoints, 0)} pts total
+        </Badge>
+      </div>
+      <div className="grid gap-2">
+        {criteria.map((criterion) => (
+          <div key={criterion.id} className="flex items-start gap-3 p-2 rounded bg-background/50">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{criterion.name}</span>
+                <Badge variant="outline" className="text-xs">
+                  {criterion.maxPoints} pts
+                </Badge>
               </div>
-            ))}
+              <p className="text-xs text-muted-foreground mt-1">{criterion.description}</p>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground border-t border-purple-500/20 pt-2">
-            <strong>Total possible:</strong> {criteria.reduce((sum, c) => sum + c.maxPoints, 0)} points
-          </p>
-        </div>
-      )}
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecommendedSources({ sources }: { sources: { code: string; title: string; relevance: string }[] }) {
+  if (!sources || sources.length === 0) return null;
+  
+  return (
+    <div className="bg-blue-500/5 rounded-lg border border-blue-500/20 p-3 space-y-2" data-testid="recommended-sources">
+      <div className="flex items-center gap-2 text-xs font-medium text-blue-600">
+        <BookOpen className="w-3 h-3" />
+        <span>Recommended Reading for This Essay</span>
+      </div>
+      <div className="space-y-2">
+        {sources.map(({ code, title, relevance }) => (
+          <div key={code} className="flex items-start gap-2 p-2 rounded bg-background/50">
+            <Badge variant="outline" className="font-mono shrink-0 text-xs border-blue-500/30 text-blue-600">{code}</Badge>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-medium">{title}</span>
+              <p className="text-xs text-muted-foreground">{relevance}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground italic">
+        Use these source codes (e.g., AIM, APX) when citing evidence in your essay.
+      </p>
     </div>
   );
 }

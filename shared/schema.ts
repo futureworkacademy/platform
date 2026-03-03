@@ -388,30 +388,30 @@ export const defaultRubricCriteria: RubricCriterion[] = [
   {
     id: "evidence",
     name: "Evidence Quality",
-    description: "References course materials, research, data, or stakeholder perspectives to support arguments.",
+    description: "Cite specific data, statistics, or case studies from the Intel articles and research materials using source codes (e.g., AIM, APX, WFT).",
     maxPoints: 25,
-    evaluationGuidelines: "Award higher scores for specific citations, data points, or direct references to provided materials. Deduct points for unsupported claims or vague generalizations.",
+    evaluationGuidelines: "Award 20-25 for citing specific statistics or case studies with source codes. 15-19 for referencing general concepts from materials. 10-14 for basic awareness without citations. Below 10 for no evidence of research use.",
   },
   {
     id: "coherence",
     name: "Reasoning Coherence",
-    description: "Presents a logical, well-structured argument with clear connections between premises and conclusions.",
+    description: "Present a logical argument that clearly connects your chosen settings (slider values, budget allocations) to your reasoning and evidence.",
     maxPoints: 25,
-    evaluationGuidelines: "Award higher scores for clear logical flow, well-organized paragraphs, and explicit reasoning chains. Deduct for contradictions, jumps in logic, or unclear connections.",
+    evaluationGuidelines: "Award 20-25 for clear logical flow connecting specific decisions to evidence and outcomes. 15-19 for generally organized reasoning. 10-14 for loosely connected points. Below 10 for contradictions or unclear logic.",
   },
   {
     id: "tradeoffs",
     name: "Trade-off Analysis",
-    description: "Acknowledges risks, limitations, and alternative approaches. Shows awareness of what could go wrong.",
+    description: "Acknowledge what you're sacrificing with your approach. Identify the biggest risk and explain your contingency plan.",
     maxPoints: 25,
-    evaluationGuidelines: "Award higher scores for explicit discussion of downsides, contingency plans, and consideration of opposing viewpoints. Deduct for one-sided arguments or ignoring obvious risks.",
+    evaluationGuidelines: "Award 20-25 for explicit discussion of downsides, named risks with probability/impact, and contingency plans. 15-19 for acknowledging trade-offs with some mitigation. 10-14 for mentioning risks without mitigation. Below 10 for one-sided arguments.",
   },
   {
     id: "stakeholders",
     name: "Stakeholder Consideration",
-    description: "Demonstrates empathy for multiple perspectives including employees, shareholders, unions, and management.",
+    description: "Address how your decisions affect at least 2-3 stakeholder groups (employees, shareholders, unions, management, customers) and explain how you balance their competing interests.",
     maxPoints: 25,
-    evaluationGuidelines: "Award higher scores for addressing how decisions affect different groups, showing empathy, and balancing competing interests. Deduct for ignoring major stakeholder groups.",
+    evaluationGuidelines: "Award 20-25 for addressing 3+ stakeholders with specific impact analysis and balancing strategies. 15-19 for mentioning multiple stakeholders with some depth. 10-14 for acknowledging stakeholders without analysis. Below 10 for ignoring stakeholder impact.",
   },
 ];
 
@@ -436,9 +436,14 @@ export const decisionAttributeSchema = z.object({
   minWords: z.number().optional(), // Minimum word count
   maxWords: z.number().optional(), // Maximum word count
   placeholder: z.string().optional(),
-  rubricCriteria: z.array(rubricCriterionSchema).optional(), // Custom rubric for this field (uses default if not specified)
-  llmWeight: z.number().optional(), // Weight of this field's LLM score in overall decision score (0-100)
-  richText: z.boolean().optional(), // Whether to use rich text editor
+  rubricCriteria: z.array(rubricCriterionSchema).optional(),
+  llmWeight: z.number().optional(),
+  richText: z.boolean().optional(),
+  recommendedSources: z.array(z.object({
+    code: z.string(),
+    title: z.string(),
+    relevance: z.string(),
+  })).optional(),
   // Impact formula for structured types
   impactFormula: z.object({
     morale: z.number().optional(),
@@ -512,7 +517,7 @@ export const enhancedDecisionSchema = z.object({
       adaptability: z.number().optional(),
     }).optional(),
   }).optional(),
-  requiredRationaleWords: z.number().default(100),
+  requiredRationaleWords: z.number().default(150),
   deadline: z.string().optional(),
 });
 
