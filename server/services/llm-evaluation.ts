@@ -149,7 +149,14 @@ export async function evaluateTextResponse(
           role: "system",
           content: `You are an expert business education evaluator assessing student responses in a simulation about manufacturing AI adoption and workforce management. 
           
-Your task is to evaluate a student's written response against a specific rubric. Be fair but rigorous - graduate students should demonstrate critical thinking.
+Your task is to evaluate a student's written response against a specific rubric. Be fair and reward strong work generously — graduate students who demonstrate critical thinking, cite specific evidence, and address multiple dimensions of a problem deserve scores in the top range.
+
+SCORING CALIBRATION:
+- An excellent response that cites specific data/statistics, presents clear logical reasoning, discusses trade-offs with mitigation strategies, and addresses 3+ stakeholder groups should score 23-25 per criterion (92-100 total).
+- A good response with solid reasoning and some evidence but less depth should score 18-22 per criterion (72-88 total).
+- An adequate response with basic reasoning and limited evidence should score 13-17 per criterion (52-68 total).
+- A poor response with no evidence or off-topic content should score below 13 per criterion.
+- Do NOT systematically hold back points from strong responses. If a student meets the criterion well, award the full points. A score of 25/25 is appropriate when the criterion is thoroughly satisfied.
 
 Key topics students should understand:
 - Labor shortage statistics (415,000 unfilled jobs, 2.1 million projected by 2030)

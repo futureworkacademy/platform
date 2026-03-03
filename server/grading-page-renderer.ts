@@ -30,28 +30,28 @@ const GRADING_RUBRIC: RubricCriterionInput[] = [
     name: "Evidence Quality",
     description: "Cite specific data, statistics, or case studies from the Intel articles and research materials using source codes (e.g., AIM, APX, WFT)",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for citing specific statistics or case studies with source codes. 15-19 for referencing general concepts from materials. 10-14 for basic awareness without citations. Below 10 for no evidence of research use.",
+    evaluationGuidelines: "Award 24-25 for citing 3+ specific statistics or case studies with source codes. Award 21-23 for citing 1-2 specific data points with sources. 15-20 for referencing general concepts from materials. 10-14 for basic awareness without citations. Below 10 for no evidence of research use.",
   },
   {
     id: "coherence",
     name: "Reasoning Coherence",
     description: "Present a logical argument that clearly connects chosen settings (slider values, budget allocations) to reasoning and evidence",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for clear logical flow connecting specific decisions to evidence and outcomes. 15-19 for generally organized reasoning. 10-14 for loosely connected points. Below 10 for contradictions or unclear logic.",
+    evaluationGuidelines: "Award 24-25 for clear, well-structured logical flow connecting decisions to evidence and projected outcomes. Award 21-23 for solid reasoning with minor gaps in transitions. 15-20 for generally organized reasoning. 10-14 for loosely connected points. Below 10 for contradictions or unclear logic.",
   },
   {
     id: "tradeoffs",
     name: "Trade-off Analysis",
     description: "Acknowledge what is being sacrificed with the chosen approach. Identify the biggest risk and explain a contingency plan",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for explicit discussion of downsides, named risks with probability/impact, and contingency plans. 15-19 for acknowledging trade-offs with some mitigation. 10-14 for mentioning risks without mitigation. Below 10 for one-sided arguments.",
+    evaluationGuidelines: "Award 24-25 for explicit discussion of 2+ downsides with named risks, probability/impact assessment, and concrete contingency plans. Award 21-23 for acknowledging trade-offs with specific mitigation strategies. 15-20 for mentioning risks with some mitigation. 10-14 for mentioning risks without mitigation. Below 10 for one-sided arguments.",
   },
   {
     id: "stakeholders",
     name: "Stakeholder Consideration",
     description: "Address how decisions affect at least 2-3 stakeholder groups (employees, shareholders, unions, management, customers) and explain how competing interests are balanced",
     maxPoints: 25,
-    evaluationGuidelines: "Award 20-25 for addressing 3+ stakeholders with specific impact analysis and balancing strategies. 15-19 for mentioning multiple stakeholders with some depth. 10-14 for acknowledging stakeholders without analysis. Below 10 for ignoring stakeholder impact.",
+    evaluationGuidelines: "Award 24-25 for addressing 3+ stakeholders by name with specific impact analysis and balancing strategies. Award 21-23 for mentioning multiple stakeholders with meaningful depth. 15-20 for acknowledging stakeholders with some analysis. 10-14 for acknowledging stakeholders without analysis. Below 10 for ignoring stakeholder impact.",
   },
 ];
 
