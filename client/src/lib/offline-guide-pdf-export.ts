@@ -441,7 +441,7 @@ export function generateWeek1OfflineGuidePDF(): void {
   y = addTableRow(doc, "McKinsey report (ROI timelines, adopters vs laggards)", "+4 points", y, margin, contentWidth);
   y += 2;
 
-  y = addCalloutBox(doc, "Total: 100 points + up to 10 bonus points", "A (90-110): Excellent comprehensive analysis  |  B (80-89): Good solid reasoning  |  C (70-79): Adequate but missing key perspectives  |  D (60-69): Superficial analysis  |  F (<60): Insufficient understanding", y, margin, contentWidth);
+  y = addCalloutBox(doc, "Total: 100 points + up to 10 bonus points", "A (93-100): Excellent comprehensive analysis  |  B (72-92): Good solid reasoning  |  C (52-71): Adequate but missing key perspectives  |  D (40-51): Superficial analysis  |  F (<40): Insufficient understanding", y, margin, contentWidth);
   y += 6;
 
   y = addSectionHeader(doc, "Instructor Notes", y, margin);
@@ -818,7 +818,7 @@ export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: str
   y = addTableRow(doc, "Cultural Sensitivity (10)", "Acknowledges company culture and employee loyalty", y, margin, contentWidth);
   y += 4;
 
-  y = addCalloutBox(doc, "Total: 100 points + up to 10 bonus points", "A (90-110): Excellent comprehensive analysis  |  B (80-89): Good solid reasoning  |  C (70-79): Adequate  |  D (60-69): Superficial  |  F (<60): Insufficient", y, margin, contentWidth);
+  y = addCalloutBox(doc, "Total: 100 points + up to 10 bonus points", "A (93-100): Excellent comprehensive analysis  |  B (72-92): Good solid reasoning  |  C (52-71): Adequate  |  D (40-51): Superficial  |  F (<40): Insufficient", y, margin, contentWidth);
   y += 6;
 
   y = checkPageBreak(doc, y, 60);

@@ -622,6 +622,18 @@ export default function StudentGuidePage() {
                     </div>
                   ))}
                 </div>
+                <div className="p-3 mt-2 rounded-md bg-muted/30 border" data-testid="scoring-bands">
+                  <p className="text-xs font-semibold mb-2">Scoring Bands (per criterion, 25 points each):</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span><strong className="text-foreground">24-25:</strong> Thorough, specific, well-supported</span>
+                    <span><strong className="text-foreground">21-23:</strong> Solid work with minor gaps</span>
+                    <span><strong className="text-foreground">15-20:</strong> General concepts, limited depth</span>
+                    <span><strong className="text-foreground">&lt;15:</strong> Missing or off-topic</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
+                    <strong className="text-foreground">Overall:</strong> A (93-100) Excellent | B (72-92) Good | C (52-71) Adequate | Below 52 needs improvement
+                  </div>
+                </div>
                 <div className="flex items-start gap-2 p-3 mt-2 bg-amber-500/10 rounded-md border border-amber-500/20" data-testid="callout-human-grading">
                   <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <p className="text-xs text-muted-foreground">

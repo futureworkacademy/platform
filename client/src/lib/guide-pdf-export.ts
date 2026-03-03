@@ -305,10 +305,12 @@ export function generateInstructorGuidePDF(): void {
   y = addBodyText(doc, "Students are scored on two dimensions: Financial Score (revenue, costs, ROI) and Cultural Score (morale, union relations, adaptability). This dual system ensures students can't succeed by optimizing for just one dimension.", y, margin, contentWidth);
   y = addSubHeader(doc, "AI Essay Evaluation", y, margin);
   y = addBodyText(doc, "Student essays are evaluated by AI using a transparent 4-criteria rubric:", y, margin, contentWidth);
-  y = addBulletPoint(doc, "Evidence Quality - Did they reference specific data from briefings?", y, margin, contentWidth);
-  y = addBulletPoint(doc, "Reasoning Coherence - Is their logic clear and well-structured?", y, margin, contentWidth);
-  y = addBulletPoint(doc, "Trade-off Analysis - Did they acknowledge pros and cons?", y, margin, contentWidth);
-  y = addBulletPoint(doc, "Stakeholder Consideration - Did they consider multiple perspectives?", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Evidence Quality (25 pts) - Did they reference specific data from briefings with source codes?", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Reasoning Coherence (25 pts) - Is their logic clear, well-structured, and evidence-connected?", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Trade-off Analysis (25 pts) - Did they acknowledge downsides, risks, and contingency plans?", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Stakeholder Consideration (25 pts) - Did they address 2-3+ stakeholder groups with balancing strategies?", y, margin, contentWidth);
+  y += 2;
+  y = addBodyText(doc, "Scoring bands per criterion: 24-25 (thorough), 21-23 (solid with minor gaps), 15-20 (general concepts), 10-14 (basic awareness), <10 (no evidence). Overall quality: Excellent (93-100%), Good (72-92%), Adequate (52-71%), Poor (<52%).", y, margin, contentWidth);
   y += 4;
 
   y = addSectionHeader(doc, "Monitoring Progress", y, margin);

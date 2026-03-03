@@ -145,9 +145,9 @@ export async function gradeSubmission(req: GradingRequest): Promise<GradingResul
   );
 
   let quality = "Poor";
-  if (result.percentageScore >= 80) quality = "Excellent";
-  else if (result.percentageScore >= 65) quality = "Good";
-  else if (result.percentageScore >= 50) quality = "Adequate";
+  if (result.percentageScore >= 93) quality = "Excellent";
+  else if (result.percentageScore >= 72) quality = "Good";
+  else if (result.percentageScore >= 52) quality = "Adequate";
 
   return {
     studentName: req.studentName,
@@ -646,8 +646,8 @@ export function renderGradingPage(): string {
         });
       });
 
-      function getScoreClass(pct) { if (pct >= 80) return 'excellent'; if (pct >= 65) return 'good'; if (pct >= 50) return 'adequate'; return 'poor'; }
-      function getBarColor(pct) { if (pct >= 80) return '#22c55e'; if (pct >= 65) return '#3b82f6'; if (pct >= 50) return '#f59e0b'; return '#ef4444'; }
+      function getScoreClass(pct) { if (pct >= 93) return 'excellent'; if (pct >= 72) return 'good'; if (pct >= 52) return 'adequate'; return 'poor'; }
+      function getBarColor(pct) { if (pct >= 93) return '#22c55e'; if (pct >= 72) return '#3b82f6'; if (pct >= 52) return '#f59e0b'; return '#ef4444'; }
       function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
       function renderSingleResult(r) {
@@ -830,7 +830,7 @@ export function renderGradingPage(): string {
           doc.setFillColor(241, 245, 249);
           doc.roundedRect(margin, y, contentW, 3, 1.5, 1.5, 'F');
           var barW = (pct / 100) * contentW;
-          var c = pct >= 80 ? [34,197,94] : pct >= 65 ? [59,130,246] : pct >= 50 ? [245,158,11] : [239,68,68];
+          var c = pct >= 93 ? [34,197,94] : pct >= 72 ? [59,130,246] : pct >= 52 ? [245,158,11] : [239,68,68];
           doc.setFillColor(c[0], c[1], c[2]);
           if (barW > 0) doc.roundedRect(margin, y, Math.max(barW, 3), 3, 1.5, 1.5, 'F');
           y += 5;
@@ -1256,7 +1256,7 @@ export function renderGradingPage(): string {
                   label: function(ctx) {
                     var val = ctx.parsed.x;
                     if (ctx.datasetIndex === 0) {
-                      var q = val >= 80 ? 'Excellent' : val >= 65 ? 'Good' : val >= 50 ? 'Adequate' : 'Poor';
+                      var q = val >= 93 ? 'Excellent' : val >= 72 ? 'Good' : val >= 52 ? 'Adequate' : 'Poor';
                       return 'Raw: ' + val + '% (' + q + ')';
                     }
                     return val != null ? 'Curved: ' + val + '%' : '';

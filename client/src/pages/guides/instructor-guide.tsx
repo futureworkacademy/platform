@@ -637,6 +637,19 @@ export default function InstructorGuidePage() {
                     </div>
                   ))}
                 </div>
+                <div className="p-3 mt-2 rounded-md bg-muted/30 border" data-testid="grading-scoring-bands">
+                  <p className="text-xs font-semibold mb-2">Scoring Bands (per criterion, 25 points each):</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span><strong className="text-foreground">24-25:</strong> Thorough, specific, well-supported</span>
+                    <span><strong className="text-foreground">21-23:</strong> Solid work with minor gaps</span>
+                    <span><strong className="text-foreground">15-20:</strong> General concepts, limited depth</span>
+                    <span><strong className="text-foreground">10-14:</strong> Basic awareness without citations</span>
+                    <span><strong className="text-foreground">&lt;10:</strong> No evidence of research use</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
+                    <strong className="text-foreground">Overall Quality:</strong> Excellent (93-100%) | Good (72-92%) | Adequate (52-71%) | Poor (&lt;52%)
+                  </div>
+                </div>
                 <p className="text-xs text-muted-foreground mt-3">
                   AI-generated scores provide students with immediate, formative
                   feedback to help them improve week over week. As the instructor,

@@ -56,10 +56,10 @@ Evaluate this rationale and respond with a JSON object containing:
 4. "overallQuality": One of "excellent", "good", "adequate", or "poor"
 
 Scoring guide:
-- 80-100 (excellent): Cites specific statistics/case studies, applies research to decision
-- 60-79 (good): References general concepts from materials, shows understanding
-- 40-59 (adequate): Basic reasoning but limited research application
-- 0-39 (poor): No evidence of research use, generic or off-topic response
+- 93-100 (excellent): Cites specific statistics/case studies with source codes, applies research directly to decision with multi-dimensional reasoning
+- 72-92 (good): References general concepts from materials, shows solid understanding with some evidence
+- 52-71 (adequate): Basic reasoning but limited research application
+- 0-51 (poor): No evidence of research use, generic or off-topic response
 
 Respond ONLY with the JSON object, no additional text.`,
         },

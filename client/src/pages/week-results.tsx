@@ -125,8 +125,8 @@ function RubricScoreDisplay({
 
   const getScoreColor = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
-    if (percentage >= 80) return "text-success";
-    if (percentage >= 60) return "text-warning";
+    if (percentage >= 93) return "text-success";
+    if (percentage >= 72) return "text-warning";
     return "text-muted-foreground";
   };
 
@@ -196,8 +196,8 @@ function DecisionResultCard({
   const overallScore = decision.overallLLMScore || 0;
   
   const getScoreBadgeVariant = (score: number) => {
-    if (score >= 80) return "default";
-    if (score >= 60) return "secondary";
+    if (score >= 93) return "default";
+    if (score >= 72) return "secondary";
     return "outline";
   };
 
