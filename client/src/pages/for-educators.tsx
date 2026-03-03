@@ -96,7 +96,7 @@ const WEEK_TITLES = [
 
 const PLATFORM_TOOLS = [
   { icon: Sparkles, title: "AI-Powered Grading", desc: "LLM rubric evaluation with bulk CSV upload from any LMS" },
-  { icon: BarChart3, title: "Curved Scoring", desc: "Z-score normalization with configurable class curve targets" },
+  { icon: BarChart3, title: "Optional Curved Scoring", desc: "Opt-in Z-score normalization with configurable class curve targets" },
   { icon: MessageSquare, title: "Student Feedback Surveys", desc: "6-dimension ratings with AI-analyzed results dashboard" },
   { icon: FileText, title: "Content Editor", desc: "Manage weekly briefings, research, and decisions with AI assistance" },
   { icon: Activity, title: "Activity Logs", desc: "Track every student action, engagement metric, and participation" },
@@ -442,7 +442,7 @@ export default function ForEducators() {
               {[
                 { icon: Sparkles, title: "LLM Rubric Evaluation", desc: "Scores across all 4 criteria with specific feedback per dimension" },
                 { icon: FileText, title: "Bulk CSV Upload", desc: "Paste from Blackboard, Canvas, or any LMS — grade entire classes at once" },
-                { icon: BarChart3, title: "Curved Scoring", desc: "Z-score normalization adjusts for week difficulty with a 75% center target" },
+                { icon: BarChart3, title: "Optional Curved Scoring", desc: "Opt-in Z-score normalization adjusts for week difficulty with a 75% center target" },
                 { icon: GraduationCap, title: "Instructor Override", desc: "Every AI score labeled formative — review, adjust, add comments, finalize" },
               ].map((item, i) => (
                 <FadeInSection key={item.title} delay={i * 100}>

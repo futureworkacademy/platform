@@ -87,7 +87,7 @@ const EDUCATOR_TOOLS = [
   { icon: MessageSquare, title: "Student Feedback", desc: "6-dimension survey with AI-analyzed results" },
   { icon: FileText, title: "Content Editor", desc: "Manage briefings, decisions, and research materials" },
   { icon: Lock, title: "Privacy Mode", desc: "Anonymous enrollment — no PII collection required" },
-  { icon: BarChart3, title: "Curved Scoring", desc: "Z-score normalization across the class" },
+  { icon: BarChart3, title: "Optional Curved Scoring", desc: "Opt-in Z-score normalization across the class" },
   { icon: Activity, title: "Activity Logs", desc: "Track every student action and engagement metric" },
 ];
 
@@ -500,8 +500,8 @@ export default function Landing() {
                 },
                 { 
                   icon: BarChart3, 
-                  title: "Curved Scoring", 
-                  desc: "Z-score normalization automatically adjusts for week difficulty. Raw scores are mapped to a class curve with a 75% center target.",
+                  title: "Optional Curved Scoring", 
+                  desc: "Opt-in Z-score normalization adjusts for week difficulty. When enabled, raw scores are mapped to a class curve with a 75% center target.",
                   accent: "text-blue-500",
                   bg: "bg-blue-500/10"
                 },
