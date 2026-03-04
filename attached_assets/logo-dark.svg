@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80">
+  <defs>
+    <style>
+      .shield-stroke { fill: none; stroke: #1e3a5f; stroke-width: 2; }
+      .shield-fill { fill: #1e3a5f; }
+      .text-fill { fill: #1e3a5f; font-family: 'Arial', sans-serif; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Shield outline -->
+  <path class="shield-stroke" d="M40 5 L70 15 L70 45 Q70 65 40 75 Q10 65 10 45 L10 15 Z"/>
+  
+  <!-- Horizontal divider -->
+  <line class="shield-stroke" x1="10" y1="40" x2="70" y2="40"/>
+  
+  <!-- Vertical divider in bottom half -->
+  <line class="shield-stroke" x1="40" y1="40" x2="40" y2="75"/>
+  
+  <!-- Book icon (top section) -->
+  <g class="shield-fill">
+    <path d="M28 18 L28 32 Q40 28 52 32 L52 18 Q40 22 28 18 Z"/>
+    <line class="shield-stroke" x1="40" y1="17" x2="40" y2="30"/>
+  </g>
+  
+  <!-- Compass/Divider icon (bottom left) -->
+  <g class="shield-fill">
+    <circle cx="25" cy="52" r="2"/>
+    <path d="M25 54 L20 68 M25 54 L30 68" stroke="#1e3a5f" stroke-width="1.5" fill="none"/>
+  </g>
+  
+  <!-- Gear icon (bottom right) -->
+  <g class="shield-fill">
+    <circle cx="55" cy="57" r="4" fill="none" stroke="#1e3a5f" stroke-width="1.5"/>
+    <circle cx="55" cy="57" r="1.5"/>
+    <!-- Gear teeth -->
+    <rect x="54" y="50" width="2" height="3"/>
+    <rect x="54" y="61" width="2" height="3"/>
+    <rect x="48" y="56" width="3" height="2"/>
+    <rect x="59" y="56" width="3" height="2"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="85" y="50" class="text-fill" font-size="28">Future Work Academy.com</text>
+</svg>

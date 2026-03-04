@@ -1,0 +1,52 @@
+1. Critical Architecture Challenge: The "Preview Mode" State
+The Issue: The document states that the Unified Role Preview System writes previewRole and previewOrgId directly to the users table in the database.
+
+Why it's risky (Bad Code/Anti-Pattern): Storing temporary session state (viewing as a student) in the persistent users record is dangerous. If an Admin loses internet connection, the server crashes, or they close the tab without hitting "Exit Preview," they could remain "stuck" as a student in the database. They might log in next time and still be a student, potentially locking themselves out of the Admin Console to fix it.
+
+Recommended Fix: Move these fields to the sessions table or manage them via a temporary ephemeral token (JWT) or a secure cookie. The user's permanent record should never change just because they are looking at a preview.
+
+2. User Flow & Experience (UX)
+Is it too disjointed?
+
+The "Team Code" Friction: The flow Sign Up → Dashboard → Enter Team Code is functional but adds friction.
+
+Improvement: Implement "Magic Invite Links" (e.g., futureworkacademy.com/join?code=XYZ). When a user clicks this, it should pass the code through the Replit Auth flow and auto-join them to the team upon account creation.
+
+Concurrency in Team Decisions: The simulation relies on teams (plural students) making decisions.
+
+The Gap: The stack (Express + React + TanStack Query) is standard HTTP. If Student A and Student B are on the dashboard at the same time, and A submits a decision, B won't see it until they refresh or TanStack refetches.
+
+Improvement: If real-time collaboration is key, you need WebSockets or Polling. At minimum, use "Optimistic Locking" (check the currentWeek or a version number before saving) to prevent Student B from overwriting Student A's decision with old data.
+
+3. Database & Scalability
+JSON Blobs for Simulation State:
+
+Observation: You are storing companyState as a JSON blob.
+
+Challenge: This is great for flexibility but terrible for Analytics. If you want to query "What is the average 'morale' across all teams in Week 4?", a JSON blob makes this very slow/hard in SQL.
+
+Advice: If you plan to have a "Super Admin Analytics" dashboard that aggregates these metrics, consider promoting key metrics (Revenue, Morale, Employee Count) to real columns or ensure you are using PostgreSQL JSONB with proper GIN indexing.
+
+4. Tech Stack Choices
+Routing (wouter vs react-router-dom):
+
+wouter is used. It is lightweight and great, but your app has complex requirements: nested layouts (Dashboard vs Admin), protected routes (Role-Based Access Control), and potentially complex history management.
+
+Advice: Ensure wouter isn't limiting you. If you find yourself writing custom logic to handle nested admin menus or complex redirects, switching to react-router-dom (standard industry pick) might be safer for long-term maintenance.
+
+Auth Provider (Replit Auth):
+
+Challenge: Replit Auth is convenient, but verify if your corporate/enterprise clients are comfortable logging in via "Replit". If they require Single Sign-On (SSO) or Microsoft/Google workspace integration directly, Replit Auth might be a branding/compliance hurdle.
+
+5. Summary for the Replit Agent
+You can paste this directly to your agent:
+
+Refactor Request:
+
+Security/State Fix: Please refactor the Unified Role Preview system. Do not store previewRole on the users table. Store it in the session object or a separate ephemeral store so Admins don't get permanently stuck in "Student View" if the session terminates unexpectedly.
+
+Database Optimization: Ensure the companyState JSON column in the teams table uses JSONB type for performance.
+
+Concurrency: Add a check when submitting decisions: Ensure the week hasn't already been advanced by another teammate. Alert the user if the data is stale.
+
+Onboarding Flow: Create a route /join/:code that stores the team code in the session before login, so users are auto-added to the team immediately after authenticating.

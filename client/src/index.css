@@ -1,0 +1,407 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* LIGHT MODE - The Future of Work Business Simulation */
+:root {
+  --button-outline: rgba(0,0,0, .10);
+  --badge-outline: rgba(0,0,0, .05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .08);
+  
+  /* Professional grey background */
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  
+  /* Borders */
+  --border: 214 32% 91%;
+  
+  /* Card styling - subtle elevation */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --card-border: 214 32% 91%;
+  
+  /* Sidebar - professional navy tint */
+  --sidebar: 222 47% 11%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-border: 222 40% 18%;
+  --sidebar-primary: 221 83% 53%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 222 40% 18%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-ring: 221 83% 53%;
+  
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --popover-border: 214 32% 91%;
+  
+  /* Primary - Corporate Navy #1E3A8A */
+  --primary: 224 76% 33%;
+  --primary-foreground: 210 40% 98%;
+  
+  /* Secondary - Slate tones */
+  --secondary: 214 32% 91%;
+  --secondary-foreground: 222 47% 11%;
+  
+  /* Muted */
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  
+  /* Accent - Tech Purple #6366F1 */
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Destructive - Decline Red #EF4444 */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  
+  /* Input */
+  --input: 214 32% 91%;
+  --ring: 224 76% 33%;
+  
+  /* Chart colors matching design guide */
+  --chart-1: 224 76% 33%;
+  --chart-2: 160 84% 39%;
+  --chart-3: 38 92% 50%;
+  --chart-4: 239 84% 67%;
+  --chart-5: 0 84% 60%;
+  
+  /* Custom semantic colors for the simulation */
+  --success: 160 84% 39%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 0%;
+  --data-positive: 160 84% 39%;
+  --data-negative: 0 84% 60%;
+  
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Georgia', serif;
+  --font-mono: 'Roboto Mono', 'Menlo', monospace;
+  
+  --radius: .5rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(222 47% 11% / 0.04);
+  --shadow-xs: 0px 1px 3px 0px hsl(222 47% 11% / 0.06);
+  --shadow-sm: 0px 2px 4px -1px hsl(222 47% 11% / 0.08);
+  --shadow: 0px 4px 6px -2px hsl(222 47% 11% / 0.05), 0px 2px 4px -1px hsl(222 47% 11% / 0.06);
+  --shadow-md: 0px 6px 10px -2px hsl(222 47% 11% / 0.08), 0px 4px 6px -2px hsl(222 47% 11% / 0.05);
+  --shadow-lg: 0px 10px 15px -3px hsl(222 47% 11% / 0.08), 0px 4px 6px -2px hsl(222 47% 11% / 0.05);
+  --shadow-xl: 0px 20px 25px -5px hsl(222 47% 11% / 0.08), 0px 8px 10px -6px hsl(222 47% 11% / 0.05);
+  --shadow-2xl: 0px 25px 50px -12px hsl(222 47% 11% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Fallback for older browsers */
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.dark {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
+  
+  /* Dark mode - Bloomberg Terminal inspired */
+  /* Near-black background like Bloomberg */
+  --background: 220 20% 4%;
+  --foreground: 40 10% 90%;
+  
+  --border: 220 15% 15%;
+  
+  /* Card - slightly elevated dark panels */
+  --card: 220 20% 7%;
+  --card-foreground: 40 10% 90%;
+  --card-border: 220 15% 15%;
+  
+  /* Sidebar - darker than background */
+  --sidebar: 220 20% 3%;
+  --sidebar-foreground: 40 10% 90%;
+  --sidebar-border: 220 15% 12%;
+  --sidebar-primary: 35 100% 50%;
+  --sidebar-primary-foreground: 220 20% 4%;
+  --sidebar-accent: 220 15% 12%;
+  --sidebar-accent-foreground: 40 10% 90%;
+  --sidebar-ring: 35 100% 50%;
+  
+  --popover: 220 20% 7%;
+  --popover-foreground: 40 10% 90%;
+  --popover-border: 220 15% 15%;
+  
+  /* Primary - Bloomberg Orange */
+  --primary: 35 100% 50%;
+  --primary-foreground: 220 20% 4%;
+  
+  --secondary: 220 15% 15%;
+  --secondary-foreground: 40 10% 90%;
+  
+  --muted: 220 15% 12%;
+  --muted-foreground: 220 10% 55%;
+  
+  /* Accent - Bloomberg amber/gold */
+  --accent: 45 100% 55%;
+  --accent-foreground: 220 20% 4%;
+  
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 40 10% 90%;
+  
+  --input: 220 15% 15%;
+  --ring: 35 100% 50%;
+  
+  /* Chart colors - Bloomberg palette */
+  --chart-1: 35 100% 50%;
+  --chart-2: 160 84% 50%;
+  --chart-3: 200 100% 60%;
+  --chart-4: 280 80% 65%;
+  --chart-5: 0 72% 55%;
+  
+  /* Data colors */
+  --success: 142 76% 45%;
+  --success-foreground: 220 20% 4%;
+  --warning: 35 100% 50%;
+  --warning-foreground: 220 20% 4%;
+  --data-positive: 142 76% 50%;
+  --data-negative: 0 72% 55%;
+  
+  /* Bloomberg-specific terminal colors */
+  --terminal-orange: 35 100% 50%;
+  --terminal-amber: 45 100% 55%;
+  --terminal-green: 142 76% 50%;
+  --terminal-red: 0 72% 55%;
+  --terminal-blue: 200 100% 60%;
+  
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.2);
+  --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shadow-sm: 0px 2px 4px -1px hsl(0 0% 0% / 0.3);
+  --shadow: 0px 4px 6px -2px hsl(0 0% 0% / 0.2), 0px 2px 4px -1px hsl(0 0% 0% / 0.25);
+  --shadow-md: 0px 6px 10px -2px hsl(0 0% 0% / 0.3), 0px 4px 6px -2px hsl(0 0% 0% / 0.2);
+  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.3), 0px 4px 6px -2px hsl(0 0% 0% / 0.2);
+  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.3), 0px 8px 10px -6px hsl(0 0% 0% / 0.2);
+  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.5);
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Hide ugly search cancel button in Chrome until we can style it properly */
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  /* Placeholder styling for contentEditable div */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+
+  /* Custom utility classes for the simulation */
+  .font-mono-data {
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .trend-positive {
+    color: hsl(var(--data-positive));
+  }
+  
+  .trend-negative {
+    color: hsl(var(--data-negative));
+  }
+  
+  .trend-warning {
+    color: hsl(var(--warning));
+  }
+}
+
+/* Driver.js Tour Styling */
+.driver-popover.fwa-tour-popover {
+  --driver-popover-bg: hsl(var(--card));
+  --driver-popover-color: hsl(var(--card-foreground));
+  border: 2px solid hsl(var(--primary));
+  border-radius: 0.75rem;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.25), 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+  padding: 1.25rem !important;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.75rem;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-description {
+  font-size: 1.05rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-footer button {
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.15s;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-footer .driver-popover-next-btn {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-footer .driver-popover-next-btn:hover {
+  opacity: 0.9;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-footer .driver-popover-prev-btn {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-progress-text {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-close-btn {
+  color: hsl(var(--muted-foreground));
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-close-btn:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Sample question tour step - wider popover */
+.driver-popover.fwa-tour-popover {
+  max-width: 580px;
+  min-width: 400px;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-description strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.driver-popover.fwa-tour-popover .driver-popover-description em {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Dark mode adjustments for sample question backgrounds */
+.dark .driver-popover.fwa-tour-popover .driver-popover-description div[style*="background:#f5f5f5"] {
+  background: hsl(var(--muted)) !important;
+}
+
+.dark .driver-popover.fwa-tour-popover .driver-popover-description div[style*="background:#e8f5e9"] {
+  background: hsl(220 15% 18%) !important;
+}

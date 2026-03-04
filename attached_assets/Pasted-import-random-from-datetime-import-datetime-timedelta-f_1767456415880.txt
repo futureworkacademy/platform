@@ -1,0 +1,212 @@
+import random
+from datetime import datetime, timedelta
+from polygon import RESTClient  # For macro data proxy
+
+# Function to get macro modifier (as before)
+def get_macro_modifier():
+    client = RESTClient()  # Assumes API key in env
+    today = datetime.now().strftime("%Y-%m-%d")  # Use real today for proxy, even if sim in 2026
+    try:
+        sp500 = client.get_aggs("SPY", 1, "day", today, today)[0]
+        percent_change = ((sp500.close - sp500.open) / sp500.open) * 100
+        if percent_change > 0.5:
+            return 1.10
+        elif percent_change < -0.5:
+            return 0.90
+        else:
+            return 1.00
+    except:
+        return 1.00
+
+# Company Background
+company_background = """
+Company: Apex Manufacturing Inc.
+Background: Founded in 1995, Apex is a small American manufacturer based in Detroit, Michigan, specializing in automotive parts and electronics components. With 500 employees, the company has annual revenues of around $1 million. Facing global competition, supply chain disruptions, and the rise of AI/ML technologies, Apex is at a crossroads. Leadership must decide how to integrate AI for efficiency while managing workforce transitions, navigating trade policies, and influencing regulations through lobbying. The future holds opportunities in smart manufacturing but risks from automation job losses and economic volatility.
+"""
+
+# Global events (expanded with more variety)
+global_events = [
+    {'name': 'Tariff Increase (50%)', 'impact': {'revenue': -0.15, 'morale': -10}, 'desc': 'US tariffs on imports rise to 50%, increasing costs for raw materials.'},
+    {'name': 'Reciprocal Tariff on US', 'impact': {'revenue': -0.20, 'morale': -5}, 'desc': 'China imposes reciprocal tariffs on US exports, hitting Apex's overseas sales.'},
+    {'name': 'Geopolitical Tension', 'impact': {'revenue': -0.10, 'employees': -10, 'morale': -15}, 'desc': 'Escalating conflicts disrupt global supply chains.'},
+    {'name': 'Labor Strike', 'impact': {'morale': -20, 'revenue': -0.05}, 'desc': 'Union workers strike over AI-related job concerns.'},
+    {'name': 'Tech Breakthrough', 'impact': {'revenue': 0.15, 'morale': 10}, 'desc': 'New ML tools for manufacturing reduce costs industry-wide.'},
+    {'name': 'Economic Boom', 'impact': {'revenue': 0.10, 'job_impact': 20}, 'desc': 'US economy surges, boosting demand for auto parts.'},
+    {'name': 'Supply Chain Shortage', 'impact': {'revenue': -0.12, 'morale': -8}, 'desc': 'Chip shortages delay production.'},
+    {'name': 'Regulatory Change', 'impact': {'revenue': 0.08, 'morale': 5}, 'desc': 'New incentives for AI adoption in manufacturing.'}
+]
+
+# Briefing templates (fabricated "articles" for insights; can be expanded or fetched if internet added)
+briefing_templates = [
+    {
+        'title': 'AI in Manufacturing: Opportunities and Risks',
+        'content': 'Article from Manufacturing Today (Jan 2026): Experts predict AI could boost productivity by 40% but displace 20% of jobs. Insight: Invest in reskilling to maintain morale. Potential decision: Allocate more to reskilling fund.',
+        'insights': ['AI boosts productivity', 'Job displacement risk', 'Reskilling mitigates morale drop']
+    },
+    {
+        'title': 'Trade Wars Heat Up',
+        'content': 'Bloomberg Report: US-China tariffs expected to rise. Insight: Lobbying could influence policy. Diversify suppliers to reduce impact.',
+        'insights': ['Tariffs incoming', 'Lobby for exemptions', 'Supply chain diversification']
+    },
+    {
+        'title': 'Workforce Trends 2026',
+        'content': 'Forbes: Companies with strong transition programs see 15% higher retention. Insight: Focus on employee buy-in for AI deployments.',
+        'insights': ['Transition programs boost retention', 'Employee engagement key']
+    },
+    {
+        'title': 'ML Breakthroughs for Supply Chains',
+        'content': 'TechCrunch: New predictive models cut inventory costs by 25%. Insight: Deploy in Operations for quick wins, but watch for data biases.',
+        'insights': ['ML cuts costs', 'Bias risks']
+    },
+    # Add more for variety
+]
+
+# Initial company state (added lobbying budget)
+company = {
+    'revenue': 1000000,
+    'employees': 500,
+    'morale': 80,
+    'ai_budget': 200000,
+    'reskilling_fund': 100000,
+    'lobbying_budget': 50000  # New: For influencing events/regulations
+}
+
+departments = [
+    {'name': 'Operations', 'ai_option': 'Automate inventory with ML', 'job_impact': -50, 'revenue_boost': 200000, 'risk': 20},
+    {'name': 'Sales', 'ai_option': 'Predictive analytics for leads', 'job_impact': -20, 'revenue_boost': 150000, 'risk': 15},
+    {'name': 'Customer Service', 'ai_option': 'AI chatbots for support', 'job_impact': -30, 'revenue_boost': 100000, 'risk': 25},
+    {'name': 'R&D', 'ai_option': 'ML for product innovation', 'job_impact': 20, 'revenue_boost': 300000, 'risk': 30}
+]
+
+macro_modifier = get_macro_modifier()
+
+def apply_event(event, lobbied=False):
+    print(f"\n*** Global Event: {event['name']} ***\n{event['desc']}")
+    impact = event['impact'].copy()
+    if lobbied:
+        # Lobbying mitigates negative impacts by 50%
+        for key in impact:
+            if impact[key] < 0:
+                impact[key] *= 0.5
+        print("Lobbying efforts softened the blow!")
+    if 'revenue' in impact:
+        company['revenue'] *= (1 + impact['revenue'])
+    if 'morale' in impact:
+        company['morale'] += impact['morale']
+    if 'employees' in impact:
+        company['employees'] += impact['employees']
+    if 'job_impact' in impact:
+        company['employees'] += impact['job_impact']
+    company['morale'] = max(0, min(100, company['morale']))
+
+def generate_briefing():
+    num_articles = random.randint(2, 4)
+    briefing = "\n--- Weekly Briefing Package ---\nRead and digest these materials for insights:\n"
+    selected = random.sample(briefing_templates, num_articles)
+    for article in selected:
+        briefing += f"Title: {article['title']}\nContent: {article['content']}\nPossible Insights: {', '.join(article['insights'])}\n\n"
+    briefing += "Spend time analyzing these for better decisions!\n"
+    return briefing
+
+def simulate_week(week_num, current_date):
+    print(f"\n--- Week {week_num} ({current_date.strftime('%Y-%m-%d')}) ---")
+    print(generate_briefing())  # 30-min activity: Read and think
+    print(f"Macro Modifier: x{macro_modifier:.2f}")
+    print(f"Current Stats: Revenue ${company['revenue']:,} | Employees: {company['employees']} | Morale: {company['morale']}% | AI Budget: ${company['ai_budget']:,} | Reskilling: ${company['reskilling_fund']:,} | Lobbying: ${company['lobbying_budget']:,}")
+    
+    # Random global event (30% chance now for more dynamism)
+    if random.random() < 0.30:
+        event = random.choice(global_events)
+        if input("Spend lobbying budget to mitigate? (y/n, cost $10,000): ").lower() == 'y' and company['lobbying_budget'] >= 10000:
+            company['lobbying_budget'] -= 10000
+            apply_event(event, lobbied=True)
+        else:
+            apply_event(event)
+    
+    # Ad hoc event trigger (optional)
+    if input("\nTrigger ad hoc event? (y/n): ").lower() == 'y':
+        print("Choose event:")
+        for i, ev in enumerate(global_events, 1):
+            print(f"{i}. {ev['name']}")
+        choice = int(input("Enter number: ")) - 1
+        apply_event(global_events[choice])
+    
+    # Lobbying option: Spend to boost positives or prevent negatives
+    if input("\nSpend on general lobbying (e.g., for AI incentives, cost $5,000)? (y/n): ").lower() == 'y' and company['lobbying_budget'] >= 5000:
+        company['lobbying_budget'] -= 5000
+        boost = random.choice([0.05, 0.10])  # Revenue or morale boost
+        if random.random() < 0.5:
+            company['revenue'] *= (1 + boost)
+            print(f"Lobbying success: Revenue boosted by {boost*100}%!")
+        else:
+            company['morale'] += int(boost * 100)
+            print(f"Lobbying success: Morale boosted by {int(boost*100)}%!")
+
+    # AI Deployment
+    print("\nChoose department for AI/ML (0 to skip):")
+    for i, dept in enumerate(departments, 1):
+        print(f"{i}. {dept['name']}: {dept['ai_option']}")
+    choice = int(input("Enter number: ")) - 1
+    if choice == -1:
+        return
+    dept = departments[choice]
+    cost = random.randint(50000, 100000)
+    if cost > company['ai_budget']:
+        print("Insufficient AI budget!")
+        return
+    company['ai_budget'] -= cost
+    boosted_revenue = dept['revenue_boost'] * macro_modifier
+    boosted_job = int(dept['job_impact'] * macro_modifier)
+    company['revenue'] += boosted_revenue
+    company['employees'] += boosted_job
+    
+    # Transitions
+    if boosted_job < 0:
+        transitions = abs(boosted_job)
+        reskill_cost = transitions * 2000
+        print(f"Job losses: {transitions}. Reskill cost: ${reskill_cost:,}")
+        if input("Fund reskilling? (y/n): ").lower() == 'y':
+            if reskill_cost <= company['reskilling_fund']:
+                company['reskilling_fund'] -= reskill_cost
+                morale_impact = -5
+            else:
+                morale_impact = -20
+        else:
+            morale_impact = -30
+    else:
+        morale_impact = 10
+    
+    # Risk
+    if random.randint(1, 100) <= dept['risk']:
+        print("Risk: AI issue!")
+        company['revenue'] -= 50000
+        morale_impact -= 15
+    
+    company['morale'] += morale_impact
+    company['morale'] = max(0, min(100, company['morale']))
+
+# Main simulation
+print("Welcome to 'The Future of Work' Simulation!")
+print(company_background)
+
+# Configurable time period
+start_date_str = input("Enter start date (YYYY-MM-DD, default 2026-01-03): ") or "2026-01-03"
+start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+num_weeks = int(input("Enter number of weeks (4-12): "))
+if not 4 <= num_weeks <= 12:
+    num_weeks = 4  # Default
+
+for week in range(1, num_weeks + 1):
+    current_date = start_date + timedelta(weeks=week-1)
+    simulate_week(week, current_date)
+
+# End
+print("\n--- Simulation End ---")
+score = (company['revenue'] / 1000000) * (company['morale'] / 100) * (company['employees'] / 500)
+print(f"Final Score: {score:.2f}")
+if company['morale'] < 50:
+    print("Outcome: Struggles with turnover.")
+elif company['employees'] < 400:
+    print("Outcome: Efficient but strained.")
+else:
+    print("Outcome: Thriving manufacturer!")

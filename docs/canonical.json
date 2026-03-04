@@ -1,0 +1,69 @@
+{
+  "company": {
+    "name": "Apex Manufacturing",
+    "industry": "Automotive parts supplier",
+    "size": "Mid-sized",
+    "annualRevenue": 125000000,
+    "employees": 2400,
+    "averageTenure": 7.2,
+    "location": "Midwest United States",
+    "founded": 1987
+  },
+  "simulation": {
+    "totalWeeks": 8,
+    "preGamePhase": "Week 0 (Research)"
+  },
+  "weeks": [
+    { "number": 1, "title": "The Automation Imperative", "theme": "Financing and communicating AI strategy" },
+    { "number": 2, "title": "The Talent Pipeline Crisis", "theme": "Building technical and management pipelines" },
+    { "number": 3, "title": "Union Storm Brewing", "theme": "Responding to organizing while transforming" },
+    { "number": 4, "title": "The First Displacement", "theme": "Handling the first wave of affected workers" },
+    { "number": 5, "title": "The Manager Exodus", "theme": "Addressing burnout and Gen Z reluctance" },
+    { "number": 6, "title": "Debt Day of Reckoning", "theme": "Managing financial pressure vs. momentum" },
+    { "number": 7, "title": "The Competitive Response", "theme": "Responding to market perception challenges" },
+    { "number": 8, "title": "Strategic Direction", "theme": "Setting 3-year vision and legacy" }
+  ],
+  "characters": [
+    { "name": "Victoria Hartwell", "role": "Board Chair", "influence": 10, "hostility": 4 },
+    { "name": "David Chen", "role": "Chief Financial Officer", "influence": 8, "hostility": 2 },
+    { "name": "Margaret O'Brien", "role": "Chief Operating Officer", "influence": 8, "hostility": 2, "nickname": "Maggie" },
+    { "name": "Sandra Williams", "role": "HR Director", "influence": 7, "hostility": 1 },
+    { "name": "Frank Torres", "role": "Operations Manager", "influence": 6, "hostility": 3 },
+    { "name": "Jennifer Park", "role": "Vice President of Sales", "influence": 7, "hostility": 3 },
+    { "name": "Robert Nakamura", "role": "General Counsel", "influence": 6, "hostility": 2 },
+    { "name": "Marcus Webb", "role": "Union Organizer", "influence": 8, "hostility": 8 },
+    { "name": "Patricia Lawson", "role": "Bank Representative", "influence": 9, "hostility": 5 },
+    { "name": "Dr. Nathan Cross", "role": "Industry Analyst", "influence": 5, "hostility": 1 },
+    { "name": "Angela Reyes", "role": "Mayor", "influence": 5, "hostility": 4 },
+    { "name": "Thomas Richardson", "role": "Customer (AutoCorp)", "influence": 7, "hostility": 4 },
+    { "name": "Rachel Kim", "role": "Technology Vendor", "influence": 4, "hostility": 1 },
+    { "name": "Dr. Helen Mercer", "role": "External Consultant", "influence": 4, "hostility": 1 },
+    { "name": "Jaylen Brooks", "role": "Gen Z Representative", "influence": 5, "hostility": 5 },
+    { "name": "Destiny Martinez", "role": "Gen Z Employee", "influence": 2, "hostility": 4 },
+    { "name": "William Thornton III", "role": "Board Member (PE)", "influence": 9, "hostility": 6 }
+  ],
+  "competitors": [
+    { "name": "AutoTech Industries", "approach": "Aggressive", "outcome": "Failed - unionized, strikes, customer satisfaction dropped" },
+    { "name": "PrecisionParts Co.", "approach": "Balanced", "outcome": "Success - high morale, Best Employer award" },
+    { "name": "FastParts", "approach": "No workforce investment", "outcome": "Failed - quality issues, acquisition target" }
+  ],
+  "researchReports": [
+    { "number": 1, "title": "State of AI in Manufacturing 2025", "readingTime": "8 minutes" },
+    { "number": 2, "title": "Apex Manufacturing Company Profile", "readingTime": "6 minutes" },
+    { "number": 3, "title": "Workforce Transition Best Practices", "readingTime": "7 minutes" },
+    { "number": 4, "title": "AI Technology Landscape", "readingTime": "9 minutes" },
+    { "number": 5, "title": "Competitive Analysis", "readingTime": "8 minutes" },
+    { "number": 6, "title": "Case Study - Manufacturing Transformation", "readingTime": "10 minutes" }
+  ],
+  "advisors": [
+    "Finance Advisor",
+    "HR Advisor",
+    "Operations Advisor",
+    "Legal Advisor",
+    "Union Relations Advisor",
+    "Technology Advisor",
+    "Marketing Advisor",
+    "Strategy Advisor",
+    "Ethics Advisor"
+  ]
+}

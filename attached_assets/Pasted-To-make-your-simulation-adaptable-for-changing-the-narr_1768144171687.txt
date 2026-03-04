@@ -1,0 +1,77 @@
+To make your simulation adaptable for "changing the narrative" (e.g., tweaking weekly scenarios, stakeholder pressures, or global events) while modularizing content (like pre-game research reports, decision frameworks, and themes) and LLM-generated materials (videos, audio, images from Section 12), focus on a composable, data-driven architecture. This aligns with 2025-2026 best practices from AI app development trends, such as using modular components for flexibility, scalability, and easy updates without overhauling the codebase. Since you're starting with full control for small classes (under 20 students, 3-4 per team) and aiming for broader use at Grand View University, design for admin-level customization—e.g., you or other instructors can swap modules via a dashboard or config files.
+I'll outline how to build this into your existing stack (React/TypeScript frontend, Express.js backend with MongoDB persistence, as discussed). This ensures the sim remains realistic and immersive, forcing students to engage with dynamic, AI-enhanced elements (reading reports, hearing stakeholder audio, observing videos/images, and acting on decisions) while being extensible for others.
+1. Core Principles from Best Practices
+Drawing from recent guides on AI-ready architectures (e.g., modular AI in educational apps emphasize composable building blocks, microservices for isolation, and adaptive workflows):
+
+Modularity: Break everything into interchangeable parts (e.g., weeks as plugins, media prompts as templates) to allow narrative changes without code redeploys. This supports extensibility—e.g., another instructor could add a "sustainability" theme by swapping JSON configs.
+Scalability & Extensibility: Use event-driven or data-driven designs for small-scale starts (yourself testing) that scale to multiple classes. Incorporate feedback loops (e.g., student ratings on media) for iterative improvements.
+LLM Integration: Treat LLM-generated materials as modular outputs. Use prompt templates (like in Appendix C) stored in DB/JSON, enabling easy tweaks for realism (e.g., regenerate videos with updated narratives).
+Ethical & Educational Focus: Document modules clearly (goals, impacts) and ensure AI content promotes active learning—e.g., media that requires observation before decisions.
+
+2. Modularizing Narratives and Scenarios
+To "change the narrative" (e.g., shift from automation to sustainability in manufacturing), make weekly flows (Section 4-6) configurable:
+
+Data-Driven Storage: Store scenarios, stakeholder pressures, key questions, and context articles in MongoDB collections (e.g., Scenarios model with fields like week: Number, narrative: String, stakeholders: Array<Object>, articles: Array<String>). Use JSON schemas for validation.
+Example Mongoose Model (add to your backend):JavaScriptconst scenarioSchema = new mongoose.Schema({
+  week: { type: Number, required: true },
+  title: String,
+  narrative: String,
+  keyQuestion: String,
+  stakeholders: [{ source: String, message: String, urgency: String }],
+  contextArticles: [String],
+  // Link to modular decisions/media below
+});
+const Scenario = mongoose.model('Scenario', scenarioSchema);
+API Endpoints: Extend Appendix B with GET/POST/PUT /api/admin/scenarios/:week for admins to edit (e.g., change a union narrative to a supply chain crisis).
+
+Admin Control: Build a simple admin dashboard page in React (e.g., under /admin/scenarios) using Shadcn/UI forms. Authenticate via JWT (as previously recommended). For your initial full control, seed defaults from your doc, then tweak per run.
+Extensibility for Others: Export/import scenarios as JSON via an endpoint (e.g., POST /api/admin/import-scenarios). This lets Grand View colleagues customize without code access—e.g., upload a new Week 1 narrative focused on ethics.
+
+This forces student engagement: Dynamic narratives (pulled from DB) ensure they read updated briefings each playthrough, adapting to real-world events like 2026 AI trends.
+3. Modularizing Content (Research, Decisions, Analytics)
+Make pre-game research (Section 5), decisions (Section 7), and analytics (Section 11) swappable for different contexts:
+
+JSON/DB for Content Blocks: Store research reports as modular entries in a ResearchContent collection (e.g., category: String, keyStats: Array<Object>, narrative: String). Decisions as DecisionOptions with impacts as nested objects.
+Example: For decisions, use a schema matching your TypeScript structure:JavaScriptconst decisionOptionSchema = new mongoose.Schema({
+  week: Number,
+  category: String,
+  options: [{
+    id: String,
+    label: String,
+    description: String,
+    financialImpact: Object, // { revenue: Number, ... }
+    // Other impacts...
+  }]
+});
+Update game logic: In POST /api/submit-decision, fetch options dynamically from DB to apply impacts, allowing narrative changes (e.g., add a "green tech" option).
+
+Global Events & Variables: Modularize Section 9 events as a probability-weighted array in DB, triggerable by state thresholds. This lets you add 2026-specific events (e.g., AI regulation changes) easily.
+Frontend Integration: Use TanStack Query to fetch modular content on-demand (e.g., useQuery({ queryKey: ['scenario', week] }). For analytics, generate dynamic charts/tables in React based on DB-pulled data distributions.
+For Broader Use: Add versioning—e.g., scenarios tied to a simulationVersion: String field—so others can fork your base setup for their courses.
+
+This modularity ensures content feels fresh, encouraging students to observe trends (e.g., updated stats) and act thoughtfully.
+4. Modularizing LLM-Generated Materials (Media Enhancements)
+Section 12's AI-generated videos/audio/images are core for realism—make them regenerable and tied to narratives:
+
+Prompt Templates as Modules: Store Gemini/OpenAI prompts in DB (e.g., MediaPrompts collection with type: String (video/audio/image), template: String, variables: Object (e.g., {week: 1, theme: 'automation'})).
+Example Schema:JavaScriptconst mediaPromptSchema = new mongoose.Schema({
+  week: Number,
+  type: { type: String, enum: ['video', 'audio', 'image'] },
+  template: String, // e.g., "Create a 2-min video for Week {week}: {narrative}"
+  placeholders: Object, // For injecting narrative changes
+});
+Generation Workflow: Add an admin endpoint POST /api/admin/generate-media/:week that interpolates templates with current narrative, calls an LLM API (e.g., integrate Gemini via SDK), and stores outputs (URLs) in S3/Cloudinary, linked back to scenarios.
+
+Tools & Integration: Use Hugging Face or OpenAI for generation (via backend calls). For videos/audio, libraries like FFmpeg (in code_execution if prototyping) or cloud services (AWS Polly for audio). Monitor with tools like WhyLabs for quality.
+Async & Adaptive: Use RAG (retrieval-augmented generation) if advancing—e.g., ground prompts in real-time data (2026 manufacturing news) fetched via APIs, making media feel current.
+Student Engagement: Media modules force "hear/observe"—e.g., stakeholder videos pop up in briefings, requiring review before decisions. Regenerate for narrative changes (e.g., add Gen Z voices).
+Extensibility: Allow imports of custom prompts, so others at Grand View can adapt for policy courses (e.g., swap manufacturing for healthcare).
+
+5. Implementation Roadmap & Tools
+
+Short-Term (Your Control): Seed DB with your doc's content. Test with 1-2 mock teams in Replit. Add basic admin routes for edits.
+Medium-Term (Scalable for Grand View): Deploy to cloud (Vercel/Heroku) with user roles (admin/instructor/student). Integrate LLM SDKs (e.g., @google/generative-ai in Node.js).
+Best Practice Tools: From 2025 guides—PyTorch/TensorFlow for any ML extensions; Airflow for orchestration if automating media gen; MLflow for tracking changes; Docker for modular deploys.
+Testing & Documentation: Unit test modules (Jest). Document with Swagger for APIs, making it easy for others to extend.
+
+This setup keeps your sim lean for small classes while being future-proof—narratives and media become "plug-and-play," enhancing realism without complexity. If you share Replit code or specific modules to prototype (e.g., a media prompt example), I can provide snippets.

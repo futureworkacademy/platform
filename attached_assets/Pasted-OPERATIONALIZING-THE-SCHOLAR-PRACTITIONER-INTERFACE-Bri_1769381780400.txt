@@ -1,0 +1,15 @@
+OPERATIONALIZING THE SCHOLAR-PRACTITIONER INTERFACE
+Bridging the "Great Divide" through AI-Driven Engaged Scholarship
+The Pedagogical Challenge Management education faces a persistent "Relevance Gap" (Starkey & Madan, 2001) or "Great Divide" (Rynes et al., 2001) between academic theory and practice.^1^ Traditional case studies are often static, failing to capture the "messy, complex phenomena" of real organizational life.^2^ To prepare students for the 15–20 distinct career shifts expected of the modern "Learning-Worker,"^3^ we must move from passive analysis to dynamic "Actionable Knowledge."^4^
+The Solution: Future Work Academy Future Work Academy (FWA) is an immersive simulation platform designed to close this gap. It places students in an executive "sandbox," forcing them to navigate the Twin Transition (the simultaneous shift to digital and green economies) cited by the UNDP as the defining labor market challenge of 2030.^5^
+Why FWA is Uniquely Rigorous:
+1. "White Box" Assessment (Solving the AI Transparency Problem) Unlike "black box" AI tools that obscure evaluation logic, FWA utilizes a transparent, deterministic assessment architecture.
+• Methodology: We utilize Rubric-Based LLM Evaluation (GPT-4o-mini) with a temperature setting of 0 (deterministic) to ensure consistency.^6^
+• The Rubric: Students are graded not just on outcomes, but on Strategic Thinking, Evidence-Based Reasoning, and Stakeholder Consideration.^6^ This forces rigorous conceptual inquiry rather than simple keyword matching.
+2. Dual-Scoring: Integrating Ethics and Economics We reject the oversimplification of pure shareholder primacy. FWA operationalizes the tension between financial performance and social sustainability.
+• The Mechanic: Students manage a Dual Scoreboard: Financial Health (ROI, Revenue) and Cultural Health (Morale, Union Sentiment).^7^
+• The Outcome: This aligns with UN Sustainable Development Goals (SDGs),^5^ forcing students to navigate the trade-offs central to modern Organizational Behavior curricula.
+3. Institutional Control & Compliance
+• Sandbox Mode: Instructors can audit the entire student journey (inputs and AI outputs) prior to deployment, ensuring full pedagogical oversight.^8^
+• Data Security: The platform is built on FERPA-compliant architecture, stripping PII before any AI interaction.^9^
+The Result: Actionable Knowledge FWA moves beyond theory to create a risk-free environment for "productive failure." It provides the data-driven rigor required by the Ph.D. community while delivering the engagement required by students.

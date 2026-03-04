@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://futureworkacademy.com/sitemap.xml
