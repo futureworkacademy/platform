@@ -10,12 +10,15 @@ const WEEK_TITLES: Record<number, string> = {
 };
 
 const SURVEY_QUESTIONS = [
-  { key: "realism", label: "Realism", description: "How realistic did this week's scenario feel?" },
-  { key: "fairness", label: "Fairness", description: "How fair were the decision options and scoring?" },
+  { key: "realism", label: "Realism", description: "How realistic and believable was this week's scenario and stakeholder dynamics?" },
+  { key: "fairness", label: "Fairness", description: "How fair were the decision options available to you this week?" },
   { key: "difficulty", label: "Difficulty", description: "How challenging was this week's decision?" },
-  { key: "learningValue", label: "Learning Value", description: "How much did you learn from this week?" },
+  { key: "learningValue", label: "Learning Value", description: "How much did you learn from this week's simulation?" },
   { key: "engagement", label: "Engagement", description: "How engaging was the content and experience?" },
   { key: "clarity", label: "Clarity", description: "How clear were the instructions and materials?" },
+  { key: "selfEfficacy", label: "Self-Efficacy", description: "I feel more confident making strategic decisions about AI adoption after this week." },
+  { key: "transferConfidence", label: "Transfer Confidence", description: "I could apply what I learned this week to a real workplace situation." },
+  { key: "productiveStruggle", label: "Productive Struggle", description: "This week's challenge was difficult in a way that helped me learn." },
 ];
 
 function escapeHtml(text: string | number | unknown): string {
@@ -28,10 +31,17 @@ export function renderSurveyPage(): string {
     `<option value="${num}">Week ${num}: ${escapeHtml(title)}</option>`
   ).join("\n");
 
-  const questionRows = SURVEY_QUESTIONS.map(q => `
+  const requiredKeys = ['realism','fairness','difficulty','learningValue','engagement','clarity'];
+  const questionRows = SURVEY_QUESTIONS.map((q, idx) => {
+    const isOptional = !requiredKeys.includes(q.key);
+    const separator = idx === 6 ? `<div style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+      <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Learning Outcomes (optional)</span>
+      <span style="font-size: 0.7rem; color: var(--text-light); margin-left: 0.5rem;">1 = Strongly Disagree, 5 = Strongly Agree</span>
+    </div>` : '';
+    return `${separator}
     <div class="question-row" data-testid="question-${q.key}">
       <div class="question-label">
-        <strong>${escapeHtml(q.label)}</strong>
+        <strong>${escapeHtml(q.label)}${isOptional ? ' <span style="font-size:0.7rem;color:var(--text-light);font-weight:400;">(optional)</span>' : ''}</strong>
         <span class="question-desc">${escapeHtml(q.description)}</span>
       </div>
       <div class="star-group" data-field="${q.key}">
@@ -40,8 +50,8 @@ export function renderSurveyPage(): string {
         </button>`).join("")}
         <span class="star-value" data-testid="value-${q.key}"></span>
       </div>
-    </div>
-  `).join("\n");
+    </div>`;
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -232,8 +242,9 @@ export function renderSurveyPage(): string {
 
       if (!studentId) { statusEl.textContent = 'Please enter your Student ID.'; statusEl.className = 'status-msg error'; return; }
       if (!weekNumber) { statusEl.textContent = 'Please select a week.'; statusEl.className = 'status-msg error'; return; }
-      var missing = QUESTIONS.filter(function(q) { return !ratings[q.key]; });
-      if (missing.length > 0) { statusEl.textContent = 'Please rate all categories (' + missing.map(function(q){return q.label}).join(', ') + ').'; statusEl.className = 'status-msg error'; return; }
+      var requiredKeys = ['realism','fairness','difficulty','learningValue','engagement','clarity'];
+      var missing = QUESTIONS.filter(function(q) { return requiredKeys.indexOf(q.key) >= 0 && !ratings[q.key]; });
+      if (missing.length > 0) { statusEl.textContent = 'Please rate all required categories (' + missing.map(function(q){return q.label}).join(', ') + ').'; statusEl.className = 'status-msg error'; return; }
 
       statusEl.textContent = 'Submitting...';
       statusEl.className = 'status-msg';
@@ -251,6 +262,9 @@ export function renderSurveyPage(): string {
             learningValue: ratings.learningValue,
             engagement: ratings.engagement,
             clarity: ratings.clarity,
+            selfEfficacy: ratings.selfEfficacy || null,
+            transferConfidence: ratings.transferConfidence || null,
+            productiveStruggle: ratings.productiveStruggle || null,
             comments: comments || null
           })
         });

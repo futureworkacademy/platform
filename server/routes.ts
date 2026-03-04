@@ -368,7 +368,7 @@ export async function registerRoutes(
 
   app.post("/api/survey", async (req, res) => {
     try {
-      const { studentId, weekNumber, realism, fairness, difficulty, learningValue, engagement, clarity, comments } = req.body;
+      const { studentId, weekNumber, realism, fairness, difficulty, learningValue, engagement, clarity, selfEfficacy, transferConfidence, productiveStruggle, comments } = req.body;
       if (!studentId || typeof studentId !== "string" || studentId.trim().length < 1 || studentId.trim().length > 50) {
         return res.status(400).json({ error: "Student ID is required (max 50 characters)." });
       }
@@ -377,6 +377,10 @@ export async function registerRoutes(
       const ratingFields = [realism, fairness, difficulty, learningValue, engagement, clarity];
       if (ratingFields.some((r: any) => typeof r !== "number" || r < 1 || r > 5 || !Number.isInteger(r))) {
         return res.status(400).json({ error: "All ratings must be integers between 1 and 5." });
+      }
+      const optionalFields = [selfEfficacy, transferConfidence, productiveStruggle];
+      if (optionalFields.some((r: any) => r != null && (typeof r !== "number" || r < 1 || r > 5 || !Number.isInteger(r)))) {
+        return res.status(400).json({ error: "Optional ratings must be integers between 1 and 5." });
       }
       const trimmedComments = comments ? String(comments).trim().substring(0, 2000) : null;
       const existing = await db.select({ id: surveyResponses.id }).from(surveyResponses)
@@ -393,6 +397,9 @@ export async function registerRoutes(
         learningValue: Number(learningValue),
         engagement: Number(engagement),
         clarity: Number(clarity),
+        selfEfficacy: selfEfficacy != null ? Number(selfEfficacy) : null,
+        transferConfidence: transferConfidence != null ? Number(transferConfidence) : null,
+        productiveStruggle: productiveStruggle != null ? Number(productiveStruggle) : null,
         comments: trimmedComments,
       }).returning();
       res.json({ id: inserted.id, weekNumber: inserted.weekNumber });
@@ -415,6 +422,9 @@ export async function registerRoutes(
         learningValue: surveyResponses.learningValue,
         engagement: surveyResponses.engagement,
         clarity: surveyResponses.clarity,
+        selfEfficacy: surveyResponses.selfEfficacy,
+        transferConfidence: surveyResponses.transferConfidence,
+        productiveStruggle: surveyResponses.productiveStruggle,
         comments: surveyResponses.comments,
         studentId: surveyResponses.studentId,
         createdAt: surveyResponses.createdAt,
@@ -436,6 +446,9 @@ export async function registerRoutes(
         learningValue: surveyResponses.learningValue,
         engagement: surveyResponses.engagement,
         clarity: surveyResponses.clarity,
+        selfEfficacy: surveyResponses.selfEfficacy,
+        transferConfidence: surveyResponses.transferConfidence,
+        productiveStruggle: surveyResponses.productiveStruggle,
         comments: surveyResponses.comments,
         studentId: surveyResponses.studentId,
       }).from(surveyResponses).orderBy(surveyResponses.weekNumber);

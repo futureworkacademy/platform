@@ -671,6 +671,9 @@ export const surveyResponses = pgTable("survey_responses", {
   learningValue: integer("learning_value").notNull(),
   engagement: integer("engagement").notNull(),
   clarity: integer("clarity").notNull(),
+  selfEfficacy: integer("self_efficacy"),
+  transferConfidence: integer("transfer_confidence"),
+  productiveStruggle: integer("productive_struggle"),
   comments: varchar("comments", { length: 2000 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
