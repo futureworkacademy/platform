@@ -87,7 +87,7 @@ const EDUCATOR_TOOLS = [
   { icon: MessageSquare, title: "Student Feedback", desc: "6-dimension survey with AI-analyzed results" },
   { icon: FileText, title: "Content Editor", desc: "Manage briefings, decisions, and research materials" },
   { icon: Lock, title: "Privacy Mode", desc: "Anonymous enrollment — no PII collection required" },
-  { icon: BarChart3, title: "Optional Curved Scoring", desc: "Opt-in Z-score normalization across the class" },
+  { icon: BarChart3, title: "Optional Curved Scoring", desc: "Opt-in statistical normalization across the class" },
   { icon: Activity, title: "Activity Logs", desc: "Track every student action and engagement metric" },
 ];
 
@@ -498,14 +498,14 @@ export default function Landing() {
                 { 
                   icon: Sparkles, 
                   title: "LLM Rubric Evaluation", 
-                  desc: "GPT-powered scoring across 4 criteria with specific feedback per dimension. Supports single responses and bulk CSV uploads from any LMS.",
+                  desc: "AI-powered scoring across 4 criteria with specific feedback per dimension. Supports single responses and bulk CSV uploads from any LMS.",
                   accent: "text-purple-500",
                   bg: "bg-purple-500/10"
                 },
                 { 
                   icon: BarChart3, 
                   title: "Optional Curved Scoring", 
-                  desc: "Opt-in Z-score normalization adjusts for week difficulty. When enabled, raw scores are mapped to a class curve with a 75% center target.",
+                  desc: "Opt-in statistical normalization adjusts for week difficulty. When enabled, raw scores are mapped to a class curve to ensure fair comparisons.",
                   accent: "text-blue-500",
                   bg: "bg-blue-500/10"
                 },

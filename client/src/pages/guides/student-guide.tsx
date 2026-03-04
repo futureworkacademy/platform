@@ -827,9 +827,8 @@ export default function StudentGuidePage() {
                   <p className="text-xs text-muted-foreground">
                     For general "how do I...?" questions about the
                     simulation, use the <strong>AI Q&A Assistant</strong>{" "}
-                    (the Gemini chat widget) available within the app. It can
-                    answer most questions about navigation, features, and
-                    gameplay instantly.
+                    available within the app. It can answer most questions about
+                    navigation, features, and gameplay instantly.
                   </p>
                 </div>
               </div>

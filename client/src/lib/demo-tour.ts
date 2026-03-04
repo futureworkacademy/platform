@@ -137,7 +137,7 @@ export const dashboardTourSteps: DriveStep[] = [
   {
     popover: {
       title: "Ready to Begin!",
-      description: "You're all set to experience the simulation. Click 'Start Week' to read your first briefing, or use the 'Ask Gemini' button (bottom right) if you have questions. Good luck, executive!",
+      description: "You're all set to experience the simulation. Click 'Start Week' to read your first briefing, or use the 'Ask AI' button (bottom right) if you have questions. Good luck, executive!",
       side: "top",
       align: "center",
     },

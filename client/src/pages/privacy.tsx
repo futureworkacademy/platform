@@ -93,11 +93,12 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-4">4. AI-Powered Evaluation</h2>
             <p>
-              Our Service uses artificial intelligence (OpenAI) to evaluate essay responses. 
+              Our Service uses third-party artificial intelligence services to evaluate essay responses. 
               Your written submissions are processed by AI systems to generate scores and feedback. 
               This evaluation is based on a transparent 4-criteria rubric (Evidence Quality, 
               Reasoning Coherence, Trade-off Analysis, and Stakeholder Consideration). We do not 
-              use your submissions to train AI models.
+              use your submissions to train AI models. Our current AI provider is OpenAI; this may 
+              change as we evaluate and adopt improved services.
             </p>
           </section>
 

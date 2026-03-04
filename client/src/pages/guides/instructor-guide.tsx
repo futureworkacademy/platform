@@ -1065,9 +1065,9 @@ export default function InstructorGuidePage() {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     For general "how do I...?" questions about the simulation, use
-                    the <strong>AI Q&A Assistant</strong> (the Gemini chat widget)
-                    available within the app. It can answer most questions about
-                    navigation, features, and classroom integration instantly.
+                    the <strong>AI Q&A Assistant</strong> available within the app.
+                    It can answer most questions about navigation, features, and
+                    classroom integration instantly.
                   </p>
                 </div>
                 <div className="p-4 rounded-md bg-muted/50 space-y-2" data-testid="help-contact">

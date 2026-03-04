@@ -204,10 +204,10 @@ function AttributeInput({
   // Tooltip content based on attribute type and ID
   const getTooltipContent = () => {
     if (attribute.id.includes('automation') || attribute.id.includes('intensity')) {
-      return "Higher automation reduces labor costs but increases workforce anxiety and union risk.";
+      return "Higher automation reduces labor costs but increases workforce anxiety and union risk. Consider the trade-offs carefully.";
     }
     if (attribute.id.includes('reskill')) {
-      return "Investment in reskilling improves morale and reduces turnover. Research shows $10,000 per employee reduces turnover by 12%.";
+      return "Investment in reskilling improves morale and reduces turnover. Consult the Intel Articles for data on effective reskilling programs.";
     }
     if (attribute.id.includes('debt') || attribute.id.includes('financing')) {
       return "Debt financing accelerates transformation but carries risk if implementation fails. Interest payments impact cash flow.";
@@ -219,10 +219,10 @@ function AttributeInput({
       return "Internal training builds loyalty and institutional knowledge. Takes longer but improves retention.";
     }
     if (attribute.id.includes('dual_career') || attribute.id.includes('career')) {
-      return "Dual career tracks allow technical experts to advance without becoming managers - key for Gen Z retention.";
+      return "Dual career tracks allow technical experts to advance without becoming managers — research suggests this improves retention among younger workers.";
     }
     if (attribute.id.includes('job_guarantee')) {
-      return "Job guarantees for reskilled workers can achieve 80% internal redeployment and defuse union organizing.";
+      return "Job guarantees for reskilled workers can improve internal redeployment rates and reduce union organizing pressure.";
     }
     if (attribute.id.includes('wage')) {
       return "Wage increases directly impact labor costs but improve morale and reduce union organizing pressure.";
@@ -231,7 +231,7 @@ function AttributeInput({
       return "Worker councils give employees a voice without full unionization. Can reduce adversarial dynamics.";
     }
     if (attribute.id.includes('communication') || attribute.id.includes('campaign')) {
-      return "Communication reduces workforce anxiety by 35% when done early and transparently.";
+      return "Early, transparent communication helps reduce workforce anxiety. Consult the Intel Articles for supporting evidence.";
     }
     return attribute.description;
   };

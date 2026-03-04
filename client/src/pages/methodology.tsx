@@ -418,15 +418,15 @@ export default function Methodology() {
                     <div className="space-y-3 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">
                         <span className="text-primary font-bold shrink-0">1.</span>
-                        <span>Z-score normalization centers the class around a 75% target mean</span>
+                        <span>Statistical normalization centers the class around a target mean</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-primary font-bold shrink-0">2.</span>
-                        <span>Requires at least 3 submissions to activate (avoids distortion with small samples)</span>
+                        <span>Requires a minimum number of submissions to activate (avoids distortion with small samples)</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-primary font-bold shrink-0">3.</span>
-                        <span>Curved scores are clamped to a 40–100 range to prevent extreme outliers</span>
+                        <span>Curved scores are bounded to prevent extreme outliers</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-primary font-bold shrink-0">4.</span>
