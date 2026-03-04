@@ -7,7 +7,7 @@ import * as path from 'path';
 import { syncMarkdownToGoogleDoc, syncFormattedDocument, findOrCreateFolder } from './google-docs-service';
 
 // Documents that should be synced with full formatting (headings, TOC, etc.)
-const FORMATTED_DOCS = ['STUDENT_GUIDE', 'GAME_DESIGN', 'BUSINESS_PLAN'];
+const FORMATTED_DOCS = ['STUDENT_GUIDE', 'GAME_DESIGN', 'BUSINESS_PLAN', 'INSTITUTIONAL_PROPOSAL'];
 
 // Debounce timers for each file
 const debounceTimers: Map<string, NodeJS.Timeout> = new Map();
