@@ -34,3 +34,8 @@ A self-service demo system offers 30-day evaluator access with a hybrid guided t
 - **Frontend Framework:** React
 - **Backend Framework:** Express.js
 - **ORM:** Drizzle ORM
+- **GitHub:** github.com/futureworkacademy/platform (public repo, linked from site footer)
+
+## Unlisted Pages
+
+The `/institutional-proposal` page is an unlisted page (not in site navigation) for targeted sharing with academic leadership. It features 10 sections covering pedagogical framework (8 foundational theories with APA citations), assessment design, FERPA compliance posture and roadmap, grant opportunities, and a partnership proposal. Includes print-friendly CSS and 12 academic references with DOI links.
