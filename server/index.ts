@@ -7,6 +7,8 @@ import { startReminderProcessor } from "./services/reminder-processor";
 import { initializeDocsAutoSync } from "./docs-auto-sync";
 import { ensureCharactersSeed } from "./ensure-characters-seed";
 import { ensureContentSeed } from "./ensure-content-seed";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 const httpServer = createServer(app);
@@ -16,6 +18,85 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+const isDev = process.env.NODE_ENV !== "production";
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+          ...(isDev ? ["ws:"] : []),
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+        connectSrc: [
+          "'self'",
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com",
+          "https://analytics.google.com",
+          ...(isDev ? ["ws:", "wss:"] : []),
+        ],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: isDev ? null : [],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xFrameOptions: { action: "deny" },
+  })
+);
+
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+  skip: (req) => !req.path.startsWith("/api"),
+});
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many authentication attempts, please try again later." },
+});
+
+const mutationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+});
+
+app.use("/api/", globalLimiter);
+app.use("/api/login", authLimiter);
+app.use("/api/auth", authLimiter);
+app.use("/api/", (req, res, next) => {
+  if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method)) {
+    return mutationLimiter(req, res, next);
+  }
+  next();
+});
 
 app.use(
   express.json({

@@ -28,6 +28,7 @@ import ForStudents from "@/pages/for-students";
 import Brochure from "@/pages/brochure";
 import EducatorInquiries from "@/pages/educator-inquiries";
 import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 import SimulationContentEditor from "@/pages/simulation-content-editor";
 import CharacterProfilesEditor from "@/pages/character-profiles-editor";
 import CharacterProfilesPage from "@/pages/character-profiles";
@@ -37,6 +38,7 @@ import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
 import Methodology from "@/pages/methodology";
 import WhitePaper from "@/pages/white-paper";
+import InstitutionalProposal from "@/pages/institutional-proposal";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -48,6 +50,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
 import { DemoTourProvider } from "@/components/demo-tour-provider";
+import { CookieConsentBanner } from "@/components/cookie-consent";
 
 declare global {
   interface Window {
@@ -409,6 +412,9 @@ function PublicRouteGate({ children }: { children: React.ReactNode }) {
   if (location === "/privacy") {
     return <Privacy />;
   }
+  if (location === "/terms") {
+    return <Terms />;
+  }
   if (location === "/brochure") {
     return <Brochure />;
   }
@@ -417,6 +423,9 @@ function PublicRouteGate({ children }: { children: React.ReactNode }) {
   }
   if (location === "/white-paper") {
     return <WhitePaper />;
+  }
+  if (location === "/institutional-proposal") {
+    return <InstitutionalProposal />;
   }
 
   return <>{children}</>;
@@ -439,6 +448,7 @@ function App() {
               <AppRouter />
             </DemoTourProvider>
           </PublicRouteGate>
+          <CookieConsentBanner />
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>

@@ -78,6 +78,8 @@ export default function Privacy() {
               <li>Performance scores and analytics</li>
               <li>Activity logs and timestamps</li>
               <li>Device and browser information</li>
+              <li>IP addresses (logged for security monitoring and rate-limiting purposes)</li>
+              <li>User agent strings (logged to identify browser type and operating system for compatibility and security analysis)</li>
             </ul>
           </section>
 
@@ -131,32 +133,228 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-8 mb-4">7. Data Retention</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4" data-testid="text-data-retention-title">7. Data Retention</h2>
             <p>
               We retain your personal information for as long as your account is active or as 
-              needed to provide the Service. Simulation data may be retained for academic 
-              research and platform improvement purposes. You may request deletion of your 
-              account and associated data by contacting us.
+              needed to provide the Service. The following table summarizes our retention periods 
+              for different categories of data:
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full border-collapse text-sm" data-testid="table-data-retention">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 pr-4 font-semibold">Data Category</th>
+                    <th className="text-left py-2 pr-4 font-semibold">Retention Period</th>
+                    <th className="text-left py-2 font-semibold">Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Account profile data</td>
+                    <td className="py-2 pr-4">Duration of account + 90 days</td>
+                    <td className="py-2">Service delivery</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Simulation decisions & essays</td>
+                    <td className="py-2 pr-4">Duration of course enrollment + 1 year</td>
+                    <td className="py-2">Academic records & grading</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Performance scores & analytics</td>
+                    <td className="py-2 pr-4">Duration of course enrollment + 1 year</td>
+                    <td className="py-2">Instructor reporting & leaderboards</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Activity logs (IP, user agent, timestamps)</td>
+                    <td className="py-2 pr-4">90 days</td>
+                    <td className="py-2">Security monitoring & troubleshooting</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Cookie consent preferences</td>
+                    <td className="py-2 pr-4">13 months</td>
+                    <td className="py-2">Regulatory compliance</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Deletion request records</td>
+                    <td className="py-2 pr-4">3 years after fulfillment</td>
+                    <td className="py-2">Legal compliance & audit trail</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">De-identified / aggregated research data</td>
+                    <td className="py-2 pr-4">Indefinite</td>
+                    <td className="py-2">Platform improvement & academic research</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4">
+              You may request deletion of your account and associated data at any time 
+              through your profile settings or by contacting us. Upon deletion, personal data 
+              will be removed or de-identified within the retention periods listed above.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-8 mb-4">8. Your Rights</h2>
-            <p>Depending on your location, you may have the right to:</p>
+            <h2 className="text-xl font-semibold mt-8 mb-4" data-testid="text-gdpr-title">8. Your Rights Under GDPR (European Economic Area)</h2>
+            <p>
+              If you are located in the European Economic Area (EEA), the United Kingdom, or 
+              Switzerland, the General Data Protection Regulation (GDPR) and equivalent local 
+              laws provide you with specific rights regarding your personal data.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Lawful Basis for Processing</h3>
+            <p>We process your personal data under the following lawful bases:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>Access the personal information we hold about you</li>
-              <li>Request correction of inaccurate information</li>
-              <li>Request deletion of your personal information</li>
-              <li>Opt out of certain data processing activities</li>
-              <li>Export your data in a portable format</li>
+              <li><strong>Legitimate Interest:</strong> Providing and improving educational simulation services, performance analytics, security monitoring, and fraud prevention</li>
+              <li><strong>Consent:</strong> Analytics cookies (Google Analytics) and optional marketing communications. You may withdraw consent at any time through the cookie consent banner or your account settings.</li>
+              <li><strong>Contractual Necessity:</strong> Processing required to deliver the simulation platform to enrolled students and institutions</li>
+              <li><strong>Legal Obligation:</strong> Where we are required to retain or disclose data under applicable law</li>
+            </ul>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Data Subject Rights</h3>
+            <p>Under the GDPR, you have the right to:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Right of Access:</strong> Request a copy of the personal data we hold about you</li>
+              <li><strong>Right to Rectification:</strong> Request correction of inaccurate or incomplete personal data</li>
+              <li><strong>Right to Erasure ("Right to be Forgotten"):</strong> Request deletion of your personal data, subject to legal retention requirements</li>
+              <li><strong>Right to Data Portability:</strong> Receive your personal data in a structured, commonly used, machine-readable format (JSON)</li>
+              <li><strong>Right to Restriction of Processing:</strong> Request that we limit how we use your data in certain circumstances</li>
+              <li><strong>Right to Object:</strong> Object to processing based on legitimate interest, including profiling</li>
+              <li><strong>Right to Withdraw Consent:</strong> Withdraw previously given consent at any time without affecting the lawfulness of prior processing</li>
             </ul>
             <p className="mt-4">
-              To exercise these rights, please contact us at the address below.
+              You can exercise your right to access and data portability through the "Export My Data" 
+              feature on your profile page. For erasure requests, use the "Request Account Deletion" 
+              feature or contact us directly.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">International Data Transfers</h3>
+            <p>
+              The Service is hosted in the United States. If you access the Service from the EEA, 
+              UK, or Switzerland, your personal data will be transferred to and processed in the 
+              United States. We rely on Standard Contractual Clauses (SCCs) approved by the 
+              European Commission to provide adequate safeguards for such transfers. Copies of 
+              our SCCs are available upon request.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Right to Lodge a Complaint</h3>
+            <p>
+              If you believe we have not adequately addressed your data protection concerns, you 
+              have the right to lodge a complaint with your local data protection supervisory 
+              authority. A list of EEA supervisory authorities is available at{" "}
+              <a 
+                href="https://edpb.europa.eu/about-edpb/about-edpb/members_en" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-primary underline underline-offset-4"
+                data-testid="link-edpb"
+              >
+                edpb.europa.eu
+              </a>.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-8 mb-4">9. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4" data-testid="text-ccpa-title">9. Your Rights Under CCPA (California)</h2>
+            <p>
+              If you are a California resident, the California Consumer Privacy Act (CCPA) and 
+              the California Privacy Rights Act (CPRA) provide you with additional rights 
+              regarding your personal information.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Your CCPA Rights</h3>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Right to Know:</strong> You have the right to request that we disclose the categories and specific pieces of personal information we have collected about you, the categories of sources, the business purposes for collecting the information, and the categories of third parties with whom we share it.</li>
+              <li><strong>Right to Delete:</strong> You have the right to request the deletion of personal information we have collected from you, subject to certain exceptions (e.g., legal obligations, completing a transaction).</li>
+              <li><strong>Right to Opt-Out of Sale:</strong> We do not sell your personal information. If this practice changes in the future, we will provide a "Do Not Sell My Personal Information" link and update this policy.</li>
+              <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising your CCPA rights. You will not receive different pricing, quality, or levels of service for exercising your rights.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">How to Submit a Request</h3>
+            <p>
+              You may exercise your CCPA rights by using the self-service data export and 
+              account deletion features on your profile page, or by contacting us using the 
+              information in the Contact section below. We will verify your identity before 
+              fulfilling any request and respond within 45 days.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Categories of Information Collected</h3>
+            <p>In the preceding 12 months, we have collected the following categories of personal information:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Identifiers (name, email address, IP address)</li>
+              <li>Internet or electronic network activity (browsing history on the platform, user agent, interaction data)</li>
+              <li>Education information (institution, course enrollment, simulation performance)</li>
+              <li>Professional information (role, department)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mt-8 mb-4" data-testid="text-cookies-title">10. Cookies and Tracking Technologies</h2>
+            <p>
+              We use cookies and similar technologies to enhance your experience, analyze usage, 
+              and remember your preferences. You can manage your cookie preferences through the 
+              cookie consent banner displayed when you first visit the Service.
+            </p>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Types of Cookies We Use</h3>
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full border-collapse text-sm" data-testid="table-cookies">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 pr-4 font-semibold">Cookie</th>
+                    <th className="text-left py-2 pr-4 font-semibold">Type</th>
+                    <th className="text-left py-2 pr-4 font-semibold">Purpose</th>
+                    <th className="text-left py-2 font-semibold">Duration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">Session cookie</td>
+                    <td className="py-2 pr-4">Essential</td>
+                    <td className="py-2 pr-4">Authentication and session management</td>
+                    <td className="py-2">Session (expires on browser close)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">sidebar:state</td>
+                    <td className="py-2 pr-4">Essential</td>
+                    <td className="py-2 pr-4">Remembers sidebar collapsed/expanded preference</td>
+                    <td className="py-2">Persistent (localStorage)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">theme</td>
+                    <td className="py-2 pr-4">Essential</td>
+                    <td className="py-2 pr-4">Stores light/dark mode preference</td>
+                    <td className="py-2">Persistent (localStorage)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">fwa-cookie-consent</td>
+                    <td className="py-2 pr-4">Essential</td>
+                    <td className="py-2 pr-4">Records your cookie consent choice</td>
+                    <td className="py-2">13 months (localStorage)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2 pr-4">_ga, _ga_*</td>
+                    <td className="py-2 pr-4">Analytics</td>
+                    <td className="py-2 pr-4">Google Analytics 4 — anonymous usage statistics and page views</td>
+                    <td className="py-2">Up to 2 years</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 className="text-lg font-medium mt-4 mb-2">Managing Cookies</h3>
+            <p>
+              When you first visit the Service, a cookie consent banner allows you to choose 
+              between "Accept All" cookies or "Essential Only." Selecting "Essential Only" 
+              disables analytics cookies (including Google Analytics). You can change your 
+              preference at any time by clearing your browser's local storage and revisiting 
+              the site. You may also configure your browser settings to block or delete cookies, 
+              though some features of the Service may not function properly without essential cookies.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mt-8 mb-4">11. Children's Privacy</h2>
             <p>
               The Service is designed for graduate students and adult learners. We do not 
               knowingly collect personal information from children under 13 years of age. 
@@ -166,7 +364,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-8 mb-4">10. Changes to This Policy</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4">12. Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. We will notify you of 
               any changes by posting the new Privacy Policy on this page and updating the 
@@ -176,9 +374,10 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-8 mb-4">11. Contact Us</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4">13. Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy or our data practices, please contact us:
+              If you have questions about this Privacy Policy, our data practices, or wish to 
+              exercise any of your data rights described above, please contact us:
             </p>
             <div className="mt-4 p-4 bg-muted rounded-lg">
               <p className="font-medium">The Mitchell Group, LLC</p>
@@ -189,6 +388,10 @@ export default function Privacy() {
                     Contact Form
                   </span>
                 </Link>
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                For GDPR-related inquiries, please include "GDPR Request" in your message subject.
+                For CCPA-related inquiries, please include "CCPA Request" in your message subject.
               </p>
             </div>
           </section>

@@ -1,3 +1,5 @@
+import { SiGithub } from "react-icons/si";
+
 export function AppFooter() {
   const currentYear = new Date().getFullYear();
   
@@ -52,10 +54,30 @@ export function AppFooter() {
           >
             Privacy Policy
           </a>
+          <span className="opacity-40">|</span>
+          <a
+            href="/terms"
+            className="underline underline-offset-4 opacity-80 hover:opacity-100 transition-opacity"
+            data-testid="link-footer-terms"
+          >
+            Terms of Service
+          </a>
         </div>
-        <p className="text-center text-sm text-muted-foreground" data-testid="text-copyright">
-          Copyright {currentYear} The Mitchell Group, LLC - Iowa. All rights reserved.
-        </p>
+        <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+          <p data-testid="text-copyright">
+            Copyright {currentYear} The Mitchell Group, LLC - Iowa. All rights reserved.
+          </p>
+          <a
+            href="https://github.com/futureworkacademy/platform"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="opacity-50 hover:opacity-100 transition-opacity"
+            aria-label="View source on GitHub"
+            data-testid="link-footer-github"
+          >
+            <SiGithub className="h-4 w-4" />
+          </a>
+        </div>
       </div>
     </footer>
   );

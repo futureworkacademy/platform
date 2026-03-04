@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y13X8BC4MW"></script>
+    <!-- Google tag (gtag.js) — only loads after explicit user consent -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-Y13X8BC4MW');
+      (function() {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        var consent = localStorage.getItem('fwa-cookie-consent');
+        if (consent === 'all') {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-Y13X8BC4MW';
+          document.head.appendChild(s);
+          gtag('js', new Date());
+          gtag('config', 'G-Y13X8BC4MW');
+        } else {
+          window['ga-disable-G-Y13X8BC4MW'] = true;
+        }
+      })();
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
