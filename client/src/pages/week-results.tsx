@@ -32,6 +32,7 @@ import {
   Scale,
   Users,
   Layers,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 import type { PlayerDecisionSubmission } from "@shared/schema";
@@ -276,6 +277,11 @@ function DecisionResultCard({
                     value={evaluation.percentageScore} 
                     className="h-3" 
                   />
+
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid="text-instructor-review-notice">
+                    <Info className="h-3 w-3 shrink-0" />
+                    This score <em>may</em> change pending instructor review.
+                  </p>
                   
                   <Alert>
                     <MessageSquare className="h-4 w-4" />
