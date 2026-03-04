@@ -171,7 +171,7 @@ export async function registerRoutes(
       timestamps.push(now);
       gradeRateLimit.set(ip, timestamps);
 
-      const { weekNumber, optionChosen, studentName, essayText } = req.body;
+      const { weekNumber, optionChosen, studentName, essayText, attachmentUrls } = req.body;
       if (!essayText || typeof essayText !== "string" || essayText.trim().length < 20) {
         return res.status(400).json({ error: "Essay text is required and must be at least 20 characters." });
       }
@@ -183,11 +183,16 @@ export async function registerRoutes(
       if (!"ABCD".includes(option)) {
         return res.status(400).json({ error: "Option must be A, B, C, or D." });
       }
+      let validatedAttachments: string[] = [];
+      if (attachmentUrls && Array.isArray(attachmentUrls)) {
+        validatedAttachments = attachmentUrls.filter((u: any) => typeof u === "string" && u.startsWith("/objects/")).slice(0, 5);
+      }
       const result = await gradeSubmission({
         weekNumber: week,
         optionChosen: option,
         studentName: String(studentName || "Student").trim(),
         essayText: essayText.trim(),
+        attachmentUrls: validatedAttachments.length > 0 ? validatedAttachments : undefined,
       });
       try {
         const existingReports = await db.select({
@@ -246,7 +251,7 @@ export async function registerRoutes(
 
   app.post("/api/grade/save", isAuthenticated, requireAdminRole, async (req, res) => {
     try {
-      const { studentName, weekNumber, optionChosen, essayText, totalScore, maxScore, percentage, overallQuality, rubricScores, overallFeedback, strengths, areasForImprovement, instructorComments } = req.body;
+      const { studentName, weekNumber, optionChosen, essayText, totalScore, maxScore, percentage, overallQuality, rubricScores, overallFeedback, strengths, areasForImprovement, instructorComments, attachmentUrls } = req.body;
       if (!studentName || !essayText) {
         return res.status(400).json({ error: "Missing required fields." });
       }
@@ -264,6 +269,9 @@ export async function registerRoutes(
         strengths: strengths || [],
         areasForImprovement: areasForImprovement || [],
         instructorComments: instructorComments || null,
+        attachmentUrls: attachmentUrls && Array.isArray(attachmentUrls) && attachmentUrls.length > 0
+          ? attachmentUrls.filter((u: any) => typeof u === "string" && u.startsWith("/objects/")).slice(0, 5)
+          : null,
       }).returning();
       res.json(report);
     } catch (error) {
@@ -304,6 +312,7 @@ export async function registerRoutes(
         areasForImprovement: gradingReports.areasForImprovement,
         instructorComments: gradingReports.instructorComments,
         essayText: gradingReports.essayText,
+        attachmentUrls: gradingReports.attachmentUrls,
         createdAt: gradingReports.createdAt,
       }).from(gradingReports).orderBy(desc(gradingReports.createdAt)).limit(200);
       res.json(computeCurvedScores(reports));
@@ -330,6 +339,7 @@ export async function registerRoutes(
         areasForImprovement: gradingReports.areasForImprovement,
         instructorComments: gradingReports.instructorComments,
         essayText: gradingReports.essayText,
+        attachmentUrls: gradingReports.attachmentUrls,
         createdAt: gradingReports.createdAt,
       }).from(gradingReports).limit(200);
       const report = allReports.find(r => r.id === req.params.id);

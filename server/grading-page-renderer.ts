@@ -60,6 +60,7 @@ export interface GradingRequest {
   optionChosen: string;
   studentName: string;
   essayText: string;
+  attachmentUrls?: string[];
 }
 
 export interface GradingResult {
@@ -142,6 +143,7 @@ export async function gradeSubmission(req: GradingRequest): Promise<GradingResul
     GRADING_RUBRIC,
     req.weekNumber,
     stakeholderContext,
+    req.attachmentUrls,
   );
 
   let quality = "Poor";
@@ -403,6 +405,49 @@ export function renderGradingPage(): string {
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .hidden { display: none !important; }
+
+    .image-upload-zone {
+      border: 2px dashed var(--border); border-radius: 8px; padding: 1rem;
+      text-align: center; cursor: pointer; transition: all 0.15s;
+      background: var(--muted-bg);
+    }
+    .image-upload-zone:hover { border-color: var(--navy); background: var(--primary-bg); }
+    .image-upload-zone.drag-over { border-color: var(--green); background: #f0fdf4; }
+    .image-preview-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .image-preview-item {
+      position: relative; border-radius: 6px; overflow: hidden;
+      border: 1px solid var(--border); aspect-ratio: 1;
+    }
+    .image-preview-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .image-preview-remove {
+      position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+      border-radius: 50%; border: none; cursor: pointer;
+      background: rgba(0,0,0,0.6); color: white; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .image-preview-remove:hover { background: var(--destructive); }
+    .attachment-indicator {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-size: 0.75rem; color: var(--text-muted);
+    }
+    .result-attachments {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .result-attachments a {
+      border-radius: 6px; overflow: hidden; border: 1px solid var(--border);
+      display: block; aspect-ratio: 4/3;
+    }
+    .result-attachments img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
     .footer-note {
       text-align: center; color: var(--text-muted); font-size: 0.75rem;
       margin-top: 2rem; padding: 1rem 0;
@@ -472,6 +517,18 @@ export function renderGradingPage(): string {
             <label for="essay-text">Student Response <span class="label-hint">(paste all sections together)</span></label>
             <textarea id="essay-text" placeholder="Paste the student's complete response here, including their strategic rationale, stakeholder analysis, and risk assessment sections..." data-testid="input-essay-text" rows="12"></textarea>
           </div>
+          <div class="form-group">
+            <label>Student Visualizations <span class="label-hint">(optional &mdash; up to 5 images)</span></label>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Upload any charts, tables, or visualizations the student included with their Blackboard submission. The AI will evaluate these alongside the essay text.</p>
+            <div class="image-upload-zone" id="img-upload-zone" data-testid="zone-image-upload">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.25rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p style="font-size: 0.8125rem; font-weight: 500;">Drop images here or click to browse</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPEG, or WebP &bull; Max 5MB each</p>
+              <input type="file" id="img-file-input" accept="image/png,image/jpeg,image/webp" multiple style="display: none;" data-testid="input-image-file" />
+            </div>
+            <div id="img-preview-grid" class="image-preview-grid" data-testid="container-image-previews"></div>
+            <div id="img-upload-status" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;" data-testid="text-image-status"></div>
+          </div>
           <div style="display: flex; align-items: center; gap: 1rem;">
             <button class="btn btn-primary" id="btn-grade-single" data-testid="btn-grade-single">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
@@ -498,6 +555,18 @@ export function renderGradingPage(): string {
           <div class="tip-box" data-testid="text-csv-format">
             <strong>CSV Format:</strong> Your file should have columns: <code>StudentName</code>, <code>OptionChosen</code>, <code>EssayText</code><br>
             The first row should be headers. Option should be a letter (A, B, C, or D). Essay text can include all sections.
+          </div>
+
+          <div class="form-group">
+            <label>Student Images <span class="label-hint">(optional)</span></label>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Upload student visualizations named as <code>StudentName_1.png</code>, <code>StudentName_2.png</code>, etc. The name before the underscore+number should match the <code>StudentName</code> column in your CSV.</p>
+            <div class="image-upload-zone" id="bulk-img-upload-zone" data-testid="zone-bulk-image-upload">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.25rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p style="font-size: 0.8125rem; font-weight: 500;">Drop student images here or click to browse</p>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPEG, or WebP &bull; Named by student (e.g., JohnDoe_1.png)</p>
+              <input type="file" id="bulk-img-file-input" accept="image/png,image/jpeg,image/webp" multiple style="display: none;" data-testid="input-bulk-image-file" />
+            </div>
+            <div id="bulk-img-status" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;" data-testid="text-bulk-image-status"></div>
           </div>
 
           <div class="bulk-upload-zone" id="upload-zone" data-testid="zone-csv-upload">
@@ -602,8 +671,99 @@ export function renderGradingPage(): string {
       var bulkResults = [];
       var currentResult = null;
       var historyLoaded = false;
+      var uploadedImages = [];
+      var MAX_IMAGES = 5;
+      var MAX_SIZE = 5 * 1024 * 1024;
+      var ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
       var WEEK_NAMES = {1:'The Automation Imperative',2:'The Talent Pipeline Crisis',3:'Union Storm Brewing',4:'The First Displacement',5:'The Manager Exodus',6:'Debt Day of Reckoning',7:'The Competitive Response',8:'Strategic Direction'};
+
+      var imgUploadZone = document.getElementById('img-upload-zone');
+      var imgFileInput = document.getElementById('img-file-input');
+      var imgPreviewGrid = document.getElementById('img-preview-grid');
+      var imgStatus = document.getElementById('img-upload-status');
+
+      imgUploadZone.addEventListener('click', function() { imgFileInput.click(); });
+      imgUploadZone.addEventListener('dragover', function(e) { e.preventDefault(); imgUploadZone.classList.add('drag-over'); });
+      imgUploadZone.addEventListener('dragleave', function() { imgUploadZone.classList.remove('drag-over'); });
+      imgUploadZone.addEventListener('drop', function(e) { e.preventDefault(); imgUploadZone.classList.remove('drag-over'); handleImageFiles(e.dataTransfer.files); });
+      imgFileInput.addEventListener('change', function() { if (imgFileInput.files.length) handleImageFiles(imgFileInput.files); imgFileInput.value = ''; });
+
+      function handleImageFiles(files) {
+        for (var i = 0; i < files.length; i++) {
+          if (uploadedImages.length >= MAX_IMAGES) { imgStatus.textContent = 'Maximum ' + MAX_IMAGES + ' images allowed.'; break; }
+          var f = files[i];
+          if (ALLOWED_TYPES.indexOf(f.type) === -1) { imgStatus.textContent = f.name + ': invalid type. Use PNG, JPEG, or WebP.'; continue; }
+          if (f.size > MAX_SIZE) { imgStatus.textContent = f.name + ': too large. Max 5MB.'; continue; }
+          uploadImageFile(f);
+        }
+      }
+
+      function uploadImageFile(file) {
+        var idx = uploadedImages.length;
+        uploadedImages.push({ file: file, objectPath: null, uploading: true, previewUrl: URL.createObjectURL(file) });
+        renderImagePreviews();
+        imgStatus.textContent = 'Uploading ' + file.name + '...';
+
+        fetch('/api/uploads/request-url', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.error) throw new Error(data.error);
+          return fetch(data.uploadURL, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file })
+            .then(function(putRes) { if (!putRes.ok) throw new Error('Upload failed (' + putRes.status + ')'); return data.objectPath; });
+        })
+        .then(function(objectPath) {
+          uploadedImages[idx].objectPath = objectPath;
+          uploadedImages[idx].uploading = false;
+          renderImagePreviews();
+          updateImageStatus();
+        })
+        .catch(function(err) {
+          uploadedImages.splice(idx, 1);
+          renderImagePreviews();
+          imgStatus.textContent = 'Upload failed: ' + err.message;
+        });
+      }
+
+      function removeImage(idx) {
+        if (uploadedImages[idx] && uploadedImages[idx].previewUrl) URL.revokeObjectURL(uploadedImages[idx].previewUrl);
+        uploadedImages.splice(idx, 1);
+        renderImagePreviews();
+        updateImageStatus();
+      }
+      window.removeUploadedImage = removeImage;
+
+      function renderImagePreviews() {
+        var html = '';
+        for (var i = 0; i < uploadedImages.length; i++) {
+          var img = uploadedImages[i];
+          html += '<div class="image-preview-item" data-testid="image-preview-' + i + '">';
+          html += '<img src="' + esc(img.previewUrl) + '" alt="Attachment ' + (i+1) + '" />';
+          if (img.uploading) html += '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:white;font-size:10px;text-align:center;padding:2px;">Uploading...</div>';
+          else html += '<button class="image-preview-remove" onclick="removeUploadedImage(' + i + ')" title="Remove" data-testid="btn-remove-image-' + i + '">&times;</button>';
+          html += '</div>';
+        }
+        imgPreviewGrid.innerHTML = html;
+      }
+
+      function updateImageStatus() {
+        if (uploadedImages.length === 0) imgStatus.textContent = '';
+        else imgStatus.textContent = uploadedImages.length + ' of ' + MAX_IMAGES + ' images attached';
+      }
+
+      function getUploadedObjectPaths() {
+        return uploadedImages.filter(function(img) { return img.objectPath; }).map(function(img) { return img.objectPath; });
+      }
+
+      function clearUploadedImages() {
+        for (var i = 0; i < uploadedImages.length; i++) { if (uploadedImages[i].previewUrl) URL.revokeObjectURL(uploadedImages[i].previewUrl); }
+        uploadedImages = [];
+        renderImagePreviews();
+        updateImageStatus();
+      }
 
       var curveToggle = document.getElementById('curve-toggle');
       var curveSlider = document.getElementById('curve-slider');
@@ -650,20 +810,26 @@ export function renderGradingPage(): string {
         var essayText = document.getElementById('essay-text').value.trim();
         if (!essayText) { document.getElementById('single-status').textContent = 'Please paste a student response first.'; return; }
         if (essayText.length < 50) { document.getElementById('single-status').textContent = 'Response seems too short. Please paste the complete student response.'; return; }
+        var stillUploading = uploadedImages.some(function(img) { return img.uploading; });
+        if (stillUploading) { document.getElementById('single-status').textContent = 'Please wait for image uploads to finish before grading.'; return; }
         btn.disabled = true;
         btn.innerHTML = '<span class="loading-spinner"></span> Grading...';
         document.getElementById('single-status').textContent = 'Evaluating response against rubric (this may take 10-20 seconds)...';
         document.getElementById('single-results').innerHTML = '';
         currentResult = null;
 
-        fetch('/api/grade/single', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        var attachPaths = getUploadedObjectPaths();
+        var gradePayload = {
             weekNumber: parseInt(document.getElementById('week-select').value),
             optionChosen: document.getElementById('option-select').value,
             studentName: document.getElementById('student-name').value.trim() || 'Student',
             essayText: essayText
-          })
+        };
+        if (attachPaths.length > 0) gradePayload.attachmentUrls = attachPaths;
+
+        fetch('/api/grade/single', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(gradePayload)
         })
         .then(function(res) { return res.json(); })
         .then(function(result) {
@@ -671,6 +837,7 @@ export function renderGradingPage(): string {
           else {
             document.getElementById('single-status').textContent = '';
             result.essayText = essayText;
+            result.attachmentUrls = attachPaths.length > 0 ? attachPaths : null;
             currentResult = result;
             renderSingleResult(result);
           }
@@ -735,6 +902,16 @@ export function renderGradingPage(): string {
           html += '<div style="margin-top: 0.5rem;"><strong style="font-size: 0.8125rem;">Areas for Improvement:</strong><div style="margin-top: 0.25rem;">';
           for (var k = 0; k < r.areasForImprovement.length; k++) html += '<span class="tag tag-amber">' + esc(r.areasForImprovement[k]) + '</span>';
           html += '</div></div>';
+        }
+
+        if (r.attachmentUrls && r.attachmentUrls.length > 0) {
+          html += '<div class="separator" style="margin: 0.75rem 0;"></div>';
+          html += '<h3 style="display:flex;align-items:center;gap:0.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Attached Visualizations (' + r.attachmentUrls.length + ')</h3>';
+          html += '<div class="result-attachments">';
+          for (var ai = 0; ai < r.attachmentUrls.length; ai++) {
+            html += '<a href="' + esc(r.attachmentUrls[ai]) + '" target="_blank" rel="noopener" title="View full size"><img src="' + esc(r.attachmentUrls[ai]) + '" alt="Attachment ' + (ai+1) + '" loading="lazy" /></a>';
+          }
+          html += '</div>';
         }
 
         html += '<div class="separator" style="margin: 1rem 0;"></div>';
@@ -950,6 +1127,43 @@ export function renderGradingPage(): string {
           y += 2;
         }
 
+        if (r.attachmentUrls && r.attachmentUrls.length > 0 && r._attachmentDataUrls && r._attachmentDataUrls.length > 0) {
+          if (y > 240) { doc.addPage(); y = margin; }
+          doc.setDrawColor(226, 232, 240);
+          doc.line(margin, y, pageW - margin, y);
+          y += 7;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(15, 23, 42);
+          doc.text('Attached Visualizations (' + r.attachmentUrls.length + ')', margin, y);
+          y += 6;
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text('Student-submitted charts and visualizations evaluated by AI vision model.', margin, y);
+          y += 5;
+          for (var imgIdx = 0; imgIdx < r._attachmentDataUrls.length; imgIdx++) {
+            try {
+              var imgW = 60; var imgH = 45;
+              if (y + imgH > 270) { doc.addPage(); y = margin; }
+              var fmt = r._attachmentDataUrls[imgIdx].indexOf('image/png') !== -1 ? 'PNG' : 'JPEG';
+              doc.addImage(r._attachmentDataUrls[imgIdx], fmt, margin, y, imgW, imgH);
+              doc.setDrawColor(226, 232, 240);
+              doc.rect(margin, y, imgW, imgH);
+              doc.setFontSize(7);
+              doc.setTextColor(148, 163, 184);
+              doc.text('Attachment ' + (imgIdx + 1), margin + imgW + 3, y + 4);
+              y += imgH + 4;
+            } catch (imgErr) {
+              doc.setFontSize(8);
+              doc.setTextColor(148, 163, 184);
+              doc.text('[Attachment ' + (imgIdx + 1) + ' - could not embed in PDF]', margin, y);
+              y += 5;
+            }
+          }
+          y += 2;
+        }
+
         if (comments && comments.trim()) {
           if (y > 240) { doc.addPage(); y = margin; }
           doc.setDrawColor(226, 232, 240);
@@ -985,9 +1199,29 @@ export function renderGradingPage(): string {
         return doc;
       }
 
-      window.downloadPDF = function() {
+      async function loadAttachmentDataUrls(r) {
+        if (!r.attachmentUrls || r.attachmentUrls.length === 0) return;
+        var dataUrls = [];
+        for (var i = 0; i < r.attachmentUrls.length; i++) {
+          try {
+            var resp = await fetch(r.attachmentUrls[i]);
+            if (!resp.ok) continue;
+            var blob = await resp.blob();
+            var dataUrl = await new Promise(function(resolve) {
+              var reader = new FileReader();
+              reader.onloadend = function() { resolve(reader.result); };
+              reader.readAsDataURL(blob);
+            });
+            dataUrls.push(dataUrl);
+          } catch (e) { console.error('Failed to load attachment for PDF:', e); }
+        }
+        r._attachmentDataUrls = dataUrls;
+      }
+
+      window.downloadPDF = async function() {
         if (!currentResult) return;
         var comments = document.getElementById('instructor-comments') ? document.getElementById('instructor-comments').value : '';
+        await loadAttachmentDataUrls(currentResult);
         var doc = generatePDF(currentResult, comments);
         doc.save('Grading-Report-' + currentResult.studentName.replace(/\\s+/g, '-') + '-Week-' + currentResult.weekNumber + '.pdf');
       };
@@ -999,9 +1233,7 @@ export function renderGradingPage(): string {
         statusEl.textContent = 'Saving...';
 
         try {
-          var res = await fetch('/api/grade/save', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          var savePayload = {
               studentName: currentResult.studentName,
               weekNumber: currentResult.weekNumber,
               optionChosen: currentResult.optionChosen,
@@ -1015,7 +1247,11 @@ export function renderGradingPage(): string {
               strengths: currentResult.strengths,
               areasForImprovement: currentResult.areasForImprovement,
               instructorComments: comments || null
-            })
+          };
+          if (currentResult.attachmentUrls && currentResult.attachmentUrls.length > 0) savePayload.attachmentUrls = currentResult.attachmentUrls;
+          var res = await fetch('/api/grade/save', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(savePayload)
           });
           var saved = await res.json();
           if (saved.error) { statusEl.textContent = 'Error: ' + saved.error; return; }
@@ -1023,14 +1259,16 @@ export function renderGradingPage(): string {
           historyLoaded = false;
         } catch (err) { statusEl.textContent = 'Error saving: ' + err.message; return; }
 
+        await loadAttachmentDataUrls(currentResult);
         var doc = generatePDF(currentResult, comments);
         doc.save('Grading-Report-' + currentResult.studentName.replace(/\\s+/g, '-') + '-Week-' + currentResult.weekNumber + '.pdf');
         statusEl.textContent = 'Saved and downloaded.';
       };
 
-      window.downloadHistoryPDF = function(idx) {
+      window.downloadHistoryPDF = async function(idx) {
         var r = window._historyData[idx];
         if (!r) return;
+        await loadAttachmentDataUrls(r);
         var doc = generatePDF(r, r.instructorComments || '');
         doc.save('Grading-Report-' + r.studentName.replace(/\\s+/g, '-') + '-Week-' + r.weekNumber + '.pdf');
       };
@@ -1106,8 +1344,10 @@ export function renderGradingPage(): string {
           var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
           var curvedHtml = r.curvedScore != null ? '<strong style="color:' + getBarColor(r.curvedScore) + ';">' + r.curvedScore + '%</strong>' : '<span style="color:var(--text-muted);font-size:0.75rem;" title="Need at least 3 submissions for this week">N/A</span>';
           var showCurve = curveEnabled();
+          var hasAttach = r.attachmentUrls && r.attachmentUrls.length > 0;
+          var attachBadge = hasAttach ? ' <span class="attachment-indicator" title="' + r.attachmentUrls.length + ' image(s) attached"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' + r.attachmentUrls.length + '</span>' : '';
           tbody.innerHTML += '<tr>'
-            + '<td><strong>' + esc(r.studentName) + '</strong></td>'
+            + '<td><strong>' + esc(r.studentName) + '</strong>' + attachBadge + '</td>'
             + '<td>Week ' + r.weekNumber + '</td>'
             + '<td>' + esc(r.optionChosen) + '</td>'
             + '<td>' + r.totalScore + '/' + r.maxScore + ' <strong>(' + r.percentage + '%)</strong></td>'
@@ -1141,6 +1381,15 @@ export function renderGradingPage(): string {
           h += '<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted);">Week ' + r.weekNumber + ' stats: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submission(s)';
           if (curveEnabled() && r.curvedScore != null) h += ' \\u2192 curved: <strong>' + r.curvedScore + '%</strong>';
           h += '</div>';
+        }
+        if (r.attachmentUrls && r.attachmentUrls.length > 0) {
+          h += '<div style="margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;">';
+          h += '<strong style="font-size:0.8125rem;display:flex;align-items:center;gap:0.25rem;margin-bottom:0.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Attached Visualizations (' + r.attachmentUrls.length + ')</strong>';
+          h += '<div class="result-attachments">';
+          for (var ai = 0; ai < r.attachmentUrls.length; ai++) {
+            h += '<a href="' + esc(r.attachmentUrls[ai]) + '" target="_blank" rel="noopener"><img src="' + esc(r.attachmentUrls[ai]) + '" alt="Attachment ' + (ai+1) + '" loading="lazy" /></a>';
+          }
+          h += '</div></div>';
         }
         h += '<div style="margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;" id="hist-comments-' + idx + '">';
         h += '<strong style="font-size:0.8125rem;">Instructor Comments:</strong><br>';
@@ -1384,13 +1633,93 @@ export function renderGradingPage(): string {
         return rows;
       }
 
+      var bulkImageMap = {};
+      var bulkImgZone = document.getElementById('bulk-img-upload-zone');
+      var bulkImgInput = document.getElementById('bulk-img-file-input');
+      var bulkImgStatus = document.getElementById('bulk-img-status');
+
+      bulkImgZone.addEventListener('click', function() { bulkImgInput.click(); });
+      bulkImgZone.addEventListener('dragover', function(e) { e.preventDefault(); bulkImgZone.classList.add('drag-over'); });
+      bulkImgZone.addEventListener('dragleave', function() { bulkImgZone.classList.remove('drag-over'); });
+      bulkImgZone.addEventListener('drop', function(e) { e.preventDefault(); bulkImgZone.classList.remove('drag-over'); handleBulkImageFiles(e.dataTransfer.files); });
+      bulkImgInput.addEventListener('change', function() { if (bulkImgInput.files.length) handleBulkImageFiles(bulkImgInput.files); bulkImgInput.value = ''; });
+
+      function parseBulkImageName(filename) {
+        var base = filename.replace(/\\.[^.]+$/, '');
+        var match = base.match(/^(.+?)(?:_\\d+)?$/);
+        return match ? match[1].trim() : base.trim();
+      }
+
+      function handleBulkImageFiles(files) {
+        var totalAdded = 0;
+        for (var i = 0; i < files.length; i++) {
+          var f = files[i];
+          if (ALLOWED_TYPES.indexOf(f.type) === -1) continue;
+          if (f.size > MAX_SIZE) continue;
+          var studentKey = parseBulkImageName(f.name).toLowerCase();
+          if (!bulkImageMap[studentKey]) bulkImageMap[studentKey] = [];
+          if (bulkImageMap[studentKey].length >= MAX_IMAGES) continue;
+          bulkImageMap[studentKey].push({ file: f, objectPath: null, uploading: false });
+          totalAdded++;
+        }
+        var keys = Object.keys(bulkImageMap);
+        var totalFiles = 0; for (var k = 0; k < keys.length; k++) totalFiles += bulkImageMap[keys[k]].length;
+        bulkImgStatus.textContent = totalFiles + ' image(s) for ' + keys.length + ' student(s) ready to upload.';
+      }
+
+      async function uploadBulkImages() {
+        var keys = Object.keys(bulkImageMap);
+        var total = 0; for (var k = 0; k < keys.length; k++) total += bulkImageMap[keys[k]].length;
+        if (total === 0) return;
+        var done = 0;
+        for (var k = 0; k < keys.length; k++) {
+          var imgs = bulkImageMap[keys[k]];
+          for (var i = 0; i < imgs.length; i++) {
+            if (imgs[i].objectPath) { done++; continue; }
+            imgs[i].uploading = true;
+            bulkImgStatus.textContent = 'Uploading images... (' + (done + 1) + '/' + total + ')';
+            try {
+              var res = await fetch('/api/uploads/request-url', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: imgs[i].file.name, size: imgs[i].file.size, contentType: imgs[i].file.type })
+              });
+              var data = await res.json();
+              if (data.error) throw new Error(data.error);
+              var putRes = await fetch(data.uploadURL, { method: 'PUT', headers: { 'Content-Type': imgs[i].file.type }, body: imgs[i].file });
+              if (!putRes.ok) throw new Error('Upload failed (' + putRes.status + ')');
+              imgs[i].objectPath = data.objectPath;
+            } catch (err) {
+              console.error('Bulk image upload failed for ' + imgs[i].file.name + ':', err);
+            }
+            imgs[i].uploading = false;
+            done++;
+          }
+        }
+        bulkImgStatus.textContent = 'All images uploaded (' + done + '/' + total + ').';
+      }
+
+      function getBulkImageUrls(studentName) {
+        var key = studentName.trim().toLowerCase();
+        var imgs = bulkImageMap[key];
+        if (!imgs || imgs.length === 0) return [];
+        return imgs.filter(function(img) { return img.objectPath; }).map(function(img) { return img.objectPath; });
+      }
+
       function handleFile(file) {
         if (!file.name.endsWith('.csv')) { document.getElementById('bulk-status').textContent = 'Please upload a .csv file.'; return; }
         var reader = new FileReader();
         reader.onload = function(e) {
           bulkData = parseCSV(e.target.result);
           if (bulkData.length === 0) { document.getElementById('bulk-status').textContent = 'No valid rows found. Check your CSV format.'; return; }
-          document.getElementById('bulk-file-info').textContent = 'Loaded ' + file.name + ' with ' + bulkData.length + ' student response(s)';
+          var matchInfo = '';
+          if (Object.keys(bulkImageMap).length > 0) {
+            var matched = 0;
+            for (var i = 0; i < bulkData.length; i++) {
+              if (bulkImageMap[bulkData[i].studentName.trim().toLowerCase()]) matched++;
+            }
+            matchInfo = ' | ' + matched + ' of ' + bulkData.length + ' students have matching images';
+          }
+          document.getElementById('bulk-file-info').textContent = 'Loaded ' + file.name + ' with ' + bulkData.length + ' student response(s)' + matchInfo;
           document.getElementById('bulk-file-info').classList.remove('hidden');
           document.getElementById('btn-grade-bulk').classList.remove('hidden');
           document.getElementById('bulk-status').textContent = '';
@@ -1405,13 +1734,22 @@ export function renderGradingPage(): string {
         document.getElementById('bulk-progress').classList.remove('hidden');
         document.getElementById('bulk-results').classList.add('hidden');
         bulkResults = [];
+
+        if (Object.keys(bulkImageMap).length > 0) {
+          document.getElementById('progress-label').textContent = 'Uploading student images...';
+          await uploadBulkImages();
+        }
+
         for (var i = 0; i < bulkData.length; i++) {
           document.getElementById('progress-label').textContent = 'Grading ' + (i + 1) + ' of ' + bulkData.length + '... (' + esc(bulkData[i].studentName) + ')';
           document.getElementById('progress-fill').style.width = Math.round(((i) / bulkData.length) * 100) + '%';
           try {
-            var res = await fetch('/api/grade/single', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ weekNumber: weekNum, optionChosen: bulkData[i].optionChosen, studentName: bulkData[i].studentName, essayText: bulkData[i].essayText }) });
+            var payload = { weekNumber: weekNum, optionChosen: bulkData[i].optionChosen, studentName: bulkData[i].studentName, essayText: bulkData[i].essayText };
+            var studentImgUrls = getBulkImageUrls(bulkData[i].studentName);
+            if (studentImgUrls.length > 0) payload.attachmentUrls = studentImgUrls;
+            var res = await fetch('/api/grade/single', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             var result = await res.json();
-            if (!result.error) bulkResults.push(result); else bulkResults.push({ studentName: bulkData[i].studentName, optionChosen: bulkData[i].optionChosen, error: result.error });
+            if (!result.error) { result.attachmentUrls = studentImgUrls.length > 0 ? studentImgUrls : null; bulkResults.push(result); } else bulkResults.push({ studentName: bulkData[i].studentName, optionChosen: bulkData[i].optionChosen, error: result.error });
           } catch (err) { bulkResults.push({ studentName: bulkData[i].studentName, optionChosen: bulkData[i].optionChosen, error: err.message }); }
         }
         document.getElementById('progress-fill').style.width = '100%';
@@ -1428,7 +1766,8 @@ export function renderGradingPage(): string {
           if (r.error) { tbody.innerHTML += '<tr><td>' + esc(r.studentName) + '</td><td>' + esc(r.optionChosen) + '</td><td colspan="4" style="color:var(--destructive);">Error: ' + esc(r.error) + '</td></tr>'; continue; }
           var cls = getScoreClass(r.percentage);
           var qC = cls === 'excellent' ? '#22c55e' : cls === 'good' ? '#3b82f6' : cls === 'adequate' ? '#f59e0b' : '#ef4444';
-          tbody.innerHTML += '<tr data-idx="' + i + '"><td><strong>' + esc(r.studentName) + '</strong></td><td>' + esc(r.optionChosen) + '</td><td>' + r.totalScore + '/' + r.maxScore + '</td><td><strong>' + r.percentage + '%</strong></td><td style="color:' + qC + ';font-weight:600;text-transform:capitalize;">' + esc(r.overallQuality) + '</td><td><button class="expand-btn" onclick="toggleDetail(' + i + ')">Details</button></td></tr>'
+          var bulkAttachBadge = (r.attachmentUrls && r.attachmentUrls.length > 0) ? ' <span class="attachment-indicator" title="' + r.attachmentUrls.length + ' image(s)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' + r.attachmentUrls.length + '</span>' : '';
+          tbody.innerHTML += '<tr data-idx="' + i + '"><td><strong>' + esc(r.studentName) + '</strong>' + bulkAttachBadge + '</td><td>' + esc(r.optionChosen) + '</td><td>' + r.totalScore + '/' + r.maxScore + '</td><td><strong>' + r.percentage + '%</strong></td><td style="color:' + qC + ';font-weight:600;text-transform:capitalize;">' + esc(r.overallQuality) + '</td><td><button class="expand-btn" onclick="toggleDetail(' + i + ')">Details</button></td></tr>'
             + '<tr class="detail-row" id="detail-' + i + '"><td colspan="6" class="detail-cell">' + buildDetailHtml(r) + '</td></tr>';
         }
         document.getElementById('bulk-results').classList.remove('hidden');
@@ -1440,6 +1779,15 @@ export function renderGradingPage(): string {
         for (var i = 0; i < r.rubricScores.length; i++) { var s = r.rubricScores[i]; h += '<div style="font-size:0.8125rem;margin-bottom:0.5rem;"><strong>' + esc(s.criterionName) + ':</strong> ' + s.score + '/' + s.maxPoints + ' &mdash; ' + esc(s.feedback) + '</div>'; }
         if (r.strengths && r.strengths.length) { h += '<div style="margin-top:0.5rem;">'; for (var j = 0; j < r.strengths.length; j++) h += '<span class="tag tag-green">' + esc(r.strengths[j]) + '</span>'; h += '</div>'; }
         if (r.areasForImprovement && r.areasForImprovement.length) { h += '<div style="margin-top:0.25rem;">'; for (var k = 0; k < r.areasForImprovement.length; k++) h += '<span class="tag tag-amber">' + esc(r.areasForImprovement[k]) + '</span>'; h += '</div>'; }
+        if (r.attachmentUrls && r.attachmentUrls.length > 0) {
+          h += '<div style="margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;">';
+          h += '<strong style="font-size:0.8125rem;">Attached Visualizations (' + r.attachmentUrls.length + ')</strong>';
+          h += '<div class="result-attachments" style="margin-top:0.5rem;">';
+          for (var ai = 0; ai < r.attachmentUrls.length; ai++) {
+            h += '<a href="' + esc(r.attachmentUrls[ai]) + '" target="_blank" rel="noopener"><img src="' + esc(r.attachmentUrls[ai]) + '" alt="Attachment ' + (ai+1) + '" loading="lazy" /></a>';
+          }
+          h += '</div></div>';
+        }
         h += '</div>'; return h;
       }
 

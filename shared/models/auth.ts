@@ -655,6 +655,7 @@ export const gradingReports = pgTable("grading_reports", {
   strengths: jsonb("strengths"),
   areasForImprovement: jsonb("areas_for_improvement"),
   instructorComments: text("instructor_comments"),
+  attachmentUrls: jsonb("attachment_urls"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
