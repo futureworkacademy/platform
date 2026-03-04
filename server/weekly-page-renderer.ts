@@ -533,6 +533,10 @@ export function renderWeekPage(data: WeekPageData): string {
     }
     .btn-primary { background: var(--navy); color: white; }
     .btn-primary:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent; color: var(--navy); border-color: var(--border);
+    }
+    .btn-outline:hover { background: var(--muted-bg); }
     .btn-ghost {
       background: transparent; color: var(--text-secondary);
       border-color: transparent; padding: 0.375rem 0.75rem; font-size: 0.8125rem;
@@ -671,10 +675,20 @@ export function renderWeekPage(data: WeekPageData): string {
           <h2 data-testid="text-week-resources">Week ${weekNumber} Resources</h2>
           <p class="subtitle">Everything you need for &ldquo;${escapeHtml(weekTitle)}&rdquo;</p>
         </div>
-        <button onclick="downloadPDF()" class="btn btn-primary" id="pdf-btn" data-testid="button-download-offline-guide">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          Download Week ${weekNumber} PDF
-        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="copyAnswerTemplate()" class="btn btn-outline" id="copy-template-btn" data-testid="button-copy-answer-template">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Copy Answer Template
+          </button>
+          <button onclick="downloadAnswerTemplate()" class="btn btn-outline" data-testid="button-download-answer-template">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Download .txt
+          </button>
+          <button onclick="downloadPDF()" class="btn btn-primary" id="pdf-btn" data-testid="button-download-offline-guide">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Download Week ${weekNumber} PDF
+          </button>
+        </div>
       </div>
 
       <div class="card card-dashed" data-testid="card-offline-guide-info">
@@ -689,7 +703,7 @@ export function renderWeekPage(data: WeekPageData): string {
                 <li><strong>Download the PDF</strong> &mdash; contains the full briefing, Intel Articles, decision options with financial data, and the scoring rubric.</li>
                 <li><strong>Listen to the voicemail</strong> below &mdash; an urgent message from a key stakeholder that sets the stage for your decision.</li>
                 <li><strong>Listen to this week's expert consultant</strong> below &mdash; their special guidance provides critical context you won't find in the written materials.</li>
-                <li><strong>Submit your response</strong> through your LMS using the template in the PDF.</li>
+                <li><strong>Submit your response</strong> through your LMS &mdash; use the <em>Copy Answer Template</em> or <em>Download .txt</em> buttons above to get a pre-formatted template that pastes cleanly into Blackboard or any LMS text field.</li>
               </ol>
             </div>
           </div>
@@ -1221,6 +1235,139 @@ ${renderCharacterCards(characters)}
       }
     }
 
+    function buildAnswerTemplate() {
+      var data = __pdfData;
+      var lines = [];
+      lines.push('========================================');
+      lines.push('FUTURE WORK ACADEMY');
+      lines.push('Week ${weekNumber}: ${weekTitle}');
+      lines.push('Answer Template');
+      lines.push('========================================');
+      lines.push('');
+      lines.push('Student Name: ________________________');
+      lines.push('Date: ________________________________');
+      lines.push('');
+      lines.push('----------------------------------------');
+      lines.push('SECTION 1: Decision Selection');
+      lines.push('----------------------------------------');
+      lines.push('');
+      lines.push('Select ONE option:');
+      lines.push('');
+      if (data.decisions && data.decisions.length > 0) {
+        for (var d = 0; d < data.decisions.length; d++) {
+          var letter = String.fromCharCode(65 + d);
+          var title = (data.decisions[d].title || '').replace(/^Week \\d+\\s*Decision:\\s*/i, '');
+          lines.push('[ ] Option ' + letter + ': ' + title);
+        }
+      }
+      lines.push('');
+      lines.push('----------------------------------------');
+      lines.push('SECTION 2: Evidence-Based Rationale');
+      lines.push('(Minimum 250 words for Weeks 1-2; 300 words for Week 3; 150 words for rationale)');
+      lines.push('----------------------------------------');
+      lines.push('');
+      lines.push('Begin with "I chose Option [letter] because..." then explain your reasoning.');
+      lines.push('Reference at least one Intel Article using its citation key (e.g., "According to [HBR]...").');
+      lines.push('');
+      if (data.intelArticles && data.intelArticles.length > 0) {
+        lines.push('Available source codes:');
+        for (var a = 0; a < data.intelArticles.length; a++) {
+          lines.push('  [' + data.intelArticles[a].citationKey + '] - ' + data.intelArticles[a].title);
+        }
+        lines.push('');
+      }
+      lines.push('[Your rationale here]');
+      lines.push('');
+      lines.push('');
+      lines.push('');
+      lines.push('----------------------------------------');
+      lines.push('SECTION 3: Stakeholder Trade-offs');
+      lines.push('----------------------------------------');
+      lines.push('');
+      lines.push('Identify 2-3 stakeholders most affected by your decision.');
+      lines.push('How might they react? (Refer to the Stakeholder Directory)');
+      lines.push('');
+      lines.push('Stakeholder 1: ________________________');
+      lines.push('Expected reaction:');
+      lines.push('');
+      lines.push('');
+      lines.push('Stakeholder 2: ________________________');
+      lines.push('Expected reaction:');
+      lines.push('');
+      lines.push('');
+      lines.push('Stakeholder 3: ________________________');
+      lines.push('Expected reaction:');
+      lines.push('');
+      lines.push('');
+      lines.push('----------------------------------------');
+      lines.push('SECTION 4: Risk Mitigation');
+      lines.push('----------------------------------------');
+      lines.push('');
+      lines.push('What is the biggest risk of your chosen option?');
+      lines.push('What would you do if that risk materialized?');
+      lines.push('');
+      lines.push('[Your risk assessment here]');
+      lines.push('');
+      lines.push('');
+      lines.push('');
+      lines.push('========================================');
+      lines.push('SCORING: Evidence Quality (25pts) | Reasoning');
+      lines.push('Coherence (25pts) | Trade-off Analysis (25pts) |');
+      lines.push('Stakeholder Consideration (25pts)');
+      lines.push('');
+      lines.push('Quality thresholds: Excellent >= 93% | Good >= 72%');
+      lines.push('| Adequate >= 52% | Poor < 52%');
+      lines.push('========================================');
+      return lines.join('\\n');
+    }
+
+    function copyAnswerTemplate() {
+      var btn = document.getElementById('copy-template-btn');
+      var text = buildAnswerTemplate();
+      var orig = btn.innerHTML;
+      function showCopied() {
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        setTimeout(function() { btn.innerHTML = orig; }, 2000);
+      }
+      function fallbackCopy() {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showCopied();
+        } catch(e) {
+          alert('Could not copy to clipboard. Use the "Download .txt" button instead.');
+        }
+      }
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(showCopied).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
+      } catch(e) {
+        fallbackCopy();
+      }
+    }
+
+    function downloadAnswerTemplate() {
+      var text = buildAnswerTemplate();
+      var blob = new Blob([text], { type: 'text/plain' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'Week-${weekNumber}-${weekTitle.replace(/\s+/g, "-")}-Answer-Template.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     document.getElementById('char-search').addEventListener('input', function(e) {
       var q = e.target.value.toLowerCase();
       var cards = document.querySelectorAll('.char-card-wrapper');
@@ -1408,6 +1555,10 @@ export async function renderWeek0Page(): Promise<string> {
     }
     .btn-primary { background: var(--navy); color: white; }
     .btn-primary:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent; color: var(--navy); border-color: var(--border);
+    }
+    .btn-outline:hover { background: var(--muted-bg); }
     .btn-ghost {
       background: transparent; color: var(--text-secondary);
       border-color: transparent; padding: 0.375rem 0.75rem; font-size: 0.8125rem;
