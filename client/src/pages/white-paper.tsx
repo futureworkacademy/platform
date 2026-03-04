@@ -98,24 +98,40 @@ export default function WhitePaper() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <style>{`
         @media print {
-          @page { margin: 2cm 1.5cm; size: A4; }
+          @page { margin: 1.5cm 1.5cm 2cm 1.5cm; size: A4; }
           header, footer, nav, [data-testid="button-download-pdf"], [data-testid="button-sidebar-toggle"], [data-testid="button-cta-download-pdf"], .print\\:hidden { display: none !important; }
-          section { break-inside: avoid; page-break-inside: avoid; min-height: auto !important; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+          .print-only { display: block !important; }
+          section { min-height: auto !important; padding-top: 1rem !important; padding-bottom: 1rem !important; }
+          [data-testid^="tier-card-"], [data-testid^="reference-"], .bg-card.border { break-inside: avoid; page-break-inside: avoid; }
           section:first-of-type { min-height: auto !important; height: auto !important; padding-top: 0 !important; }
           .print\\:break-before-page { break-before: page; }
-          body { font-size: 11pt; color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          * { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+          body { font-family: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; font-size: 10.5pt; color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          * { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; box-shadow: none !important; }
           h1, h2, h3, h4, h5, h6 { color: #1e3a5f !important; }
-          p, span, div { color: #333 !important; }
+          h1 { font-size: 22pt !important; }
+          h2 { font-size: 16pt !important; }
+          h3 { font-size: 13pt !important; }
+          p, span, div, li { color: #333 !important; }
           .text-muted-foreground { color: #555 !important; }
           .text-primary { color: #1e3a5f !important; }
           a { color: #1e3a5f !important; text-decoration: underline !important; }
           sup a { text-decoration: none !important; }
           .bg-card, .bg-card\\/30, .bg-card\\/50 { background: transparent !important; }
-          .border { border-color: #ddd !important; }
-          .rounded-2xl, .rounded-xl { border-radius: 4px !important; }
+          .border { border: 1px solid #ccc !important; }
+          .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: 3px !important; }
           .bg-gradient-to-b { background: none !important; }
           .min-h-\\[85vh\\] { min-height: auto !important; }
+          .bg-primary\\/10 { background-color: #e8eef5 !important; }
+          .bg-muted\\/30, .bg-muted\\/50, .bg-muted { background-color: #f5f5f5 !important; }
+          .grid { gap: 0.75rem !important; }
+          .p-4, .p-6, .sm\\:p-8 { padding: 0.6rem !important; }
+          .border-border { border: 1px solid #ccc !important; }
+          [data-testid^="tier-card-"] { background: #f8f9fb !important; border: 1px solid #bbb !important; padding: 0.5rem !important; }
+          [data-testid^="reference-"] { background: transparent !important; border: 1px solid #ddd !important; padding: 0.4rem 0.5rem !important; }
+          .print-only p { color: inherit !important; }
+          table { border-collapse: collapse !important; width: 100% !important; }
+          th, td { border: 1px solid #ccc !important; padding: 0.3rem 0.5rem !important; font-size: 9pt !important; }
+          th { background: #e8eef5 !important; font-weight: bold !important; }
         }
       `}</style>
 
@@ -730,6 +746,28 @@ export default function WhitePaper() {
                 </Button>
               </div>
             </FadeInSection>
+          </div>
+        </section>
+
+        <section className="hidden print-only px-4 py-8" style={{ display: 'none' }}>
+          <div className="container mx-auto max-w-4xl">
+            <div style={{ borderTop: '2px solid #1e3a5f', paddingTop: '1rem', marginTop: '1rem' }}>
+              <p style={{ fontSize: '11pt', fontWeight: 'bold', color: '#1e3a5f', marginBottom: '0.25rem' }}>
+                Future Work Academy
+              </p>
+              <p style={{ fontSize: '9.5pt', color: '#555', marginBottom: '0.15rem' }}>
+                Doug Mitchell, M.S. | Founder
+              </p>
+              <p style={{ fontSize: '9.5pt', color: '#555', marginBottom: '0.15rem' }}>
+                doug@futureworkacademy.com | 515.619.1640
+              </p>
+              <p style={{ fontSize: '9.5pt', color: '#555', marginBottom: '0.15rem' }}>
+                futureworkacademy.com | The Mitchell Group, LLC — Des Moines, Iowa
+              </p>
+              <p style={{ fontSize: '8.5pt', color: '#888', marginTop: '0.5rem' }}>
+                This document is confidential and intended for academic evaluation purposes.
+              </p>
+            </div>
           </div>
         </section>
 

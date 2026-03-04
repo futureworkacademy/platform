@@ -262,21 +262,47 @@ export default function InstitutionalProposal() {
     <>
       <style>{`
         @media print {
-          @page { size: A4; margin: 2cm 1.5cm; }
+          @page { size: A4; margin: 1.5cm 1.5cm 2cm 1.5cm; }
           nav, header, footer, button, .no-print, [data-testid="link-back"] { display: none !important; }
+          .print-only { display: block !important; }
           .print\\:break-before-page { break-before: page; }
-          body { font-size: 10pt; color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          * { animation: none !important; transition: none !important; transform: none !important; opacity: 1 !important; }
+          body { font-family: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; font-size: 10pt; color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          * { animation: none !important; transition: none !important; transform: none !important; opacity: 1 !important; box-shadow: none !important; }
           h1, h2, h3, h4 { color: #1e3a5f !important; }
+          h1 { font-size: 22pt !important; }
+          h2 { font-size: 16pt !important; }
+          h3 { font-size: 12pt !important; }
           p, li, span, td { color: #333 !important; }
           .text-muted-foreground { color: #555 !important; }
           a { color: #1e3a5f !important; text-decoration: underline; }
           a > sup { text-decoration: none; }
           .min-h-\\[85vh\\], .min-h-\\[90vh\\] { min-height: auto !important; padding: 2rem 0 !important; }
           .bg-gradient-to-b, .bg-gradient-to-br { background: none !important; }
-          .rounded-xl, .rounded-2xl, .rounded-lg { border-radius: 4px !important; }
-          .shadow-lg, .shadow-xl, .shadow-2xl { box-shadow: none !important; }
-          .border { border-color: #ccc !important; }
+          .rounded-xl, .rounded-2xl, .rounded-lg { border-radius: 3px !important; }
+          .border { border: 1px solid #ccc !important; }
+          section { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+          .py-24, .py-16, .sm\\:py-32, .sm\\:py-20 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+          .bg-primary\\/5 { background-color: #f0f4f8 !important; }
+          .bg-primary\\/10 { background-color: #e8eef5 !important; }
+          .bg-muted\\/30, .bg-muted\\/50, .bg-muted { background-color: #f5f5f5 !important; }
+          .grid { gap: 0.6rem !important; }
+          .p-4, .p-6, .sm\\:p-8 { padding: 0.5rem !important; }
+          .gap-4, .gap-6 { gap: 0.5rem !important; }
+          .mb-10, .mb-8 { margin-bottom: 0.75rem !important; }
+          .mb-6 { margin-bottom: 0.5rem !important; }
+          .space-y-6 > * + * { margin-top: 0.5rem !important; }
+          img.rounded-full { width: 60px !important; height: 60px !important; }
+          .border-border { border: 1px solid #ccc !important; }
+          table { border-collapse: collapse !important; width: 100% !important; }
+          th, td { border: 1px solid #ccc !important; padding: 0.3rem 0.5rem !important; font-size: 9pt !important; }
+          th { background: #e8eef5 !important; font-weight: bold !important; }
+          .bg-card { background: #fff !important; border: 1px solid #ddd !important; }
+          .text-xs { font-size: 8.5pt !important; }
+          .text-sm { font-size: 9pt !important; }
+          .leading-relaxed { line-height: 1.5 !important; }
+          .bg-card, [class*="CardContent"] { break-inside: avoid; page-break-inside: avoid; }
+          ol > li { break-inside: avoid; page-break-inside: avoid; }
+          .print-only p { color: inherit !important; }
         }
       `}</style>
 
@@ -1137,6 +1163,19 @@ export default function InstitutionalProposal() {
             </FadeInSection>
           </div>
         </section>
+
+        <div className="hidden print-only px-4 py-6" style={{ display: 'none' }}>
+          <div className="container mx-auto max-w-4xl">
+            <div style={{ borderTop: '2px solid #1e3a5f', paddingTop: '0.75rem' }}>
+              <p style={{ fontSize: '9pt', color: '#888', fontStyle: 'italic' }}>
+                This document is confidential and intended for institutional evaluation purposes only. Not for redistribution.
+              </p>
+              <p style={{ fontSize: '9pt', color: '#555', marginTop: '0.25rem' }}>
+                Future Work Academy | The Mitchell Group, LLC — Des Moines, Iowa | futureworkacademy.com
+              </p>
+            </div>
+          </div>
+        </div>
 
         <AppFooter />
       </div>
