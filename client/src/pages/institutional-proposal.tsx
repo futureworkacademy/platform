@@ -243,6 +243,9 @@ const REFERENCES = [
   { id: 10, text: "Vygotsky, L. S. (1978). Mind in Society: The Development of Higher Psychological Processes. Harvard University Press." },
   { id: 11, text: "Bandura, A. (1997). Self-Efficacy: The Exercise of Control. W. H. Freeman." },
   { id: 12, text: "Biggs, J. (1996). Enhancing teaching through constructive alignment. Higher Education, 32(3), 347–364.", doi: "10.1007/BF00138871" },
+  { id: 13, text: "Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., & Galstyan, A. (2021). A survey on bias and fairness in machine learning. ACM Computing Surveys, 54(6), 1–35.", doi: "10.1145/3457607" },
+  { id: 14, text: "Baker, R. S. & Hawn, A. (2022). Algorithmic bias in education. International Journal of Artificial Intelligence in Education, 32, 1052–1092.", doi: "10.1007/s40593-021-00285-9" },
+  { id: 15, text: "Liao, Q. V., Gruen, D., & Miller, S. (2020). Questioning the AI: Informing design practices for explainable AI user experiences. Proceedings of CHI 2020.", doi: "10.1145/3313831.3376590" },
 ];
 
 export default function InstitutionalProposal() {
@@ -532,8 +535,162 @@ export default function InstitutionalProposal() {
           </div>
         </section>
 
-        {/* Current Compliance Posture */}
+        {/* AI Ethics & Transparency */}
         <section className="py-24 sm:py-32 px-4 bg-muted/30 print:break-before-page">
+          <div className="container mx-auto max-w-4xl">
+            <FadeInSection>
+              <p className="text-sm font-medium text-primary uppercase tracking-widest mb-3">Responsible AI</p>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">AI Ethics & Transparency</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mb-10 leading-relaxed">
+                FWA uses AI across three domains: essay evaluation, content generation, and media production. Each domain carries distinct ethical considerations. Our approach prioritizes explainability<sup className="text-xs text-primary">[15]</sup>, demographic neutrality<sup className="text-xs text-primary">[14]</sup>, and full disclosure of AI involvement.
+              </p>
+            </FadeInSection>
+
+            <FadeInSection delay={100}>
+              <Card className="bg-card border mb-6">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Scoring Bias Safeguards
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Algorithmic bias in educational AI is a documented concern<sup className="text-xs text-primary">[13]</sup><sup className="text-xs text-primary">[14]</sup>. FWA implements multiple layers of protection to ensure scoring fairness:
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      { title: "Blind Evaluation", desc: "No student name, email, gender, age, ethnicity, or institutional identifier is ever sent to the AI. The evaluator receives only the response text and simulation context." },
+                      { title: "Deterministic Configuration", desc: "AI models are configured with low-temperature settings to minimize output variance, producing highly consistent scores for the same response across evaluations." },
+                      { title: "Source-Based Rubrics", desc: "Scoring rewards specific data citations and logical reasoning — not writing style, vocabulary sophistication, or rhetorical flourish. This reduces sociolinguistic bias." },
+                      { title: "Explicit Calibration", desc: "The AI prompt includes scoring calibration guidance that prevents systematic score compression, ensuring strong work is rewarded generously rather than clustered around a safe middle." },
+                      { title: "Human Override", desc: "Instructors can review and adjust any AI-generated score. The system is designed as an evaluation assistant, not a replacement for instructor judgment." },
+                      { title: "Distribution Monitoring", desc: "The Week Summary Dashboard provides visual score distribution charts per week, enabling instructors to identify and investigate scoring anomalies across cohorts." },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-sm">{item.title}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed mt-1">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+
+            <FadeInSection delay={200}>
+              <Card className="bg-card border mb-6">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-primary" />
+                    AI-Generated Media Disclosure
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    FWA uses AI to generate visual and audio assets for the simulation. In the interest of full transparency:
+                  </p>
+                  <div className="space-y-3">
+                    {[
+                      { media: "Character Headshots", tech: "OpenAI DALL-E (gpt-image-1)", detail: "17 stakeholder character portraits are AI-generated using detailed prompts specifying professional corporate photography style. No real individuals are depicted." },
+                      { media: "Advisor Audio", tech: "ElevenLabs Text-to-Speech", detail: "Phone-a-Friend advisor audio clips are synthesized from text scripts using voice profiles designed for each character persona. All advisors are fictional." },
+                      { media: "Hero & Feature Images", tech: "OpenAI DALL-E", detail: "Background images on public-facing pages (boardroom scenes, classroom settings) are AI-generated for editorial illustration purposes." },
+                      { media: "Brand Assets", tech: "AI-Assisted Design", detail: "Logo lockups and brand iconography were developed with AI design assistance and refined through manual iteration." },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <div className="bg-primary/10 rounded p-1.5 shrink-0 mt-0.5">
+                          <FileText className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-semibold text-sm">{item.media}</p>
+                            <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{item.tech}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed mt-1">{item.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4 border-t pt-3 italic">
+                    Full AI transparency documentation — including exact prompts, model configurations, and data handling policies — is maintained internally and available for institutional review upon request.
+                  </p>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+
+            <FadeInSection delay={300}>
+              <Card className="bg-card border mb-6">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-primary" />
+                    AI Data Handling & Student Privacy
+                  </h3>
+                  <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      Student essay submissions are evaluated by OpenAI's GPT-4o-mini via API endpoints governed by OpenAI's enterprise data usage policies. The following safeguards are in place:
+                    </p>
+                    <ul className="space-y-2 ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                        <span><strong>No PII Transmission:</strong> Only the response text and simulation context (scenario description, available data sources, rubric criteria) are sent to the AI. Student names, emails, and identifiers are never included.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                        <span><strong>No Model Training:</strong> Under OpenAI's data usage policy for API customers, inputs and outputs are not used to train or improve models. Data retention is governed by the provider's enterprise terms, with zero-day retention available upon request.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                        <span><strong>Explainable Outputs:</strong> Every AI evaluation returns structured feedback (per-criterion scores, specific strengths, improvement recommendations) — not just a number. Students can see exactly why they received their score<sup className="text-xs text-primary">[15]</sup>.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                        <span><strong>Radical Transparency:</strong> The complete rubric, scoring bands, and evaluation criteria are published and visible to students while writing — before, during, and after submission. There are no hidden formulas or opaque algorithms.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+
+            <FadeInSection delay={400}>
+              <Card className="bg-card border">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                    Ongoing Validity & Fairness Monitoring
+                  </h3>
+                  <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      AI assessment is not a "set and forget" system. FWA provides built-in tools for continuous validation:
+                    </p>
+                    <ul className="space-y-2 ml-4">
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary font-bold">•</span>
+                        <span><strong>Score Distribution Dashboard:</strong> Visual histograms and distribution charts per week allow instructors to spot skewed distributions, ceiling/floor effects, or scoring drift across the simulation timeline.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary font-bold">•</span>
+                        <span><strong>Instructor Override Tracking:</strong> When instructors adjust AI scores, the system logs the original and modified values — creating a dataset for inter-rater reliability analysis between AI and human evaluators.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary font-bold">•</span>
+                        <span><strong>Student Feedback Surveys:</strong> Per-week surveys capture student perceptions of fairness, difficulty, and learning value on validated scales — including self-efficacy<sup className="text-xs text-primary">[11]</sup> and productive struggle<sup className="text-xs text-primary">[2]</sup> constructs — providing triangulated data on assessment quality.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary font-bold">•</span>
+                        <span><strong>Difficulty-Adjusted Evaluation:</strong> The 3-tier framework adjusts AI evaluation expectations by difficulty level — Introductory scenarios award partial credit more generously, while Advanced scenarios maintain rigorous professional standards — ensuring fairness across heterogeneous student populations.</span>
+                      </li>
+                    </ul>
+                    <p className="mt-3 italic border-t pt-3">
+                      We welcome institutional partnerships that include formal validity studies — comparing AI-generated scores with instructor-assigned scores across demographic groups — as a publishable research outcome.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+          </div>
+        </section>
+
+        {/* Current Compliance Posture */}
+        <section className="py-24 sm:py-32 px-4 print:break-before-page">
           <div className="container mx-auto max-w-4xl">
             <FadeInSection>
               <p className="text-sm font-medium text-primary uppercase tracking-widest mb-3">Privacy & Security</p>
