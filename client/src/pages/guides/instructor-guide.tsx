@@ -658,6 +658,9 @@ export default function InstructorGuidePage() {
                   the AI score alongside the original essay so you can make informed
                   adjustments efficiently.
                 </p>
+                <a href="/methodology" className="inline-flex items-center gap-1.5 mt-4 text-xs font-medium text-primary hover:underline transition-colors" data-testid="link-methodology-instructor-guide">
+                  Full methodology documentation →
+                </a>
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">

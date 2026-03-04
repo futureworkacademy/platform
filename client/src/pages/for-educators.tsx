@@ -402,6 +402,13 @@ export default function ForEducators() {
                       </div>
                     ))}
                   </div>
+                  <div className="mt-8 p-4 rounded-xl bg-primary/5 border border-primary/20">
+                    <p className="text-sm text-muted-foreground mb-3">Want to see every scoring band, the 5-step evaluation process, and how we calibrate against exemplar responses?</p>
+                    <a href="/methodology" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline transition-colors" data-testid="link-methodology-educators">
+                      See our complete AI grading methodology
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </div>
                 </div>
               </FadeInSection>
               <FadeInSection delay={200}>

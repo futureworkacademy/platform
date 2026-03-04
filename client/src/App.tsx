@@ -35,6 +35,7 @@ import ContentValidation from "@/pages/content-validation";
 import SurveyResultsPage from "@/pages/survey-results";
 import StudentGuidePage from "@/pages/guides/student-guide";
 import InstructorGuidePage from "@/pages/guides/instructor-guide";
+import Methodology from "@/pages/methodology";
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -374,6 +375,9 @@ function PublicRouteGate({ children }: { children: React.ReactNode }) {
   }
   if (location === "/brochure") {
     return <Brochure />;
+  }
+  if (location === "/methodology") {
+    return <Methodology />;
   }
 
   return <>{children}</>;

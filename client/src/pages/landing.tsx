@@ -469,6 +469,10 @@ export default function Landing() {
                       </div>
                     ))}
                   </div>
+                  <a href="/methodology" className="inline-flex items-center gap-1.5 mt-6 text-sm font-medium text-primary hover:underline transition-colors" data-testid="link-methodology-landing">
+                    Read the full methodology
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
                 </div>
               </FadeInSection>
             </div>

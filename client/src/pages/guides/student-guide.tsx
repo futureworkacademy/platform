@@ -640,6 +640,9 @@ export default function StudentGuidePage() {
                     <strong className="text-foreground">Important:</strong> Human grading will always be performed on all AI-graded submissions. AI scores provide immediate feedback to help you improve week over week, but your instructor reviews and may adjust final grades to ensure fairness and accuracy.
                   </p>
                 </div>
+                <a href="/methodology" className="inline-flex items-center gap-1.5 mt-4 text-xs font-medium text-primary hover:underline transition-colors" data-testid="link-methodology-student-guide">
+                  Learn how your essays are evaluated →
+                </a>
               </div>
             </CardContent>
           </Card>

@@ -30,6 +30,14 @@ export function AppFooter() {
           </a>
           <span className="opacity-40">|</span>
           <a
+            href="/methodology"
+            className="underline underline-offset-4 opacity-80 hover:opacity-100 transition-opacity"
+            data-testid="link-footer-methodology"
+          >
+            Methodology
+          </a>
+          <span className="opacity-40">|</span>
+          <a
             href="/privacy"
             className="underline underline-offset-4 opacity-80 hover:opacity-100 transition-opacity"
             data-testid="link-footer-privacy"
