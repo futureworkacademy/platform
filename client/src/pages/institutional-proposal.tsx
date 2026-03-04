@@ -24,6 +24,7 @@ import {
   BarChart3,
   Lock,
   Eye,
+  Monitor,
 } from "lucide-react";
 import { Link } from "wouter";
 import logoForLight from "@assets/logo-horizontal.png";
@@ -651,7 +652,7 @@ export default function InstitutionalProposal() {
             </FadeInSection>
 
             <FadeInSection delay={400}>
-              <Card className="bg-card border">
+              <Card className="bg-card border mb-6">
                 <CardContent className="p-6 sm:p-8">
                   <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                     <BarChart3 className="h-5 w-5 text-primary" />
@@ -681,6 +682,73 @@ export default function InstitutionalProposal() {
                     </ul>
                     <p className="mt-3 italic border-t pt-3">
                       We welcome institutional partnerships that include formal validity studies — comparing AI-generated scores with instructor-assigned scores across demographic groups — as a publishable research outcome.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+
+            <FadeInSection delay={500}>
+              <Card className="bg-card border">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <Monitor className="h-5 w-5 text-primary" />
+                    Accessibility Posture
+                  </h3>
+                  <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      FWA is committed to ensuring equitable access for all learners, including those with disabilities. The platform's UI is built on <strong>Radix UI primitives</strong> — a component library specifically engineered for accessibility — providing a strong architectural foundation.
+                    </p>
+
+                    <div>
+                      <p className="font-semibold text-foreground text-sm mb-2">Architectural Accessibility Features</p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {[
+                          { feature: "Keyboard Navigation", detail: "Core UI components (menus, modals, tabs, forms) are built on Radix primitives designed for keyboard operability with visible focus indicators. Custom interactive widgets will undergo manual keyboard testing before pilot deployment." },
+                          { feature: "ARIA Semantics", detail: "Screen reader support via ARIA labels, roles, and live regions is provided through Radix-based components. Full conformance across all views is pending formal WCAG audit." },
+                          { feature: "Alt Text on Images", detail: "Development standards require descriptive alt text on meaningful images and empty alt attributes on decorative images, following WCAG guidance." },
+                          { feature: "Focus Management", detail: "Radix-based modals trap focus correctly, dialogs return focus on close, and tab order follows logical reading sequence." },
+                          { feature: "Light & Dark Themes", detail: "Full theme support with defined foreground/background contrast ratios for both modes, reducing visual fatigue." },
+                          { feature: "Semantic HTML", detail: "Heading hierarchy, landmark regions, and form labels are used to convey content structure to assistive technologies." },
+                        ].map((item, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-sm">{item.feature}</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed mt-1">{item.detail}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold text-foreground text-sm mb-2">Known Limitations & Roadmap</p>
+                      <div className="space-y-2">
+                        {[
+                          { status: "planned", label: "WCAG 2.1 AA Formal Audit", detail: "A professional external accessibility audit is scheduled for Q2 2026. Following audit completion and remediation, FWA will publish a Voluntary Product Accessibility Template (VPAT/ACR) — the standard conformance report universities request during procurement." },
+                          { status: "planned", label: "Color Contrast Verification", detail: "While the platform uses defined contrast ratios in both themes, a systematic audit against WCAG 2.1 AA contrast minimums (4.5:1 for normal text, 3:1 for large text) has not yet been completed." },
+                          { status: "planned", label: "Color Blindness Review", detail: "Status indicators currently use green/amber/red color coding. A review is planned to ensure all color-coded information is also conveyed through icons, labels, or patterns — so no information is communicated by color alone." },
+                          { status: "planned", label: "Custom Widget Keyboard Testing", detail: "While Radix-based components provide built-in keyboard support, custom interactive elements (audio players, specialized controls) require manual keyboard and screen reader testing — scheduled as part of the WCAG audit cycle." },
+                          { status: "available", label: "Multimedia Transcripts", detail: "All advisor audio content includes full text transcripts, ensuring audio-dependent content is accessible to deaf and hard-of-hearing users." },
+                        ].map((item, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                            {item.status === "available" ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                            ) : (
+                              <Clock className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                            )}
+                            <div>
+                              <p className="font-semibold text-sm">{item.label}</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed mt-1">{item.detail}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <p className="mt-2 italic border-t pt-3">
+                      FWA's accessibility approach mirrors its compliance philosophy: build the right architecture first, then validate with formal audits. We welcome accessibility feedback from institutional partners and are committed to addressing identified barriers before pilot deployment.
                     </p>
                   </div>
                 </CardContent>
