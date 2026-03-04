@@ -598,9 +598,14 @@ export default function Methodology() {
 
         <section className="py-12 px-4 bg-muted/30 border-t" id="references">
           <div className="container mx-auto max-w-4xl">
-            <h3 className="text-sm font-semibold mb-6 text-muted-foreground uppercase tracking-widest">
-              References
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+                References
+              </h3>
+              <a href="/white-paper" className="text-sm text-primary hover:underline font-medium" data-testid="link-white-paper-from-methodology">
+                Read the full White Paper &rarr;
+              </a>
+            </div>
             <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
               <p className="pl-8 -indent-8">
                 Black, P., & Wiliam, D. (1998). Assessment and classroom learning. <em>Assessment in Education: Principles, Policy & Practice, 5</em>(1), 7-74.{" "}

@@ -467,6 +467,15 @@ export async function registerRoutes(
       for (const [week, wrs] of Object.entries(weekGroups).sort(([a],[b]) => Number(a) - Number(b))) {
         const avg = (field: string) => (wrs.reduce((s: number, r: any) => s + r[field], 0) / wrs.length).toFixed(1);
         dataSummary += `Week ${week} (${wrs.length} responses): Realism=${avg('realism')}, Fairness=${avg('fairness')}, Difficulty=${avg('difficulty')}, Learning=${avg('learningValue')}, Engagement=${avg('engagement')}, Clarity=${avg('clarity')}\n`;
+        const outcomeFields = ['selfEfficacy', 'transferConfidence', 'productiveStruggle'];
+        const outcomeResponses = wrs.filter((r: any) => outcomeFields.some(f => r[f] != null));
+        if (outcomeResponses.length > 0) {
+          const oAvg = (field: string) => {
+            const vals = outcomeResponses.filter((r: any) => r[field] != null);
+            return vals.length > 0 ? (vals.reduce((s: number, r: any) => s + r[field], 0) / vals.length).toFixed(1) : 'N/A';
+          };
+          dataSummary += `  Learning Outcomes (${outcomeResponses.length}/${wrs.length} responded): Self-Efficacy=${oAvg('selfEfficacy')}, Transfer Confidence=${oAvg('transferConfidence')}, Productive Struggle=${oAvg('productiveStruggle')}\n`;
+        }
         const comments = wrs.filter((r: any) => r.comments?.trim()).map((r: any) => `  - "${r.comments}"`);
         if (comments.length > 0) dataSummary += `  Comments:\n${comments.join('\n')}\n`;
       }
@@ -479,7 +488,7 @@ export async function registerRoutes(
         messages: [
           {
             role: "system",
-            content: `You are an educational assessment analyst for "Future Work Academy," a business simulation where students manage AI transformation at a manufacturing company over 8 weeks. Analyze the student feedback survey data and provide actionable insights for the instructor. The survey measures: Realism (scenario believability), Fairness (decision options and scoring equity), Difficulty (challenge level), Learning Value (educational impact), Engagement (interest and involvement), and Clarity (instruction quality). All ratings are 1-5 scale.`
+            content: `You are an educational assessment analyst for "Future Work Academy," a business simulation where students manage AI transformation at a manufacturing company over 8 weeks. Analyze the student feedback survey data and provide actionable insights for the instructor. The survey measures 9 dimensions on a 1-5 scale. Core experience dimensions (required): Realism (scenario believability), Fairness (decision options and scoring equity), Difficulty (challenge level), Learning Value (educational impact), Engagement (interest and involvement), Clarity (instruction quality). Learning outcome dimensions (optional, may have fewer responses): Self-Efficacy (confidence in strategic AI decision-making, per Bandura 1997), Transfer Confidence (ability to apply learning to real workplace situations, a Kirkpatrick Level 3 proxy), Productive Struggle (whether difficulty was constructive for learning, per Kapur 2016 productive failure theory). When optional dimensions have data, analyze them separately as "Learning Outcome Indicators" and note the response rate compared to core dimensions.`
           },
           {
             role: "user",

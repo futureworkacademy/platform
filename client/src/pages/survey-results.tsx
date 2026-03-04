@@ -54,7 +54,13 @@ const CATEGORIES = [
   { key: "learningValue", label: "Learning Value", color: "#3b82f6" },
   { key: "engagement", label: "Engagement", color: "#ef4444" },
   { key: "clarity", label: "Clarity", color: "#8b5cf6" },
+  { key: "selfEfficacy", label: "Self-Efficacy", color: "#ec4899" },
+  { key: "transferConfidence", label: "Transfer Confidence", color: "#14b8a6" },
+  { key: "productiveStruggle", label: "Productive Struggle", color: "#f97316" },
 ];
+
+const CORE_CATEGORIES = CATEGORIES.slice(0, 6);
+const OUTCOME_CATEGORIES = CATEGORIES.slice(6);
 
 interface SurveyResponse {
   weekNumber: number;
@@ -64,6 +70,9 @@ interface SurveyResponse {
   learningValue: number;
   engagement: number;
   clarity: number;
+  selfEfficacy: number | null;
+  transferConfidence: number | null;
+  productiveStruggle: number | null;
   comments: string | null;
   studentId: string;
   createdAt: string;
@@ -79,6 +88,12 @@ function avgRating(responses: SurveyResponse[]): number {
       0
     ) / responses.length
   );
+}
+
+function outcomeAvg(responses: SurveyResponse[], key: string): number | null {
+  const vals = responses.filter((r: any) => r[key] != null).map((r: any) => r[key] as number);
+  if (vals.length === 0) return null;
+  return Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10;
 }
 
 function getAvgBadgeColor(val: number): string {
@@ -126,13 +141,19 @@ export default function SurveyResultsPage() {
   const trendData = weeks.map((w) => {
     const wrs = weekGroups[w];
     const entry: Record<string, number | string> = { week: `W${w}` };
-    for (const cat of CATEGORIES) {
+    for (const cat of CORE_CATEGORIES) {
       entry[cat.key] = Math.round((wrs.reduce((s, r: any) => s + r[cat.key], 0) / wrs.length) * 10) / 10;
+    }
+    for (const cat of OUTCOME_CATEGORIES) {
+      const vals = wrs.filter((r: any) => r[cat.key] != null);
+      if (vals.length > 0) {
+        entry[cat.key] = Math.round((vals.reduce((s: number, r: any) => s + r[cat.key], 0) / vals.length) * 10) / 10;
+      }
     }
     return entry;
   });
 
-  const radarData = CATEGORIES.map((cat) => ({
+  const radarData = CORE_CATEGORIES.map((cat) => ({
     category: cat.label,
     value:
       responses.length > 0
@@ -140,9 +161,11 @@ export default function SurveyResultsPage() {
         : 0,
   }));
 
+  const hasOutcomeData = responses.some((r) => r.selfEfficacy != null || r.transferConfidence != null || r.productiveStruggle != null);
+
   const distData = [0, 0, 0, 0, 0];
   for (const r of responses) {
-    for (const cat of CATEGORIES) {
+    for (const cat of CORE_CATEGORIES) {
       distData[(r as any)[cat.key] - 1]++;
     }
   }
@@ -255,7 +278,7 @@ export default function SurveyResultsPage() {
                     <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} />
                     <Tooltip />
                     <Legend />
-                    {CATEGORIES.map((cat) => (
+                    {CORE_CATEGORIES.map((cat) => (
                       <Line
                         key={cat.key}
                         type="monotone"
@@ -265,6 +288,20 @@ export default function SurveyResultsPage() {
                         strokeWidth={2}
                         dot={{ r: 4 }}
                         activeDot={{ r: 6 }}
+                      />
+                    ))}
+                    {hasOutcomeData && OUTCOME_CATEGORIES.map((cat) => (
+                      <Line
+                        key={cat.key}
+                        type="monotone"
+                        dataKey={cat.key}
+                        name={cat.label}
+                        stroke={cat.color}
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 5 }}
+                        connectNulls
                       />
                     ))}
                   </LineChart>
@@ -323,6 +360,44 @@ export default function SurveyResultsPage() {
               </Card>
             </div>
 
+            {hasOutcomeData && (
+              <Card data-testid="chart-outcomes">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <TrendingUp className="h-4 w-4" />
+                    Learning Outcome Indicators
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    Optional validated constructs measuring self-efficacy (Bandura, 1997), transfer confidence (Kirkpatrick L3), and productive struggle (Kapur, 2016).
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {OUTCOME_CATEGORIES.map((cat) => {
+                      const avg = outcomeAvg(responses, cat.key);
+                      const respondents = responses.filter((r: any) => r[cat.key] != null).length;
+                      return (
+                        <div key={cat.key} className="text-center p-4 rounded-lg border" data-testid={`outcome-${cat.key}`}>
+                          <div className="text-2xl font-bold font-mono" style={{ color: cat.color }}>
+                            {avg !== null ? avg.toFixed(1) : "—"}
+                          </div>
+                          <div className="text-sm font-medium mt-1">{cat.label}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {respondents} / {responses.length} responded
+                          </div>
+                          {avg !== null && (
+                            <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-semibold ${getAvgBadgeColor(avg)}`}>
+                              {avg >= 4 ? "Strong" : avg >= 3 ? "Moderate" : "Needs Attention"}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card data-testid="trend-table">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -336,7 +411,7 @@ export default function SurveyResultsPage() {
                     <thead>
                       <tr className="border-b">
                         <th className="text-left py-2 px-3 text-muted-foreground font-medium">Week</th>
-                        {CATEGORIES.map((cat) => (
+                        {CORE_CATEGORIES.map((cat) => (
                           <th key={cat.key} className="text-center py-2 px-2 text-muted-foreground font-medium text-xs">
                             {cat.label}
                           </th>
@@ -356,7 +431,7 @@ export default function SurveyResultsPage() {
                               <br />
                               <span className="text-xs text-muted-foreground">{WEEK_TITLES[w] || ""}</span>
                             </td>
-                            {CATEGORIES.map((cat) => {
+                            {CORE_CATEGORIES.map((cat) => {
                               const avg = wrs.reduce((s, r: any) => s + r[cat.key], 0) / wrs.length;
                               rowTotal += avg;
                               return (
@@ -368,8 +443,8 @@ export default function SurveyResultsPage() {
                               );
                             })}
                             <td className="text-center py-2 px-2">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold font-mono ${getAvgBadgeColor(rowTotal / CATEGORIES.length)}`}>
-                                {(rowTotal / CATEGORIES.length).toFixed(1)}
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold font-mono ${getAvgBadgeColor(rowTotal / CORE_CATEGORIES.length)}`}>
+                                {(rowTotal / CORE_CATEGORIES.length).toFixed(1)}
                               </span>
                             </td>
                             <td className="text-center py-2 px-2 text-muted-foreground">{wrs.length}</td>
