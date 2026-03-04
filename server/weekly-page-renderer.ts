@@ -1206,6 +1206,24 @@ ${renderCharacterCards(characters)}
         }
 
         y += 6;
+        checkPage(30);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, pageW - margin, y);
+        y += 8;
+
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SUPPORTING VISUALIZATIONS (Optional)', margin, y);
+        y += 7;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(MED[0], MED[1], MED[2]);
+        addWrapped('When submitting online, you may attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to support your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator considers visualizations when scoring Evidence Quality and Reasoning Coherence.', maxW, 4.5, MED);
+
+        y += 6;
         checkPage(20);
         doc.setFillColor(245, 247, 250);
         doc.roundedRect(margin, y - 4, maxW, 18, 2, 2, 'F');
@@ -1312,6 +1330,18 @@ ${renderCharacterCards(characters)}
       lines.push('');
       lines.push('[Your risk assessment here]');
       lines.push('');
+      lines.push('');
+      lines.push('');
+      lines.push('----------------------------------------');
+      lines.push('SUPPORTING VISUALIZATIONS (Optional)');
+      lines.push('----------------------------------------');
+      lines.push('');
+      lines.push('You may attach up to 5 charts, tables, or');
+      lines.push('visualizations to support your analysis when');
+      lines.push('submitting online. Export from Excel, Google');
+      lines.push('Sheets, or any tool as PNG/JPEG images.');
+      lines.push('The AI evaluator considers visualizations when');
+      lines.push('scoring Evidence Quality and Reasoning Coherence.');
       lines.push('');
       lines.push('');
       lines.push('========================================');

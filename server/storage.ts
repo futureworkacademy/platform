@@ -58,7 +58,7 @@ export interface IStorage {
   getWeeklyDecisions(weekNumber: number): Promise<WeeklyDecision[]>;
   getEnhancedDecisions(weekNumber: number): Promise<EnhancedDecision[]>;
   submitDecision(teamId: string, decisionId: string, optionId: string, rationale?: string): Promise<Team | undefined>;
-  submitEnhancedDecision(playerId: string, decisionId: string, attributeValues: Record<string, number | string | boolean>, rationale: string): Promise<PlayerDecisionSubmission>;
+  submitEnhancedDecision(playerId: string, decisionId: string, attributeValues: Record<string, number | string | boolean>, rationale: string, attachmentUrls?: string[]): Promise<PlayerDecisionSubmission>;
   getPlayerDecisions(playerId: string): Promise<PlayerDecisionSubmission[]>;
   getLeaderboard(): Promise<LeaderboardEntry[]>;
   getPeopleAnalytics(teamId: string): Promise<PeopleAnalytics>;
@@ -2374,7 +2374,8 @@ export class MemStorage implements IStorage {
     playerId: string,
     decisionId: string,
     attributeValues: Record<string, number | string | boolean>,
-    rationale: string
+    rationale: string,
+    attachmentUrls?: string[]
   ): Promise<PlayerDecisionSubmission> {
     const decision = enhancedDecisions.find(d => d.id === decisionId);
     if (!decision) throw new Error("Decision not found");
@@ -2403,6 +2404,7 @@ export class MemStorage implements IStorage {
       rationale,
       timestamp: new Date().toISOString(),
       computedImpact,
+      attachmentUrls: attachmentUrls && attachmentUrls.length > 0 ? attachmentUrls : undefined,
     };
 
     const existing = this.playerDecisions.get(playerId) || [];

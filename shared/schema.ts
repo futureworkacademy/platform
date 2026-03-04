@@ -547,6 +547,8 @@ export const playerDecisionSubmissionSchema = z.object({
   overallLLMScore: z.number().optional(), // 0-100
   // Whether evaluations are complete
   evaluationStatus: z.enum(["pending", "evaluating", "completed", "failed"]).optional(),
+  // Image attachments (charts, visualizations) - URLs in object storage
+  attachmentUrls: z.array(z.string()).optional(),
 });
 
 export type PlayerDecisionSubmission = z.infer<typeof playerDecisionSubmissionSchema>;

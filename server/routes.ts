@@ -1878,9 +1878,22 @@ export async function registerRoutes(
 
   app.post("/api/submit-enhanced-decision", isAuthenticated, async (req: any, res) => {
     try {
-      const { decisionId, attributeValues, rationale } = req.body;
+      const { decisionId, attributeValues, rationale, attachmentUrls } = req.body;
       if (!decisionId || !attributeValues || !rationale) {
         return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const MAX_ATTACHMENTS = 5;
+      const validatedAttachmentUrls: string[] = [];
+      if (attachmentUrls && Array.isArray(attachmentUrls)) {
+        if (attachmentUrls.length > MAX_ATTACHMENTS) {
+          return res.status(400).json({ error: `Maximum ${MAX_ATTACHMENTS} image attachments allowed` });
+        }
+        for (const url of attachmentUrls) {
+          if (typeof url === "string" && url.startsWith("/objects/")) {
+            validatedAttachmentUrls.push(url);
+          }
+        }
       }
       
       const wordCount = rationale.trim().split(/\s+/).length;
@@ -1984,13 +1997,14 @@ export async function registerRoutes(
             // Use custom rubric or default
             const rubricCriteria = attr.rubricCriteria || defaultRubricCriteria;
             
-            // Pass stakeholder context to LLM for essay grading
+            // Pass stakeholder context and image attachments to LLM for essay grading
             const evaluation = await evaluateTextResponse(
               plainText,
               `${decision.title}: ${decision.context}\nAttribute: ${attr.label} - ${attr.description}`,
               rubricCriteria,
               weekNumber,
-              stakeholderContext
+              stakeholderContext,
+              validatedAttachmentUrls.length > 0 ? validatedAttachmentUrls : undefined
             );
             
             llmEvaluations.push({
@@ -2032,7 +2046,7 @@ export async function registerRoutes(
       const decisionCategories = decision?.category ? (categoryMapping[decision.category] || []) : [];
       const difficultyModifier = getDecisionDifficultyModifier(simulationImpact, decisionCategories);
       
-      const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale);
+      const submission = await storage.submitEnhancedDecision(userId, decisionId, attributeValues, rationale, validatedAttachmentUrls);
       
       // Add LLM evaluations to the submission
       const enrichedSubmission = {
@@ -2064,6 +2078,7 @@ export async function registerRoutes(
           attributeKeys: Object.keys(attributeValues),
           essayEvaluationsCount: llmEvaluations.length,
           overallLLMScore,
+          attachmentCount: validatedAttachmentUrls.length,
         },
       });
       
@@ -2135,6 +2150,7 @@ export async function registerRoutes(
           attributeValues: submission.attributeValues,
           llmEvaluations: submission.llmEvaluations || [],
           overallLLMScore: submission.overallLLMScore || 0,
+          attachmentUrls: submission.attachmentUrls || [],
         };
       });
       

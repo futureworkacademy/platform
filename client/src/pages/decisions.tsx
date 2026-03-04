@@ -38,6 +38,7 @@ import {
   Phone,
 } from "lucide-react";
 import { AdvisorPicker } from "@/components/advisor-picker";
+import { ImageAttachmentUpload } from "@/components/ui/image-attachment-upload";
 import type { Team, WeeklyDecision, DecisionOption, EnhancedDecision, DecisionAttribute, ResearchReport, RubricCriterion } from "@shared/schema";
 import { defaultRubricCriteria } from "@shared/schema";
 import { CharacterNameLink } from "@/components/character-name-link";
@@ -531,6 +532,8 @@ function EnhancedDecisionCard({
   onAttributeChange,
   rationale,
   onRationaleChange,
+  attachmentUrls,
+  onAttachmentsChange,
   isSubmitted,
   onSubmit,
   isSubmitting,
@@ -540,6 +543,8 @@ function EnhancedDecisionCard({
   onAttributeChange: (attrId: string, value: number | string | boolean) => void;
   rationale: string;
   onRationaleChange: (value: string) => void;
+  attachmentUrls: string[];
+  onAttachmentsChange: (urls: string[]) => void;
   isSubmitted: boolean;
   onSubmit: () => void;
   isSubmitting: boolean;
@@ -669,6 +674,12 @@ function EnhancedDecisionCard({
                 Tip: Reference specific statistics and case studies from your research materials for bonus points!
               </p>
             </div>
+
+            <ImageAttachmentUpload
+              attachments={attachmentUrls}
+              onAttachmentsChange={onAttachmentsChange}
+              disabled={isSubmitting}
+            />
           </div>
         )}
 
@@ -706,6 +717,7 @@ export default function Decisions() {
   const [submittedDecisions, setSubmittedDecisions] = useState<Set<string>>(new Set());
   const [enhancedAttributeValues, setEnhancedAttributeValues] = useState<Record<string, Record<string, number | string | boolean>>>({});
   const [enhancedRationales, setEnhancedRationales] = useState<Record<string, string>>({});
+  const [enhancedAttachments, setEnhancedAttachments] = useState<Record<string, string[]>>({});
   const [submittedEnhanced, setSubmittedEnhanced] = useState<Set<string>>(new Set());
   const [showAdvisorPicker, setShowAdvisorPicker] = useState(false);
 
@@ -787,12 +799,13 @@ export default function Decisions() {
   });
 
   const submitEnhancedMutation = useMutation({
-    mutationFn: async ({ decisionId, attributeValues, rationale }: { 
+    mutationFn: async ({ decisionId, attributeValues, rationale, attachmentUrls }: { 
       decisionId: string; 
       attributeValues: Record<string, number | string | boolean>;
       rationale: string;
+      attachmentUrls?: string[];
     }) => {
-      return apiRequest("POST", "/api/submit-enhanced-decision", { decisionId, attributeValues, rationale });
+      return apiRequest("POST", "/api/submit-enhanced-decision", { decisionId, attributeValues, rationale, attachmentUrls });
     },
     onSuccess: (response: any, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/team"] });
@@ -1084,6 +1097,10 @@ export default function Decisions() {
                 onRationaleChange={(value) => {
                   setEnhancedRationales(prev => ({ ...prev, [enhanced.id]: value }));
                 }}
+                attachmentUrls={enhancedAttachments[enhanced.id] || []}
+                onAttachmentsChange={(urls) => {
+                  setEnhancedAttachments(prev => ({ ...prev, [enhanced.id]: urls }));
+                }}
                 isSubmitted={submittedEnhanced.has(enhanced.id)}
                 onSubmit={() => {
                   const attrs = enhancedAttributeValues[enhanced.id] || {};
@@ -1095,6 +1112,7 @@ export default function Decisions() {
                     decisionId: enhanced.id,
                     attributeValues: finalAttrs,
                     rationale: enhancedRationales[enhanced.id] || "",
+                    attachmentUrls: enhancedAttachments[enhanced.id] || [],
                   });
                 }}
                 isSubmitting={submitEnhancedMutation.isPending}

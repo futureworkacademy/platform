@@ -45,6 +45,7 @@ import {
   ShieldCheck,
   AlertTriangle,
   Info,
+  ImageIcon,
 } from "lucide-react";
 
 const TABLE_OF_CONTENTS = [
@@ -443,6 +444,11 @@ export default function StudentGuidePage() {
                     icon: MessageSquare,
                     title: "Essay Explanations Required",
                     text: "After selecting your option, you must write an essay explaining your reasoning. This is not optional. The essay is evaluated by AI on evidence quality, coherence, trade-off analysis, and stakeholder consideration.",
+                  },
+                  {
+                    icon: ImageIcon,
+                    title: "Attach Supporting Visualizations",
+                    text: "You may attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to support your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator considers your visualizations when scoring Evidence Quality and Reasoning Coherence — a well-chosen chart is as strong as citing statistics.",
                   },
                   {
                     icon: TrendingUp,

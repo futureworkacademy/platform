@@ -217,6 +217,13 @@ export async function generateStudentGuidePDF(characters?: CharacterSummary[]): 
   y = addBulletPoint(doc, "Stakeholder Consideration - Address the perspectives of employees, board, union, and customers", y, margin, contentWidth);
   y += 4;
 
+  y = addSubHeader(doc, "Visualization Attachments", y, margin);
+  y = addBodyText(doc, "You can attach up to 5 images (PNG, JPEG, or WebP, max 5MB each) per decision response to support your analysis. Charts, tables, diagrams, or screenshots that strengthen your argument will be evaluated by the AI grading system alongside your essay text.", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Attach charts, tables, or visualizations via the upload area below the essay editor", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Relevant visuals that reinforce your reasoning can improve your Evidence Quality score", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Attachments are optional — a strong written response is always sufficient", y, margin, contentWidth);
+  y += 4;
+
   y = addSectionHeader(doc, "Character Profiles", y, margin);
   y = addBodyText(doc, "Apex Manufacturing has 17 stakeholders with unique personalities and traits. Click on character names in briefings and decisions to view their profiles, or visit the Stakeholder Directory in the app for the full catalog.", y, margin, contentWidth);
   if (characters && characters.length > 0) {
@@ -248,6 +255,7 @@ export async function generateStudentGuidePDF(characters?: CharacterSummary[]): 
   y = addBulletPoint(doc, "Consider multiple stakeholders - don't just focus on one group", y, margin, contentWidth);
   y = addBulletPoint(doc, "Balance short-term gains with long-term sustainability", y, margin, contentWidth);
   y = addBulletPoint(doc, "Quality reasoning matters as much as the choice itself", y, margin, contentWidth);
+  y = addBulletPoint(doc, "Attach relevant charts or tables to strengthen data-driven arguments in your essays", y, margin, contentWidth);
   y += 4;
 
   y = addSectionHeader(doc, "Need Help?", y, margin);

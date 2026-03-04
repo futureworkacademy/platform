@@ -33,6 +33,7 @@ import {
   Users,
   Layers,
   Info,
+  ImageIcon,
 } from "lucide-react";
 import { useState } from "react";
 import type { PlayerDecisionSubmission } from "@shared/schema";
@@ -87,6 +88,7 @@ interface WeekResultsData {
       areasForImprovement: string[];
     }>;
     overallLLMScore?: number;
+    attachmentUrls?: string[];
   }>;
   topAnswers?: Array<{
     decisionId: string;
@@ -253,6 +255,34 @@ function DecisionResultCard({
         <CardContent className="pt-0">
           <Separator className="mb-4" />
           
+          {decision.attachmentUrls && decision.attachmentUrls.length > 0 && (
+            <div className="mb-4" data-testid="submission-attachments">
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                Attached Visualizations ({decision.attachmentUrls.length})
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {decision.attachmentUrls.map((url, i) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border bg-muted/30 overflow-hidden aspect-[4/3] block hover:ring-2 hover:ring-primary/40 transition-all"
+                    data-testid={`attachment-image-${i}`}
+                  >
+                    <img
+                      src={url}
+                      alt={`Visualization ${i + 1}`}
+                      className="w-full h-full object-contain p-1"
+                      loading="lazy"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {hasLLMEvaluations ? (
             <div className="space-y-6">
               {decision.llmEvaluations!.map((evaluation, idx) => (

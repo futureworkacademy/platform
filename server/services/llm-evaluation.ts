@@ -134,7 +134,8 @@ export async function evaluateTextResponse(
   promptContext: string,
   rubricCriteria: RubricCriterionInput[],
   weekNumber: number,
-  stakeholderContext?: string
+  stakeholderContext?: string,
+  attachmentUrls?: string[]
 ): Promise<RubricEvaluationResult> {
   try {
     const criteriaPrompt = rubricCriteria.map(c => 
@@ -142,12 +143,17 @@ export async function evaluateTextResponse(
        Evaluation guide: ${c.evaluationGuidelines}`
     ).join('\n\n');
 
-    const response_result = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert business education evaluator assessing student responses in a simulation about manufacturing AI adoption and workforce management. 
+    const hasAttachments = attachmentUrls && attachmentUrls.length > 0;
+    const attachmentGuidance = hasAttachments ? `
+
+VISUAL ATTACHMENTS:
+The student has attached ${attachmentUrls.length} visualization(s) (charts, tables, or diagrams) to support their analysis. When evaluating:
+- Consider whether the visualizations strengthen and are relevant to their written argument
+- Evaluate data literacy: Are charts properly labeled, clear, and meaningful?
+- Give credit for effective use of data visualization to support reasoning
+- A well-chosen chart that illustrates a key point should be treated as strong evidence, similar to citing statistics` : '';
+
+    const systemContent = `You are an expert business education evaluator assessing student responses in a simulation about manufacturing AI adoption and workforce management. 
           
 Your task is to evaluate a student's written response against a specific rubric. Be fair and reward strong work generously — graduate students who demonstrate critical thinking, cite specific evidence, and address multiple dimensions of a problem deserve scores in the top range.
 
@@ -166,12 +172,11 @@ Key topics students should understand:
 - Workforce solutions (reskilling, dual career tracks, worker councils)
 - Union dynamics and employee relations
 - Financial trade-offs of automation investments
+${attachmentGuidance}
 
-${stakeholderContext || ''}`,
-        },
-        {
-          role: "user",
-          content: `Week ${weekNumber} Context:
+${stakeholderContext || ''}`;
+
+    const userTextContent = `Week ${weekNumber} Context:
 ${promptContext}
 
 Student's Response:
@@ -196,8 +201,41 @@ Respond with a JSON object containing:
   "areasForImprovement": ["<improvement 1>", "<improvement 2>"]
 }
 
-Be specific in feedback. Reference what the student did well or missed.
-Respond ONLY with the JSON object.`,
+Be specific in feedback. Reference what the student did well or missed.${hasAttachments ? ' Comment on how effectively the student used their attached visualizations.' : ''}
+Respond ONLY with the JSON object.`;
+
+    const userContent: any[] = [{ type: "text", text: userTextContent }];
+    
+    if (hasAttachments) {
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : process.env.REPL_SLUG 
+          ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+          : 'http://localhost:5000';
+      
+      for (const attachmentUrl of attachmentUrls) {
+        userContent.push({
+          type: "image_url",
+          image_url: { 
+            url: `${baseUrl}${attachmentUrl}`,
+            detail: "low"
+          }
+        });
+      }
+    }
+
+    const model = hasAttachments ? "gpt-4o" : "gpt-4.1-nano";
+
+    const response_result = await openai.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: systemContent,
+        },
+        {
+          role: "user",
+          content: hasAttachments ? userContent : userTextContent,
         },
       ],
       response_format: { type: "json_object" },
