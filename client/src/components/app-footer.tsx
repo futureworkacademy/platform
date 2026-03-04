@@ -54,6 +54,14 @@ export function AppFooter() {
           >
             Privacy Policy
           </a>
+          <span className="opacity-40">|</span>
+          <a
+            href="/terms"
+            className="underline underline-offset-4 opacity-80 hover:opacity-100 transition-opacity"
+            data-testid="link-footer-terms"
+          >
+            Terms of Service
+          </a>
         </div>
         <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
           <p data-testid="text-copyright">

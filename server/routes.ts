@@ -6,7 +6,7 @@ import { insertDecisionSchema, insertTeamSchema, defaultCompanyState } from "@sh
 import { z } from "zod";
 import { isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { db } from "./db";
-import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails, advisors, advisorCalls } from "@shared/models/auth";
+import { users, organizations, organizationMembers, simulations, scheduledReminders, aboutPageContent, emailTemplates, EMAIL_TEMPLATE_TYPES, ROLES, type Role, SIMULATION_STATUS, mediaEngagement, simulationContent, characterProfiles, triggeredVoicemails, advisors, advisorCalls, activityLogs as activityLogsTable } from "@shared/models/auth";
 import { teams } from "@shared/schema";
 import { eq, sql, and, or } from "drizzle-orm";
 import { institutions } from "@shared/institutions";
@@ -2880,6 +2880,149 @@ Provide your consistency review in JSON format.`;
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  app.get("/api/user/export-data", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const user = await authStorage.getUser(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const userProfile = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        jobTitle: user.jobTitle,
+        company: user.company,
+        institution: user.institution,
+        department: user.department,
+        createdAt: user.createdAt,
+      };
+
+      const userTeams = user.teamId
+        ? await db.select().from(teams).where(eq(teams.id, user.teamId))
+        : [];
+
+      const teamData = userTeams.map(t => ({
+        id: t.id,
+        name: t.name,
+        currentWeek: t.currentWeek,
+        decisions: t.decisions,
+        decisionRecords: t.decisionRecords,
+        companyState: t.companyState,
+        weeklyHistory: t.weeklyHistory,
+        createdAt: t.createdAt,
+      }));
+
+      const userActivity = await db.select({
+        eventType: activityLogsTable.eventType,
+        timestamp: activityLogsTable.timestamp,
+        weekNumber: activityLogsTable.weekNumber,
+        details: activityLogsTable.details,
+      }).from(activityLogsTable)
+        .where(eq(activityLogsTable.userId, userId))
+        .orderBy(desc(activityLogsTable.timestamp))
+        .limit(500);
+
+      const userEngagement = await db.select().from(mediaEngagement)
+        .where(eq(mediaEngagement.userId, userId));
+
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        profile: userProfile,
+        simulationData: teamData,
+        activityLog: userActivity,
+        mediaEngagement: userEngagement.map(e => ({
+          contentId: e.contentId,
+          weekNumber: e.weekNumber,
+          completed: e.completed,
+          percentWatched: e.percentWatched,
+          totalWatchTimeSeconds: e.totalWatchTimeSeconds,
+        })),
+      };
+
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", `attachment; filename="fwa-data-export-${new Date().toISOString().split("T")[0]}.json"`);
+      res.json(exportData);
+    } catch (error) {
+      console.error("Error exporting user data:", error);
+      res.status(500).json({ error: "Failed to export data" });
+    }
+  });
+
+  app.post("/api/user/request-deletion", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const user = await authStorage.getUser(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { deletionRequests: deletionRequestsTable } = await import("@shared/models/auth");
+
+      const existing = await db.select({ id: deletionRequestsTable.id, status: deletionRequestsTable.status })
+        .from(deletionRequestsTable)
+        .where(and(
+          eq(deletionRequestsTable.userId, userId),
+          eq(deletionRequestsTable.status, "pending")
+        ));
+
+      if (existing.length > 0) {
+        return res.status(409).json({ error: "A deletion request is already pending for your account." });
+      }
+
+      const reason = req.body?.reason ? String(req.body.reason).trim().substring(0, 1000) : null;
+
+      const [request] = await db.insert(deletionRequestsTable).values({
+        userId,
+        userEmail: user.email || null,
+        userName: [user.firstName, user.lastName].filter(Boolean).join(" ") || null,
+        reason,
+      }).returning();
+
+      await storage.logActivity({
+        eventType: "account_deletion_requested",
+        userId,
+        userEmail: user.email || undefined,
+        userName: [user.firstName, user.lastName].filter(Boolean).join(" ") || undefined,
+        details: { requestId: request.id },
+      });
+
+      res.json({
+        id: request.id,
+        status: "pending",
+        message: "Your account deletion request has been submitted. An administrator will process it within 30 days per our privacy policy.",
+      });
+    } catch (error) {
+      console.error("Error creating deletion request:", error);
+      res.status(500).json({ error: "Failed to submit deletion request" });
+    }
+  });
+
+  app.get("/api/user/deletion-status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const { deletionRequests: deletionRequestsTable } = await import("@shared/models/auth");
+
+      const requests = await db.select({
+        id: deletionRequestsTable.id,
+        status: deletionRequestsTable.status,
+        createdAt: deletionRequestsTable.createdAt,
+        processedAt: deletionRequestsTable.processedAt,
+      }).from(deletionRequestsTable)
+        .where(eq(deletionRequestsTable.userId, userId))
+        .orderBy(desc(deletionRequestsTable.createdAt))
+        .limit(1);
+
+      res.json({ request: requests[0] || null });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check deletion status" });
     }
   });
 

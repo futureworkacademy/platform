@@ -101,6 +101,42 @@ Future Work Academy is committed to protecting student data and maintaining the 
 | Command Injection | No shell execution, validated inputs |
 | Path Traversal | Sanitized file paths, allowlisted directories |
 
+### 3.5 HTTP Security Headers
+
+All responses include security headers enforced via Helmet.js middleware:
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| Content-Security-Policy | Restrictive policy (self + GA4 + fonts) | Prevents unauthorized script execution, XSS |
+| Strict-Transport-Security | max-age=31536000; includeSubDomains; preload | Forces HTTPS, prevents downgrade attacks |
+| X-Frame-Options | DENY | Prevents clickjacking |
+| X-Content-Type-Options | nosniff | Prevents MIME type sniffing |
+| Referrer-Policy | strict-origin-when-cross-origin | Controls referrer information leakage |
+| Cross-Origin-Opener-Policy | same-origin | Isolates browsing context |
+| X-DNS-Prefetch-Control | off | Prevents DNS prefetching leakage |
+| X-Permitted-Cross-Domain-Policies | none | Blocks Flash/PDF cross-domain policies |
+
+### 3.6 Rate Limiting
+
+API endpoints are protected by tiered rate limiting via express-rate-limit:
+
+| Tier | Scope | Limit | Purpose |
+|------|-------|-------|---------|
+| Global | All /api/* routes | 100 req/min per IP | General abuse prevention |
+| Authentication | /api/login, /api/auth | 20 req/min per IP | Brute-force protection |
+| Mutations | POST/PATCH/DELETE operations | 30 req/min per IP | Write abuse prevention |
+
+Exceeding limits returns HTTP 429 (Too Many Requests) with standard RateLimit headers.
+
+### 3.7 Cookie Consent & Analytics
+
+A GDPR/CCPA-compliant cookie consent banner is presented on first visit:
+
+- **Accept All**: Enables Google Analytics 4 (GA4) tracking alongside essential cookies
+- **Essential Only**: Disables GA4 entirely (sets `window['ga-disable-G-Y13X8BC4MW'] = true`)
+- Preference stored in localStorage and respected on subsequent visits
+- GA4 script is not loaded at all when "Essential Only" is selected
+
 ---
 
 ## 4. FERPA Compliance

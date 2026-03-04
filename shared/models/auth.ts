@@ -681,6 +681,21 @@ export const surveyResponses = pgTable("survey_responses", {
 export type SurveyResponse = typeof surveyResponses.$inferSelect;
 export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
 
+export const deletionRequests = pgTable("deletion_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  userEmail: varchar("user_email"),
+  userName: varchar("user_name"),
+  status: varchar("status").notNull().default("pending"),
+  reason: text("reason"),
+  processedAt: timestamp("processed_at"),
+  processedBy: varchar("processed_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type DeletionRequest = typeof deletionRequests.$inferSelect;
+export type InsertDeletionRequest = typeof deletionRequests.$inferInsert;
+
 export const activityLogs = pgTable("activity_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   timestamp: timestamp("timestamp").defaultNow(),

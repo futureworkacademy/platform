@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell, MessageSquare, LogOut } from "lucide-react";
+import { User, Briefcase, GraduationCap, Building2, Camera, Save, ArrowLeft, Bell, MessageSquare, LogOut, Download, Trash2, Shield, AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -452,6 +452,151 @@ export default function Profile() {
           </div>
         </form>
       </Form>
+
+      <DataRightsSection />
     </div>
+  );
+}
+
+function DataRightsSection() {
+  const { toast } = useToast();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const { data: deletionStatus } = useQuery<{ request: { id: string; status: string; createdAt: string; processedAt: string | null } | null }>({
+    queryKey: ["/api/user/deletion-status"],
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/user/export-data", { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to export data");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `fwa-data-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Data Exported",
+        description: "Your data has been downloaded as a JSON file.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Export Failed",
+        description: "Unable to export your data. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/user/request-deletion");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/deletion-status"] });
+      setShowDeleteConfirm(false);
+      toast({
+        title: "Deletion Request Submitted",
+        description: "Your account deletion request has been submitted. An administrator will process it within 30 days.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Request Failed",
+        description: error.message || "Unable to submit deletion request.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const hasPendingDeletion = deletionStatus?.request?.status === "pending";
+
+  return (
+    <>
+      <Separator />
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-base">Your Data Rights</CardTitle>
+            <p className="text-sm text-muted-foreground">Export your data or request account deletion per our privacy policy</p>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium" data-testid="text-export-label">Export My Data</p>
+              <p className="text-sm text-muted-foreground">
+                Download all your personal data including profile, simulation decisions, and activity history as JSON
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => exportMutation.mutate()}
+              disabled={exportMutation.isPending}
+              data-testid="button-export-data"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {exportMutation.isPending ? "Exporting..." : "Export"}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium" data-testid="text-deletion-label">Request Account Deletion</p>
+              <p className="text-sm text-muted-foreground">
+                {hasPendingDeletion
+                  ? "A deletion request is already pending and will be processed within 30 days."
+                  : "Request permanent deletion of your account and all associated data"}
+              </p>
+            </div>
+            {hasPendingDeletion ? (
+              <Button variant="outline" disabled data-testid="button-deletion-pending">
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Pending
+              </Button>
+            ) : showDeleteConfirm ? (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  data-testid="button-cancel-deletion"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => deletionMutation.mutate()}
+                  disabled={deletionMutation.isPending}
+                  data-testid="button-confirm-deletion"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {deletionMutation.isPending ? "Submitting..." : "Confirm"}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(true)}
+                data-testid="button-request-deletion"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Request
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }

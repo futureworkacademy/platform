@@ -151,9 +151,13 @@ const COMPLIANCE_COMPLETED = [
   "No-training policy (submissions never used for AI model training)",
   "Activity audit logging with 2-year retention",
   "Offline identity mapping for instructors",
-  "Published privacy policy and terms of service",
+  "Published privacy policy (GDPR & CCPA sections) and terms of service",
   "FERPA self-assessment completed",
   "Security & compliance documentation (400+ lines)",
+  "Security headers (Helmet.js — CSP, HSTS, X-Frame-Options, Referrer-Policy)",
+  "API rate limiting (global, auth, and mutation tiers)",
+  "Cookie consent banner with GA4 opt-out",
+  "Self-service data export and account deletion requests",
 ];
 
 const COMPLIANCE_ROADMAP = [
