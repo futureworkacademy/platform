@@ -239,7 +239,7 @@ export default function Brochure() {
               {[
                 { stat: "72%", label: "of executives say AI adoption is their top strategic priority" },
                 { stat: "63%", label: "of employees report anxiety about AI replacing their roles" },
-                { stat: "< 15%", label: "of MBA programs offer experiential AI leadership training" },
+                { stat: "Few", label: "MBA programs offer experiential AI leadership simulation tools" },
               ].map((item, i) => (
                 <FadeInSection key={item.stat} delay={i * 150}>
                   <Card className="text-center h-full">

@@ -356,9 +356,9 @@ export default function ForEducators() {
             </FadeInSection>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { icon: BookOpen, title: "Experiential Learning", desc: "Students make consequential decisions over 8 simulated weeks and see the organizational ripple effects — not just read about someone else's.", accent: "text-blue-500", bg: "bg-blue-500/10" },
-                { icon: Target, title: "Productive Failure", desc: "A risk-free environment where strategic mistakes become powerful learning moments. Students develop resilience and adaptive thinking.", accent: "text-green-500", bg: "bg-green-500/10" },
-                { icon: Award, title: "Actionable Knowledge", desc: "Moving beyond theory to create the data-driven rigor required by the academic community while delivering the engagement students demand.", accent: "text-purple-500", bg: "bg-purple-500/10" },
+                { icon: BookOpen, title: "Experiential Learning", sup: "6", desc: "Students make consequential decisions over 8 simulated weeks and see the organizational ripple effects — implementing Kolb's learning cycle iteratively to address concerns about single-iteration designs.", accent: "text-blue-500", bg: "bg-blue-500/10" },
+                { icon: Target, title: "Productive Failure", sup: "8", desc: "A risk-free environment where strategic mistakes become powerful learning moments. Kapur's research shows students who struggle with complex problems before instruction outperform those who receive instruction first.", accent: "text-green-500", bg: "bg-green-500/10" },
+                { icon: Award, title: "Actionable Knowledge", sup: "4", desc: "Moving beyond theory to create the data-driven rigor required by the academic community while delivering the engagement students demand.", accent: "text-purple-500", bg: "bg-purple-500/10" },
               ].map((item, i) => (
                 <FadeInSection key={item.title} delay={i * 150}>
                   <Card className="bg-card h-full">
@@ -366,7 +366,7 @@ export default function ForEducators() {
                       <div className={`h-12 w-12 rounded-xl ${item.bg} flex items-center justify-center mb-5`}>
                         <item.icon className={`h-6 w-6 ${item.accent}`} />
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}{"sup" in item && item.sup && <sup><a href="#references" className="text-primary hover:underline text-xs">{item.sup}</a></sup>}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                     </CardContent>
                   </Card>
@@ -387,7 +387,7 @@ export default function ForEducators() {
                   </h2>
                   <p className="text-muted-foreground mt-6 text-lg leading-relaxed">
                     Unlike "black box" AI tools that obscure evaluation logic, FWA uses transparent,
-                    rubric-based assessment.<sup><a href="#references" className="text-primary hover:underline">6</a></sup> Students see
+                    rubric-based assessment.<sup><a href="#references" className="text-primary hover:underline">9</a></sup> Students see
                     the exact same criteria used by the AI grader — displayed on every weekly simulation page.
                   </p>
                   <div className="mt-8 space-y-3">
@@ -500,8 +500,10 @@ export default function ForEducators() {
                   </h2>
                   <p className="text-muted-foreground mt-6 text-lg leading-relaxed">
                     Whether you're teaching introductory management to undergraduates or running a
-                    rigorous MBA seminar, the simulation adapts. Difficulty affects consequence severity,
-                    financial complexity, and rubric expectations — all configurable by the instructor.
+                    rigorous MBA seminar, the simulation adapts — implementing Vygotsky's Zone of Proximal
+                    Development<sup><a href="#references" className="text-primary hover:underline">10</a></sup> by
+                    progressively reducing scaffolding as student capability increases. Difficulty affects consequence
+                    severity, financial complexity, and rubric expectations — all configurable by the instructor.
                   </p>
                 </div>
               </FadeInSection>
@@ -997,10 +999,49 @@ export default function ForEducators() {
               </p>
               <p className="pl-8 -indent-8">
                 <sup className="text-primary font-bold">8</sup>{" "}
-                Future Work Academy. (2026). <em>AI transparency & prompt documentation</em> [Internal technical audit]. FWA.
+                Kapur, M. (2016). Examining productive failure, productive success, and unproductive failure in learning. <em>Educational Psychologist, 51</em>(2), 289-299.{" "}
+                <a href="https://doi.org/10.1080/00461520.2016.1155457" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1080/00461520.2016.1155457</a>
               </p>
               <p className="pl-8 -indent-8">
                 <sup className="text-primary font-bold">9</sup>{" "}
+                Black, P., & Wiliam, D. (1998). Assessment and classroom learning. <em>Assessment in Education: Principles, Policy & Practice, 5</em>(1), 7-74.{" "}
+                <a href="https://doi.org/10.1080/0969595980050102" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1080/0969595980050102</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">10</sup>{" "}
+                Wood, D., Bruner, J. S., & Ross, G. (1976). The role of tutoring in problem solving. <em>Journal of Child Psychology and Psychiatry, 17</em>(2), 89-100.{" "}
+                <a href="https://doi.org/10.1111/j.1469-7610.1976.tb00381.x" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1111/j.1469-7610.1976.tb00381.x</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">11</sup>{" "}
+                Hattie, J., & Timperley, H. (2007). The power of feedback. <em>Review of Educational Research, 77</em>(1), 81-112.{" "}
+                <a href="https://doi.org/10.3102/003465430298487" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.3102/003465430298487</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">12</sup>{" "}
+                Brown, J. S., Collins, A., & Duguid, P. (1989). Situated cognition and the culture of learning. <em>Educational Researcher, 18</em>(1), 32-42.{" "}
+                <a href="https://doi.org/10.3102/0013189X018001032" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.3102/0013189X018001032</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">13</sup>{" "}
+                Mitchell, R. K., Agle, B. R., & Wood, D. J. (1997). Toward a theory of stakeholder identification and salience. <em>Academy of Management Review, 22</em>(4), 853-886.{" "}
+                <a href="https://doi.org/10.5465/amr.1997.9711022105" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.5465/amr.1997.9711022105</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">14</sup>{" "}
+                Shermis, M. D., & Burstein, J. (Eds.). (2013). <em>Handbook of automated essay evaluation: Current applications and new directions</em>. Routledge.
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">15</sup>{" "}
+                Kayes, D. C. (2002). Experiential learning and its critics: Preserving the role of experience in management learning and education. <em>Academy of Management Learning & Education, 1</em>(2), 137-149.{" "}
+                <a href="https://doi.org/10.5465/amle.2002.8509336" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.5465/amle.2002.8509336</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">16</sup>{" "}
+                Future Work Academy. (2026). <em>AI transparency & prompt documentation</em> [Internal technical audit]. FWA.
+              </p>
+              <p className="pl-8 -indent-8">
+                <sup className="text-primary font-bold">17</sup>{" "}
                 Future Work Academy. (2026). <em>Security & compliance documentation</em> [FERPA alignment]. FWA.
               </p>
             </div>

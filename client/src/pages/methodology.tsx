@@ -150,6 +150,95 @@ export default function Methodology() {
           </div>
         </section>
 
+        <section className="py-24 sm:py-32 px-4 bg-card/30">
+          <div className="container mx-auto max-w-5xl">
+            <FadeInSection>
+              <div className="text-center mb-16">
+                <p className="text-sm font-medium text-primary uppercase tracking-widest mb-3">Theoretical Foundation</p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight" data-testid="text-theory-headline">
+                  Grounded in research.<br />Not just built — designed.
+                </h2>
+                <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
+                  Every design decision in this assessment system maps to established pedagogical research,
+                  ensuring the grading methodology serves learning — not just measurement.
+                </p>
+              </div>
+            </FadeInSection>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "Formative Assessment",
+                  citation: "Black & Wiliam (1998)",
+                  desc: "Rubric criteria are displayed while students write — not hidden until after submission. This implements Black & Wiliam's seminal finding that achievement improves when students understand evaluation criteria before performing tasks.",
+                  anchor: "rubric-visibility",
+                },
+                {
+                  title: "Feed-Forward Feedback",
+                  citation: "Hattie & Timperley (2007)",
+                  desc: "Per-criterion AI feedback after each weekly submission informs the next performance rather than merely evaluating the last. Each cycle's feedback becomes input for the next week's decision-making.",
+                  anchor: "iterative-feedback",
+                },
+                {
+                  title: "Iterative Experiential Cycles",
+                  citation: "Kolb (1984); Kayes (2002)",
+                  desc: "The 8-week simulation repeats Kolb's experiential learning cycle — experience, reflection, conceptualization, experimentation — with compounding consequences, directly addressing Kayes's critique of single-iteration designs.",
+                  anchor: "experiential-cycles",
+                },
+                {
+                  title: "Productive Failure",
+                  citation: "Kapur (2008, 2016)",
+                  desc: "Students who struggle with complex problems before receiving instruction outperform those who receive instruction first. The compounding metric system — where early decisions create downstream consequences — embodies this principle.",
+                  anchor: "productive-failure",
+                },
+                {
+                  title: "Scaffolded Complexity",
+                  citation: "Wood, Bruner & Ross (1976)",
+                  desc: "Three difficulty tiers progressively reduce scaffolding as student capability increases — fewer advisor uses, tighter crisis thresholds — implementing Vygotsky's Zone of Proximal Development through structured support withdrawal.",
+                  anchor: "scaffolding",
+                },
+                {
+                  title: "Automated Essay Scoring",
+                  citation: "Shermis & Burstein (2013)",
+                  desc: "AI-assisted evaluation achieves inter-rater reliability comparable to human raters when rubric criteria are clearly defined. Our transparent, criterion-level rubric design is built on this established AES research foundation.",
+                  anchor: "aes-foundation",
+                },
+              ].map((item, i) => (
+                <FadeInSection key={item.title} delay={i * 100}>
+                  <div className="p-6 rounded-2xl bg-card border border-border h-full flex flex-col" data-testid={`card-theory-${i}`}>
+                    <div className="text-xs font-medium text-primary mb-2">{item.citation}</div>
+                    <h3 className="text-lg font-bold text-foreground mb-3">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-1">{item.desc}</p>
+                  </div>
+                </FadeInSection>
+              ))}
+            </div>
+            <FadeInSection delay={600}>
+              <div className="mt-12 p-6 rounded-2xl bg-muted/50 border border-border" data-testid="card-theory-additional">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground mb-2">Situated Cognition</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Brown, Collins & Duguid (1989) established that knowledge is most effectively acquired within
+                      authentic contexts. The simulation's CEO role, 17 stakeholder characters with quantified traits,
+                      and industry-sourced articles create a situated learning environment where strategic reasoning
+                      is embedded in realistic organizational dynamics.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground mb-2">Stakeholder Salience</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      The character system's influence, hostility, flexibility, and risk-tolerance dimensions
+                      mirror Mitchell, Agle & Wood's (1997) stakeholder salience framework of power, urgency,
+                      and legitimacy — creating the organizational complexity that makes decision-making
+                      consequential and grading contextually rich.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </FadeInSection>
+          </div>
+        </section>
+
         <section className="py-24 sm:py-32 px-4">
           <div className="container mx-auto max-w-5xl">
             <FadeInSection>
@@ -503,6 +592,50 @@ export default function Methodology() {
                   </div>
                 </div>
               </FadeInSection>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12 px-4 bg-muted/30 border-t" id="references">
+          <div className="container mx-auto max-w-4xl">
+            <h3 className="text-sm font-semibold mb-6 text-muted-foreground uppercase tracking-widest">
+              References
+            </h3>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p className="pl-8 -indent-8">
+                Black, P., & Wiliam, D. (1998). Assessment and classroom learning. <em>Assessment in Education: Principles, Policy & Practice, 5</em>(1), 7-74.{" "}
+                <a href="https://doi.org/10.1080/0969595980050102" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1080/0969595980050102</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Brown, J. S., Collins, A., & Duguid, P. (1989). Situated cognition and the culture of learning. <em>Educational Researcher, 18</em>(1), 32-42.{" "}
+                <a href="https://doi.org/10.3102/0013189X018001032" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.3102/0013189X018001032</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Hattie, J., & Timperley, H. (2007). The power of feedback. <em>Review of Educational Research, 77</em>(1), 81-112.{" "}
+                <a href="https://doi.org/10.3102/003465430298487" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.3102/003465430298487</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Kapur, M. (2016). Examining productive failure, productive success, and unproductive failure in learning. <em>Educational Psychologist, 51</em>(2), 289-299.{" "}
+                <a href="https://doi.org/10.1080/00461520.2016.1155457" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1080/00461520.2016.1155457</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Kayes, D. C. (2002). Experiential learning and its critics: Preserving the role of experience in management learning and education. <em>Academy of Management Learning & Education, 1</em>(2), 137-149.{" "}
+                <a href="https://doi.org/10.5465/amle.2002.8509336" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.5465/amle.2002.8509336</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Kolb, D. A. (1984). <em>Experiential learning: Experience as the source of learning and development</em>. Prentice-Hall.
+              </p>
+              <p className="pl-8 -indent-8">
+                Mitchell, R. K., Agle, B. R., & Wood, D. J. (1997). Toward a theory of stakeholder identification and salience. <em>Academy of Management Review, 22</em>(4), 853-886.{" "}
+                <a href="https://doi.org/10.5465/amr.1997.9711022105" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.5465/amr.1997.9711022105</a>
+              </p>
+              <p className="pl-8 -indent-8">
+                Shermis, M. D., & Burstein, J. (Eds.). (2013). <em>Handbook of automated essay evaluation: Current applications and new directions</em>. Routledge.
+              </p>
+              <p className="pl-8 -indent-8">
+                Wood, D., Bruner, J. S., & Ross, G. (1976). The role of tutoring in problem solving. <em>Journal of Child Psychology and Psychiatry, 17</em>(2), 89-100.{" "}
+                <a href="https://doi.org/10.1111/j.1469-7610.1976.tb00381.x" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">doi:10.1111/j.1469-7610.1976.tb00381.x</a>
+              </p>
             </div>
           </div>
         </section>

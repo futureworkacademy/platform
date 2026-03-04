@@ -289,8 +289,8 @@ export default function About() {
                 </FadeInSection>
                 <div className="grid md:grid-cols-3 gap-8">
                   {[
-                    { icon: BookOpen, title: "Research-Backed", desc: "Built on evidence-based pedagogy including experiential learning theory, productive failure, and the scholar-practitioner model.", accent: "text-blue-500", bg: "bg-blue-500/10" },
-                    { icon: GraduationCap, title: "Academically Rigorous", desc: "Designed for AACSB-aligned programs with transparent rubrics, published evaluation criteria, and formative assessment.", accent: "text-green-500", bg: "bg-green-500/10" },
+                    { icon: BookOpen, title: "Research-Backed", desc: "Built on Kolb's experiential learning (1984), Kapur's productive failure (2016), Black & Wiliam's formative assessment (1998), and Wood, Bruner & Ross's scaffolding (1976).", accent: "text-blue-500", bg: "bg-blue-500/10" },
+                    { icon: GraduationCap, title: "Academically Rigorous", desc: "Designed for AACSB-aligned programs with transparent rubrics, published evaluation criteria, and criterion-referenced AI assessment grounded in AES research (Shermis & Burstein, 2013).", accent: "text-green-500", bg: "bg-green-500/10" },
                     { icon: Lightbulb, title: "Industry-Relevant", desc: "Scenarios grounded in real workforce challenges — automation, AI adoption, talent management, and organizational change.", accent: "text-purple-500", bg: "bg-purple-500/10" },
                   ].map((item, i) => (
                     <FadeInSection key={item.title} delay={i * 150}>
