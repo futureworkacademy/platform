@@ -86,6 +86,10 @@ function Cite({ ids }: { ids: number[] }) {
 }
 
 export default function WhitePaper() {
+  useEffect(() => {
+    document.title = "White Paper: AI-Driven Experiential Learning | Future Work Academy";
+  }, []);
+
   const handlePrint = () => {
     window.print();
   };
@@ -94,11 +98,24 @@ export default function WhitePaper() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <style>{`
         @media print {
-          header, footer, [data-testid="button-download-pdf"], [data-testid="button-sidebar-toggle"] { display: none !important; }
-          section { break-inside: avoid; page-break-inside: avoid; min-height: auto !important; padding-top: 2rem !important; padding-bottom: 2rem !important; }
+          @page { margin: 2cm 1.5cm; size: A4; }
+          header, footer, nav, [data-testid="button-download-pdf"], [data-testid="button-sidebar-toggle"], [data-testid="button-cta-download-pdf"], .print\\:hidden { display: none !important; }
+          section { break-inside: avoid; page-break-inside: avoid; min-height: auto !important; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+          section:first-of-type { min-height: auto !important; height: auto !important; padding-top: 0 !important; }
           .print\\:break-before-page { break-before: page; }
-          body { font-size: 11pt; }
+          body { font-size: 11pt; color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           * { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+          h1, h2, h3, h4, h5, h6 { color: #1e3a5f !important; }
+          p, span, div { color: #333 !important; }
+          .text-muted-foreground { color: #555 !important; }
+          .text-primary { color: #1e3a5f !important; }
+          a { color: #1e3a5f !important; text-decoration: underline !important; }
+          sup a { text-decoration: none !important; }
+          .bg-card, .bg-card\\/30, .bg-card\\/50 { background: transparent !important; }
+          .border { border-color: #ddd !important; }
+          .rounded-2xl, .rounded-xl { border-radius: 4px !important; }
+          .bg-gradient-to-b { background: none !important; }
+          .min-h-\\[85vh\\] { min-height: auto !important; }
         }
       `}</style>
 
@@ -695,10 +712,10 @@ export default function WhitePaper() {
                 Request an educator demo or explore the published methodology.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/for-educators">
+                <Link href="/for-educators#demo">
                   <Button size="lg" data-testid="button-cta-educators">
                     <GraduationCap className="mr-2 h-4 w-4" />
-                    For Educators
+                    Request a Demo
                   </Button>
                 </Link>
                 <Link href="/methodology">

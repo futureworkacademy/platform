@@ -142,23 +142,28 @@ export function generateBrochurePDF(): void {
     ["Instant Setup", "Privacy Mode enables anonymous enrollment; magic invite links let students join in seconds."],
   ];
   const colW = (contentWidth - 6) / 2;
-  solutionPoints.forEach((sp, i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const bx = margin + col * (colW + 6);
-    const by = y + row * 14;
-    doc.setFillColor(...GREEN);
-    doc.circle(bx + 2, by + 1, 1.2, "F");
-    doc.setTextColor(...DARK_GRAY);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text(sp[0], bx + 6, by + 2);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(...MED_GRAY);
-    addWrappedText(doc, sp[1], bx + 6, by + 6, colW - 8, 3.5);
-  });
-  y += 32;
+  let solRowY = y;
+  for (let row = 0; row < 2; row++) {
+    solRowY = checkPageBreak(doc, solRowY, 14);
+    for (let col = 0; col < 2; col++) {
+      const idx = row * 2 + col;
+      if (idx >= solutionPoints.length) break;
+      const sp = solutionPoints[idx];
+      const bx = margin + col * (colW + 6);
+      doc.setFillColor(...GREEN);
+      doc.circle(bx + 2, solRowY + 1, 1.2, "F");
+      doc.setTextColor(...DARK_GRAY);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.text(sp[0], bx + 6, solRowY + 2);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MED_GRAY);
+      addWrappedText(doc, sp[1], bx + 6, solRowY + 6, colW - 8, 3.5);
+    }
+    solRowY += 14;
+  }
+  y = solRowY + 4;
 
   y = checkPageBreak(doc, y, 60);
 
@@ -181,24 +186,28 @@ export function generateBrochurePDF(): void {
     ["Privacy-First Design", "Privacy Mode enables anonymous enrollment without sharing personal data."],
   ];
   const featColW = (contentWidth - 6) / 2;
-  features.forEach((f, i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const bx = margin + col * (featColW + 6);
-    const by = y + row * 14;
-    const byChecked = checkPageBreak(doc, by, 14);
-    doc.setFillColor(...GREEN);
-    doc.circle(bx + 2, byChecked + 1, 1.2, "F");
-    doc.setTextColor(...DARK_GRAY);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text(f[0], bx + 6, byChecked + 2);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(...MED_GRAY);
-    addWrappedText(doc, f[1], bx + 6, byChecked + 6, featColW - 8, 3.5);
-  });
-  y += 46;
+  let featRowY = y;
+  for (let row = 0; row < 3; row++) {
+    featRowY = checkPageBreak(doc, featRowY, 14);
+    for (let col = 0; col < 2; col++) {
+      const idx = row * 2 + col;
+      if (idx >= features.length) break;
+      const f = features[idx];
+      const bx = margin + col * (featColW + 6);
+      doc.setFillColor(...GREEN);
+      doc.circle(bx + 2, featRowY + 1, 1.2, "F");
+      doc.setTextColor(...DARK_GRAY);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.text(f[0], bx + 6, featRowY + 2);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MED_GRAY);
+      addWrappedText(doc, f[1], bx + 6, featRowY + 6, featColW - 8, 3.5);
+    }
+    featRowY += 14;
+  }
+  y = featRowY + 4;
 
   y = checkPageBreak(doc, y, 50);
 

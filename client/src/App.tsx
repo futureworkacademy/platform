@@ -49,6 +49,41 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Team } from "@shared/schema";
 import { DemoTourProvider } from "@/components/demo-tour-provider";
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
+function useGA4RouteTracking() {
+  const [location] = useLocation();
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "page_view", {
+          page_path: location,
+          page_location: window.location.origin + location,
+          page_title: document.title,
+        });
+      }
+    });
+  }, [location]);
+}
+
+function usePageTitle(title: string) {
+  const [location] = useLocation();
+  useEffect(() => {
+    document.title = title;
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = window.location.origin + location;
+  }, [title, location]);
+}
+
 function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
   useEffect(() => {
@@ -387,11 +422,17 @@ function PublicRouteGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function GA4Tracker() {
+  useGA4RouteTracking();
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="fow-theme">
         <TooltipProvider>
+          <GA4Tracker />
           <PublicRouteGate>
             <DemoTourProvider>
               <PreviewBannerWrapper />

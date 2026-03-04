@@ -97,6 +97,10 @@ const PROCESS_STEPS = [
 ];
 
 export default function Methodology() {
+  useEffect(() => {
+    document.title = "Grading Methodology | Future Work Academy";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -658,14 +662,14 @@ export default function Methodology() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="/for-educators#demo">
                   <Button size="lg" data-testid="button-try-demo">
-                    Try the Demo
+                    Request a Demo
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </a>
-                <Link href="/guides/student">
-                  <Button size="lg" variant="outline" data-testid="button-student-guide">
+                <Link href="/white-paper">
+                  <Button size="lg" variant="outline" data-testid="button-white-paper">
                     <BookOpen className="mr-2 h-4 w-4" />
-                    Read the Student Guide
+                    Read the White Paper
                   </Button>
                 </Link>
               </div>

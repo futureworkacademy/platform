@@ -126,7 +126,10 @@ function addTableRow(doc: jsPDF, label: string, value: string, y: number, margin
 }
 
 function addCalloutBox(doc: jsPDF, title: string, text: string, y: number, margin: number, contentWidth: number): number {
-  const boxHeight = Math.max(14, Math.ceil(text.length / 80) * 4.5 + 14);
+  doc.setFontSize(8.5);
+  doc.setFont("helvetica", "normal");
+  const textLines = doc.splitTextToSize(text, contentWidth - 16);
+  const boxHeight = Math.max(14, textLines.length * 4 + 14);
   y = checkPageBreak(doc, y, boxHeight + 4);
   doc.setFillColor(245, 247, 255);
   doc.roundedRect(margin, y - 2, contentWidth, boxHeight, 1, 1, "F");
@@ -140,7 +143,7 @@ function addCalloutBox(doc: jsPDF, title: string, text: string, y: number, margi
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(...MED_GRAY);
-  addWrappedText(doc, text, margin + 8, y + 9, contentWidth - 16, 4);
+  doc.text(textLines, margin + 8, y + 9);
   y += boxHeight + 4;
   return y;
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,10 @@ function NumberCircle({ n }: { n: number }) {
 }
 
 export default function InstructorGuidePage() {
+  useEffect(() => {
+    document.title = "Instructor Guide | Future Work Academy";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background" data-testid="instructor-guide-page">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">

@@ -58,6 +58,10 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
 export default function About() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    document.title = "About | Future Work Academy";
+  }, []);
   const [photoUrl, setPhotoUrl] = useState("");
   const [content, setContent] = useState("");
 
@@ -430,10 +434,10 @@ export default function About() {
                             Schedule a Call
                           </Button>
                         </a>
-                        <Link href="/for-educators">
+                        <Link href="/for-educators#demo">
                           <Button size="lg" variant="outline" data-testid="button-learn-more">
                             <GraduationCap className="mr-2 h-4 w-4" />
-                            For Educators
+                            Request a Demo
                           </Button>
                         </Link>
                       </div>

@@ -129,6 +129,10 @@ export default function Landing() {
   const [currentSet, setCurrentSet] = useState(0);
 
   useEffect(() => {
+    document.title = "Future Work Academy | AI Business Simulation";
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSet((prev) => (prev + 1) % challengeSets.length);
     }, 6000);
@@ -225,9 +229,10 @@ export default function Landing() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </a>
-                <a href="/for-educators">
+                <a href="/for-educators#demo">
                   <Button size="lg" variant="outline" data-testid="button-for-educators-hero">
-                    For Educators
+                    <GraduationCap className="mr-2 h-4 w-4" />
+                    Request a Demo
                   </Button>
                 </a>
               </div>
@@ -534,8 +539,8 @@ export default function Landing() {
               <div className="text-center mt-10">
                 <a href="/for-educators">
                   <Button variant="outline" size="lg" data-testid="button-learn-more-grading">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Learn More
+                    <GraduationCap className="mr-2 h-4 w-4" />
+                    Explore Educator Tools
                   </Button>
                 </a>
               </div>
@@ -640,8 +645,8 @@ export default function Landing() {
                   </Button>
                 </a>
                 <a href="/week-1">
-                  <Button variant="secondary" size="lg" data-testid="button-explore-cta">
-                    Explore Week 1
+                  <Button variant="outline" size="lg" className="border-primary-foreground/30 text-primary-foreground" data-testid="button-explore-cta">
+                    Preview Week 1
                   </Button>
                 </a>
               </div>

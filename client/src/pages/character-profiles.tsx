@@ -796,6 +796,10 @@ export default function CharacterProfilesPage() {
   const isPublicView = !user;
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    document.title = "Stakeholder Directory | Future Work Academy";
+  }, []);
+
   const { data: characters, isLoading } = useQuery<CharacterProfile[]>({
     queryKey: ["/api/characters"],
   });

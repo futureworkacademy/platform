@@ -139,6 +139,10 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
 export default function ForEducators() {
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = "For Educators | Future Work Academy";
+  }, []);
+
   const referralSource = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("ref") || null;
@@ -534,10 +538,10 @@ export default function ForEducators() {
                     ))}
                   </div>
                   <div className="mt-8">
-                    <a href="/survey">
+                    <a href="#demo">
                       <Button variant="outline" size="lg" data-testid="button-view-survey">
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        View Survey System
+                        <Zap className="mr-2 h-4 w-4" />
+                        Try It in the Demo
                       </Button>
                     </a>
                   </div>

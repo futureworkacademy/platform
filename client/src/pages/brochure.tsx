@@ -119,6 +119,10 @@ const AUDIENCES = [
 ];
 
 export default function Brochure() {
+  useEffect(() => {
+    document.title = "Program Brochure | Future Work Academy";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background scroll-smooth" data-testid="page-brochure">
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -178,10 +182,10 @@ export default function Brochure() {
             </FadeInSection>
             <FadeInSection delay={450}>
               <div className="flex flex-wrap justify-center gap-4 pt-2">
-                <Link href="/for-educators">
+                <Link href="/for-educators#demo">
                   <Button size="lg" data-testid="button-try-demo">
                     <Target className="mr-2 h-4 w-4" />
-                    Try the Demo
+                    Request a Demo
                   </Button>
                 </Link>
                 <Button
@@ -431,10 +435,10 @@ export default function Brochure() {
             </FadeInSection>
             <FadeInSection delay={200}>
               <div className="flex flex-wrap justify-center gap-4 mt-10">
-                <Link href="/for-educators">
+                <Link href="/for-educators#demo">
                   <Button size="lg" data-testid="button-try-demo-cta">
                     <Target className="mr-2 h-4 w-4" />
-                    Try the Demo
+                    Request a Demo
                   </Button>
                 </Link>
                 <Button

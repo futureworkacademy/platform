@@ -185,6 +185,9 @@ export function renderGradingPage(): string {
   <meta property="og:title" content="Grading Module | Future Work Academy">
   <meta property="og:description" content="Grade student simulation responses with AI-powered rubric evaluation">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://futureworkacademy.com/logo.png">
+  <meta property="og:site_name" content="Future Work Academy">
+  <link rel="canonical" href="https://futureworkacademy.com/grade">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -874,8 +877,12 @@ export function renderGradingPage(): string {
           doc.setFontSize(8);
           doc.setTextColor(100, 116, 139);
           var fbLines = doc.splitTextToSize(s.feedback || '', contentW);
-          doc.text(fbLines, margin, y);
-          y += fbLines.length * 3.5 + 4;
+          for (var fbl = 0; fbl < fbLines.length; fbl++) {
+            if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 116, 139); }
+            doc.text(fbLines[fbl], margin, y);
+            y += 3.5;
+          }
+          y += 4;
         }
 
         if (y > 250) { doc.addPage(); y = margin; }
@@ -892,8 +899,12 @@ export function renderGradingPage(): string {
         doc.setFontSize(9);
         doc.setTextColor(100, 116, 139);
         var fbLines2 = doc.splitTextToSize(r.overallFeedback || '', contentW);
-        doc.text(fbLines2, margin, y);
-        y += fbLines2.length * 4 + 3;
+        for (var fl = 0; fl < fbLines2.length; fl++) {
+          if (y > 275) { doc.addPage(); y = margin; }
+          doc.text(fbLines2[fl], margin, y);
+          y += 4;
+        }
+        y += 3;
 
         if (r.strengths && r.strengths.length > 0) {
           if (y > 265) { doc.addPage(); y = margin; }
@@ -905,9 +916,14 @@ export function renderGradingPage(): string {
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(21, 128, 61);
           for (var j = 0; j < r.strengths.length; j++) {
+            if (y > 270) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(21, 128, 61); }
             var sLines = doc.splitTextToSize('\\u2022 ' + r.strengths[j], contentW - 3);
-            doc.text(sLines, margin + 2, y);
-            y += sLines.length * 3.5 + 1;
+            for (var sl = 0; sl < sLines.length; sl++) {
+              if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(21, 128, 61); }
+              doc.text(sLines[sl], margin + 2, y);
+              y += 3.5;
+            }
+            y += 1;
           }
           y += 2;
         }
@@ -922,9 +938,14 @@ export function renderGradingPage(): string {
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(146, 64, 14);
           for (var k = 0; k < r.areasForImprovement.length; k++) {
+            if (y > 270) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(146, 64, 14); }
             var aLines = doc.splitTextToSize('\\u2022 ' + r.areasForImprovement[k], contentW - 3);
-            doc.text(aLines, margin + 2, y);
-            y += aLines.length * 3.5 + 1;
+            for (var al = 0; al < aLines.length; al++) {
+              if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(146, 64, 14); }
+              doc.text(aLines[al], margin + 2, y);
+              y += 3.5;
+            }
+            y += 1;
           }
           y += 2;
         }

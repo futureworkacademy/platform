@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -7,6 +8,10 @@ import logoForDark from "@assets/logo-white.png";
 import { AppFooter } from "@/components/app-footer";
 
 export default function Privacy() {
+  useEffect(() => {
+    document.title = "Privacy Policy | Future Work Academy";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">

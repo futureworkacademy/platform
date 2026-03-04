@@ -119,7 +119,8 @@ export function generateWeeklyPDF(data: WeeklyPDFData): void {
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
   const titleLines = doc.splitTextToSize(safeData.scenarioTitle, contentWidth - 40);
-  doc.text(titleLines, margin, 40);
+  const maxTitleLines = titleLines.slice(0, 2);
+  doc.text(maxTitleLines, margin, 40);
 
   if (safeData.teamName) {
     doc.setFontSize(8);
@@ -280,17 +281,10 @@ export function generateWeeklyPDF(data: WeeklyPDFData): void {
     y += 6;
 
     for (const article of safeData.articles) {
-      y = checkPageBreak(doc, y, 30);
+      y = checkPageBreak(doc, y, 20);
 
       doc.setFillColor(...PAGE_BG);
-      const articleContentLines = doc.splitTextToSize(article.content, contentWidth - 12);
-      let articleBoxHeight = 18 + articleContentLines.length * 4;
-      if (article.insights && article.insights.length > 0) {
-        articleBoxHeight += 6 + article.insights.length * 4;
-      }
-      articleBoxHeight = Math.min(articleBoxHeight, 250);
-
-      doc.roundedRect(margin, y - 2, contentWidth, articleBoxHeight, 1, 1, "F");
+      doc.roundedRect(margin, y - 2, contentWidth, 12, 1, 1, "F");
 
       doc.setTextColor(...MED_GRAY);
       doc.setFontSize(7);
@@ -311,6 +305,7 @@ export function generateWeeklyPDF(data: WeeklyPDFData): void {
 
       if (article.insights && article.insights.length > 0) {
         articleY += 3;
+        articleY = checkPageBreak(doc, articleY, 10);
         doc.setTextColor(...NAVY);
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
@@ -322,8 +317,15 @@ export function generateWeeklyPDF(data: WeeklyPDFData): void {
         doc.setFont("helvetica", "normal");
         for (const insight of article.insights) {
           articleY = checkPageBreak(doc, articleY, 5);
-          doc.text(`\u2022 ${insight}`, margin + 8, articleY);
-          articleY += 4;
+          const insightLines = doc.splitTextToSize(`\u2022 ${insight}`, contentWidth - 16);
+          for (const insightLine of insightLines) {
+            if (articleY > 270) {
+              doc.addPage();
+              articleY = 25;
+            }
+            doc.text(insightLine, margin + 8, articleY);
+            articleY += 4;
+          }
         }
       }
 

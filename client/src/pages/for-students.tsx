@@ -141,6 +141,10 @@ export default function ForStudents() {
   const [trialActivated, setTrialActivated] = useState(false);
   const [referralCopied, setReferralCopied] = useState(false);
 
+  useEffect(() => {
+    document.title = "For Students | Future Work Academy";
+  }, []);
+
   const trialMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/demo/student-trial", {});

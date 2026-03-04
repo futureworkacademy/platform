@@ -413,6 +413,10 @@ export function renderWeekPage(data: WeekPageData): string {
   <meta property="og:title" content="Week ${weekNumber}: ${escapeHtml(weekTitle)} | Future Work Academy">
   <meta property="og:description" content="Apex Manufacturing Simulation — Week ${weekNumber} Assignment">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="${baseUrl}/week-${weekNumber}">
+  <meta property="og:image" content="${baseUrl}/logo.png">
+  <meta property="og:site_name" content="Future Work Academy">
+  <link rel="canonical" href="${baseUrl}/week-${weekNumber}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
