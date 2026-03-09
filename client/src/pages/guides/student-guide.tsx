@@ -6,8 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AppFooter } from "@/components/app-footer";
 import { Link } from "wouter";
 import { generateStudentGuidePDF } from "@/lib/guide-pdf-export";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import {
   ArrowLeft,
   Download,
@@ -82,18 +81,7 @@ export default function StudentGuidePage() {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4 flex-wrap">
           <Link href="/">
-            <img
-              src={logoForLight}
-              alt="Future Work Academy"
-              className="h-14 w-auto cursor-pointer block dark:hidden"
-              data-testid="img-header-logo-light"
-            />
-            <img
-              src={logoForDark}
-              alt="Future Work Academy"
-              className="h-14 w-auto cursor-pointer hidden dark:block"
-              data-testid="img-header-logo-dark"
-            />
+            <BrandLogo height="h-12" data-testid="img-header-logo" />
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
             <ThemeToggle />

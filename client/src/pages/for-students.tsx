@@ -33,8 +33,7 @@ import {
   Scale,
   AlertTriangle,
 } from "lucide-react";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import heroImg from "@assets/generated_images/hero-boardroom.png";
 import charactersImg from "@assets/generated_images/characters-team.png";
 import { Link } from "wouter";
@@ -194,18 +193,7 @@ export default function ForStudents() {
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
               <ArrowLeft className="h-4 w-4 text-muted-foreground" />
-              <img
-                src={logoForLight}
-                alt="Future Work Academy"
-                className="h-12 w-auto block dark:hidden"
-                data-testid="img-header-logo-light"
-              />
-              <img
-                src={logoForDark}
-                alt="Future Work Academy"
-                className="h-12 w-auto hidden dark:block"
-                data-testid="img-header-logo-dark"
-              />
+              <BrandLogo height="h-10" data-testid="img-header-logo" />
             </div>
           </Link>
           <div className="flex items-center gap-5">

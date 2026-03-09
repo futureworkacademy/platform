@@ -647,7 +647,7 @@ export function WeeklySimulationPage({ weekNumber }: { weekNumber: number }) {
         throw new Error(`Failed to load week content (${res.status})`);
       }
       const weekContent = await res.json();
-      generateWeeklyOfflineGuidePDF(weekNumber, weekTitle, weekContent);
+      await generateWeeklyOfflineGuidePDF(weekNumber, weekTitle, weekContent);
     } catch (err) {
       console.error("PDF generation failed:", err);
       alert("Could not generate the PDF. Please try again.");

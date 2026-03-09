@@ -23,8 +23,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Link } from "wouter";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import dougPhoto from "@assets/doug-mitchell-headshot-2026SMALL_1769306419960.png";
 
 function useInView() {
@@ -192,8 +191,7 @@ export default function PartnershipProposal() {
                   Back
                 </Button>
               </Link>
-              <img src={logoForLight} alt="Future Work Academy" className="h-8 dark:hidden" />
-              <img src={logoForDark} alt="Future Work Academy" className="h-8 hidden dark:block" />
+              <BrandLogo height="h-8" data-testid="img-nav-logo" />
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -215,8 +213,7 @@ export default function PartnershipProposal() {
         <section className="min-h-[60vh] flex items-center justify-center pt-20 pb-12 px-4 bg-gradient-to-b from-[#1e3a5f]/5 to-transparent">
           <div className="container mx-auto max-w-4xl text-center">
             <FadeInSection>
-              <img src={logoForLight} alt="Future Work Academy" className="h-12 mx-auto mb-6 dark:hidden" />
-              <img src={logoForDark} alt="Future Work Academy" className="h-12 mx-auto mb-6 hidden dark:block" />
+              <BrandLogo height="h-12" className="mx-auto mb-6 justify-center" data-testid="img-header-logo" />
             </FadeInSection>
             <FadeInSection delay={150}>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4" data-testid="heading-title">

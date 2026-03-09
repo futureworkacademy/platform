@@ -30,8 +30,7 @@ import {
   ChevronDown,
   Star
 } from "lucide-react";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import heroImage from "@assets/generated_images/hero-boardroom.png";
 import charactersImage from "@assets/generated_images/characters-team.png";
 import transparencyImage from "@assets/generated_images/transparency-rubric.png";
@@ -143,18 +142,7 @@ export default function Landing() {
     <div className="min-h-screen bg-background scroll-smooth">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <img 
-            src={logoForLight} 
-            alt="Future Work Academy" 
-            className="h-16 w-auto block dark:hidden"
-            data-testid="img-header-logo-light"
-          />
-          <img 
-            src={logoForDark} 
-            alt="Future Work Academy" 
-            className="h-16 w-auto hidden dark:block"
-            data-testid="img-header-logo-dark"
-          />
+          <BrandLogo height="h-12" data-testid="img-header-logo" />
           <div className="flex items-center gap-5">
             <a 
               href="/about"

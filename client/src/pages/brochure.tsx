@@ -4,8 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AppFooter } from "@/components/app-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import heroImg from "@assets/generated_images/hero-boardroom.png";
 import { generateBrochurePDF } from "@/lib/brochure-pdf-export";
 import {
@@ -129,8 +128,7 @@ export default function Brochure() {
         <div className="container mx-auto flex items-center justify-between gap-2 px-6 py-3">
           <div className="flex items-center gap-3 flex-wrap">
             <Link href="/">
-              <img src={logoForLight} alt="Future Work Academy" className="h-10 dark:hidden cursor-pointer" data-testid="img-header-logo-light" />
-              <img src={logoForDark} alt="Future Work Academy" className="h-10 hidden dark:block cursor-pointer" data-testid="img-header-logo-dark" />
+              <BrandLogo height="h-10" data-testid="img-header-logo" />
             </Link>
           </div>
           <div className="flex items-center gap-3 flex-wrap">

@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak } from "./pdf-utils";
+import { PDF_COLORS, addWrappedText, checkPageBreak, loadLogoForPdf } from "./pdf-utils";
 
 const NAVY = PDF_COLORS.NAVY;
 const GREEN = PDF_COLORS.GREEN;
@@ -8,7 +8,8 @@ const MED_GRAY = PDF_COLORS.MED_GRAY;
 const LIGHT_GRAY = PDF_COLORS.LIGHT_GRAY;
 const WHITE = PDF_COLORS.WHITE;
 
-export function generateBrochurePDF(): void {
+export async function generateBrochurePDF(): Promise<void> {
+  const logoDataUrl = await loadLogoForPdf();
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 18;
@@ -21,10 +22,11 @@ export function generateBrochurePDF(): void {
   doc.setFillColor(...GREEN);
   doc.rect(0, 48, pageWidth, 2.5, "F");
 
+  doc.addImage(logoDataUrl, "PNG", margin, 4, 12, 12);
   doc.setTextColor(...WHITE);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin, 13);
+  doc.text("FUTURE WORK ACADEMY", margin + 15, 13);
 
   doc.setFontSize(22);
   doc.setFont("helvetica", "bold");

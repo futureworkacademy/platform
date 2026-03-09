@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint } from "./pdf-utils";
+import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
 
 const NAVY = PDF_COLORS.NAVY;
 const GREEN = PDF_COLORS.GREEN;
@@ -30,7 +30,7 @@ function addNumberedStep(doc: jsPDF, num: number, title: string, desc: string, y
   return y;
 }
 
-function addHeader(doc: jsPDF, title: string, subtitle: string): void {
+function addHeader(doc: jsPDF, title: string, subtitle: string, logoDataUrl?: string): void {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
 
@@ -40,10 +40,13 @@ function addHeader(doc: jsPDF, title: string, subtitle: string): void {
   doc.setFillColor(...GREEN);
   doc.rect(0, 42, pageWidth, 2, "F");
 
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+  }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
 
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
@@ -83,13 +86,14 @@ interface CharacterSummary {
 }
 
 export async function generateStudentGuidePDF(characters?: CharacterSummary[]): Promise<void> {
+  const logoDataUrl = await loadLogoForPdf();
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y: number;
 
-  addHeader(doc, "Student Guide", "Everything you need to succeed in the Apex Manufacturing simulation");
+  addHeader(doc, "Student Guide", "Everything you need to succeed in the Apex Manufacturing simulation", logoDataUrl);
 
   y = 52;
 
@@ -196,14 +200,15 @@ export async function generateStudentGuidePDF(characters?: CharacterSummary[]): 
   doc.save("Future_Work_Academy_Student_Guide.pdf");
 }
 
-export function generateInstructorGuidePDF(): void {
+export async function generateInstructorGuidePDF(): Promise<void> {
+  const logoDataUrl = await loadLogoForPdf();
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y: number;
 
-  addHeader(doc, "Instructor Guide", "Complete guide to setting up and managing your simulation class");
+  addHeader(doc, "Instructor Guide", "Complete guide to setting up and managing your simulation class", logoDataUrl);
 
   y = 52;
 

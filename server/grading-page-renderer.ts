@@ -239,6 +239,7 @@ export function renderGradingPage(): string {
       transition: background 0.15s;
     }
     .back-btn:hover { background: var(--muted-bg); }
+    .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
     .brand-name { font-weight: 600; font-size: 0.875rem; }
     .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
     .container { max-width: 64rem; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -461,6 +462,7 @@ export function renderGradingPage(): string {
       <a href="/week-0" class="back-btn" data-testid="btn-back-orientation" title="Back to Orientation">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </a>
+      <img src="/logo.png" alt="FWA" class="brand-logo" />
       <div>
         <div class="brand-name">Future Work Academy</div>
         <div class="brand-sub">Grading Module</div>
@@ -943,10 +945,23 @@ export function renderGradingPage(): string {
 
         doc.setFillColor(30, 58, 95);
         doc.rect(0, 0, pageW, 32, 'F');
+        var hasLogo = false;
+        try {
+          var logoImg = document.querySelector('.brand-logo');
+          if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+            var c = document.createElement('canvas');
+            c.width = 80; c.height = 80;
+            var cx = c.getContext('2d');
+            cx.drawImage(logoImg, 0, 0, 80, 80);
+            doc.addImage(c.toDataURL('image/png'), 'PNG', margin, 3, 10, 10);
+            hasLogo = true;
+          }
+        } catch(e) {}
+        var textX = hasLogo ? margin + 13 : margin;
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
-        doc.text('Future Work Academy', margin, 14);
+        doc.text('Future Work Academy', textX, 14);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.text('Grading Report', margin, 21);

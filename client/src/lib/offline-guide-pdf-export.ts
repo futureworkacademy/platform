@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint } from "./pdf-utils";
+import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
 
 const NAVY = PDF_COLORS.NAVY;
 const GREEN = PDF_COLORS.GREEN;
@@ -77,7 +77,7 @@ function addCalloutBox(doc: jsPDF, title: string, text: string, y: number, margi
   return y;
 }
 
-function addHeader(doc: jsPDF): void {
+function addHeader(doc: jsPDF, logoDataUrl?: string): void {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
 
@@ -87,10 +87,13 @@ function addHeader(doc: jsPDF): void {
   doc.setFillColor(...GREEN);
   doc.rect(0, 42, pageWidth, 2, "F");
 
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+  }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
@@ -121,14 +124,15 @@ function addFooter(doc: jsPDF): void {
   }
 }
 
-export function generateWeek1OfflineGuidePDF(): void {
+export async function generateWeek1OfflineGuidePDF(): Promise<void> {
+  const logoDataUrl = await loadLogoForPdf();
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y: number;
 
-  addHeader(doc);
+  addHeader(doc, logoDataUrl);
   y = 52;
 
   y = addSectionHeader(doc, "How to Use This Guide", y, margin);
@@ -462,7 +466,7 @@ interface WeekContent {
   intelArticles: { title: string; content: string }[];
 }
 
-function addDynamicHeader(doc: jsPDF, weekNumber: number, weekTitle: string): void {
+function addDynamicHeader(doc: jsPDF, weekNumber: number, weekTitle: string, logoDataUrl?: string): void {
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
 
@@ -472,10 +476,13 @@ function addDynamicHeader(doc: jsPDF, weekNumber: number, weekTitle: string): vo
   doc.setFillColor(...GREEN);
   doc.rect(0, 42, pageWidth, 2, "F");
 
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+  }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
@@ -643,14 +650,15 @@ function addRichBodyText(doc: jsPDF, text: string, y: number, margin: number, co
   return y;
 }
 
-export function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: string, weekContent: WeekContent): void {
+export async function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitle: string, weekContent: WeekContent): Promise<void> {
+  const logoDataUrl = await loadLogoForPdf();
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y: number;
 
-  addDynamicHeader(doc, weekNumber, weekTitle);
+  addDynamicHeader(doc, weekNumber, weekTitle, logoDataUrl);
   y = 52;
 
   y = addSectionHeader(doc, "How to Use This Guide", y, margin);

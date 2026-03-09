@@ -462,6 +462,7 @@ export function renderWeekPage(data: WeekPageData): string {
       transition: background 0.15s;
     }
     .back-btn:hover { background: var(--muted-bg); }
+    .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
     .brand-name { font-weight: 600; font-size: 0.875rem; }
     .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
     .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -658,6 +659,7 @@ export function renderWeekPage(data: WeekPageData): string {
       <a href="/" class="back-btn" aria-label="Back to home" data-testid="button-back-home">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
       </a>
+      <img src="/logo.png" alt="FWA" class="brand-logo" />
       <div>
         <div class="brand-name">Future Work Academy</div>
         <div class="brand-sub">Apex Manufacturing Simulation</div>
@@ -808,10 +810,23 @@ ${renderCharacterCards(characters)}
 
         doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
         doc.rect(0, 0, pageW, 45, 'F');
+        var hasLogo = false;
+        try {
+          var logoImg = document.querySelector('.brand-logo');
+          if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+            var c = document.createElement('canvas');
+            c.width = 80; c.height = 80;
+            var cx = c.getContext('2d');
+            cx.drawImage(logoImg, 0, 0, 80, 80);
+            doc.addImage(c.toDataURL('image/png'), 'PNG', margin, 4, 12, 12);
+            hasLogo = true;
+          }
+        } catch(e) {}
+        var textX = hasLogo ? margin + 15 : margin;
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
         doc.setFont('helvetica', 'bold');
-        doc.text('FUTURE WORK ACADEMY', margin, 18);
+        doc.text('FUTURE WORK ACADEMY', textX, 18);
         doc.setFontSize(14);
         doc.text('Week ${weekNumber}: ${escapeHtml(weekTitle).replace(/'/g, "\\'")}', margin, 28);
         doc.setFontSize(10);
@@ -1376,6 +1391,7 @@ export async function renderWeek0Page(): Promise<string> {
       transition: background 0.15s;
     }
     .back-btn:hover { background: var(--muted-bg); }
+    .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
     .brand-name { font-weight: 600; font-size: 0.875rem; }
     .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
     .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -1598,6 +1614,7 @@ export async function renderWeek0Page(): Promise<string> {
       <a href="/" class="back-btn" aria-label="Back to home" data-testid="button-back-home">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
       </a>
+      <img src="/logo.png" alt="FWA" class="brand-logo" />
       <div>
         <div class="brand-name">Future Work Academy</div>
         <div class="brand-sub">Apex Manufacturing Simulation</div>

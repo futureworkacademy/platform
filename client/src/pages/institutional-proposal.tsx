@@ -27,8 +27,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { Link } from "wouter";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import dougPhoto from "@assets/doug-mitchell-headshot-2026SMALL_1769306419960.png";
 
 function useInView() {
@@ -317,8 +316,7 @@ export default function InstitutionalProposal() {
                   Back
                 </Button>
               </Link>
-              <img src={logoForLight} alt="Future Work Academy" className="h-8 dark:hidden" />
-              <img src={logoForDark} alt="Future Work Academy" className="h-8 hidden dark:block" />
+              <BrandLogo height="h-8" data-testid="img-nav-logo" />
             </div>
             <div className="flex items-center gap-2">
               <Button

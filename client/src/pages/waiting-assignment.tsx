@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { LogOut, Settings, MessageSquare, Loader2 } from "lucide-react";
-import logoForLight from "@assets/logo-horizontal.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import { Link, useLocation } from "wouter";
 import { EnrollmentWizard } from "@/components/enrollment-wizard";
 import { useToast } from "@/hooks/use-toast";
@@ -76,18 +75,7 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <img 
-              src={logoForLight} 
-              alt="Future Work Academy" 
-              className="h-16 w-auto block dark:hidden"
-              data-testid="img-header-logo-light"
-            />
-            <img 
-              src={logoForDark} 
-              alt="Future Work Academy" 
-              className="h-16 w-auto hidden dark:block"
-              data-testid="img-header-logo-dark"
-            />
+            <BrandLogo height="h-12" data-testid="img-header-logo" />
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <Button variant="outline" onClick={() => logout()} data-testid="button-logout">
@@ -123,18 +111,7 @@ export default function WaitingAssignment({ teamNotFound = false }: WaitingAssig
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <img 
-            src={logoForLight} 
-            alt="Future Work Academy" 
-            className="h-16 w-auto block dark:hidden"
-            data-testid="img-header-logo-light"
-          />
-          <img 
-            src={logoForDark} 
-            alt="Future Work Academy" 
-            className="h-16 w-auto hidden dark:block"
-            data-testid="img-header-logo-dark"
-          />
+          <BrandLogo height="h-12" data-testid="img-header-logo" />
           <div className="flex items-center gap-3">
             {user?.isAdmin === "true" && (
               <Link href="/admin">

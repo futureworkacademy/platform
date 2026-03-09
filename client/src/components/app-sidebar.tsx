@@ -21,8 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useDemoTour } from "@/components/demo-tour-provider";
 import { Button } from "@/components/ui/button";
 import { GeminiQASidebar } from "@/components/gemini-qa-widget";
-import logoForLight from "@assets/favicon.png";
-import logoForDark from "@assets/logo-white.png";
+import { BrandLogo } from "@/components/brand-logo";
 import {
   Sidebar,
   SidebarContent,
@@ -129,18 +128,7 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/">
           <div className="rounded-md px-2 py-1">
-            <img 
-              src={logoForLight} 
-              alt="Future Work Academy" 
-              className="h-16 w-auto cursor-pointer block dark:hidden"
-              data-testid="img-sidebar-logo-light"
-            />
-            <img 
-              src={logoForDark} 
-              alt="Future Work Academy" 
-              className="h-16 w-auto cursor-pointer hidden dark:block"
-              data-testid="img-sidebar-logo-dark"
-            />
+            <BrandLogo height="h-10" data-testid="img-sidebar-logo" />
           </div>
         </Link>
       </SidebarHeader>
