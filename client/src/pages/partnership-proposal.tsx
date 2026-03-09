@@ -280,7 +280,7 @@ export default function PartnershipProposal() {
                     {[
                       "Innovation leadership in AI-integrated curriculum",
                       "Publishable research data from student engagement metrics",
-                      "Differentiated program offering for recruitment and accreditation",
+                      "Differentiated program offering for student recruitment",
                       "Built-in assessment aligned with AACSB learning goals",
                       "Faculty development in simulation-based pedagogy",
                       "Student feedback surveys with trend analytics",
