@@ -800,7 +800,7 @@ ${renderCharacterCards(characters)}
         var maxW = pageW - margin * 2;
 
         function checkPage(needed) {
-          if (y + needed > 270) { doc.addPage(); y = 25; }
+          if (y + needed > 272) { doc.addPage(); y = 25; }
           return y;
         }
         function addWrapped(text, mw, lh, color) {
@@ -814,7 +814,7 @@ ${renderCharacterCards(characters)}
             if (headerMatch) {
               var level = headerMatch[1].length;
               var headerText = headerMatch[2].replace(/\\*\\*([^*]+)\\*\\*/g, '$1');
-              checkPage(lh * 2);
+              checkPage(lh * 5);
               y += lh * 0.5;
               doc.setFont('helvetica', 'bold');
               if (level <= 2) {
@@ -847,18 +847,23 @@ ${renderCharacterCards(characters)}
               continue;
             }
 
-            var isFormula = para.match(/^\\s{2,}/) && para.match(/[=≈Σ≤≥≠±→÷·×]/);
+            var isFormula = para.match(/^\\s{2,}/) && para.match(/[=≈Σ≤≥≠±→÷·×]/) && !para.match(/^\\s*[-*+]\\s/);
             if (isFormula) {
               var savedF = doc.getFont();
-              doc.setFont('courier', 'normal');
+              doc.setFont('helvetica', 'normal');
               doc.setFontSize(9);
-              checkPage(lh);
-              var fLines = doc.splitTextToSize(para.trim(), mw - 10);
+              var formulaText = para.trim().replace(/\\s+/g, ' ');
+              var fLines = doc.splitTextToSize(formulaText, mw - 16);
+              var fBlockH = fLines.length * (lh * 0.95) + 4;
+              y += lh * 0.3;
+              checkPage(fBlockH + lh);
+              doc.setFillColor(245, 247, 250);
+              doc.roundedRect(margin + 2, y - 3, mw - 4, fBlockH, 1, 1, 'F');
               for (var fi = 0; fi < fLines.length; fi++) {
-                checkPage(lh);
-                doc.text(fLines[fi], margin + 5, y);
-                y += lh * 0.9;
+                doc.text(fLines[fi], margin + 8, y);
+                y += lh * 0.95;
               }
+              y += lh * 0.3;
               doc.setFont(savedF.fontName, savedF.fontStyle);
               doc.setFontSize(10);
               continue;
@@ -910,8 +915,6 @@ ${renderCharacterCards(characters)}
 
             var hasBold = para.indexOf('**') !== -1;
             if (hasBold) {
-              var plainForWrap = para.replace(/\\*\\*([^*]+)\\*\\*/g, '$1');
-              var wrLines = doc.splitTextToSize(plainForWrap, mw);
               var segs = [];
               var pts = para.split(/(\\*\\*[^*]+\\*\\*)/);
               for (var si = 0; si < pts.length; si++) {
@@ -921,22 +924,36 @@ ${renderCharacterCards(characters)}
                   segs.push({ t: pts[si], b: false });
                 }
               }
-              var sIdx = 0, sCharIdx = 0;
-              for (var wli = 0; wli < wrLines.length; wli++) {
+              var renderLines = [];
+              var curLine = [];
+              var curLineW = 0;
+              for (var si2 = 0; si2 < segs.length; si2++) {
+                var sg2 = segs[si2];
+                doc.setFont('helvetica', sg2.b ? 'bold' : 'normal');
+                var words = sg2.t.split(/( +)/);
+                for (var wi = 0; wi < words.length; wi++) {
+                  var word = words[wi];
+                  if (word === '') continue;
+                  var ww = doc.getTextWidth(word);
+                  if (curLineW + ww > mw && curLine.length > 0) {
+                    renderLines.push(curLine);
+                    curLine = [];
+                    curLineW = 0;
+                    if (word.trim() === '') continue;
+                  }
+                  curLine.push({ t: word, b: sg2.b });
+                  curLineW += ww;
+                }
+              }
+              if (curLine.length > 0) renderLines.push(curLine);
+              for (var rli = 0; rli < renderLines.length; rli++) {
                 checkPage(lh);
                 var xp = margin;
-                var rem = wrLines[wli].length;
-                while (rem > 0 && sIdx < segs.length) {
-                  var sg = segs[sIdx];
-                  var av = sg.t.length - sCharIdx;
-                  var tk = Math.min(av, rem);
-                  var ch = sg.t.substring(sCharIdx, sCharIdx + tk);
-                  doc.setFont('helvetica', sg.b ? 'bold' : 'normal');
-                  doc.text(ch, xp, y);
-                  xp += doc.getTextWidth(ch);
-                  sCharIdx += tk;
-                  rem -= tk;
-                  if (sCharIdx >= sg.t.length) { sIdx++; sCharIdx = 0; }
+                for (var ci = 0; ci < renderLines[rli].length; ci++) {
+                  var chunk = renderLines[rli][ci];
+                  doc.setFont('helvetica', chunk.b ? 'bold' : 'normal');
+                  doc.text(chunk.t, xp, y);
+                  xp += doc.getTextWidth(chunk.t);
                 }
                 y += lh;
               }
@@ -991,7 +1008,7 @@ ${renderCharacterCards(characters)}
           doc.text('INTEL ARTICLES', margin, y);
           y += 8;
           for (var a = 0; a < data.intelArticles.length; a++) {
-            checkPage(12);
+            checkPage(30);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -1012,7 +1029,7 @@ ${renderCharacterCards(characters)}
           doc.text('DECISION OPTIONS', margin, y);
           y += 8;
           for (var d = 0; d < data.decisions.length; d++) {
-            checkPage(12);
+            checkPage(30);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -1224,9 +1241,6 @@ ${renderCharacterCards(characters)}
         addWrapped('When submitting online, you may attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to support your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator considers visualizations when scoring Evidence Quality and Reasoning Coherence.', maxW, 4.5, MED);
 
         y += 6;
-        checkPage(20);
-        doc.setFillColor(245, 247, 250);
-        doc.roundedRect(margin, y - 4, maxW, 18, 2, 2, 'F');
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(MED[0], MED[1], MED[2]);
@@ -1235,6 +1249,10 @@ ${renderCharacterCards(characters)}
           + 'stakeholder management). AI-generated essay scores are formative feedback only -- instructors retain full '
           + 'authority to review and adjust scores.';
         var scoringLines = doc.splitTextToSize(scoringNote, maxW - 8);
+        var scoringBoxH = scoringLines.length * 3.5 + 6;
+        checkPage(scoringBoxH + 4);
+        doc.setFillColor(245, 247, 250);
+        doc.roundedRect(margin, y - 4, maxW, scoringBoxH, 2, 2, 'F');
         for (var sl = 0; sl < scoringLines.length; sl++) {
           doc.text(scoringLines[sl], margin + 4, y + 1 + sl * 3.5);
         }
