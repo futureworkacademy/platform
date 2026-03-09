@@ -2,6 +2,7 @@ import { db } from "./db";
 import { simulationContent, characterProfiles } from "@shared/models/auth";
 import { eq, and } from "drizzle-orm";
 import { evaluateTextResponse, type RubricCriterionInput } from "./services/llm-evaluation";
+import { getPdfUtilsScript } from "./pdf-utils-inline";
 
 const WEEK_TITLES: Record<number, string> = {
   1: "The Automation Imperative",
@@ -667,6 +668,9 @@ export function renderGradingPage(): string {
 
   <script>
     (function() {
+      var doc, y;
+      ${getPdfUtilsScript()}
+
       var bulkData = [];
       var bulkResults = [];
       var currentResult = null;
@@ -1053,7 +1057,7 @@ export function renderGradingPage(): string {
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(8);
           doc.setTextColor(100, 116, 139);
-          var fbLines = doc.splitTextToSize(s.feedback || '', contentW);
+          var fbLines = doc.splitTextToSize(pdfStripMarkdown(pdfConvertLatex(s.feedback || '')), contentW);
           for (var fbl = 0; fbl < fbLines.length; fbl++) {
             if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 116, 139); }
             doc.text(fbLines[fbl], margin, y);
@@ -1075,7 +1079,7 @@ export function renderGradingPage(): string {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(100, 116, 139);
-        var fbLines2 = doc.splitTextToSize(r.overallFeedback || '', contentW);
+        var fbLines2 = doc.splitTextToSize(pdfStripMarkdown(pdfConvertLatex(r.overallFeedback || '')), contentW);
         for (var fl = 0; fl < fbLines2.length; fl++) {
           if (y > 275) { doc.addPage(); y = margin; }
           doc.text(fbLines2[fl], margin, y);
@@ -1094,7 +1098,7 @@ export function renderGradingPage(): string {
           doc.setTextColor(21, 128, 61);
           for (var j = 0; j < r.strengths.length; j++) {
             if (y > 270) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(21, 128, 61); }
-            var sLines = doc.splitTextToSize('\\u2022 ' + r.strengths[j], contentW - 3);
+            var sLines = doc.splitTextToSize('\\u2022 ' + pdfStripMarkdown(pdfConvertLatex(r.strengths[j])), contentW - 3);
             for (var sl = 0; sl < sLines.length; sl++) {
               if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(21, 128, 61); }
               doc.text(sLines[sl], margin + 2, y);
@@ -1116,7 +1120,7 @@ export function renderGradingPage(): string {
           doc.setTextColor(146, 64, 14);
           for (var k = 0; k < r.areasForImprovement.length; k++) {
             if (y > 270) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(146, 64, 14); }
-            var aLines = doc.splitTextToSize('\\u2022 ' + r.areasForImprovement[k], contentW - 3);
+            var aLines = doc.splitTextToSize('\\u2022 ' + pdfStripMarkdown(pdfConvertLatex(r.areasForImprovement[k])), contentW - 3);
             for (var al = 0; al < aLines.length; al++) {
               if (y > 275) { doc.addPage(); y = margin; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(146, 64, 14); }
               doc.text(aLines[al], margin + 2, y);

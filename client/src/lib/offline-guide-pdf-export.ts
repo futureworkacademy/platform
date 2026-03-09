@@ -1,82 +1,11 @@
 import jsPDF from "jspdf";
+import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint } from "./pdf-utils";
 
-const NAVY = [30, 58, 95] as const;
-const GREEN = [34, 197, 94] as const;
-const DARK_GRAY = [51, 51, 51] as const;
-const MED_GRAY = [100, 100, 100] as const;
-const LIGHT_GRAY = [200, 200, 200] as const;
-
-function addWrappedText(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-): number {
-  const lines = doc.splitTextToSize(text, maxWidth);
-  for (const line of lines) {
-    if (y > 270) {
-      doc.addPage();
-      y = 25;
-    }
-    doc.text(line, x, y);
-    y += lineHeight;
-  }
-  return y;
-}
-
-function checkPageBreak(doc: jsPDF, y: number, needed: number): number {
-  if (y + needed > 270) {
-    doc.addPage();
-    return 25;
-  }
-  return y;
-}
-
-function addSectionHeader(doc: jsPDF, title: string, y: number, margin: number): number {
-  y = checkPageBreak(doc, y, 20);
-  doc.setTextColor(...NAVY);
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.text(title.toUpperCase(), margin, y);
-  y += 3;
-  doc.setDrawColor(...GREEN);
-  doc.setLineWidth(0.5);
-  doc.line(margin, y, margin + 45, y);
-  y += 8;
-  return y;
-}
-
-function addSubHeader(doc: jsPDF, title: string, y: number, margin: number): number {
-  y = checkPageBreak(doc, y, 12);
-  doc.setTextColor(...NAVY);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(title, margin, y);
-  y += 6;
-  return y;
-}
-
-function addBodyText(doc: jsPDF, text: string, y: number, margin: number, contentWidth: number): number {
-  doc.setTextColor(...DARK_GRAY);
-  doc.setFontSize(9.5);
-  doc.setFont("helvetica", "normal");
-  y = addWrappedText(doc, text, margin, y, contentWidth, 4.5);
-  y += 3;
-  return y;
-}
-
-function addBulletPoint(doc: jsPDF, text: string, y: number, margin: number, contentWidth: number): number {
-  y = checkPageBreak(doc, y, 8);
-  doc.setTextColor(...DARK_GRAY);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.text("\u2022", margin + 4, y);
-  y = addWrappedText(doc, text, margin + 10, y, contentWidth - 14, 4.5);
-  y += 1;
-  return y;
-}
+const NAVY = PDF_COLORS.NAVY;
+const GREEN = PDF_COLORS.GREEN;
+const DARK_GRAY = PDF_COLORS.DARK_GRAY;
+const MED_GRAY = PDF_COLORS.MED_GRAY;
+const LIGHT_GRAY = PDF_COLORS.LIGHT_GRAY;
 
 function addNumberedStep(doc: jsPDF, num: number, title: string, desc: string, y: number, margin: number, contentWidth: number): number {
   y = checkPageBreak(doc, y, 16);

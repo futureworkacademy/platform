@@ -2,6 +2,7 @@ import { db } from "./db";
 import { characterProfiles, triggeredVoicemails, advisors, simulationContent } from "@shared/models/auth";
 import { eq, and } from "drizzle-orm";
 import katex from 'katex';
+import { getPdfUtilsScript } from "./pdf-utils-inline";
 
 const WEEK_TITLES: Record<number, string> = {
   1: "The Automation Imperative",
@@ -779,6 +780,8 @@ ${renderCharacterCards(characters)}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     var __pdfData = ${JSON.stringify(pdfContent).replace(/<\//g, '<\\/')};
+    var doc, y;
+    ${getPdfUtilsScript()}
 
     function downloadPDF() {
       var btn = document.getElementById('pdf-btn');
@@ -790,8 +793,8 @@ ${renderCharacterCards(characters)}
         }
         var data = __pdfData;
         var jsPDF = window.jspdf.jsPDF;
-        var doc = new jsPDF();
-        var y = 20;
+        doc = new jsPDF();
+        y = 20;
         var NAVY = [30, 58, 95];
         var DARK = [51, 51, 51];
         var MED = [100, 100, 100];
@@ -799,175 +802,8 @@ ${renderCharacterCards(characters)}
         var margin = 20;
         var maxW = pageW - margin * 2;
 
-        function checkPage(needed) {
-          if (y + needed > 272) { doc.addPage(); y = 25; }
-          return y;
-        }
         function addWrapped(text, mw, lh, color) {
-          doc.setTextColor(color[0], color[1], color[2]);
-          var paragraphs = (text || '').split('\\n');
-          for (var p = 0; p < paragraphs.length; p++) {
-            var para = paragraphs[p];
-            if (para.trim() === '') { y += lh * 0.5; continue; }
-
-            var headerMatch = para.match(/^(#{1,6})\\s+(.*)$/);
-            if (headerMatch) {
-              var level = headerMatch[1].length;
-              var headerText = headerMatch[2].replace(/\\*\\*([^*]+)\\*\\*/g, '$1');
-              checkPage(lh * 5);
-              y += lh * 0.5;
-              doc.setFont('helvetica', 'bold');
-              if (level <= 2) {
-                doc.setFontSize(12);
-                doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-              } else {
-                doc.setFontSize(11);
-                doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-              }
-              var hLines = doc.splitTextToSize(headerText, mw);
-              for (var hi = 0; hi < hLines.length; hi++) {
-                checkPage(lh);
-                doc.text(hLines[hi], margin, y);
-                y += lh;
-              }
-              y += lh * 0.3;
-              doc.setFontSize(10);
-              doc.setFont('helvetica', 'normal');
-              doc.setTextColor(color[0], color[1], color[2]);
-              continue;
-            }
-
-            var isDivider = para.match(/^[-]{4,}/);
-            if (isDivider) {
-              checkPage(lh);
-              doc.setDrawColor(200, 200, 200);
-              doc.setLineWidth(0.3);
-              doc.line(margin, y - 1, margin + mw * 0.8, y - 1);
-              y += lh * 0.3;
-              continue;
-            }
-
-            var isFormula = para.match(/^\\s{2,}/) && para.match(/[=≈Σ≤≥≠±→÷·×]/) && !para.match(/^\\s*[-*+]\\s/);
-            if (isFormula) {
-              var savedF = doc.getFont();
-              doc.setFont('helvetica', 'normal');
-              doc.setFontSize(9);
-              var formulaText = para.trim().replace(/\\s+/g, ' ');
-              var fLines = doc.splitTextToSize(formulaText, mw - 16);
-              var fBlockH = fLines.length * (lh * 0.95) + 4;
-              y += lh * 0.3;
-              checkPage(fBlockH + lh);
-              doc.setFillColor(245, 247, 250);
-              doc.roundedRect(margin + 2, y - 3, mw - 4, fBlockH, 1, 1, 'F');
-              for (var fi = 0; fi < fLines.length; fi++) {
-                doc.text(fLines[fi], margin + 8, y);
-                y += lh * 0.95;
-              }
-              y += lh * 0.3;
-              doc.setFont(savedF.fontName, savedF.fontStyle);
-              doc.setFontSize(10);
-              continue;
-            }
-
-            var isTableRow = para.match(/^\\s*\\S+.*\\s{3,}/) && !para.match(/^\\s*[-*]/);
-            if (isTableRow) {
-              var savedFont = doc.getFont();
-              doc.setFont('courier', savedFont.fontStyle);
-              doc.setFontSize(8.5);
-              checkPage(lh);
-              var tableLine = para.length > 95 ? para.substring(0, 95) : para;
-              doc.text(tableLine, margin, y);
-              y += lh * 0.85;
-              doc.setFont(savedFont.fontName, savedFont.fontStyle);
-              doc.setFontSize(10);
-              continue;
-            }
-
-            var bulletMatch = para.match(/^(\\s*[-*+])\\s+(.*)$/);
-            if (bulletMatch) {
-              var bulletText = bulletMatch[2];
-              checkPage(lh);
-              doc.text('•', margin + 2, y);
-              var bLines = doc.splitTextToSize(bulletText, mw - 10);
-              for (var bi = 0; bi < bLines.length; bi++) {
-                checkPage(lh);
-                doc.text(bLines[bi], margin + 7, y);
-                y += lh;
-              }
-              continue;
-            }
-
-            var numberedMatch = para.match(/^(\\d+)\\.\\s+(.*)$/);
-            if (numberedMatch) {
-              var numText = numberedMatch[2];
-              checkPage(lh);
-              doc.setFont('helvetica', 'bold');
-              doc.text(numberedMatch[1] + '.', margin + 2, y);
-              doc.setFont('helvetica', 'normal');
-              var nLines = doc.splitTextToSize(numText, mw - 12);
-              for (var ni = 0; ni < nLines.length; ni++) {
-                checkPage(lh);
-                doc.text(nLines[ni], margin + 9, y);
-                y += lh;
-              }
-              continue;
-            }
-
-            var hasBold = para.indexOf('**') !== -1;
-            if (hasBold) {
-              var segs = [];
-              var pts = para.split(/(\\*\\*[^*]+\\*\\*)/);
-              for (var si = 0; si < pts.length; si++) {
-                if (pts[si].substring(0, 2) === '**' && pts[si].substring(pts[si].length - 2) === '**') {
-                  segs.push({ t: pts[si].substring(2, pts[si].length - 2), b: true });
-                } else if (pts[si].length > 0) {
-                  segs.push({ t: pts[si], b: false });
-                }
-              }
-              var renderLines = [];
-              var curLine = [];
-              var curLineW = 0;
-              for (var si2 = 0; si2 < segs.length; si2++) {
-                var sg2 = segs[si2];
-                doc.setFont('helvetica', sg2.b ? 'bold' : 'normal');
-                var words = sg2.t.split(/( +)/);
-                for (var wi = 0; wi < words.length; wi++) {
-                  var word = words[wi];
-                  if (word === '') continue;
-                  var ww = doc.getTextWidth(word);
-                  if (curLineW + ww > mw && curLine.length > 0) {
-                    renderLines.push(curLine);
-                    curLine = [];
-                    curLineW = 0;
-                    if (word.trim() === '') continue;
-                  }
-                  curLine.push({ t: word, b: sg2.b });
-                  curLineW += ww;
-                }
-              }
-              if (curLine.length > 0) renderLines.push(curLine);
-              for (var rli = 0; rli < renderLines.length; rli++) {
-                checkPage(lh);
-                var xp = margin;
-                for (var ci = 0; ci < renderLines[rli].length; ci++) {
-                  var chunk = renderLines[rli][ci];
-                  doc.setFont('helvetica', chunk.b ? 'bold' : 'normal');
-                  doc.text(chunk.t, xp, y);
-                  xp += doc.getTextWidth(chunk.t);
-                }
-                y += lh;
-              }
-              doc.setFont('helvetica', 'normal');
-              continue;
-            }
-
-            var lines = doc.splitTextToSize(para, mw);
-            for (var i = 0; i < lines.length; i++) {
-              checkPage(lh);
-              doc.text(lines[i], margin, y);
-              y += lh;
-            }
-          }
+          pdfAddWrappedMarkdown(text, mw, lh, color, margin, NAVY);
         }
 
         doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
@@ -1001,14 +837,14 @@ ${renderCharacterCards(characters)}
         }
 
         if (data.intelArticles && data.intelArticles.length > 0) {
-          checkPage(15);
+          y = pdfCheckPage(y, 15);
           doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
           doc.setFontSize(16);
           doc.setFont('helvetica', 'bold');
           doc.text('INTEL ARTICLES', margin, y);
           y += 8;
           for (var a = 0; a < data.intelArticles.length; a++) {
-            checkPage(30);
+            y = pdfCheckPage(y, 30);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -1022,14 +858,14 @@ ${renderCharacterCards(characters)}
         }
 
         if (data.decisions && data.decisions.length > 0) {
-          checkPage(15);
+          y = pdfCheckPage(y, 15);
           doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
           doc.setFontSize(16);
           doc.setFont('helvetica', 'bold');
           doc.text('DECISION OPTIONS', margin, y);
           y += 8;
           for (var d = 0; d < data.decisions.length; d++) {
-            checkPage(30);
+            y = pdfCheckPage(y, 30);
             doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -1102,7 +938,7 @@ ${renderCharacterCards(characters)}
 
         if (data.decisions && data.decisions.length > 0) {
           for (var d = 0; d < data.decisions.length; d++) {
-            checkPage(14);
+            y = pdfCheckPage(y, 14);
             var optLetter = String.fromCharCode(65 + d);
             var fullTitle = (data.decisions[d].title || '').replace(/^Week \\d+\\s*Decision:\\s*/i, '');
 
@@ -1149,13 +985,13 @@ ${renderCharacterCards(characters)}
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.2);
         for (var ln = 0; ln < 18; ln++) {
-          checkPage(7);
+          y = pdfCheckPage(y, 7);
           doc.line(margin, y, pageW - margin, y);
           y += 7;
         }
         y += 4;
 
-        checkPage(30);
+        y = pdfCheckPage(y, 30);
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.5);
         doc.line(margin, y, pageW - margin, y);
@@ -1175,7 +1011,7 @@ ${renderCharacterCards(characters)}
 
         var stakeholderFields = ['Stakeholder 1', 'Stakeholder 2', 'Stakeholder 3'];
         for (var s = 0; s < stakeholderFields.length; s++) {
-          checkPage(22);
+          y = pdfCheckPage(y, 22);
           doc.setFontSize(10);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
@@ -1196,7 +1032,7 @@ ${renderCharacterCards(characters)}
           y += 7;
         }
 
-        checkPage(20);
+        y = pdfCheckPage(y, 20);
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.5);
         doc.line(margin, y, pageW - margin, y);
@@ -1217,13 +1053,13 @@ ${renderCharacterCards(characters)}
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.2);
         for (var ln = 0; ln < 8; ln++) {
-          checkPage(7);
+          y = pdfCheckPage(y, 7);
           doc.line(margin, y, pageW - margin, y);
           y += 7;
         }
 
         y += 6;
-        checkPage(30);
+        y = pdfCheckPage(y, 30);
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.5);
         doc.line(margin, y, pageW - margin, y);
@@ -1250,7 +1086,7 @@ ${renderCharacterCards(characters)}
           + 'authority to review and adjust scores.';
         var scoringLines = doc.splitTextToSize(scoringNote, maxW - 8);
         var scoringBoxH = scoringLines.length * 3.5 + 6;
-        checkPage(scoringBoxH + 4);
+        y = pdfCheckPage(y, scoringBoxH + 4);
         doc.setFillColor(245, 247, 250);
         doc.roundedRect(margin, y - 4, maxW, scoringBoxH, 2, 2, 'F');
         for (var sl = 0; sl < scoringLines.length; sl++) {

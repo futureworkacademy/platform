@@ -1,39 +1,12 @@
 import jsPDF from "jspdf";
+import { PDF_COLORS, addWrappedText, checkPageBreak } from "./pdf-utils";
 
-const NAVY = [30, 58, 95] as const;
-const GREEN = [34, 197, 94] as const;
-const DARK_GRAY = [51, 51, 51] as const;
-const MED_GRAY = [100, 100, 100] as const;
-const LIGHT_GRAY = [200, 200, 200] as const;
-const WHITE = [255, 255, 255] as const;
-
-function addWrappedText(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-): number {
-  const lines = doc.splitTextToSize(text, maxWidth);
-  for (const line of lines) {
-    if (y > 275) {
-      doc.addPage();
-      y = 20;
-    }
-    doc.text(line, x, y);
-    y += lineHeight;
-  }
-  return y;
-}
-
-function checkPageBreak(doc: jsPDF, y: number, needed: number): number {
-  if (y + needed > 275) {
-    doc.addPage();
-    return 20;
-  }
-  return y;
-}
+const NAVY = PDF_COLORS.NAVY;
+const GREEN = PDF_COLORS.GREEN;
+const DARK_GRAY = PDF_COLORS.DARK_GRAY;
+const MED_GRAY = PDF_COLORS.MED_GRAY;
+const LIGHT_GRAY = PDF_COLORS.LIGHT_GRAY;
+const WHITE = PDF_COLORS.WHITE;
 
 export function generateBrochurePDF(): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
