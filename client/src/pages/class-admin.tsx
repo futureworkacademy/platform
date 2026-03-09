@@ -22,6 +22,7 @@ import {
   FileSpreadsheet,
   AlertCircle,
   CheckCircle,
+  FileCheck,
   Mail,
   Send,
   Calendar,
@@ -2027,6 +2028,31 @@ export default function ClassAdminPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileCheck className="h-5 w-5" />
+                  External Grading Module
+                </CardTitle>
+                <CardDescription>
+                  Grade student responses submitted through Blackboard or other LMS platforms with AI-powered rubric feedback
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Paste essay text, upload student visualizations, and receive detailed rubric scores powered by AI. Supports single responses and bulk CSV grading.
+                  </p>
+                  <a href="/grade">
+                    <Button variant="outline" data-testid="button-external-grading">
+                      <FileCheck className="h-4 w-4 mr-2" />
+                      Open Grading Module
+                    </Button>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
 
             <Card className="mt-4">
               <CardHeader>

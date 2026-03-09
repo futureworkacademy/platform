@@ -15,6 +15,7 @@ import {
   HelpCircle,
   LogOut,
   Users,
+  FileCheck,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useDemoTour } from "@/components/demo-tour-provider";
@@ -166,18 +167,31 @@ export function AppSidebar({ currentWeek, totalWeeks, teamName, isAdmin = false 
                 </SidebarMenuItem>
               ))}
               {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location === "/admin"}
-                    data-testid="nav-admin"
-                  >
-                    <Link href="/admin">
-                      <Shield className="h-4 w-4" />
-                      <span>Admin Panel</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location === "/admin"}
+                      data-testid="nav-admin"
+                    >
+                      <Link href="/admin">
+                        <Shield className="h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      data-testid="nav-external-grading"
+                    >
+                      <a href="/grade">
+                        <FileCheck className="h-4 w-4" />
+                        <span>External Grading</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

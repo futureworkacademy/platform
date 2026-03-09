@@ -2417,6 +2417,18 @@ export default function SuperAdminPage() {
                         </Button>
                       </Link>
                     </div>
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <div className="space-y-0.5">
+                        <Label className="text-base">External Grading Module</Label>
+                        <p className="text-sm text-muted-foreground">Grade student responses from external LMS platforms with AI-powered rubric feedback</p>
+                      </div>
+                      <a href="/grade">
+                        <Button variant="outline" data-testid="button-external-grading">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Open Grading Module
+                        </Button>
+                      </a>
+                    </div>
                   </CardContent>
                 </Card>
 
