@@ -39,7 +39,8 @@ import InstructorGuidePage from "@/pages/guides/instructor-guide";
 import Methodology from "@/pages/methodology";
 import WhitePaper from "@/pages/white-paper";
 import InstitutionalProposal from "@/pages/institutional-proposal";
-import PartnershipProposal from "@/pages/partnership-proposal";
+import SimulationBrief from "@/pages/simulation-brief";
+
 import NotFound from "@/pages/not-found";
 import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { SandboxControls } from "@/components/sandbox-controls";
@@ -428,8 +429,8 @@ function PublicRouteGate({ children }: { children: React.ReactNode }) {
   if (location === "/institutional-proposal") {
     return <InstitutionalProposal />;
   }
-  if (location === "/partnership-proposal") {
-    return <PartnershipProposal />;
+  if (location === "/simulation-brief") {
+    return <SimulationBrief />;
   }
 
   return <>{children}</>;

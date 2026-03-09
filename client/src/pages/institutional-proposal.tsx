@@ -226,7 +226,7 @@ const GRANT_OPPORTUNITIES = [
 ];
 
 const PLATFORM_LINKS = [
-  { label: "Partnership Proposal", path: "/partnership-proposal", icon: Handshake, description: "Simplified 3-page proposal with pricing, deployment options, and business model" },
+
   { label: "Grading Methodology", path: "/methodology", icon: BarChart3, description: "Published rubric criteria, scoring bands, and assessment transparency" },
   { label: "Academic White Paper", path: "/white-paper", icon: FileText, description: "7-section paper with 17 academic references and DOI links" },
   { label: "For Educators", path: "/for-educators", icon: GraduationCap, description: "Full educator overview with pedagogy, features, and demo access" },

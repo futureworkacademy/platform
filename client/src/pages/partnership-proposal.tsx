@@ -16,8 +16,6 @@ import {
   Shield,
   BookOpen,
   Zap,
-  Clock,
-  DollarSign,
   Building2,
   Rocket,
   Globe,
@@ -52,21 +50,6 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
     </div>
   );
 }
-
-const INCLUDED_FEATURES = [
-  "Full 8-week simulation platform access",
-  "AI-powered essay grading with rubric feedback",
-  "Student analytics & leaderboard dashboards",
-  "Instructor dashboard with class performance views",
-  "External grading module for LMS-submitted work",
-  "Phone-a-Friend AI advisor system (3 credits/student)",
-  "Character-driven stakeholder scenarios",
-  "Weekly briefings with multimedia content",
-  "SMS & email notifications (optional)",
-  "Privacy Mode for immediate deployment",
-  "Student feedback survey with analytics",
-  "PDF export for offline participation",
-];
 
 const DEPLOYMENT_TIERS = [
   {
@@ -290,133 +273,6 @@ export default function PartnershipProposal() {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </FadeInSection>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section className="py-12 sm:py-16 px-4 print:break-before-page">
-          <div className="container mx-auto max-w-4xl">
-            <FadeInSection>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6" data-testid="heading-pricing">Pricing</h2>
-            </FadeInSection>
-
-            <FadeInSection delay={100}>
-              <Card className="bg-card border mb-6">
-                <CardContent className="p-5">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold" data-testid="text-price">$49 per student / semester</h3>
-                      <p className="text-sm text-muted-foreground">Flat-rate semester license — everything included, no hidden fees</p>
-                    </div>
-                    <div className="bg-primary/10 rounded-lg px-4 py-2 shrink-0">
-                      <DollarSign className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {INCLUDED_FEATURES.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </FadeInSection>
-
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
-              <FadeInSection delay={200}>
-                <Card className="bg-card border h-full">
-                  <CardContent className="p-5">
-                    <h3 className="font-bold text-base mb-3">Cost Transparency</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                      We believe in full transparency about what it costs to run the platform. Here's what the $49 covers:
-                    </p>
-                    <table className="w-full text-sm border-collapse" data-testid="table-costs">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-1.5 font-semibold text-foreground">Cost Component</th>
-                          <th className="text-right py-1.5 font-semibold text-foreground">Per Student</th>
-                        </tr>
-                      </thead>
-                      <tbody className="text-muted-foreground">
-                        <tr className="border-b border-border/50">
-                          <td className="py-1.5">AI grading & advisor calls</td>
-                          <td className="text-right">~$0.30–0.50</td>
-                        </tr>
-                        <tr className="border-b border-border/50">
-                          <td className="py-1.5">SMS notifications (optional)</td>
-                          <td className="text-right">~$0.13/week</td>
-                        </tr>
-                        <tr className="border-b border-border/50">
-                          <td className="py-1.5">Hosting & infrastructure</td>
-                          <td className="text-right">~$0.10–0.20</td>
-                        </tr>
-                        <tr className="border-b border-border/50">
-                          <td className="py-1.5">Content development & support</td>
-                          <td className="text-right">Amortized</td>
-                        </tr>
-                        <tr>
-                          <td className="py-1.5 font-semibold text-foreground">Platform margin</td>
-                          <td className="text-right font-semibold text-foreground">~$47+</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Operating costs are under $2/student. The margin funds ongoing development, compliance certifications, and support.
-                    </p>
-                  </CardContent>
-                </Card>
-              </FadeInSection>
-
-              <FadeInSection delay={300}>
-                <Card className="bg-card border h-full">
-                  <CardContent className="p-5">
-                    <h3 className="font-bold text-base mb-3">Your Costs as an Instructor</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <Clock className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">Time: ~1 hour/week</p>
-                          <p className="text-xs text-muted-foreground">Review dashboards, check submissions, add optional comments</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Globe className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">Infrastructure: None</p>
-                          <p className="text-xs text-muted-foreground">Fully hosted — no servers, no IT tickets, no LMS plugin required</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">IT Approval: Optional</p>
-                          <p className="text-xs text-muted-foreground">Privacy Mode enables immediate deployment — students enroll with a class code, no institutional SSO needed</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <GraduationCap className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">Training: We handle it</p>
-                          <p className="text-xs text-muted-foreground">Onboarding session plus instructor guide, student guide, and ongoing email support</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </FadeInSection>
-            </div>
-
-            <FadeInSection delay={350}>
-              <Card className="bg-muted/30 border">
-                <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Volume pricing available.</strong> For departments adopting across multiple courses or institutions licensing for 150+ students, contact us for custom pricing. We also support grant-funded deployments with documentation for 260F, NSF IUSE, and FIPSE programs.
-                  </p>
                 </CardContent>
               </Card>
             </FadeInSection>
