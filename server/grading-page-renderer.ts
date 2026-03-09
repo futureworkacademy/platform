@@ -882,9 +882,6 @@ export function renderGradingPage(): string {
           }
         }
         html += '</div>';
-        if (r.weekStats) {
-          html += '<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Week ' + r.weekNumber + ' stats: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submission(s)</div>';
-        }
         html += '<div class="separator" style="margin: 0.75rem 0;"></div>';
         html += '<h3>Rubric Breakdown</h3>';
         for (var i = 0; i < r.rubricScores.length; i++) {
@@ -968,14 +965,6 @@ export function renderGradingPage(): string {
         if (curveEnabled() && r.curvedScore != null) scoreLine += '  |  Curved: ' + r.curvedScore + '%';
         doc.text(scoreLine, margin, y);
         y += 4;
-        if (r.weekStats) {
-          doc.setFontSize(8);
-          doc.setTextColor(148, 163, 184);
-          var statsLine = 'Week ' + r.weekNumber + ' distribution: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submissions';
-          if (curveEnabled() && r.curvedScore != null) statsLine += ' | Curved score uses Z-score normalization (target mean 75%)';
-          doc.text(statsLine, margin, y);
-          y += 3;
-        }
 
         if (r.essayText && r.essayText.trim()) {
           doc.setDrawColor(226, 232, 240);
@@ -1381,11 +1370,6 @@ export function renderGradingPage(): string {
         if (strengths.length) { h += '<div style="margin-top:0.5rem;">'; for (var j = 0; j < strengths.length; j++) h += '<span class="tag tag-green">' + esc(strengths[j]) + '</span>'; h += '</div>'; }
         var imp = r.areasForImprovement || [];
         if (imp.length) { h += '<div style="margin-top:0.25rem;">'; for (var k = 0; k < imp.length; k++) h += '<span class="tag tag-amber">' + esc(imp[k]) + '</span>'; h += '</div>'; }
-        if (r.weekStats) {
-          h += '<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted);">Week ' + r.weekNumber + ' stats: mean ' + r.weekStats.mean + '%, std dev ' + r.weekStats.stdDev + '%, ' + r.weekStats.count + ' submission(s)';
-          if (curveEnabled() && r.curvedScore != null) h += ' \\u2192 curved: <strong>' + r.curvedScore + '%</strong>';
-          h += '</div>';
-        }
         if (r.attachmentUrls && r.attachmentUrls.length > 0) {
           h += '<div style="margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid #e2e8f0;">';
           h += '<strong style="font-size:0.8125rem;display:flex;align-items:center;gap:0.25rem;margin-bottom:0.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Attached Visualizations (' + r.attachmentUrls.length + ')</strong>';
