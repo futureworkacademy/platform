@@ -436,7 +436,7 @@ export default function StudentGuidePage() {
                   {
                     icon: ImageIcon,
                     title: "Attach Supporting Visualizations",
-                    text: "You may attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to support your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator considers your visualizations when scoring Evidence Quality and Reasoning Coherence — a well-chosen chart is as strong as citing statistics.",
+                    text: "Attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to strengthen your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator scores your visualizations alongside your essay — a well-chosen chart that illustrates a key data point is treated the same as citing statistics in your text.",
                   },
                   {
                     icon: TrendingUp,
@@ -642,6 +642,50 @@ export default function StudentGuidePage() {
                 <a href="/methodology" className="inline-flex items-center gap-1.5 mt-4 text-xs font-medium text-primary hover:underline transition-colors" data-testid="link-methodology-student-guide">
                   Learn how your essays are evaluated →
                 </a>
+              </div>
+
+              <div className="p-4 rounded-md border border-primary/20 bg-primary/5 space-y-4" data-testid="scoring-ai-grader-explained">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  <p className="font-semibold">How the AI Evaluator Works</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  When you submit a decision, the AI reads your entire essay and evaluates it against the four criteria above. Here is what happens behind the scenes, and how to use it to your advantage:
+                </p>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold">1. Your Essay Is Read in Full Context</p>
+                    <p className="text-xs text-muted-foreground">
+                      The AI evaluator sees your essay alongside the week's briefing, the decision options, and the company's current state. It knows what data was available to you, which means it can tell whether you used the intel articles or ignored them. Referencing specific data points from the briefing (source codes like AIM, APX, or WFT) signals strong evidence quality.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold">2. Charts and Visualizations Are Evaluated by AI Vision</p>
+                    <p className="text-xs text-muted-foreground">
+                      When you attach charts or visualizations, the system activates an advanced AI model with vision capabilities. It reads your charts — labels, axes, trends, data points — and evaluates how well they support your written argument. A well-chosen chart that illustrates a key trend or comparison is treated as strong evidence, equivalent to citing statistics directly in your essay.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold">3. What Makes a Visualization Score Well</p>
+                    <p className="text-xs text-muted-foreground">
+                      The AI evaluates whether your charts are properly labeled, clear, and meaningful in context. A bar chart showing projected revenue under your chosen strategy scores higher than a generic screenshot. The key is relevance: attach charts that directly support a specific claim in your essay, then reference them in your writing.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold">4. How to Maximize Your Essay Score</p>
+                    <p className="text-xs text-muted-foreground">
+                      Top-scoring responses typically do three things: (a) cite specific data from the Intel articles using source codes, (b) attach 1-3 focused charts that illustrate the financial or cultural impact of their decision, and (c) explicitly reference those charts in the essay text (e.g., "As shown in the attached revenue projection..."). The combination of written evidence and visual data consistently earns scores in the Excellent range.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <a href="/methodology" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline transition-colors" data-testid="link-methodology-from-ai-section">
+                    Full grading methodology →
+                  </a>
+                  <a href="#decision-process" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline transition-colors" data-testid="link-decision-process-from-ai-section">
+                    Decision process details →
+                  </a>
+                </div>
               </div>
             </CardContent>
           </Card>

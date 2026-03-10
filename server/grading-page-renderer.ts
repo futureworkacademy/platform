@@ -521,7 +521,7 @@ export function renderGradingPage(): string {
             <textarea id="essay-text" placeholder="Paste the student's complete response here, including their strategic rationale, stakeholder analysis, and risk assessment sections..." data-testid="input-essay-text" rows="12"></textarea>
           </div>
           <div class="form-group">
-            <label>Student Visualizations <span class="label-hint">(optional &mdash; up to 5 images)</span></label>
+            <label>Student Visualizations <span class="label-hint">(up to 5 images)</span></label>
             <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Upload any charts, tables, or visualizations the student included with their Blackboard submission. The AI will evaluate these alongside the essay text.</p>
             <div class="image-upload-zone" id="img-upload-zone" data-testid="zone-image-upload">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.25rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -561,7 +561,7 @@ export function renderGradingPage(): string {
           </div>
 
           <div class="form-group">
-            <label>Student Images <span class="label-hint">(optional)</span></label>
+            <label>Student Images <span class="label-hint">(up to 5 images)</span></label>
             <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Upload student visualizations named as <code>StudentName_1.png</code>, <code>StudentName_2.png</code>, etc. The name before the underscore+number should match the <code>StudentName</code> column in your CSV.</p>
             <div class="image-upload-zone" id="bulk-img-upload-zone" data-testid="zone-bulk-image-upload">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.25rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>

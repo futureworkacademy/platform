@@ -1083,13 +1083,13 @@ ${renderCharacterCards(characters)}
         doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text('SUPPORTING VISUALIZATIONS (Optional)', margin, y);
+        doc.text('SUPPORTING VISUALIZATIONS', margin, y);
         y += 7;
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'italic');
         doc.setTextColor(MED[0], MED[1], MED[2]);
-        addWrapped('When submitting online, you may attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to support your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator considers visualizations when scoring Evidence Quality and Reasoning Coherence.', maxW, 4.5, MED);
+        addWrapped('When submitting online, attach up to 5 charts, tables, or visualizations (PNG, JPEG, WebP) to strengthen your analysis. Export from Excel, Google Sheets, or any tool. The AI evaluator scores your visualizations alongside your essay for Evidence Quality and Reasoning Coherence.', maxW, 4.5, MED);
 
         y += 6;
         doc.setFontSize(8);
@@ -1202,15 +1202,16 @@ ${renderCharacterCards(characters)}
       lines.push('');
       lines.push('');
       lines.push('----------------------------------------');
-      lines.push('SUPPORTING VISUALIZATIONS (Optional)');
+      lines.push('SUPPORTING VISUALIZATIONS');
       lines.push('----------------------------------------');
       lines.push('');
-      lines.push('You may attach up to 5 charts, tables, or');
-      lines.push('visualizations to support your analysis when');
-      lines.push('submitting online. Export from Excel, Google');
-      lines.push('Sheets, or any tool as PNG/JPEG images.');
-      lines.push('The AI evaluator considers visualizations when');
-      lines.push('scoring Evidence Quality and Reasoning Coherence.');
+      lines.push('Attach up to 5 charts, tables, or');
+      lines.push('visualizations to strengthen your analysis');
+      lines.push('when submitting online. Export from Excel,');
+      lines.push('Google Sheets, or any tool as PNG/JPEG images.');
+      lines.push('The AI evaluator scores your visualizations');
+      lines.push('alongside your essay for Evidence Quality and');
+      lines.push('Reasoning Coherence.');
       lines.push('');
       lines.push('');
       lines.push('========================================');
