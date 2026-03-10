@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import logoPath from "@assets/generated_images/fwa_icon_clean.png";
+import logoHeadPath from "@assets/generated_images/fwa_icon_head.png";
 
 let cachedLogoDataUrl: string | null = null;
 
@@ -10,18 +10,21 @@ export async function loadLogoForPdf(): Promise<string> {
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = 80;
-      canvas.height = 80;
+      canvas.width = 400;
+      canvas.height = 180;
       const ctx = canvas.getContext("2d");
       if (!ctx) { reject(new Error("Canvas context unavailable")); return; }
-      ctx.drawImage(img, 0, 0, 80, 80);
+      ctx.drawImage(img, 0, 0, 400, 180);
       cachedLogoDataUrl = canvas.toDataURL("image/png");
       resolve(cachedLogoDataUrl);
     };
     img.onerror = () => reject(new Error("Failed to load logo"));
-    img.src = logoPath;
+    img.src = logoHeadPath;
   });
 }
+
+export const PDF_LOGO_W = 28;
+export const PDF_LOGO_H = 12.5;
 
 export function addPdfHeader(
   doc: jsPDF,
@@ -35,18 +38,18 @@ export function addPdfHeader(
   doc.rect(0, 0, pageWidth, 42, "F");
   doc.setFillColor(...PDF_COLORS.GREEN);
   doc.rect(0, 42, pageWidth, 2, "F");
-  doc.addImage(logoDataUrl, "PNG", margin, 6, 12, 12);
+  doc.addImage(logoDataUrl, "PNG", margin, 2, PDF_LOGO_W, PDF_LOGO_H);
   doc.setTextColor(...PDF_COLORS.WHITE);
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin + 15, 13);
+  doc.text("FUTURE WORK ACADEMY", margin + PDF_LOGO_W + 3, 10);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text(title, margin, 30);
+  doc.text(title, margin, 28);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(200, 200, 200);
-  doc.text(subtitle, margin, 38);
+  doc.text(subtitle, margin, 36);
   return 52;
 }
 

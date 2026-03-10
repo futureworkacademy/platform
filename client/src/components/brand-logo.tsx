@@ -1,9 +1,11 @@
-import logoIcon from "@assets/favicon.png";
+import logoIconFull from "@assets/favicon.png";
+import logoIconHead from "@assets/generated_images/fwa_icon_head.png";
 
 interface BrandLogoProps {
   height?: string;
   className?: string;
   iconOnly?: boolean;
+  variant?: "horizontal" | "vertical";
   "data-testid"?: string;
 }
 
@@ -11,18 +13,22 @@ export function BrandLogo({
   height = "h-10", 
   className = "", 
   iconOnly = false,
+  variant = "horizontal",
   "data-testid": testId = "img-brand-logo"
 }: BrandLogoProps) {
   const heightNum = parseInt(height.replace("h-", "")) || 10;
   const textSize = heightNum >= 16 ? "text-xl" : heightNum >= 12 ? "text-lg" : heightNum >= 10 ? "text-base" : "text-sm";
   const subTextSize = heightNum >= 16 ? "text-sm" : heightNum >= 12 ? "text-xs" : "text-[10px]";
 
+  const logoSrc = variant === "vertical" ? logoIconFull : logoIconHead;
+  const iconHeight = variant === "horizontal" ? `h-${Math.min(heightNum + 4, 20)}` : height;
+
   if (iconOnly) {
     return (
       <img 
-        src={logoIcon} 
+        src={logoSrc} 
         alt="Future Work Academy" 
-        className={`${height} w-auto ${className}`}
+        className={`${iconHeight} w-auto ${className}`}
         data-testid={testId}
       />
     );
@@ -31,9 +37,9 @@ export function BrandLogo({
   return (
     <div className={`flex items-center gap-2.5 ${className}`} data-testid={testId}>
       <img 
-        src={logoIcon} 
+        src={logoSrc} 
         alt="FWA" 
-        className={`${height} w-auto flex-shrink-0`}
+        className={`${iconHeight} w-auto flex-shrink-0`}
       />
       <div className="flex flex-col leading-tight">
         <span className={`${textSize} font-bold tracking-tight text-[#1e3a5f] dark:text-white`} style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>

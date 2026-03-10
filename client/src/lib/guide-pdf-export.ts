@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
+import { PDF_COLORS, PDF_LOGO_W, PDF_LOGO_H, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
 
 const NAVY = PDF_COLORS.NAVY;
 const GREEN = PDF_COLORS.GREEN;
@@ -41,12 +41,12 @@ function addHeader(doc: jsPDF, title: string, subtitle: string, logoDataUrl?: st
   doc.rect(0, 42, pageWidth, 2, "F");
 
   if (logoDataUrl) {
-    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+    doc.addImage(logoDataUrl, "PNG", margin, 2, PDF_LOGO_W, PDF_LOGO_H);
   }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + PDF_LOGO_W + 3 : margin, 10);
 
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");

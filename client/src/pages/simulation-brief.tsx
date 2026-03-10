@@ -362,7 +362,7 @@ export default function SimulationBrief() {
       <div className="py-12 sm:py-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
-            <BrandLogo height="h-12" className="mx-auto mb-6" />
+            <BrandLogo height="h-16" variant="vertical" className="mx-auto mb-6" />
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3" data-testid="heading-title">
               Simulation Brief Template
             </h1>

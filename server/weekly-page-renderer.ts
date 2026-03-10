@@ -462,7 +462,7 @@ export function renderWeekPage(data: WeekPageData): string {
       transition: background 0.15s;
     }
     .back-btn:hover { background: var(--muted-bg); }
-    .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
+    .brand-logo { height: 28px; width: auto; flex-shrink: 0; }
     .brand-name { font-weight: 600; font-size: 0.875rem; }
     .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
     .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -659,7 +659,7 @@ export function renderWeekPage(data: WeekPageData): string {
       <a href="/" class="back-btn" aria-label="Back to home" data-testid="button-back-home">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
       </a>
-      <img src="/logo.png" alt="FWA" class="brand-logo" />
+      <img src="/logo-head.png" alt="FWA" class="brand-logo" />
       <div>
         <div class="brand-name">Future Work Academy</div>
         <div class="brand-sub">Apex Manufacturing Simulation</div>
@@ -1391,7 +1391,7 @@ export async function renderWeek0Page(): Promise<string> {
       transition: background 0.15s;
     }
     .back-btn:hover { background: var(--muted-bg); }
-    .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
+    .brand-logo { height: 28px; width: auto; flex-shrink: 0; }
     .brand-name { font-weight: 600; font-size: 0.875rem; }
     .brand-sub { font-size: 0.75rem; color: var(--text-secondary); }
     .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -1614,7 +1614,7 @@ export async function renderWeek0Page(): Promise<string> {
       <a href="/" class="back-btn" aria-label="Back to home" data-testid="button-back-home">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
       </a>
-      <img src="/logo.png" alt="FWA" class="brand-logo" />
+      <img src="/logo-head.png" alt="FWA" class="brand-logo" />
       <div>
         <div class="brand-name">Future Work Academy</div>
         <div class="brand-sub">Apex Manufacturing Simulation</div>

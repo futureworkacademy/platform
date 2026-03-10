@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
+import { PDF_COLORS, PDF_LOGO_W, PDF_LOGO_H, addWrappedText, checkPageBreak, addSectionHeader, addSubHeader, addBodyText, addBulletPoint, loadLogoForPdf } from "./pdf-utils";
 
 const NAVY = PDF_COLORS.NAVY;
 const GREEN = PDF_COLORS.GREEN;
@@ -88,12 +88,12 @@ function addHeader(doc: jsPDF, logoDataUrl?: string): void {
   doc.rect(0, 42, pageWidth, 2, "F");
 
   if (logoDataUrl) {
-    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+    doc.addImage(logoDataUrl, "PNG", margin, 2, PDF_LOGO_W, PDF_LOGO_H);
   }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + PDF_LOGO_W + 3 : margin, 10);
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
@@ -477,12 +477,12 @@ function addDynamicHeader(doc: jsPDF, weekNumber: number, weekTitle: string, log
   doc.rect(0, 42, pageWidth, 2, "F");
 
   if (logoDataUrl) {
-    doc.addImage(logoDataUrl, "PNG", margin, 3, 12, 12);
+    doc.addImage(logoDataUrl, "PNG", margin, 2, PDF_LOGO_W, PDF_LOGO_H);
   }
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + 15 : margin, 14);
+  doc.text("FUTURE WORK ACADEMY", logoDataUrl ? margin + PDF_LOGO_W + 3 : margin, 10);
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
@@ -518,8 +518,6 @@ function parseContentSections(content: string): string[] {
 }
 
 function addBoldSegmentedText(doc: jsPDF, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
-  const plainText = text.replace(/\*\*([^*]+)\*\*/g, '$1');
-  const wrappedLines = doc.splitTextToSize(plainText, maxWidth);
   const segments: { text: string; bold: boolean }[] = [];
   const parts = text.split(/(\*\*[^*]+\*\*)/);
   for (const part of parts) {
@@ -529,26 +527,34 @@ function addBoldSegmentedText(doc: jsPDF, text: string, x: number, y: number, ma
       segments.push({ text: part, bold: false });
     }
   }
-  let segIdx = 0;
-  let segCharIdx = 0;
+
+  const flatChars: { ch: string; bold: boolean }[] = [];
+  for (const seg of segments) {
+    for (const ch of seg.text) {
+      flatChars.push({ ch, bold: seg.bold });
+    }
+  }
+
+  doc.setFont("helvetica", "normal");
+  const plainText = flatChars.map(c => c.ch).join('');
+  const wrappedLines = doc.splitTextToSize(plainText, maxWidth);
+
+  let charIdx = 0;
   for (const wLine of wrappedLines) {
-    if (y > 270) { doc.addPage(); y = 25; }
+    y = checkPageBreak(doc, y, lineHeight);
     let xPos = x;
-    let remaining = wLine.length;
-    while (remaining > 0 && segIdx < segments.length) {
-      const seg = segments[segIdx];
-      const avail = seg.text.length - segCharIdx;
-      const take = Math.min(avail, remaining);
-      const chunk = seg.text.substring(segCharIdx, segCharIdx + take);
-      doc.setFont("helvetica", seg.bold ? "bold" : "normal");
+    let lineLen = wLine.length;
+    while (lineLen > 0 && charIdx < flatChars.length) {
+      const curBold = flatChars[charIdx].bold;
+      let chunk = '';
+      while (lineLen > 0 && charIdx < flatChars.length && flatChars[charIdx].bold === curBold) {
+        chunk += flatChars[charIdx].ch;
+        charIdx++;
+        lineLen--;
+      }
+      doc.setFont("helvetica", curBold ? "bold" : "normal");
       doc.text(chunk, xPos, y);
       xPos += doc.getTextWidth(chunk);
-      segCharIdx += take;
-      remaining -= take;
-      if (segCharIdx >= seg.text.length) {
-        segIdx++;
-        segCharIdx = 0;
-      }
     }
     y += lineHeight;
   }
@@ -685,7 +691,8 @@ export async function generateWeeklyOfflineGuidePDF(weekNumber: number, weekTitl
   if (weekContent.briefing) {
     y = addSectionHeader(doc, `Week ${weekNumber} Situation Briefing`, y, margin);
     y = addSubHeader(doc, `"${weekTitle}"`, y, margin);
-    y = addRichBodyText(doc, weekContent.briefing.content, y, margin, contentWidth);
+    const briefingContent = weekContent.briefing.content.replace(/^#{1,6}\s+.*\n*/m, '');
+    y = addRichBodyText(doc, briefingContent, y, margin, contentWidth);
     y += 4;
   }
 

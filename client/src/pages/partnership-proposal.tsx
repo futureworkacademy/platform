@@ -196,7 +196,7 @@ export default function PartnershipProposal() {
         <section className="min-h-[60vh] flex items-center justify-center pt-20 pb-12 px-4 bg-gradient-to-b from-[#1e3a5f]/5 to-transparent">
           <div className="container mx-auto max-w-4xl text-center">
             <FadeInSection>
-              <BrandLogo height="h-12" className="mx-auto mb-6 justify-center" data-testid="img-header-logo" />
+              <BrandLogo height="h-16" variant="vertical" className="mx-auto mb-6 justify-center" data-testid="img-header-logo" />
             </FadeInSection>
             <FadeInSection delay={150}>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-4" data-testid="heading-title">

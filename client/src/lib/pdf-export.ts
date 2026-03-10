@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { PDF_COLORS, addWrappedText, checkPageBreak, loadLogoForPdf } from "./pdf-utils";
+import { PDF_COLORS, PDF_LOGO_W, PDF_LOGO_H, addWrappedText, checkPageBreak, loadLogoForPdf } from "./pdf-utils";
 
 interface CompanyState {
   revenue: number;
@@ -78,11 +78,11 @@ export async function generateWeeklyPDF(data: WeeklyPDFData): Promise<void> {
   doc.setFillColor(...GREEN);
   doc.rect(0, 45, pageWidth, 2, "F");
 
-  doc.addImage(logoDataUrl, "PNG", margin, 4, 12, 12);
+  doc.addImage(logoDataUrl, "PNG", margin, 2, PDF_LOGO_W, PDF_LOGO_H);
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("FUTURE WORK ACADEMY", margin + 15, 13);
+  doc.text("FUTURE WORK ACADEMY", margin + PDF_LOGO_W + 3, 10);
 
   doc.setFontSize(8);
   doc.text("APEX MANUFACTURING SIMULATION", margin, 21);
