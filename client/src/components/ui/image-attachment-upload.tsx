@@ -150,7 +150,6 @@ export function ImageAttachmentUpload({
         <label className="text-sm font-medium flex items-center gap-2">
           <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
           Supporting Visualizations
-          <span className="text-xs text-muted-foreground font-normal">(optional)</span>
         </label>
         <span className="text-xs text-muted-foreground">
           {attachments.length} of {MAX_ATTACHMENTS} attachments
