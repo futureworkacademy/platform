@@ -1,5 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /week-0
+Disallow: /week-1
+Disallow: /week-2
+Disallow: /week-3
+Disallow: /week-4
+Disallow: /week-5
+Disallow: /week-6
+Disallow: /week-7
+Disallow: /week-8
 
 Sitemap: https://futureworkacademy.com/sitemap.xml
 

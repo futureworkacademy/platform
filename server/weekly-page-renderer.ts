@@ -410,6 +410,7 @@ export function renderWeekPage(data: WeekPageData): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Week ${weekNumber}: ${escapeHtml(weekTitle)} | Future Work Academy</title>
+  <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Apex Manufacturing Simulation — Week ${weekNumber}: ${escapeHtml(weekTitle)}. Download the offline guide, listen to voicemails and expert consultants, and review the stakeholder directory.">
   <meta property="og:title" content="Week ${weekNumber}: ${escapeHtml(weekTitle)} | Future Work Academy">
   <meta property="og:description" content="Apex Manufacturing Simulation — Week ${weekNumber} Assignment">
@@ -1345,6 +1346,7 @@ export async function renderWeek0Page(): Promise<string> {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orientation: Welcome to Future Work Academy</title>
+  <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Welcome to Future Work Academy — your orientation guide to the Apex Manufacturing CEO simulation. Meet the stakeholders, understand the scoring system, and prepare for your 8-week journey.">
   <meta property="og:title" content="Orientation | Future Work Academy">
   <meta property="og:description" content="Your journey as CEO of Apex Manufacturing begins here">
