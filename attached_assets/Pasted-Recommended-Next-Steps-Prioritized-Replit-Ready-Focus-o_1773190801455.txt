@@ -1,0 +1,47 @@
+Recommended Next Steps (Prioritized & Replit-Ready)
+Focus on these in order — most are quick copy-paste additions.
+
+Add Meta Descriptions Site-Wide (Highest Immediate Impact)
+In your Replit project (likely in a layout/head component or per-page files):HTML<!-- Homepage example -->
+<meta name="description" content="Future Work Academy: AI-powered business simulation for management education. Students lead Apex Manufacturing through AI adoption, workforce transformation, and cultural challenges across 8 weeks. Features transparent AI essay grading, stakeholder management, and educator tools.">For /for-educators:HTML<meta name="description" content="Educator resources for Future Work Academy: Run an AI-graded business simulation with difficulty tiers, LMS integration (Canvas/Blackboard), FERPA privacy mode, instructor overrides, and student outcome tracking.">Do similar for /for-students, /methodology, etc. Add to <head>.
+Add Structured Data (JSON-LD) – Paste in <head> of Main Pages
+This helps Google rich results and Grok understanding.HTML<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "Future Work Academy",
+  "url": "https://futureworkacademy.com",
+  "description": "AI-powered interactive business simulation for future-of-work skills in management education",
+  "founder": {
+    "@type": "Person",
+    "name": "Doug Mitchell",
+    "email": "doug@futureworkacademy.com"
+  },
+  "offers": {
+    "@type": "OfferCatalog",
+    "name": "Simulation Program",
+    "itemListElement": [
+      {"@type": "Offer", "itemOffered": {"@type": "Course", "name": "For Educators"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Course", "name": "For Students"}}
+    ]
+  }
+}
+</script>Customize for subpages (e.g., change @type to "Course" for weekly modules).
+Request Indexing & Monitor
+Google Search Console: Verify property if not already → Submit sitemap again → Use URL Inspection tool to request indexing for:
+https://futureworkacademy.com/
+https://futureworkacademy.com/for-educators
+https://futureworkacademy.com/for-students
+A couple weekly pages (e.g., /week-0)
+
+Bing Webmaster Tools: Same process.
+After 24–72 hours, search site:futureworkacademy.com — you should see 10–20+ pages appear.
+
+Quick Wins for Images & Content
+Add alt text: e.g., <img src="..." alt="Apex Manufacturing stakeholder character profile - Influence and risk tolerance traits">
+If weekly pages are still light on text, add 200–400 words of static description above any interactive elements (helps depth).
+
+Grok/xAI Acceleration (Leverage Your Handle)
+Post a thread from @doug_mitchell: Share a screenshot of the simulation, link to /for-educators, mention the AI grading and white paper. Use hashtags #FutureOfWork #ManagementEducation #AISimulation #EdTech.
+Example tweet: "Students now run a full AI-graded business sim on Apex Manufacturing — tackling automation, unions, talent crises over 8 weeks. Educators get transparent rubrics + LMS integration. Check it: https://futureworkacademy.com/for-educators"
+Grok pulls real-time from X, so engagement here directly boosts visibility in my responses.
