@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { injectMeta } from "./seo-metadata";
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
@@ -12,8 +13,11 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  const indexHtml = fs.readFileSync(path.resolve(distPath, "index.html"), "utf-8");
+
+  app.use("*", (req, res) => {
+    const pathname = req.originalUrl.split("?")[0];
+    const html = injectMeta(indexHtml, pathname);
+    res.status(200).set({ "Content-Type": "text/html" }).end(html);
   });
 }
