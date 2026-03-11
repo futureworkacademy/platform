@@ -153,6 +153,7 @@ export function GeminiQASidebar() {
             variant="ghost"
             className="h-6 w-6"
             onClick={() => setIsExpanded(false)}
+            aria-label="Close Q&A assistant"
             data-testid="button-close-qa"
           >
             <X className="h-3 w-3" />
@@ -230,6 +231,7 @@ export function GeminiQASidebar() {
             size="icon"
             onClick={handleSend}
             disabled={!question.trim() || askMutation.isPending}
+            aria-label="Send question"
             data-testid="button-send-question"
           >
             {askMutation.isPending ? (

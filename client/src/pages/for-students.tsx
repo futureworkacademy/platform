@@ -226,7 +226,7 @@ export default function ForStudents() {
 
         <section className="relative min-h-[85vh] flex items-center justify-center px-4 overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img src={heroImg} alt="" className="w-full h-full object-cover opacity-15 dark:opacity-10" />
+            <img src={heroImg} alt="" aria-hidden="true" className="w-full h-full object-cover opacity-15 dark:opacity-10" />
             <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
           </div>
           <div className="relative z-10 container mx-auto max-w-5xl text-center space-y-8">

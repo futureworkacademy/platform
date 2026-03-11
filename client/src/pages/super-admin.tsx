@@ -1488,6 +1488,7 @@ export default function SuperAdminPage() {
                               size="icon"
                               className="h-6 w-6 ml-1"
                               onClick={() => copyToClipboard(org.code)}
+                              aria-label="Copy enrollment code"
                               data-testid={`button-copy-code-${org.id}`}
                             >
                               <Copy className="h-3 w-3" />
@@ -1730,7 +1731,7 @@ export default function SuperAdminPage() {
                               <td className="py-3 px-2 text-right">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" data-testid={`button-actions-${person.id}`}>
+                                    <Button variant="ghost" size="icon" aria-label="More actions" data-testid={`button-actions-${person.id}`}>
                                       <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
@@ -2099,7 +2100,7 @@ export default function SuperAdminPage() {
                             </Badge>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" data-testid={`button-member-actions-${member.id}`}>
+                                <Button variant="ghost" size="icon" aria-label="More actions" data-testid={`button-member-actions-${member.id}`}>
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>

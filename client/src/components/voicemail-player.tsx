@@ -144,6 +144,40 @@ export function VoicemailPlayer({ weekNumber, onClose, autoShow = true }: Voicem
     audioRef.current.currentTime = percent * duration;
   };
 
+  const handleSliderKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+    const step = 5;
+    const largeStep = 10;
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowUp":
+        e.preventDefault();
+        audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + step);
+        break;
+      case "ArrowLeft":
+      case "ArrowDown":
+        e.preventDefault();
+        audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - step);
+        break;
+      case "PageUp":
+        e.preventDefault();
+        audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + largeStep);
+        break;
+      case "PageDown":
+        e.preventDefault();
+        audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - largeStep);
+        break;
+      case "Home":
+        e.preventDefault();
+        audioRef.current.currentTime = 0;
+        break;
+      case "End":
+        e.preventDefault();
+        audioRef.current.currentTime = duration;
+        break;
+    }
+  };
+
   const handleClose = () => {
     audioRef.current?.pause();
     setIsPlaying(false);
@@ -222,6 +256,7 @@ export function VoicemailPlayer({ weekNumber, onClose, autoShow = true }: Voicem
             <div 
               className="relative h-2 bg-muted rounded-full cursor-pointer overflow-hidden"
               onClick={handleSeek}
+              onKeyDown={handleSliderKeyDown}
               role="slider"
               aria-label="Audio progress"
               aria-valuenow={Math.round(progress)}

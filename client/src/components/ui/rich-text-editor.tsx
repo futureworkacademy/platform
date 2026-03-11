@@ -61,6 +61,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={cn("h-8 w-8", editor.isActive('bold') && "bg-muted")}
           disabled={disabled}
+          aria-label="Bold"
           data-testid="button-bold"
         >
           <Bold className="h-4 w-4" />
@@ -72,6 +73,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={cn("h-8 w-8", editor.isActive('italic') && "bg-muted")}
           disabled={disabled}
+          aria-label="Italic"
           data-testid="button-italic"
         >
           <Italic className="h-4 w-4" />
@@ -84,6 +86,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={cn("h-8 w-8", editor.isActive('bulletList') && "bg-muted")}
           disabled={disabled}
+          aria-label="Bullet list"
           data-testid="button-bullet-list"
         >
           <List className="h-4 w-4" />
@@ -95,6 +98,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={cn("h-8 w-8", editor.isActive('orderedList') && "bg-muted")}
           disabled={disabled}
+          aria-label="Ordered list"
           data-testid="button-ordered-list"
         >
           <ListOrdered className="h-4 w-4" />
@@ -107,6 +111,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().undo().run()}
           disabled={disabled || !editor.can().undo()}
           className="h-8 w-8"
+          aria-label="Undo"
           data-testid="button-undo"
         >
           <Undo className="h-4 w-4" />
@@ -118,6 +123,7 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().redo().run()}
           disabled={disabled || !editor.can().redo()}
           className="h-8 w-8"
+          aria-label="Redo"
           data-testid="button-redo"
         >
           <Redo className="h-4 w-4" />

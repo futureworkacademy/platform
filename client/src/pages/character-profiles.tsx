@@ -661,7 +661,7 @@ export function WeeklySimulationPage({ weekNumber }: { weekNumber: number }) {
       <header className="flex items-center justify-between gap-4 p-4 border-b sticky top-0 z-50 bg-card/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <Link href="/">
-            <Button variant="ghost" size="icon" data-testid="button-back-home">
+            <Button variant="ghost" size="icon" aria-label="Go back" data-testid="button-back-home">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
@@ -823,7 +823,7 @@ export default function CharacterProfilesPage() {
         <header className="flex items-center justify-between gap-4 p-4 border-b sticky top-0 z-50 bg-card/80 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="ghost" size="icon" data-testid="button-back-home">
+              <Button variant="ghost" size="icon" aria-label="Go back" data-testid="button-back-home">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>

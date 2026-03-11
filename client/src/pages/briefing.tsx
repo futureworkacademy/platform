@@ -213,6 +213,7 @@ export default function Briefing() {
                 <Button 
                   variant="outline" 
                   size="icon"
+                  aria-label="Download briefing PDF"
                   onClick={() => generateWeeklyPDF({
                     weekNumber: team.currentWeek,
                     totalWeeks: team.totalWeeks,

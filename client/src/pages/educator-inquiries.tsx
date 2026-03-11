@@ -202,7 +202,7 @@ export default function EducatorInquiriesPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <Link href="/super-admin">
-            <Button variant="ghost" size="icon" data-testid="button-back">
+            <Button variant="ghost" size="icon" aria-label="Go back" data-testid="button-back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>

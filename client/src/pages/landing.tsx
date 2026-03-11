@@ -183,6 +183,7 @@ export default function Landing() {
             <img 
               src={heroImage} 
               alt="" 
+              aria-hidden="true"
               className="w-full h-full object-cover opacity-20 dark:opacity-15"
               data-testid="img-hero-background"
             />

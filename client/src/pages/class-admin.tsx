@@ -838,6 +838,7 @@ export default function ClassAdminPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => copyToClipboard(currentOrg.code)}
+                  aria-label="Copy enrollment code"
                   data-testid="button-copy-enrollment-code"
                 >
                   <Copy className="h-4 w-4" />
@@ -857,6 +858,7 @@ export default function ClassAdminPage() {
                     navigator.clipboard.writeText(`https://futureworkacademy.com/join/${currentOrg.code}`);
                     toast({ title: "Magic link copied!", description: "Share this link with your students." });
                   }}
+                  aria-label="Copy magic invite link"
                   data-testid="button-copy-magic-link"
                 >
                   <Copy className="h-4 w-4" />
@@ -1297,6 +1299,7 @@ export default function ClassAdminPage() {
                                 onClick={() => sendInviteMutation.mutate(member.id)}
                                 disabled={sendInviteMutation.isPending}
                                 title="Send invitation email"
+                                aria-label="Send invitation email"
                                 data-testid={`button-send-invite-${member.id}`}
                               >
                                 <Send className="h-4 w-4" />
@@ -1306,6 +1309,7 @@ export default function ClassAdminPage() {
                                 size="icon"
                                 onClick={() => removeMemberMutation.mutate(member.id)}
                                 disabled={removeMemberMutation.isPending}
+                                aria-label="Remove member"
                                 data-testid={`button-remove-member-${member.id}`}
                               >
                                 <UserMinus className="h-4 w-4 text-destructive" />
@@ -2015,6 +2019,7 @@ export default function ClassAdminPage() {
                                 size="icon"
                                 onClick={() => cancelReminderMutation.mutate(reminder.id)}
                                 disabled={cancelReminderMutation.isPending}
+                                aria-label="Cancel reminder"
                                 data-testid={`button-cancel-reminder-${reminder.id}`}
                               >
                                 <UserMinus className="h-4 w-4 text-destructive" />

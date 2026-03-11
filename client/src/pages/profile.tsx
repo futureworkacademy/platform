@@ -148,7 +148,7 @@ export default function Profile() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Button variant="ghost" size="icon" data-testid="button-back">
+            <Button variant="ghost" size="icon" aria-label="Go back" data-testid="button-back">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
@@ -180,6 +180,7 @@ export default function Profile() {
                   variant="secondary"
                   className="absolute -bottom-1 -right-1"
                   onClick={() => fileInputRef.current?.click()}
+                  aria-label="Change profile photo"
                   data-testid="button-change-photo"
                 >
                   <Camera className="h-3 w-3" />
