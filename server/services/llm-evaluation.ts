@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { ObjectStorageService } from "../replit_integrations/object_storage/objectStorage";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -207,24 +208,29 @@ Respond ONLY with the JSON object.`;
     const userContent: any[] = [{ type: "text", text: userTextContent }];
     
     if (hasAttachments) {
-      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-        : process.env.REPL_SLUG 
-          ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-          : 'http://localhost:5000';
-      
+      const storageService = new ObjectStorageService();
       for (const attachmentUrl of attachmentUrls) {
-        userContent.push({
-          type: "image_url",
-          image_url: { 
-            url: `${baseUrl}${attachmentUrl}`,
-            detail: "low"
-          }
-        });
+        try {
+          const file = await storageService.getObjectEntityFile(attachmentUrl);
+          const [buffer] = await file.download();
+          const [metadata] = await file.getMetadata();
+          const contentType = (metadata.contentType as string) || "image/jpeg";
+          const base64 = buffer.toString("base64");
+          userContent.push({
+            type: "image_url",
+            image_url: {
+              url: `data:${contentType};base64,${base64}`,
+              detail: "low",
+            },
+          });
+        } catch (err) {
+          console.error(`[LLM Evaluation] Failed to download attachment ${attachmentUrl}:`, err);
+        }
       }
     }
 
-    const model = hasAttachments ? "gpt-4o" : "gpt-4.1-nano";
+    const hasLoadedImages = userContent.length > 1;
+    const model = hasLoadedImages ? "gpt-4o" : "gpt-4.1-nano";
 
     const response_result = await openai.chat.completions.create({
       model,
@@ -235,7 +241,7 @@ Respond ONLY with the JSON object.`;
         },
         {
           role: "user",
-          content: hasAttachments ? userContent : userTextContent,
+          content: hasLoadedImages ? userContent : userTextContent,
         },
       ],
       response_format: { type: "json_object" },
