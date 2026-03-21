@@ -837,7 +837,11 @@ export function renderGradingPage(): string {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(gradePayload)
         })
-        .then(function(res) { return res.json(); })
+        .then(function(res) {
+          if (res.status === 401) { document.getElementById('single-status').textContent = 'Session expired. Refreshing...'; setTimeout(function() { window.location.reload(); }, 1500); throw new Error('Session expired'); }
+          if (!res.ok) throw new Error('Server error (' + res.status + ')');
+          return res.json();
+        })
         .then(function(result) {
           if (result.error) { document.getElementById('single-status').textContent = 'Error: ' + result.error; }
           else {
@@ -1261,6 +1265,8 @@ export function renderGradingPage(): string {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(savePayload)
           });
+          if (res.status === 401) { statusEl.textContent = 'Session expired. Refreshing...'; setTimeout(function() { window.location.reload(); }, 1500); return; }
+          if (!res.ok) { statusEl.textContent = 'Error: Server error (' + res.status + ')'; return; }
           var saved = await res.json();
           if (saved.error) { statusEl.textContent = 'Error: ' + saved.error; return; }
           statusEl.textContent = 'Saved! Generating PDF...';
@@ -1751,6 +1757,7 @@ export function renderGradingPage(): string {
             var studentImgUrls = getBulkImageUrls(bulkData[i].studentName);
             if (studentImgUrls.length > 0) payload.attachmentUrls = studentImgUrls;
             var res = await fetch('/api/grade/single', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.status === 401) { document.getElementById('bulk-status').textContent = 'Session expired. Refreshing...'; setTimeout(function() { window.location.reload(); }, 1500); return; }
             var result = await res.json();
             if (!result.error) { result.attachmentUrls = studentImgUrls.length > 0 ? studentImgUrls : null; bulkResults.push(result); } else bulkResults.push({ studentName: bulkData[i].studentName, optionChosen: bulkData[i].optionChosen, error: result.error });
           } catch (err) { bulkResults.push({ studentName: bulkData[i].studentName, optionChosen: bulkData[i].optionChosen, error: err.message }); }
