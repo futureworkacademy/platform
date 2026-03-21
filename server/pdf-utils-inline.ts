@@ -191,13 +191,52 @@ export function getPdfUtilsScript(): string {
         var bulletMatch = para.match(/^(\\s*[-*+])\\s+(.*)$/);
         if (bulletMatch) {
           var bulletText = bulletMatch[2];
+          var bulletIndent = marginX + 7;
+          var bulletW = mw - 10;
           y = pdfCheckPage(y, lh);
           doc.text('•', marginX + 2, y);
-          var bLines = doc.splitTextToSize(bulletText, mw - 10);
-          for (var bi = 0; bi < bLines.length; bi++) {
-            y = pdfCheckPage(y, lh);
-            doc.text(bLines[bi], marginX + 7, y);
-            y += lh;
+          if (bulletText.indexOf('**') !== -1) {
+            var bSegs = [];
+            var bPts = bulletText.split(/(\\*\\*[^*]+\\*\\*)/);
+            for (var bsi = 0; bsi < bPts.length; bsi++) {
+              if (bPts[bsi].substring(0, 2) === '**' && bPts[bsi].substring(bPts[bsi].length - 2) === '**') {
+                bSegs.push({ t: bPts[bsi].substring(2, bPts[bsi].length - 2), b: true });
+              } else if (bPts[bsi].length > 0) {
+                bSegs.push({ t: bPts[bsi], b: false });
+              }
+            }
+            var bRLines = []; var bCurLine = []; var bCurW = 0;
+            for (var bsi2 = 0; bsi2 < bSegs.length; bsi2++) {
+              var bSg = bSegs[bsi2];
+              doc.setFont('helvetica', bSg.b ? 'bold' : 'normal');
+              var bWords = bSg.t.split(/( +)/);
+              for (var bwi = 0; bwi < bWords.length; bwi++) {
+                var bWord = bWords[bwi];
+                if (bWord === '') continue;
+                var bWw = doc.getTextWidth(bWord);
+                if (bCurW + bWw > bulletW && bCurLine.length > 0) { bRLines.push(bCurLine); bCurLine = []; bCurW = 0; if (bWord.trim() === '') continue; }
+                bCurLine.push({ t: bWord, b: bSg.b }); bCurW += bWw;
+              }
+            }
+            if (bCurLine.length > 0) bRLines.push(bCurLine);
+            for (var brli = 0; brli < bRLines.length; brli++) {
+              y = pdfCheckPage(y, lh);
+              var bxp = bulletIndent;
+              for (var bci = 0; bci < bRLines[brli].length; bci++) {
+                var bChunk = bRLines[brli][bci];
+                doc.setFont('helvetica', bChunk.b ? 'bold' : 'normal');
+                doc.text(bChunk.t, bxp, y); bxp += doc.getTextWidth(bChunk.t);
+              }
+              y += lh;
+            }
+            doc.setFont('helvetica', 'normal');
+          } else {
+            var bLines = doc.splitTextToSize(bulletText, bulletW);
+            for (var bi = 0; bi < bLines.length; bi++) {
+              y = pdfCheckPage(y, lh);
+              doc.text(bLines[bi], bulletIndent, y);
+              y += lh;
+            }
           }
           continue;
         }
@@ -205,15 +244,54 @@ export function getPdfUtilsScript(): string {
         var numberedMatch = para.match(/^(\\d+)\\.\\s+(.*)$/);
         if (numberedMatch) {
           var numText = numberedMatch[2];
+          var numIndent = marginX + 9;
+          var numW = mw - 12;
           y = pdfCheckPage(y, lh);
           doc.setFont('helvetica', 'bold');
           doc.text(numberedMatch[1] + '.', marginX + 2, y);
           doc.setFont('helvetica', 'normal');
-          var nLines = doc.splitTextToSize(numText, mw - 12);
-          for (var ni = 0; ni < nLines.length; ni++) {
-            y = pdfCheckPage(y, lh);
-            doc.text(nLines[ni], marginX + 9, y);
-            y += lh;
+          if (numText.indexOf('**') !== -1) {
+            var nSegs = [];
+            var nPts = numText.split(/(\\*\\*[^*]+\\*\\*)/);
+            for (var nsi = 0; nsi < nPts.length; nsi++) {
+              if (nPts[nsi].substring(0, 2) === '**' && nPts[nsi].substring(nPts[nsi].length - 2) === '**') {
+                nSegs.push({ t: nPts[nsi].substring(2, nPts[nsi].length - 2), b: true });
+              } else if (nPts[nsi].length > 0) {
+                nSegs.push({ t: nPts[nsi], b: false });
+              }
+            }
+            var nRLines = []; var nCurLine = []; var nCurW = 0;
+            for (var nsi2 = 0; nsi2 < nSegs.length; nsi2++) {
+              var nSg = nSegs[nsi2];
+              doc.setFont('helvetica', nSg.b ? 'bold' : 'normal');
+              var nWords = nSg.t.split(/( +)/);
+              for (var nwi = 0; nwi < nWords.length; nwi++) {
+                var nWord = nWords[nwi];
+                if (nWord === '') continue;
+                var nWw = doc.getTextWidth(nWord);
+                if (nCurW + nWw > numW && nCurLine.length > 0) { nRLines.push(nCurLine); nCurLine = []; nCurW = 0; if (nWord.trim() === '') continue; }
+                nCurLine.push({ t: nWord, b: nSg.b }); nCurW += nWw;
+              }
+            }
+            if (nCurLine.length > 0) nRLines.push(nCurLine);
+            for (var nrli = 0; nrli < nRLines.length; nrli++) {
+              y = pdfCheckPage(y, lh);
+              var nxp = numIndent;
+              for (var nci = 0; nci < nRLines[nrli].length; nci++) {
+                var nChunk = nRLines[nrli][nci];
+                doc.setFont('helvetica', nChunk.b ? 'bold' : 'normal');
+                doc.text(nChunk.t, nxp, y); nxp += doc.getTextWidth(nChunk.t);
+              }
+              y += lh;
+            }
+            doc.setFont('helvetica', 'normal');
+          } else {
+            var nLines = doc.splitTextToSize(numText, numW);
+            for (var ni = 0; ni < nLines.length; ni++) {
+              y = pdfCheckPage(y, lh);
+              doc.text(nLines[ni], numIndent, y);
+              y += lh;
+            }
           }
           continue;
         }
