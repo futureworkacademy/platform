@@ -43,6 +43,7 @@ app.use(
           "https://www.google-analytics.com",
           "https://www.googletagmanager.com",
           "https://analytics.google.com",
+          "https://storage.googleapis.com",
           ...(isDev ? ["ws:", "wss:"] : []),
         ],
         scriptSrcAttr: ["'unsafe-inline'"],
