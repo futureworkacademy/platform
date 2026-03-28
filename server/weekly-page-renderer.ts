@@ -184,6 +184,8 @@ function stripMarkdownForPdf(text: string): string {
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
     .replace(/^>\s+/gm, '')
+    // Strip single-star italic (*text*) without touching double-star bold (**text**)
+    .replace(/(?<!\*)\*(?!\*)([^*\n]+)(?<!\*)\*(?!\*)/g, '$1')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }

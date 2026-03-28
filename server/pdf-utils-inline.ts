@@ -142,7 +142,7 @@ export function getPdfUtilsScript(): string {
           continue;
         }
 
-        var isDivider = para.match(/^[-]{4,}/);
+        var isDivider = para.match(/^[-]{3,}$/) || para.match(/^\*{3,}$/) || para.match(/^_{3,}$/);
         if (isDivider) {
           y = pdfCheckPage(y, lh);
           doc.setDrawColor(200, 200, 200);
