@@ -53,7 +53,7 @@ const voicemailVoiceMapping: Record<number, VoicemailVoiceConfig> = {
   8: { 
     voiceId: 'onwK4e9ZLuTAKqWW03F9', // Daniel - commanding, inspirational
     voiceName: 'Daniel',
-    description: 'Margaret O\'Brien - warm, authoritative, Midwestern'
+    description: 'David Okonkwo - deep, commanding, Nigerian-American accent, visionary'
   },
 };
 
