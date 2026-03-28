@@ -1740,5 +1740,116 @@
         }
       ]
     }
+  },
+  {
+    "id": "a8b9c0d1-e2f3-4g5h-i6j7-k8l9m0n1o2p3",
+    "module_id": null,
+    "name": "David Okonkwo",
+    "role": "Chief Executive Officer",
+    "title": "Chief Executive Officer",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/david-okonkwo.png",
+    "headshot_prompt": "Professional headshot of a 52-year-old Nigerian-American man with salt-and-pepper hair, warm brown eyes, wearing a dark navy suit with a silk tie. Confident, visionary expression. Executive office with company awards visible in background.",
+    "bio": "David Okonkwo was born in Lagos, Nigeria, and immigrated to the United States at age 16 with a singular focus: to build something meaningful. His journey took him through a rigorous engineering program at MIT, followed by an MBA from Wharton, where he specialized in manufacturing operations and strategic innovation. Over the past 20 years, David has led transformations at three Fortune 500 manufacturers, earning a reputation as a visionary who could navigate both the technical and human dimensions of organizational change. Six years ago, Apex Manufacturing's board recruited him to chart a course through the industry's digital transformation. David brings an uncommon blend of strategic insight, operational excellence, and genuine care for his workforce. He believes that sustainable competitive advantage comes not from cutting costs, but from unleashing human potential alongside technological innovation. Outside of his executive responsibilities, David is a mentor to emerging leaders in manufacturing, a board member of two tech nonprofits, and a devoted father of three.",
+    "personality": "David is visionary yet grounded, combining ambitious strategic thinking with deep empathy for the people affected by change. He is decisive but consultative, willing to challenge conventional wisdom while remaining open to diverse perspectives. His strengths lie in his ability to inspire trust across organizational levels and his capacity to hold complex trade-offs without losing sight of the bigger picture. He occasionally struggles with impatience when implementation lags behind his strategic vision.",
+    "communication_style": "David speaks with clarity and purpose, using narrative and storytelling to convey complex ideas. He favors inclusive language and often acknowledges multiple viewpoints before articulating his own position. In formal settings, he is commanding and eloquent; in small groups, he becomes more conversational and reflective. His communications balance confidence with humility.",
+    "motivations": "David is driven by a desire to prove that manufacturing can be both profitable and humane—that transformation doesn't require sacrificing people in pursuit of progress. He seeks to leave a legacy of a company that grows stronger by investing in its workforce, not by extracting from it.",
+    "fears": "David's greatest fear is that his transformation strategy will ultimately harm the very people he's trying to help—that despite his best intentions, layoffs and disruption will undermine employee morale and the company's culture. He also worries about running out of runway financially before the transformation yields its promised returns.",
+    "relationships": null,
+    "voice_description": "David has a deep, commanding voice with a warm undertone. His Nigerian accent is subtle but present, adding a distinctive cadence to his speech. He speaks with deliberate pacing, often using pauses for emphasis, and his tone conveys both authority and approachability.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "We have an opportunity to demonstrate that you can lead with both the head and the heart.",
+      "This transformation is not about replacing people; it's about reimagining what we can accomplish together.",
+      "The hardest decisions are often the most important ones. Let's make sure we're making them for the right reasons.",
+      "Our competitive advantage will come from our ability to innovate faster and care deeper than our competitors."
+    ],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-01-26T05:29:07.500000",
+    "updated_at": "2026-01-31T21:01:52.610",
+    "created_by": null,
+    "influence": 9,
+    "hostility": 1,
+    "flexibility": 7,
+    "risk_tolerance": 8,
+    "impact_categories": [
+      "strategy",
+      "leadership",
+      "culture",
+      "technology"
+    ],
+    "voice_profile": {
+      "pace": "deliberate",
+      "tone": "commanding yet warm",
+      "pitch": "deep",
+      "accent": "Nigerian-American",
+      "gender": "male",
+      "ageRange": "early 50s",
+      "samplePhrases": [
+        "We can be both ambitious and humane.",
+        "Let's think about this strategically.",
+        "I want to hear from everyone in this room.",
+        "This is the moment that defines us."
+      ],
+      "emotionalBaseline": "visionary",
+      "distinctiveQualities": [
+        "deliberate pauses",
+        "narrative storytelling",
+        "warm authority",
+        "multilayered thinking"
+      ]
+    },
+    "social_profile": {
+      "about": "As Chief Executive Officer of Apex Manufacturing, I am committed to leading a transformation that strengthens both our financial performance and our organizational culture. With over 20 years of experience in manufacturing innovation and leadership, I believe that sustainable growth comes from unleashing human potential alongside technological advancement. I am passionate about mentoring the next generation of manufacturing leaders and am dedicated to proving that companies can compete globally while treating their employees with dignity and respect.",
+      "skills": [
+        "Manufacturing Strategy",
+        "Organizational Transformation",
+        "Strategic Planning",
+        "Executive Leadership",
+        "Operations Management",
+        "Innovation Management",
+        "Stakeholder Relations",
+        "Change Management"
+      ],
+      "headline": "CEO | Manufacturing Innovation | Organizational Transformation",
+      "education": [
+        {
+          "year": 2000,
+          "degree": "MBA",
+          "institution": "Wharton School of Business"
+        },
+        {
+          "year": 1996,
+          "degree": "Bachelor of Science in Mechanical Engineering",
+          "institution": "MIT"
+        }
+      ],
+      "connections": "5,000+",
+      "endorsements": 1200,
+      "currentPosition": {
+        "title": "Chief Executive Officer",
+        "company": "Apex Manufacturing",
+        "duration": "6 years",
+        "description": "Leading comprehensive transformation of manufacturing operations and culture, positioning the company for success in the AI-driven economy while maintaining commitment to workforce development and stakeholder engagement."
+      },
+      "previousPositions": [
+        {
+          "title": "Chief Operating Officer",
+          "company": "Precision Manufacturing Corp",
+          "duration": "5 years"
+        },
+        {
+          "title": "Vice President of Operations",
+          "company": "Global Manufacturing Solutions",
+          "duration": "7 years"
+        },
+        {
+          "title": "Operations Manager",
+          "company": "International Manufacturing Inc",
+          "duration": "3 years"
+        }
+      ]
+    }
   }
 ]
