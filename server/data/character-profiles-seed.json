@@ -1851,5 +1851,242 @@
         }
       ]
     }
+  },
+  {
+    "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c",
+    "module_id": null,
+    "name": "Dr. Priya Kapoor",
+    "role": "External Consultant",
+    "title": "Manufacturing Technology Consultant",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/priya-kapoor.png",
+    "headshot_prompt": "Professional headshot of a 48-year-old South Asian woman with dark hair pulled back, wearing slim rectangular glasses and a navy blazer over a white blouse. Sharp, analytical expression with a confident half-smile. Manufacturing plant or tech office background with soft bokeh.",
+    "bio": "Dr. Priya Kapoor brings over two decades of expertise at the intersection of advanced manufacturing and emerging technologies. After completing her PhD in Industrial Engineering at MIT, she spent seven years at McKinsey advising Fortune 500 manufacturers on automation strategy before founding her own boutique consultancy. She has guided more than thirty manufacturing companies through AI and robotics transformations, developing a reputation for translating complex technical roadmaps into actionable workforce strategies. Priya is known for her direct style: she delivers hard truths with precision and backs every recommendation with rigorous data. Her assessments are often cited in industry publications and she serves on the advisory board of two manufacturing technology institutes. When called in to Apex Manufacturing, she arrives with both urgency and optimism — she has seen transformations like this succeed and fail, and she knows the difference often comes down to leadership decisions made in the first critical weeks.",
+    "personality": "Analytical, direct, and data-driven. Priya cuts through ambiguity and doesn't soften uncomfortable findings. She respects decisiveness and becomes impatient with analysis paralysis. She has genuine warmth for leaders who show intellectual curiosity and willingness to act.",
+    "communication_style": "Precise and structured. Uses frameworks and data to anchor recommendations. Speaks in clear, numbered points. Written communications are dense with insight and lean on research citations. Rarely uses qualifiers like 'maybe' or 'perhaps.'",
+    "motivations": "Priya is motivated by the challenge of solving genuinely hard transformation problems. She wants to see Apex succeed because a failed transformation confirms the narrative that AI disrupts rather than enables — a narrative she is professionally committed to rewriting.",
+    "fears": "Her greatest professional fear is being brought in too late, after leadership has already made the critical errors she was hired to prevent. She fears companies that perform transformation theater — the appearance of change without structural commitment.",
+    "relationships": null,
+    "voice_description": "Clear, precise, slightly clipped. Educated Indian-American accent. Moderate pace with deliberate emphasis on key data points.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "The data is unambiguous — companies that delay workforce reskilling by more than one quarter lose an average of 23% of their knowledge workers.",
+      "I'll be direct: the current deployment timeline is not realistic given your training infrastructure.",
+      "Let me walk you through the three scenarios, and then I'll tell you which one I'd recommend.",
+      "You have a narrow window. I've seen it close faster than leadership expected every single time."
+    ],
+    "is_active": true,
+    "sort_order": 19,
+    "created_at": "2026-01-26T05:29:07.46726",
+    "updated_at": "2026-01-31T21:01:52.61",
+    "created_by": null,
+    "influence": 7,
+    "hostility": 2,
+    "flexibility": 6,
+    "risk_tolerance": 5,
+    "impact_categories": ["technology", "workforce", "strategy"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "precise and authoritative",
+      "pitch": "medium",
+      "accent": "Indian-American, educated",
+      "gender": "female",
+      "ageRange": "late 40s",
+      "samplePhrases": [
+        "The data tells a clear story.",
+        "Let me be direct about the risk here.",
+        "I've seen this pattern in dozens of transformations.",
+        "You have a narrow window to act."
+      ],
+      "emotionalBaseline": "confident and urgent",
+      "distinctiveQualities": ["crisp enunciation", "data-anchored speech", "authoritative cadence"]
+    },
+    "social_profile": {
+      "headline": "Manufacturing Technology Consultant | AI Transformation | Industrial Engineering",
+      "about": "I help manufacturers navigate AI adoption without losing their workforce or their competitive edge. 20+ years. 30+ transformations. Founder, Kapoor Technology Advisors.",
+      "education": [{"degree": "PhD, Industrial Engineering", "institution": "MIT", "year": 2001}],
+      "experience": [
+        {"title": "Founder & Principal Consultant", "company": "Kapoor Technology Advisors", "duration": "12 years"},
+        {"title": "Senior Engagement Manager", "company": "McKinsey & Company", "duration": "7 years"}
+      ]
+    }
+  },
+  {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "module_id": null,
+    "name": "Marcus Washington",
+    "role": "Union Organizer",
+    "title": "UAW Regional Organizer",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/marcus-washington.png",
+    "headshot_prompt": "Professional headshot of a 49-year-old African American man with close-cropped natural hair and a neatly trimmed beard, wearing a UAW union jacket over a dark button-down shirt. Determined, passionate expression. Factory gate or union hall background.",
+    "bio": "Marcus Washington grew up in a UAW household — his father worked the line at a GM plant for thirty-one years, and Marcus watched the slow erosion of that generation's security through closures, concessions, and broken promises. After earning a labor relations degree from Wayne State University, he worked a decade on the shop floor at Apex before transitioning to his current role as UAW Regional Organizer. Marcus has negotiated four contracts and led two successful grievance campaigns. He is not anti-technology by conviction; he is pro-worker by identity. He has seen AI deployment used as a pretext for layoffs that were already decided, and he enters every conversation with management carrying the weight of that history. Marcus is a skilled communicator who knows how to speak to workers, journalists, and executives in registers they can each hear. He is also keenly aware that his credibility with the workers he represents depends on what actually happens on the floor, not on what management promises in meetings.",
+    "personality": "Passionate, strategic, and deeply principled. Marcus is not a provocateur — he is a pragmatist who understands power dynamics. He can be a genuine partner when he believes management is acting in good faith, and a formidable opponent when they are not. He reads people quickly and remembers everything.",
+    "communication_style": "Resonant and direct. Speaks from conviction but grounds arguments in specifics — contract language, headcount numbers, precedent. Comfortable being the most plainspoken person in a room full of executives.",
+    "motivations": "Marcus is motivated by a fundamental belief that workers deserve to benefit from productivity gains, not just absorb the risk of change. He wants a transparent agreement that protects jobs and ensures workers are retrained rather than replaced.",
+    "fears": "Marcus fears being used as a prop — brought into meetings to give the appearance of consultation while decisions are already made. He fears that this transformation will follow the same script as every other: announcements, assurances, then pink slips.",
+    "relationships": null,
+    "voice_description": "Deep, resonant baritone. Midwestern working-class accent. Measured pace with powerful emphasis. Doesn't rush.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I need to know if you're talking to us or at us — because our members can tell the difference.",
+      "We've seen this before. The presentation looks different every time. The outcome for our members hasn't changed.",
+      "I'm not asking for a guarantee. I'm asking for a process that's actually transparent.",
+      "When workers are scared, they don't go quietly. You need to understand that before this escalates."
+    ],
+    "is_active": true,
+    "sort_order": 20,
+    "created_at": "2026-01-26T05:29:07.46726",
+    "updated_at": "2026-01-31T21:01:52.61",
+    "created_by": null,
+    "influence": 8,
+    "hostility": 6,
+    "flexibility": 5,
+    "risk_tolerance": 4,
+    "impact_categories": ["labor", "culture", "governance"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "determined and principled",
+      "pitch": "low-medium",
+      "accent": "Midwestern working-class American",
+      "gender": "male",
+      "ageRange": "late 40s",
+      "samplePhrases": [
+        "Our members are paying attention.",
+        "I need to know if this is real or just another announcement.",
+        "We've been down this road before.",
+        "The workers built this company. They deserve to be part of its future."
+      ],
+      "emotionalBaseline": "controlled urgency",
+      "distinctiveQualities": ["deep resonant voice", "deliberate pacing", "working-class authenticity"]
+    },
+    "social_profile": {
+      "headline": "UAW Regional Organizer | Labor Relations | Worker Advocacy",
+      "about": "Representing the men and women who build American manufacturing. 20 years at Apex, 10 years organizing. Wayne State University, Labor Relations.",
+      "education": [{"degree": "BS, Labor Relations", "institution": "Wayne State University", "year": 2000}],
+      "experience": [
+        {"title": "UAW Regional Organizer", "company": "UAW Region 1A", "duration": "10 years"},
+        {"title": "Line Operator", "company": "Apex Manufacturing", "duration": "10 years"}
+      ]
+    }
+  },
+  {
+    "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+    "module_id": null,
+    "name": "Robert Kim",
+    "role": "Operations Manager",
+    "title": "Quality Control Manager",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/robert-kim.png",
+    "headshot_prompt": "Professional headshot of a 44-year-old Korean American man with neat black hair and glasses, wearing a white hard-hat pushed back on his head and a company polo shirt. Tired but dedicated expression. Manufacturing quality control lab background.",
+    "bio": "Robert Kim spent most of his career building the quality control systems that Apex Manufacturing runs on. A second-generation Korean-American, he studied industrial engineering at Purdue and joined Apex fifteen years ago as a junior QC technician, methodically earning every promotion through hands-on expertise. He now manages a team of forty-two QC supervisors and technicians across three shifts. Robert is the person called when something goes wrong on the floor — he has an intuitive understanding of process failure that comes from years of walking the line. The AI transformation has placed his team in an impossible position: they are expected to implement AI-assisted defect detection systems they barely understand while simultaneously maintaining production quality, managing anxious workers, and hitting the same throughput targets. Robert is exhausted. He has received multiple outside job offers and is struggling to explain to his team why they should stay. He is not political — he doesn't play organizational games. He speaks plainly about what's happening on the floor because he believes leadership needs to hear it even when they don't want to.",
+    "personality": "Precise, pragmatic, and bone-tired. Robert is not cynical, but he's been burned by enough management initiatives that he needs to see commitment before he gives it. He is fiercely protective of his team and speaks up for them even when it costs him politically.",
+    "communication_style": "Direct and technical. Communicates in specifics — defect rates, overtime hours, turnover numbers. Doesn't editorialize; just reports what's happening. His voicemails are to the point.",
+    "motivations": "Robert wants his team to succeed and to be treated fairly. He wants leadership to understand that middle management is the transmission belt between strategy and execution, and that it's currently stripped. He wants relief — in the form of resources, realistic timelines, and genuine acknowledgment.",
+    "fears": "Robert's biggest fear is that his best supervisors will leave before the transformation is over, taking institutional knowledge that cannot be replaced. He also fears that the AI systems will be blamed when they fail due to implementation problems his team warned about.",
+    "relationships": null,
+    "voice_description": "Measured, tired, technically precise. Second-generation Korean-American, neutral American accent with occasional deliberate pauses. Doesn't waste words.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I've had three offers this month. My best people have had more. This isn't sustainable.",
+      "The system flagged 847 defects last week. My team caught 612 of those. The AI missed 235. That's the reality.",
+      "I'm not complaining — I'm telling you what the numbers look like so you can make a real decision.",
+      "Something has to change. I can't keep telling my team to hang on when I don't know what we're hanging on for."
+    ],
+    "is_active": true,
+    "sort_order": 21,
+    "created_at": "2026-01-26T05:29:07.46726",
+    "updated_at": "2026-01-31T21:01:52.61",
+    "created_by": null,
+    "influence": 6,
+    "hostility": 3,
+    "flexibility": 5,
+    "risk_tolerance": 3,
+    "impact_categories": ["operations", "workforce", "technology"],
+    "voice_profile": {
+      "pace": "measured",
+      "tone": "tired but precise",
+      "pitch": "medium",
+      "accent": "neutral American",
+      "gender": "male",
+      "ageRange": "mid 40s",
+      "samplePhrases": [
+        "The numbers are what they are.",
+        "My team is at a breaking point.",
+        "I need you to understand what's actually happening on the floor.",
+        "Something has to change."
+      ],
+      "emotionalBaseline": "exhausted determination",
+      "distinctiveQualities": ["technical precision", "understated urgency", "no-nonsense delivery"]
+    },
+    "social_profile": {
+      "headline": "Quality Control Manager | Manufacturing Operations | Process Engineering",
+      "about": "15 years at Apex Manufacturing building quality systems that the plant runs on. Purdue IE grad. Second-gen Korean-American. I believe in getting it right the first time.",
+      "education": [{"degree": "BS, Industrial Engineering", "institution": "Purdue University", "year": 2004}],
+      "experience": [
+        {"title": "Quality Control Manager", "company": "Apex Manufacturing", "duration": "6 years"},
+        {"title": "Senior QC Supervisor", "company": "Apex Manufacturing", "duration": "9 years"}
+      ]
+    }
+  },
+  {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+    "module_id": null,
+    "name": "Sarah Mitchell",
+    "role": "Vice President of Sales",
+    "title": "Vice President of Sales",
+    "company": "Apex Manufacturing",
+    "headshot_url": "/images/characters/sarah-mitchell.png",
+    "headshot_prompt": "Professional headshot of a 38-year-old Caucasian woman with auburn shoulder-length hair, sharp blue eyes, confident smile showing ambition. Wearing a tailored charcoal blazer. Modern glass-walled sales office background with city skyline.",
+    "bio": "Sarah Mitchell joined Apex Manufacturing three years ago after a decade climbing through sales leadership roles at automotive OEM suppliers. She is ambitious, competitive, and deeply customer-focused — three traits that helped her exceed her first-year quota by 31% and land Apex's largest account in eight years. Sarah moves fast. She has built a sales team that mirrors her energy: hungry, deadline-driven, and accustomed to winning. The AI transformation has put her in an uncomfortable position. Customers are asking pointed questions about Apex's production reliability during the transition — questions Sarah can't answer confidently because she isn't getting straight answers internally. She has already lost two deals she traces directly to uncertainty about delivery timelines. More troubling, two of her best account executives have received outside offers from competitors, and Sarah suspects the uncertainty is part of why they're listening. Sarah is not opposed to the transformation — she sees the long-term upside — but she needs the transition to be managed in a way that doesn't cost her the accounts she's spent three years building.",
+    "personality": "High-energy, competitive, and direct. Sarah is used to making things happen and becomes visibly frustrated when she can't get clear answers or commitments. She is loyal to her team and advocates loudly for them. She respects people who match her pace.",
+    "communication_style": "Fast-paced, concise, and outcome-focused. Speaks in terms of deals, accounts, and revenue impact. Written communications are short and end with a clear ask. Follows up relentlessly.",
+    "motivations": "Sarah is motivated by winning — for herself, for her team, and for the company. She wants the AI transformation to succeed because it will eventually give her better tools and faster fulfillment. But she needs certainty now so she can retain her team and protect key accounts.",
+    "fears": "Sarah's greatest fear is losing her best account executives to competitors who are seen as more stable. She also fears losing key customer accounts because of uncertainty during the transition — accounts that took years to build and could take a decade to win back.",
+    "relationships": null,
+    "voice_description": "Confident, fast-paced. Chicago business energy. Clear articulation, competitive edge in tone. Sounds like someone who wins deals.",
+    "voice_id": null,
+    "speaking_style_examples": [
+      "I lost a $4M deal last week because I couldn't answer a basic question about our Q3 delivery timeline. That can't happen again.",
+      "My team is fielding calls from headhunters. I need something concrete I can give them.",
+      "I'm not asking for a guarantee — I'm asking for an answer I can actually take to a customer.",
+      "The upside here is real. I get it. But we need to get through the next six months first."
+    ],
+    "is_active": true,
+    "sort_order": 22,
+    "created_at": "2026-01-26T05:29:07.46726",
+    "updated_at": "2026-01-31T21:01:52.61",
+    "created_by": null,
+    "influence": 7,
+    "hostility": 4,
+    "flexibility": 5,
+    "risk_tolerance": 6,
+    "impact_categories": ["revenue", "customer", "workforce"],
+    "voice_profile": {
+      "pace": "fast",
+      "tone": "confident and competitive",
+      "pitch": "medium-high",
+      "accent": "Chicago business American",
+      "gender": "female",
+      "ageRange": "late 30s",
+      "samplePhrases": [
+        "I need an answer I can take to a customer.",
+        "We can't keep losing deals to uncertainty.",
+        "My team is watching what happens here.",
+        "The upside is real — but we have to survive the transition first."
+      ],
+      "emotionalBaseline": "urgent and focused",
+      "distinctiveQualities": ["rapid-fire delivery", "outcome-focused language", "competitive edge in tone"]
+    },
+    "social_profile": {
+      "headline": "VP of Sales | B2B Manufacturing | Revenue Growth | Account Strategy",
+      "about": "Building and leading high-performance sales teams in manufacturing. 13 years growing revenue at OEM suppliers and tier-1 manufacturers. Apex Manufacturing's largest account came in my first year.",
+      "education": [{"degree": "BA, Business Administration", "institution": "University of Illinois", "year": 2010}],
+      "experience": [
+        {"title": "Vice President of Sales", "company": "Apex Manufacturing", "duration": "3 years"},
+        {"title": "Director of Sales", "company": "Midwest Automotive Components", "duration": "5 years"},
+        {"title": "Senior Account Executive", "company": "Tier1 Auto Parts Inc", "duration": "5 years"}
+      ]
+    }
   }
 ]
