@@ -3181,8 +3181,8 @@ Provide your consistency review in JSON format.`;
       
       console.log("[Educator Inquiry] Received:", { 
         name, 
-        email, 
-        phone, 
+        email: email ? email.replace(/(?<=.{2}).(?=.*@)/g, "*") : null,
+        phone: phone ? phone.replace(/.(?=.{4})/g, "*") : null,
         institution, 
         inquiryType, 
         message: message.substring(0, 100) + "..." 
@@ -6695,7 +6695,7 @@ Provide your consistency review in JSON format.`;
 
       // Check if organization has SMS notifications enabled and has a phone number
       if (org.notifyOnSignup && org.notifyPhone) {
-        console.log(`[SMS] Sending signup notification to ${org.notifyPhone}`);
+        console.log(`[SMS] Sending signup notification to ${org.notifyPhone.replace(/.(?=.{4})/g, "*")}`);
         const result = await sendSmsNotification(org.notifyPhone, 'student_signup', {
           studentName,
           studentEmail,

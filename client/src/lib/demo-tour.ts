@@ -427,44 +427,40 @@ function showLoadingOverlay(message: string = "Loading...") {
   
   const overlay = document.createElement("div");
   overlay.id = "fwa-tour-loading";
-  overlay.innerHTML = `
-    <div style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999999;
-    ">
-      <div style="
-        background: white;
-        padding: 24px 32px;
-        border-radius: 8px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      ">
-        <div style="
-          width: 40px;
-          height: 40px;
-          border: 3px solid #e5e7eb;
-          border-top-color: #1e3a5f;
-          border-radius: 50%;
-          margin: 0 auto 12px;
-          animation: fwa-spin 1s linear infinite;
-        "></div>
-        <div style="color: #374151; font-size: 14px; font-weight: 500;">${message}</div>
-      </div>
-    </div>
-    <style>
-      @keyframes fwa-spin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
-  `;
+
+  const backdropStyle = [
+    "position:fixed", "top:0", "left:0", "right:0", "bottom:0",
+    "background:rgba(0,0,0,0.7)", "display:flex", "align-items:center",
+    "justify-content:center", "z-index:999999",
+  ].join(";");
+  const backdrop = document.createElement("div");
+  backdrop.setAttribute("style", backdropStyle);
+
+  const card = document.createElement("div");
+  card.setAttribute("style", [
+    "background:white", "padding:24px 32px", "border-radius:8px",
+    "text-align:center", "box-shadow:0 10px 25px rgba(0,0,0,0.3)",
+  ].join(";"));
+
+  const spinner = document.createElement("div");
+  spinner.setAttribute("style", [
+    "width:40px", "height:40px", "border:3px solid #e5e7eb",
+    "border-top-color:#1e3a5f", "border-radius:50%",
+    "margin:0 auto 12px", "animation:fwa-spin 1s linear infinite",
+  ].join(";"));
+
+  const label = document.createElement("div");
+  label.setAttribute("style", "color:#374151;font-size:14px;font-weight:500");
+  label.textContent = message;
+
+  const styleEl = document.createElement("style");
+  styleEl.textContent = "@keyframes fwa-spin{to{transform:rotate(360deg)}}";
+
+  card.appendChild(spinner);
+  card.appendChild(label);
+  backdrop.appendChild(card);
+  overlay.appendChild(backdrop);
+  overlay.appendChild(styleEl);
   document.body.appendChild(overlay);
 }
 
