@@ -221,7 +221,7 @@ export default function Methodology() {
                     <h4 className="text-sm font-bold text-foreground mb-2">Situated Cognition</h4>
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       Brown, Collins & Duguid (1989) established that knowledge is most effectively acquired within
-                      authentic contexts. The simulation's CEO role, 17 stakeholder characters with quantified traits,
+                      authentic contexts. The simulation's CEO role, 23 stakeholder characters with quantified traits,
                       and industry-sourced articles create a situated learning environment where strategic reasoning
                       is embedded in realistic organizational dynamics.
                     </p>

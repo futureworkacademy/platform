@@ -297,7 +297,7 @@ export default function WhitePaper() {
                       title: "Situated Cognition",
                       citation: "Brown, Collins & Duguid (1989)",
                       citeIds: [3],
-                      desc: "Knowledge is most effectively acquired when embedded in authentic activity, context, and culture. The simulation's CEO role, 17 stakeholder characters with quantified personality traits, and industry-sourced intelligence articles create a situated learning environment where strategic reasoning is inseparable from organizational context.",
+                      desc: "Knowledge is most effectively acquired when embedded in authentic activity, context, and culture. The simulation's CEO role, 23 stakeholder characters with quantified personality traits, and industry-sourced intelligence articles create a situated learning environment where strategic reasoning is inseparable from organizational context.",
                     },
                     {
                       title: "Scaffolded Complexity",
@@ -395,7 +395,7 @@ export default function WhitePaper() {
 
                 <h3 className="text-xl font-bold text-foreground mb-4" data-testid="text-character-system">Character System &amp; Stakeholder Salience</h3>
                 <p className="text-muted-foreground leading-relaxed text-base" data-testid="text-section-3-p3">
-                  The simulation features 17 characters across five organizational departments,
+                  The simulation features 23 characters across five organizational departments,
                   each with quantifiable personality traits — influence, hostility, flexibility,
                   and risk tolerance — that mirror Mitchell, Agle, and Wood's stakeholder salience
                   framework of power, urgency, and legitimacy.<Cite ids={[10]} /> These traits

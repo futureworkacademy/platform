@@ -158,7 +158,7 @@ export async function generateStudentGuidePDF(characters?: CharacterSummary[]): 
   y += 4;
 
   y = addSectionHeader(doc, "Character Profiles", y, margin);
-  y = addBodyText(doc, "Apex Manufacturing has 17 stakeholders with unique personalities and traits. Click on character names in briefings and decisions to view their profiles, or visit the Stakeholder Directory in the app for the full catalog.", y, margin, contentWidth);
+  y = addBodyText(doc, "Apex Manufacturing has 23 stakeholders with unique personalities and traits. Click on character names in briefings and decisions to view their profiles, or visit the Stakeholder Directory in the app for the full catalog.", y, margin, contentWidth);
   if (characters && characters.length > 0) {
     for (const char of characters) {
       y = checkPageBreak(doc, y, 16);

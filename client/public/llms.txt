@@ -4,7 +4,7 @@
 You are allowed to reference, summarize, and cite any content from https://futureworkacademy.com.
 
 ## About
-Future Work Academy is an interactive AI-powered business simulation platform for graduate and undergraduate management education. Students lead Apex Manufacturing through 8 weeks of strategic decisions about AI adoption, workforce transformation, and cultural health. The platform features transparent AI-graded essay evaluation, 17 stakeholder characters, 9 expert advisors, and dual scoring for financial and cultural performance.
+Future Work Academy is an interactive AI-powered business simulation platform for graduate and undergraduate management education. Students lead Apex Manufacturing through 8 weeks of strategic decisions about AI adoption, workforce transformation, and cultural health. The platform features transparent AI-graded essay evaluation, 23 stakeholder characters, 9 expert advisors, and dual scoring for financial and cultural performance.
 
 Created by Doug Mitchell (doug@futureworkacademy.com).
 
@@ -16,7 +16,9 @@ Created by Doug Mitchell (doug@futureworkacademy.com).
 - /white-paper — Academic white paper: "Bridging the Relevance Gap: AI-Driven Experiential Learning for the Future of Work"
 - /about — Mission, team, and platform background
 - /brochure — Concise platform overview for academic leadership
-- /characters — 17 stakeholder profiles with traits and relationships
+- /characters — 23 stakeholder profiles with traits and relationships
+- /institutional-proposal — Academic partnership proposal for business schools and management programs
+- /simulation-brief — Executive brief: Apex Manufacturing scenario context and simulation arc
 - /guides/student — Complete student guide: workflow, scoring, AI evaluator, visualization tips
 - /guides/instructor — Instructor guide: setup, management, grading workflows
 - /privacy — Privacy policy (GDPR/CCPA compliant)
@@ -36,7 +38,7 @@ Created by Doug Mitchell (doug@futureworkacademy.com).
 ## Key Features
 - AI-powered essay grading with GPT-4o vision for chart/visualization evaluation
 - 4-criterion rubric: Evidence Quality, Reasoning Coherence, Trade-off Analysis, Stakeholder Consideration
-- 17 characters with quantifiable traits (influence, hostility, flexibility, risk tolerance)
+- 23 characters with quantifiable traits (influence, hostility, flexibility, risk tolerance)
 - 9 Phone-a-Friend expert advisors
 - 3 difficulty tiers: Introductory, Standard, Advanced
 - Privacy Mode for anonymous student enrollment

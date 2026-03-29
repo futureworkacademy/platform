@@ -366,7 +366,7 @@ export default function Landing() {
                     Meet the people whose futures depend on you.
                   </h2>
                   <p className="text-muted-foreground mt-6 text-lg leading-relaxed">
-                    17 characters with rich backstories, professional histories, and quantifiable personality traits 
+                    23 characters with rich backstories, professional histories, and quantifiable personality traits 
                     that actually change how the simulation plays out.
                   </p>
                   <div className="grid grid-cols-2 gap-4 mt-8">

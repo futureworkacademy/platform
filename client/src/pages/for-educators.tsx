@@ -575,7 +575,7 @@ export default function ForEducators() {
               <div className="text-center mb-16">
                 <p className="text-sm font-medium text-primary uppercase tracking-widest mb-3">Immersion</p>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight" data-testid="text-characters-headline">
-                  17 stakeholders.<br />Quantifiable personalities.
+                  23 stakeholders.<br />Quantifiable personalities.
                 </h2>
                 <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
                   Each character has a rich backstory, professional history, and four measurable traits

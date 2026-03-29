@@ -1,11 +1,15 @@
 const SITE = "https://futureworkacademy.com";
 const BRAND = "Future Work Academy";
+const SOCIAL_CARD = `${SITE}/social-card.png`;
 
 interface PageMeta {
   title: string;
   description: string;
   ogTitle: string;
   ogDescription: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: object | object[];
 }
 
 const META: Record<string, PageMeta> = {
@@ -28,10 +32,10 @@ const META: Record<string, PageMeta> = {
   "/for-students": {
     title: "For Students — AI Business Simulation Experience | Future Work Academy",
     description:
-      "Step into the role of a strategic leader at Apex Manufacturing. Make decisions about AI adoption, manage 17 stakeholders, consult 9 expert advisors, and receive AI-graded feedback on every essay.",
+      "Step into the role of a strategic leader at Apex Manufacturing. Make decisions about AI adoption, manage 23 stakeholders, consult 9 expert advisors, and receive AI-graded feedback on every essay.",
     ogTitle: "For Students — Lead a Company Through the AI Revolution",
     ogDescription:
-      "8 weeks of strategic decisions, 17 characters whose futures depend on you, and AI-graded essays with transparent rubrics. Your management education, transformed.",
+      "8 weeks of strategic decisions, 23 characters whose futures depend on you, and AI-graded essays with transparent rubrics. Your management education, transformed.",
   },
   "/about": {
     title: "About Future Work Academy | AI Business Simulation Platform",
@@ -48,6 +52,52 @@ const META: Record<string, PageMeta> = {
     ogTitle: "Grading Methodology — Transparent AI Evaluation",
     ogDescription:
       "4 criteria, 25 points each, scored by AI with full instructor oversight. Evidence Quality, Reasoning Coherence, Trade-off Analysis, and Stakeholder Consideration.",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does Future Work Academy grade student essays?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Essays are evaluated on 4 criteria worth 25 points each: Evidence Quality, Reasoning Coherence, Trade-off Analysis, and Stakeholder Consideration. AI scores every submission using GPT-4o, and instructors can override any score with full audit trail."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can students attach charts and visualizations to their submissions?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Students can attach up to 5 image visualizations per weekly response. These are evaluated by GPT-4o vision and contribute to the Evidence Quality criterion score."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the scoring bands for the rubric?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Each of the 4 criteria is scored 0–25 points in bands: Distinguished (21–25), Proficient (16–20), Developing (11–15), Beginning (6–10), and Insufficient (0–5). Total possible score is 100 points per week."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do instructors see the AI's reasoning or just the score?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Instructors see the full AI rationale for each criterion score, the evidence the AI cited from the student's essay, and can override any score with their own judgment. All overrides are logged."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is student submission data used to train AI models?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Future Work Academy explicitly opts out of model training. Student submissions are sent to OpenAI for grading evaluation only and are not used to train any AI model."
+          }
+        }
+      ]
+    },
   },
   "/white-paper": {
     title: "White Paper — Bridging the Relevance Gap | Future Work Academy",
@@ -56,6 +106,22 @@ const META: Record<string, PageMeta> = {
     ogTitle: "White Paper — AI-Driven Experiential Learning",
     ogDescription:
       "A research-grounded exploration of how AI-powered business simulations bridge the gap between management theory and organizational practice.",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ScholarlyArticle",
+      "name": "Bridging the Relevance Gap: AI-Driven Experiential Learning for the Future of Work",
+      "author": {
+        "@type": "Person",
+        "name": "Doug Mitchell"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Future Work Academy"
+      },
+      "url": `${SITE}/white-paper`,
+      "description": "Synthesizes pedagogical foundations including Kolb, Kayes, Edmondson, and Argyris to argue for AI-powered business simulations as a bridge between management theory and organizational practice.",
+      "keywords": "experiential learning, AI education, management simulation, workforce transformation, business education"
+    },
   },
   "/privacy": {
     title: "Privacy Policy | Future Work Academy",
@@ -100,10 +166,33 @@ const META: Record<string, PageMeta> = {
   "/characters": {
     title: "Character Profiles — Meet the Apex Manufacturing Team | Future Work Academy",
     description:
-      "Meet 17 stakeholders at Apex Manufacturing: executives, managers, union leaders, and frontline workers. Each character has quantifiable traits — influence, hostility, flexibility, and risk tolerance — that shape simulation outcomes.",
-    ogTitle: "Character Profiles — 17 Stakeholders Whose Futures Depend on You",
+      "Meet 23 stakeholders at Apex Manufacturing: executives, managers, union leaders, and frontline workers. Each character has quantifiable traits — influence, hostility, flexibility, and risk tolerance — that shape simulation outcomes.",
+    ogTitle: "Character Profiles — 23 Stakeholders Whose Futures Depend on You",
     ogDescription:
       "From the CEO to the union steward, every character has motivations, relationships, and traits that influence your decisions.",
+  },
+  "/institutional-proposal": {
+    title: "Institutional Proposal — Partner with Future Work Academy | Future Work Academy",
+    description:
+      "Bring Future Work Academy to your institution. Review our academic partnership proposal covering curriculum integration, LMS compatibility, multi-section licensing, assessment alignment, and administrative support for business schools and management programs.",
+    ogTitle: "Institutional Proposal — Future Work Academy",
+    ogDescription:
+      "A detailed proposal for academic institutions considering Future Work Academy for management curriculum. Multi-section licensing, LMS integration, and FERPA-aligned privacy included.",
+  },
+  "/simulation-brief": {
+    title: "Simulation Brief — Apex Manufacturing AI Transformation | Future Work Academy",
+    description:
+      "The executive brief for the Future Work Academy simulation: Apex Manufacturing's AI transformation context, 8-week scenario arc, key stakeholders, financial performance metrics, and cultural health indicators.",
+    ogTitle: "Simulation Brief — Lead Apex Manufacturing Through AI Transformation",
+    ogDescription:
+      "Background on the simulation: Apex Manufacturing, a $340M automotive parts manufacturer navigating AI adoption, workforce anxiety, and competitive pressure over 8 critical weeks.",
+  },
+  "/survey": {
+    title: "Student Feedback Survey | Future Work Academy",
+    description: "Share your feedback on the Future Work Academy simulation experience.",
+    ogTitle: "Student Feedback Survey",
+    ogDescription: "Rate your simulation experience.",
+    noindex: true,
   },
 };
 
@@ -114,45 +203,63 @@ export function getMetaForPath(pathname: string): PageMeta | null {
 
 export function injectMeta(html: string, pathname: string): string {
   const meta = getMetaForPath(pathname);
-  if (!meta) return html;
 
-  const canonical = `${SITE}${pathname === "/" ? "" : pathname}`;
+  const canonical = `${SITE}${pathname === "/" ? "" : pathname.replace(/\/+$/, "")}`;
+  const ogImage = meta?.ogImage ?? SOCIAL_CARD;
+  const ogImageAlt = meta?.ogTitle ?? BRAND;
 
   let out = html;
 
+  if (meta) {
+    out = out.replace(
+      /<title>[^<]*<\/title>/,
+      `<title>${meta.title}</title>`,
+    );
+
+    out = out.replace(
+      /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
+      `<meta name="description" content="${meta.description}" />`,
+    );
+
+    out = out.replace(
+      /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/,
+      `<meta property="og:title" content="${meta.ogTitle}" />`,
+    );
+
+    out = out.replace(
+      /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/,
+      `<meta property="og:description" content="${meta.ogDescription}" />`,
+    );
+
+    out = out.replace(
+      /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/,
+      `<meta property="og:url" content="${canonical}" />`,
+    );
+
+    out = out.replace(
+      /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:title" content="${meta.ogTitle}" />`,
+    );
+
+    out = out.replace(
+      /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:description" content="${meta.ogDescription}" />`,
+    );
+  }
+
   out = out.replace(
-    /<title>[^<]*<\/title>/,
-    `<title>${meta.title}</title>`,
+    /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:image" content="${ogImage}" />`,
   );
 
   out = out.replace(
-    /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="description" content="${meta.description}" />`,
+    /<meta\s+property="og:image:alt"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:image:alt" content="${ogImageAlt}" />`,
   );
 
   out = out.replace(
-    /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:title" content="${meta.ogTitle}" />`,
-  );
-
-  out = out.replace(
-    /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:description" content="${meta.ogDescription}" />`,
-  );
-
-  out = out.replace(
-    /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:url" content="${canonical}" />`,
-  );
-
-  out = out.replace(
-    /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="twitter:title" content="${meta.ogTitle}" />`,
-  );
-
-  out = out.replace(
-    /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="twitter:description" content="${meta.ogDescription}" />`,
+    /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:image" content="${ogImage}" />`,
   );
 
   if (out.includes('rel="canonical"')) {
@@ -165,6 +272,21 @@ export function injectMeta(html: string, pathname: string): string {
       "</head>",
       `  <link rel="canonical" href="${canonical}" />\n  </head>`,
     );
+  }
+
+  if (meta?.noindex) {
+    out = out.replace(
+      "</head>",
+      `  <meta name="robots" content="noindex, nofollow" />\n  </head>`,
+    );
+  }
+
+  if (meta?.jsonLd) {
+    const schemas = Array.isArray(meta.jsonLd) ? meta.jsonLd : [meta.jsonLd];
+    const scriptTags = schemas
+      .map((s) => `  <script type="application/ld+json">\n  ${JSON.stringify(s, null, 2)}\n  </script>`)
+      .join("\n");
+    out = out.replace("</head>", `${scriptTags}\n  </head>`);
   }
 
   return out;

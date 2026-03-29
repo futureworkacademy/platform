@@ -126,7 +126,7 @@ const THEORETICAL_FOUNDATIONS = [
     title: "Toward a theory of stakeholder identification and salience",
     doi: "10.5465/amr.1997.9711022105",
     icon: Users,
-    description: "17 character profiles with quantifiable traits (influence, hostility, flexibility, risk tolerance) model real organizational complexity. Students must navigate competing interests—from resistant union representatives to enthusiastic early adopters—developing stakeholder management skills grounded in established theory.",
+    description: "23 character profiles with quantifiable traits (influence, hostility, flexibility, risk tolerance) model real organizational complexity. Students must navigate competing interests—from resistant union representatives to enthusiastic early adopters—developing stakeholder management skills grounded in established theory.",
     refNum: 7,
   },
   {
@@ -230,7 +230,7 @@ const PLATFORM_LINKS = [
   { label: "Grading Methodology", path: "/methodology", icon: BarChart3, description: "Published rubric criteria, scoring bands, and assessment transparency" },
   { label: "Academic White Paper", path: "/white-paper", icon: FileText, description: "7-section paper with 17 academic references and DOI links" },
   { label: "For Educators", path: "/for-educators", icon: GraduationCap, description: "Full educator overview with pedagogy, features, and demo access" },
-  { label: "Character Profiles", path: "/characters", icon: Users, description: "17 stakeholder characters with traits, bios, and relationship mapping" },
+  { label: "Character Profiles", path: "/characters", icon: Users, description: "23 stakeholder characters with traits, bios, and relationship mapping" },
   { label: "Week 1 Preview", path: "/week-1", icon: BookOpen, description: "Sample weekly scenario with briefing, decision options, and resources" },
   { label: "Student Guide", path: "/guides/student", icon: FileText, description: "Complete student onboarding guide with simulation overview" },
 ];
@@ -620,7 +620,7 @@ export default function InstitutionalProposal() {
                   </p>
                   <div className="space-y-3">
                     {[
-                      { media: "Character Headshots", tech: "OpenAI DALL-E (gpt-image-1)", detail: "17 stakeholder character portraits are AI-generated using detailed prompts specifying professional corporate photography style. No real individuals are depicted." },
+                      { media: "Character Headshots", tech: "OpenAI DALL-E (gpt-image-1)", detail: "23 stakeholder character portraits are AI-generated using detailed prompts specifying professional corporate photography style. No real individuals are depicted." },
                       { media: "Advisor Audio", tech: "ElevenLabs Text-to-Speech", detail: "Phone-a-Friend advisor audio clips are synthesized from text scripts using voice profiles designed for each character persona. All advisors are fictional." },
                       { media: "Hero & Feature Images", tech: "OpenAI DALL-E", detail: "Background images on public-facing pages (boardroom scenes, classroom settings) are AI-generated for editorial illustration purposes." },
                       { media: "Brand Assets", tech: "AI-Assisted Design", detail: "Logo lockups and brand iconography were developed with AI design assistance and refined through manual iteration." },
