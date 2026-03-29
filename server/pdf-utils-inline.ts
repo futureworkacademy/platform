@@ -9,15 +9,19 @@ export function getPdfUtilsScript(): string {
 
     function pdfSanitizeUnicode(text) {
       if (!text) return '';
-      return text
+      text = text
         .replace(/[\u2018\u2019]/g, "'")
         .replace(/[\u201C\u201D]/g, '"')
         .replace(/\u2013/g, '-')
         .replace(/\u2014/g, '--')
         .replace(/\u2026/g, '...')
         .replace(/\u00A0/g, ' ')
-        .replace(/\u2022/g, '-')
-        .replace(/[^\x00-\xFF]/g, '?');
+        .replace(/\u2022/g, '-');
+      var out = '';
+      for (var si = 0; si < text.length; si++) {
+        out += text.charCodeAt(si) > 255 ? '?' : text[si];
+      }
+      return out;
     }
 
     function pdfStripMarkdown(text) {
