@@ -44,6 +44,7 @@ app.use(
           "https://www.googletagmanager.com",
           "https://analytics.google.com",
           "https://storage.googleapis.com",
+          "https://cdnjs.cloudflare.com",
           ...(isDev ? ["ws:", "wss:"] : []),
         ],
         scriptSrcAttr: ["'unsafe-inline'"],
