@@ -173,10 +173,26 @@ function stripMarkdown(text: string): string {
     .trim();
 }
 
+function sanitizeForPdf(text: string): string {
+  return text
+    .replace(/\u2018|\u2019/g, "'")   // curly single quotes → straight
+    .replace(/\u201C|\u201D/g, '"')    // curly double quotes → straight
+    .replace(/\u2013/g, '-')           // en dash
+    .replace(/\u2014/g, '--')          // em dash
+    .replace(/\u2026/g, '...')         // ellipsis
+    .replace(/\u00A0/g, ' ')           // non-breaking space
+    .replace(/\u00B7/g, '*')           // middle dot
+    .replace(/\u2022/g, '-')           // bullet
+    .replace(/\u00E9/g, 'e')           // é
+    .replace(/\u00E0/g, 'a')           // à
+    .replace(/\u00FC/g, 'u')           // ü
+    .replace(/[^\x00-\xFF]/g, '?');    // any remaining non-Latin-1 → ?
+}
+
 function stripMarkdownForPdf(text: string): string {
   let result = text;
   result = convertMarkdownTables(result);
-  return result
+  result = result
     .replace(/```[\s\S]*?```/g, '')
     .replace(/__([^_]+)__/g, '**$1**')
     .replace(/~~([^~]+)~~/g, '$1')
@@ -188,6 +204,7 @@ function stripMarkdownForPdf(text: string): string {
     .replace(/(?<!\*)\*(?!\*)([^*\n]+)(?<!\*)\*(?!\*)/g, '$1')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+  return sanitizeForPdf(result);
 }
 
 function renderLatexToHtml(text: string): string {
@@ -387,9 +404,9 @@ export async function fetchWeekPageData(weekNumber: number): Promise<WeekPageDat
 
     const briefingRow = content.find(c => c.contentType === "briefing");
     pdfContent = {
-      briefing: briefingRow ? { title: briefingRow.title, content: convertLatexToPlainText(stripMarkdownForPdf(briefingRow.content || "")) } : null,
-      decisions: content.filter(c => c.contentType === "decision").map(d => ({ title: d.title, content: convertLatexToPlainText(stripMarkdownForPdf(d.content || "")) })),
-      intelArticles: content.filter(c => c.contentType === "intel").map((a, i) => ({ title: a.title, content: convertLatexToPlainText(stripMarkdownForPdf(a.content || "")), citationKey: generateCitationKey(a.title || "", i) })),
+      briefing: briefingRow ? { title: sanitizeForPdf(briefingRow.title || ""), content: convertLatexToPlainText(stripMarkdownForPdf(briefingRow.content || "")) } : null,
+      decisions: content.filter(c => c.contentType === "decision").map(d => ({ title: sanitizeForPdf(d.title || ""), content: convertLatexToPlainText(stripMarkdownForPdf(d.content || "")) })),
+      intelArticles: content.filter(c => c.contentType === "intel").map((a, i) => ({ title: sanitizeForPdf(a.title || ""), content: convertLatexToPlainText(stripMarkdownForPdf(a.content || "")), citationKey: generateCitationKey(a.title || "", i) })),
     };
   } catch (e) {
     console.error("Error fetching simulation content for SSR PDF:", e);

@@ -7,9 +7,22 @@ export function getPdfUtilsScript(): string {
       return yVal;
     }
 
+    function pdfSanitizeUnicode(text) {
+      if (!text) return '';
+      return text
+        .replace(/[\u2018\u2019]/g, "'")
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/\u2013/g, '-')
+        .replace(/\u2014/g, '--')
+        .replace(/\u2026/g, '...')
+        .replace(/\u00A0/g, ' ')
+        .replace(/\u2022/g, '-')
+        .replace(/[^\x00-\xFF]/g, '?');
+    }
+
     function pdfStripMarkdown(text) {
       text = pdfConvertMarkdownTables(text);
-      return text
+      return pdfSanitizeUnicode(text
         .replace(/\`\`\`[\\s\\S]*?\`\`\`/g, '')
         .replace(/__([^_]+)__/g, '**$1**')
         .replace(/~~([^~]+)~~/g, '$1')
@@ -18,7 +31,7 @@ export function getPdfUtilsScript(): string {
         .replace(/!\\[([^\\]]*)\\]\\([^)]+\\)/g, '')
         .replace(/^>\\s+/gm, '')
         .replace(/\\n{3,}/g, '\\n\\n')
-        .trim();
+        .trim());
     }
 
     function pdfConvertLatex(text) {
